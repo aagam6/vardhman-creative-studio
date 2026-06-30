@@ -1,0 +1,12 @@
+﻿node_modules/
+dist/
+.env
+.env.*
+.DS_Store
+*.log
+app.tar.gz
+.agents/
+apps/web/dist/
+apps/web/.vite/
+apps/pocketbase/pb_data/
+apps/pocketbase/pb_migrations/
