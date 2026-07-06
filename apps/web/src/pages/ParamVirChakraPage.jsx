@@ -337,7 +337,7 @@ export default function ParamVirChakraPage() {
       name: 'Vardhman Creative Studio',
       url: 'https://vardhmancreativestudio.com/',
       email: 'vardhmancreativestudio@gmail.com',
-      telephone: '+91-00000-00000',
+      telephone: '+91-7990106225',
     };
 
     const event = {
