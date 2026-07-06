@@ -114,12 +114,12 @@ const blessings = [
 const guests = [
   {
     name: 'श्री हर्षल पुष्कर्णा',
-    roles: ['लेखक', 'पत्रकार', 'मुख्य वक्ता'],
+    roles: ['लेखक,पत्रकार,मुख्य वक्ता'],
     bio: 'श्री हर्षल पुष्कर्णा सुप्रसिद्ध भारतीय पत्रकार, लेखक, प्रकाशक, ट्रैकर और डिजिटल कंटेंट क्रिएटर हैं। वे विज्ञान, रक्षा, इतिहास और यात्रा जैसे विषयों पर ज्ञानवर्धक और प्रामाणिक लेखन के लिए जाने जाते हैं। गुजरात से ताल्लुक रखने वाले हर्षल पुष्कर्णा, प्रसिद्ध गुजराती विज्ञान लेखक नागेंद्र विजय के पुत्र और लेखक विजयगुप्त मौर्य के परिवार से जुड़े हैं। वे लोकप्रिय ज्ञान-विज्ञान पत्रिका सफारी में लंबे समय तक कार्यकारी संपादक और लेखक रहे हैं। वे Gypsy Traveller डिजिटल यात्रा विश्वकोश के संस्थापक-संपादक हैं और Uranus Books के माध्यम से ज्ञानवर्धक साहित्य पाठकों तक पहुँचाते हैं। उनकी पुस्तकों में आ छे सिआचेन, परमवीर चक्र, वडनगर एक अदग नगर, चालो लद्दाख और शौर्य जैसी कृतियाँ शामिल हैं।',
   },
   {
     name: 'पूज्य मुनि श्री श्रमणचंद्रसागरजी महाराज',
-    roles: ['यशोनंदन'],
+    roles: [यशोनंदन],
     bio: 'पूज्य मुनि श्री श्रमणचंद्रसागरजी महाराज जैन धर्म के प्रतिभाशाली, युवा और ओजस्वी संत हैं। वे अद्भुत स्मरण शक्ति, भाषाई पकड़ और विशिष्ट व्याख्यान शैली के लिए जैन समाज में विशेष रूप से प्रसिद्ध हैं। अल्पायु में वैराग्य स्वीकार कर वे संयम, साधना और आत्म-कल्याण के मार्ग पर अग्रसर हुए। उनके व्याख्यान जैन दर्शन के साथ भारत की प्राचीन संस्कृति, गौरवशाली इतिहास और राष्ट्रभावना से ओतप्रोत रहते हैं। भाषा पर उनके असाधारण नियंत्रण का उदाहरण उनके कठिन साहित्यिक प्रयोगों में देखा जाता है, जिनमें ओष्ठ्य वर्णों के बिना दीर्घ प्रवचन जैसी दुर्लभ सिद्धि भी शामिल मानी जाती है। उनका व्यक्तित्व युवाओं को वाणी-संयम, अनुशासन, संस्कृति और चरित्र निर्माण की प्रेरणा देता है।',
   },
 ];
@@ -316,16 +316,6 @@ function PremiumEmblem({ tone = 'gold' }) {
       ))}
       <path d="M24 5.5 27.1 17h12L29.4 24.1 33 36 24 28.9 15 36l3.6-11.9L8.9 17h12L24 5.5Z" fill="none" stroke={stroke} strokeWidth="1.2" strokeLinejoin="round" opacity="0.88" />
     </svg>
-  );
-}
-
-function StatCard({ icon: Icon, label, detail }) {
-  return (
-    <div className="rounded-[8px] border border-white/15 bg-white/[0.08] p-4 text-left shadow-2xl shadow-black/20 backdrop-blur-xl">
-      <Icon className="mb-4 h-6 w-6 text-[#f3b34c]" aria-hidden="true" />
-      <p className="text-lg font-semibold tracking-normal text-white">{label}</p>
-      <p className="text-sm text-white/68">{detail}</p>
-    </div>
   );
 }
 
@@ -822,8 +812,7 @@ export default function ParamVirChakraPage() {
               <a href="https://wa.me/916352188150" className="flex items-center gap-4 rounded-[8px] bg-white p-4 font-semibold text-[#172033]">
                 <MessageCircle className="h-5 w-5 text-[#1f7a4d]" aria-hidden="true" /> WhatsApp
               </a>
-                           </a>
-              <a href="https://www.google.com/maps/search/?api=1&query=Dinesh+Hall+Ahmedabad" className="flex items-center gap-4 rounded-[8px] bg-white p-4 font-semibold text-[#172033]">
+                        <a href="https://www.google.com/maps/search/?api=1&query=Dinesh+Hall+Ahmedabad" className="flex items-center gap-4 rounded-[8px] bg-white p-4 font-semibold text-[#172033]">
                 <MapPin className="h-5 w-5 text-[#b57a2a]" aria-hidden="true" /> Google Map
               </a>
             </div>
