@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Martel:wght@400;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -26,11 +26,15 @@
     --input: 0 0% 15%;
     --ring: 262 83% 58%;
     --radius: 1rem;
-    
+
     --glow-purple: 270 100% 50%;
     --glow-violet: 280 100% 55%;
     --glow-dark: 0 0% 5%;
     --glow-light: 0 0% 15%;
+
+    --font-sans: "Outfit", "Noto Sans Devanagari", sans-serif;
+    --font-display: "Martel", "Noto Sans Devanagari", serif;
+    --font-accent: "Rajdhani", "Noto Sans Devanagari", sans-serif;
   }
 
   .dark {
@@ -53,7 +57,7 @@
     --border: 0 0% 15%;
     --input: 0 0% 15%;
     --ring: 262 83% 58%;
-    
+
     --glow-purple: 270 100% 50%;
     --glow-violet: 280 100% 55%;
     --glow-dark: 0 0% 5%;
@@ -73,7 +77,7 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: "Outfit", sans-serif;
+    font-family: var(--font-sans);
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -81,9 +85,14 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
     text-wrap: balance;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.03em;
     line-height: 1.4;
+  }
+
+  :lang(hi) {
+    font-family: "Noto Sans Devanagari", var(--font-sans);
   }
 }
 
@@ -110,11 +119,11 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
-  
+
   .noise-bg {
     position: relative;
   }
-  
+
   .noise-bg::before {
     content: "";
     position: absolute;
@@ -123,6 +132,14 @@
     opacity: 0.03;
     pointer-events: none;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
+
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  .font-accent {
+    font-family: var(--font-accent);
   }
 }
 
