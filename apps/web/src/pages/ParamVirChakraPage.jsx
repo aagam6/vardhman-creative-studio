@@ -27,9 +27,10 @@ const heroImage = '/assets/param-vir-chakra-hero.png';
 const registrationFormUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSez6I5hDFqNhnBYlJUcOToLxTcSNkQz7hCpMq8wYfY-qkyy9Q/viewform?usp=sharing&ouid=111203341258450649783';
 
 const navItems = [
-  { label: 'कार्यक्रम', href: '#about' },
+  
   { label: 'प्रेरणा', href: '#blessings' },
   { label: 'अतिथि', href: '#guests' },
+  { label: 'कार्यक्रम', href: '#about' },
   { label: 'रजिस्ट्रेशन', href: '#registration' },
   { label: 'FAQ', href: '#faq' },
 ];
