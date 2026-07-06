@@ -768,9 +768,7 @@ export default function ParamVirChakraPage() {
               <a href="https://wa.me/916352188150" className="flex items-center gap-4 rounded-[8px] bg-white p-4 font-semibold text-[#172033]">
                 <MessageCircle className="h-5 w-5 text-[#1f7a4d]" aria-hidden="true" /> WhatsApp
               </a>
-              <a href="mailto:info@vardhmancreativestudio.com" className="flex items-center gap-4 rounded-[8px] bg-white p-4 font-semibold text-[#172033]">
-                <Mail className="h-5 w-5 text-[#b57a2a]" aria-hidden="true" /> Email
-              </a>
+                           </a>
               <a href="https://www.google.com/maps/search/?api=1&query=Dinesh+Hall+Ahmedabad" className="flex items-center gap-4 rounded-[8px] bg-white p-4 font-semibold text-[#172033]">
                 <MapPin className="h-5 w-5 text-[#b57a2a]" aria-hidden="true" /> Google Map
               </a>
