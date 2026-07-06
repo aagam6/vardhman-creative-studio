@@ -292,7 +292,7 @@ export default function ParamVirChakraPage() {
       '@type': 'Organization',
       name: 'Vardhman Creative Studio',
       url: 'https://vardhmancreativestudio.com/',
-      email: 'info@vardhmancreativestudio.com',
+      email: 'vardhmancreativestudio@gmail.com',
       telephone: '+91-00000-00000',
     };
 
@@ -762,10 +762,10 @@ export default function ParamVirChakraPage() {
           <div className="rounded-[8px] border border-[#dcc395] bg-[#fffaf0] p-8">
             <h2 className="font-serif text-3xl font-semibold tracking-normal text-[#172033]">Contact</h2>
             <div className="mt-8 grid gap-4">
-              <a href="tel:+910000000000" className="flex items-center gap-4 rounded-[8px] bg-white p-4 font-semibold text-[#172033]">
+              <a href="tel:+916352188150" className="flex items-center gap-4 rounded-[8px] bg-white p-4 font-semibold text-[#172033]">
                 <Phone className="h-5 w-5 text-[#b57a2a]" aria-hidden="true" /> Phone
               </a>
-              <a href="https://wa.me/910000000000" className="flex items-center gap-4 rounded-[8px] bg-white p-4 font-semibold text-[#172033]">
+              <a href="https://wa.me/916352188150" className="flex items-center gap-4 rounded-[8px] bg-white p-4 font-semibold text-[#172033]">
                 <MessageCircle className="h-5 w-5 text-[#1f7a4d]" aria-hidden="true" /> WhatsApp
               </a>
               <a href="mailto:info@vardhmancreativestudio.com" className="flex items-center gap-4 rounded-[8px] bg-white p-4 font-semibold text-[#172033]">
