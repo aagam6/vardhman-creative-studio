@@ -65,7 +65,37 @@ const eventCards = [
     color: 'white',
   },
 ];
+function StatCard({ icon: Icon, title, label, detail, color }) {
+  const accent = {
+    saffron: "bg-[#FF9933]",
+    green: "bg-[#138808]",
+    gold: "bg-[#D4AF37]",
+    white: "bg-white",
+  };
 
+  return (
+    <div className="group relative overflow-hidden rounded-2xl border border-white/15 bg-white/10 p-5 backdrop-blur-xl shadow-2xl transition-all duration-300 hover:-translate-y-1 hover:border-[#D4AF37]/60">
+      
+      <div className={`absolute top-0 left-0 h-1 w-full ${accent[color]}`} />
+
+      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#0F1B2D]/80 border border-white/10">
+        <Icon className="h-6 w-6 text-[#FFB84D]" />
+      </div>
+
+      <p className="text-xs uppercase tracking-[0.18em] text-white/55">
+        {title}
+      </p>
+
+      <h3 className="mt-2 text-2xl font-bold text-white">
+        {label}
+      </h3>
+
+      <p className="mt-1 text-sm text-white/70">
+        {detail}
+      </p>
+    </div>
+  );
+}
 const blessings = [
   {
     title: 'बंधुबेलड़ी',
