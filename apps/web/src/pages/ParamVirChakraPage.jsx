@@ -36,10 +36,34 @@ const navItems = [
 ];
 
 const eventCards = [
-  { icon: CalendarDays, label: '9 अगस्त 2026', detail: 'रविवार' },
-  { icon: Clock, label: 'प्रातः 9:00 बजे', detail: 'समय' },
-  { icon: MapPin, label: 'दीनेश हॉल', detail: 'अहमदाबाद' },
-  { icon: Users, label: '15 से 50 वर्ष', detail: 'आयु सीमा' },
+  {
+    icon: CalendarDays,
+    title: 'कार्यक्रम तिथि',
+    label: '9 अगस्त 2026',
+    detail: 'रविवार',
+    color: 'saffron',
+  },
+  {
+    icon: Clock,
+    title: 'समय',
+    label: 'प्रातः 9:00 बजे',
+    detail: 'कार्यक्रम प्रारंभ',
+    color: 'gold',
+  },
+  {
+    icon: MapPin,
+    title: 'स्थान',
+    label: 'दीनेश हॉल',
+    detail: 'नवरंगपुरा, अहमदाबाद',
+    color: 'green',
+  },
+  {
+    icon: Users,
+    title: 'आयु सीमा',
+    label: '15–50 वर्ष',
+    detail: 'पूर्व पंजीकरण आवश्यक',
+    color: 'white',
+  },
 ];
 
 const blessings = [
