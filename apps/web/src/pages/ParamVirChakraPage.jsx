@@ -205,88 +205,141 @@ export default function ParamVirChakraPage() {
 
 
     return {
-            event: {
-        '@context': 'https://schema.org',
-        '@type': 'Event',
-        'name': 'Param Vir Chakra - Shaurya Gatha',
-        'description': 'A premium patriotic event dedicated to India\'s Param Vir Chakra heroes.',
-        'startDate': '2026-08-09T09:00:00+05:30',
-        'endDate': '2026-08-09T13:00:00+05:30',
-        'image': heroImage,
-        'eventAttendanceMode': 'https://schema.org/OfflineEventAttendanceMode',
-        'eventStatus': 'https://schema.org/EventScheduled',
-        'location': {
-          '@type': 'Place',
-          'name': 'Dinesh Hall',
-          'address': {
-            '@type': 'PostalAddress',
-            'streetAddress': 'Navrangpura',
-            'addressLocality': 'Ahmedabad',
-            'addressRegion': 'Gujarat',
-            'addressCountry': 'IN'
-          }
-        },
-              image: {
-  "@context": "https://schema.org",
-  "@type": "ImageObject",
-  contentUrl: "https://vardhmancreativestudio.com/assets/param-vir-chakra-og.jpg",
-  url: "https://vardhmancreativestudio.com/assets/param-vir-chakra-og.jpg",
-  name: "Param Vir Chakra – Shaurya Gatha",
-  caption: "Official Hero Image of Param Vir Chakra – Shaurya Gatha",
-  width: 1200,
-  height: 630,
-  encodingFormat: "image/jpeg"
-},
-       "organizer": {
-  "@type": "Organization",
-  "name": "Shri Vardhman Shwetambar Murtipujak Jain Sangh",
-  "url": "https://vardhmancreativestudio.com",
-          }
-        },
-      "performer": [
-  {
-    "@type": "Person",
-    "name": "Harshal Pushkarna"
-  },
-  {
-    "@type": "Person",
-    "name": "Muni Shri Shramanchandrasagarji Maharaj"
-  }
-]
-        'offers': {
-          '@type': 'Offer',
-          'url': canonicalUrl,
-          'price': '100',
-          'priceCurrency': 'INR',
-          'availability': 'https://schema.org/InStock',
-          'validFrom': '2026-07-15T00:00:00'
-        }
-      },
-      localBusiness: {
-        '@context': 'https://schema.org',
-        '@type': 'LocalBusiness',
-        'name': 'Shri Vardhman Shwetambar Murtipujak Jain Sangh',
-        'address': { '@type': 'PostalAddress', addressLocality: 'Ahmedabad', addressRegion: 'Gujarat' }
-      },
-  {
-  "@type": "SpeakableSpecification"
-}
-      faq: {
-        '@context': 'https://schema.org',
-        '@type': 'FAQPage',
-        'mainEntity': faqs.map(item => ({
-          '@type': 'Question',
-          'name': item.question,
-          'acceptedAnswer': { '@type': 'Answer', 'text': item.answer }
-        }))
-      },
-      breadcrumb: {
-        '@context': 'https://schema.org',
-        '@type': 'BreadcrumbList',
-        'itemListElement': [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://vardhmancreativestudio.com/' }, { '@type': 'ListItem', position: 2, name: 'Param Vir Chakra Shaurya Gatha', item: canonicalUrl }]
+         const schemas = {
+  event: {
+    "@context": "https://schema.org",
+    "@type": "Event",
+
+    name: "Param Vir Chakra – Shaurya Gatha",
+
+    description:
+      "A premium patriotic event dedicated to India's Param Vir Chakra heroes.",
+
+    startDate: "2026-08-09T09:00:00+05:30",
+
+    endDate: "2026-08-09T13:00:00+05:30",
+
+    image:
+      "https://vardhmancreativestudio.com/assets/param-vir-chakra-og.jpg",
+
+    eventAttendanceMode:
+      "https://schema.org/OfflineEventAttendanceMode",
+
+    eventStatus:
+      "https://schema.org/EventScheduled",
+
+    location: {
+      "@type": "Place",
+      name: "Dinesh Hall",
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: "Navrangpura",
+        addressLocality: "Ahmedabad",
+        addressRegion: "Gujarat",
+        addressCountry: "IN"
       }
-    };
-  }, []);
+    },
+
+    organizer: {
+      "@type": "Organization",
+      name: "Shri Vardhman Shwetambar Murtipujak Jain Sangh",
+      url: "https://vardhmancreativestudio.com"
+    },
+
+    performer: [
+      {
+        "@type": "Person",
+        name: "Harshal Pushkarna"
+      },
+      {
+        "@type": "Person",
+        name: "Muni Shri Shramanchandrasagarji Maharaj"
+      }
+    ],
+
+    offers: {
+      "@type": "Offer",
+      url: canonicalUrl,
+      price: "0",
+      priceCurrency: "INR",
+      availability: "https://schema.org/InStock",
+      validFrom: "2026-07-15T00:00:00+05:30"
+    }
+  },
+
+  image: {
+    "@context": "https://schema.org",
+    "@type": "ImageObject",
+
+    contentUrl:
+      "https://vardhmancreativestudio.com/assets/param-vir-chakra-og.jpg",
+
+    url:
+      "https://vardhmancreativestudio.com/assets/param-vir-chakra-og.jpg",
+
+    name: "Param Vir Chakra – Shaurya Gatha",
+
+    caption:
+      "Official Hero Image of Param Vir Chakra – Shaurya Gatha",
+
+    width: 1200,
+
+    height: 630,
+
+    encodingFormat: "image/jpeg"
+  },
+
+  localBusiness: {
+    "@context": "https://schema.org",
+
+    "@type": "LocalBusiness",
+
+    name: "Shri Vardhman Shwetambar Murtipujak Jain Sangh",
+
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Ahmedabad",
+      addressRegion: "Gujarat"
+    }
+  },
+
+  faq: {
+    "@context": "https://schema.org",
+
+    "@type": "FAQPage",
+
+    mainEntity: faqs.map(item => ({
+      "@type": "Question",
+      name: item.question,
+
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer
+      }
+    }))
+  },
+
+  breadcrumb: {
+    "@context": "https://schema.org",
+
+    "@type": "BreadcrumbList",
+
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://vardhmancreativestudio.com/"
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Param Vir Chakra Shaurya Gatha",
+        item: canonicalUrl
+      }
+    ]
+  }
+};
 
   return (
     <>
@@ -294,6 +347,10 @@ export default function ParamVirChakraPage() {
   {/* ================================
       BASIC SEO
   ================================= */}
+
+<script type="application/ld+json">
+  {JSON.stringify(schemas.image)}
+</script>
   <title>
     Param Vir Chakra – Shaurya Gatha | Official Event | Ahmedabad
   </title>
@@ -307,98 +364,79 @@ export default function ParamVirChakraPage() {
     name="keywords"
     content="Param Vir Chakra, Shaurya Gatha, Param Vir Chakra Event, Ahmedabad Event, Harshal Pushkarna, Patriotic Event, Indian Army, Military History, Jain Event Ahmedabad"
   />
-
   <meta
     name="author"
     content="Vardhman Creative Studio"
   />
-
   <meta
     name="publisher"
     content="Vardhman Creative Studio"
   />
-
   <meta
     name="robots"
     content="index, follow, max-image-preview:large"
   />
-
   <meta
     name="googlebot"
     content="index,follow,max-image-preview:large"
   />
-
   <meta
     name="theme-color"
     content="#081320"
   />
-
   <link
     rel="canonical"
     href={canonicalUrl}
   />
-
   {/* ================================
       OPEN GRAPH
   ================================= */}
 
   <meta property="og:type" content="website" />
-
   <meta
     property="og:site_name"
     content="Vardhman Creative Studio"
   />
-
   <meta
     property="og:locale"
     content="en_IN"
   />
-
   <meta
     property="og:url"
     content={canonicalUrl}
   />
-
   <meta
     property="og:title"
     content="Param Vir Chakra – Shaurya Gatha | Official Event"
   />
-
   <meta
     property="og:description"
     content="A Grand Patriotic Experience dedicated to India's Param Vir Chakra Heroes. 9 August 2026 • Dinesh Hall • Ahmedabad."
   />
-
   <meta
     property="og:image"
     content="https://vardhmancreativestudio.com/assets/param-vir-chakra-og.jpg"
   />
-
   <meta
     property="og:image:secure_url"
     content="https://vardhmancreativestudio.com/assets/param-vir-chakra-og.jpg"
   />
-
   <meta
     property="og:image:width"
     content="1200"
   />
-
   <meta
     property="og:image:height"
     content="630"
   />
-
   <meta
     property="og:image:type"
     content="image/jpeg"
   />
-
   <meta
     property="og:image:alt"
     content="Param Vir Chakra Shaurya Gatha Official Event"
   />
-
   {/* ================================
       TWITTER
   ================================= */}
