@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 ﻿import React, { useMemo, useState, useEffect } from 'react';
+=======
+import React, { useEffect, useMemo, useState } from 'react';
+>>>>>>> 0819575d685c93f19a5626c9f8ef1d1c38ee05a2
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { MessageCircle, Award, ChevronRight, Menu, X, ShieldCheck, CheckCircle2, Phone, MapPin, Ticket, CalendarDays, Clock, Users } from 'lucide-react';
@@ -6,10 +10,88 @@ import { MessageCircle, Award, ChevronRight, Menu, X, ShieldCheck, CheckCircle2,
 
 // --- DATA CONSTANTS ---
 const canonicalUrl = 'https://vardhmancreativestudio.com/param-vir-chakra';
+<<<<<<< HEAD
 const heroImage = 'https://vardhmancreativestudio.com/assets/param-vir-chakra-hero.png';
 const registrationFormUrl = 'https://forms.gle/fBaiW3Wq9duDv1sh8'; 
 
 // ... (अपना seoArticleList, faqs, आदि यहाँ रखें) ...
+=======
+const registrationOpenAt = new Date('2026-07-15T00:00:00+05:30').getTime();
+const eventStart = '2026-08-09T09:00:00+05:30';
+const heroImage = '/assets/param-vir-chakra-hero.png';
+const registrationFormUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSez6I5hDFqNhnBYlJUcOToLxTcSNkQz7hCpMq8wYfY-qkyy9Q/viewform?usp=sharing&ouid=111203341258450649783';
+
+const navItems = [
+  
+  { label: 'प्रेरणा', href: '#blessings' },
+  { label: 'अतिथि', href: '#guests' },
+  { label: 'कार्यक्रम', href: '#about' },
+  { label: 'रजिस्ट्रेशन', href: '#registration' },
+  { label: 'FAQ', href: '#faq' },
+];
+
+const eventCards = [
+  {
+    icon: CalendarDays,
+    title: 'कार्यक्रम तिथि',
+    label: '9 अगस्त 2026',
+    detail: 'रविवार',
+    color: 'saffron',
+  },
+  {
+    icon: Clock,
+    title: 'समय',
+    label: 'प्रातः 9:00 बजे',
+    detail: 'कार्यक्रम प्रारंभ',
+    color: 'gold',
+  },
+  {
+    icon: MapPin,
+    title: 'स्थान',
+    label: 'दीनेश हॉल',
+    detail: 'नवरंगपुरा, अहमदाबाद',
+    color: 'green',
+  },
+  {
+    icon: Users,
+    title: 'आयु सीमा',
+    label: '15–50 वर्ष',
+    detail: 'पूर्व पंजीकरण आवश्यक',
+    color: 'white',
+  },
+];
+function StatCard({ icon: Icon, title, label, detail, color }) {
+  const accent = {
+    saffron: "bg-[#FF9933]",
+    green: "bg-[#138808]",
+    gold: "bg-[#D4AF37]",
+    white: "bg-white",
+  };
+
+  return (
+    <div className="group relative overflow-hidden rounded-2xl border border-white/15 bg-white/10 p-5 backdrop-blur-xl shadow-2xl transition-all duration-300 hover:-translate-y-1 hover:border-[#D4AF37]/60">
+      
+      <div className={`absolute top-0 left-0 h-1 w-full ${accent[color]}`} />
+
+      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#0F1B2D]/80 border border-white/10">
+        <Icon className="h-6 w-6 text-[#FFB84D]" />
+      </div>
+
+      <p className="text-xs uppercase tracking-[0.18em] text-white/55">
+        {title}
+      </p>
+
+      <h3 className="mt-2 text-2xl font-bold text-white">
+        {label}
+      </h3>
+
+      <p className="mt-1 text-sm text-white/70">
+        {detail}
+      </p>
+    </div>
+  );
+}
+>>>>>>> 0819575d685c93f19a5626c9f8ef1d1c38ee05a2
 const blessings = [
   {
     title: 'बंधुबेलड़ी',
@@ -192,6 +274,70 @@ const PremiumEmblem = ({ tone }) => (
   </div>
 );
 
+<<<<<<< HEAD
+=======
+function SectionHeader({ eyebrow, title, children, light = false }) {
+  return (
+    <div className="mx-auto mb-10 max-w-3xl text-center md:mb-14">
+      <p className={`mb-3 text-xs font-bold uppercase tracking-[0.2em] md:text-sm ${light ? 'text-[#ff9933]' : 'text-[#b57a2a]'}`}>{eyebrow}</p>
+      <h2 className={`font-serif text-[2rem] font-semibold leading-tight tracking-normal md:text-5xl ${light ? 'text-white' : 'text-[#1f2937]'}`}>{title}</h2>
+      {children ? <p className={`mt-5 text-base leading-8 md:text-lg ${light ? 'text-white/72' : 'text-[#56616f]'}`}>{children}</p> : null}
+    </div>
+  );
+}
+function MemorialVisual() {
+  return (
+    <div className="relative min-h-[360px] overflow-hidden rounded-[8px] border border-white/12 bg-[#07111f] shadow-2xl shadow-black/30 md:min-h-[520px]" aria-hidden="true">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_18%,rgba(32,83,169,0.28),transparent_34%),radial-gradient(circle_at_28%_62%,rgba(239,154,58,0.22),transparent_32%),linear-gradient(145deg,#081321,#0c1828_56%,#08111d)]" />
+      <div className="absolute -right-24 top-12 h-72 w-72 rounded-full border border-[#d6e6ff]/10 opacity-70 md:h-96 md:w-96">
+        {Array.from({ length: 24 }).map((_, index) => (
+          <span
+            key={index}
+            className="absolute left-1/2 top-1/2 h-px w-1/2 origin-left bg-[#d6e6ff]/10"
+            style={{ transform: `rotate(${index * 15}deg)` }}
+          />
+        ))}
+      </div>
+      <div className="absolute left-8 top-8 flex gap-2 md:left-10 md:top-10">
+        <span className="h-1.5 w-20 rounded-full bg-[#ff9933]" />
+        <span className="h-1.5 w-20 rounded-full bg-white/85" />
+        <span className="h-1.5 w-20 rounded-full bg-[#138808]" />
+      </div>
+      <div className="absolute bottom-0 left-1/2 h-60 w-[74%] -translate-x-1/2 md:h-72">
+        <div className="absolute bottom-0 left-1/2 h-16 w-full -translate-x-1/2 rounded-t-[8px] border border-[#c19b56]/25 bg-[#111d2a]" />
+        <div className="absolute bottom-12 left-1/2 h-24 w-[74%] -translate-x-1/2 rounded-t-[8px] border border-[#c19b56]/25 bg-[#172535]" />
+        <div className="absolute bottom-32 left-1/2 h-24 w-[46%] -translate-x-1/2 rounded-t-full border border-[#c19b56]/30 bg-[#1c2b3b]" />
+        <div className="absolute bottom-44 left-1/2 h-28 w-10 -translate-x-1/2 rounded-full bg-[linear-gradient(180deg,#fff4c2,#ffb23f_38%,#e45125_74%,transparent)] blur-[1px]" />
+        <div className="absolute bottom-40 left-1/2 h-36 w-36 -translate-x-1/2 rounded-full bg-[#f0a33d]/20 blur-2xl" />
+      </div>
+    </div>
+  );
+}
+function PremiumEmblem({ tone = 'gold' }) {
+  const stroke = tone === 'light' ? '#f3c66b' : '#9d6b26';
+
+  return (
+    <svg className="mx-auto mb-4 h-9 w-9" viewBox="0 0 48 48" role="img" aria-label="Premium patriotic emblem">
+      <circle cx="24" cy="24" r="21" fill="none" stroke={stroke} strokeWidth="1.4" opacity="0.35" />
+      <circle cx="24" cy="24" r="12" fill="none" stroke={stroke} strokeWidth="1.3" />
+      {Array.from({ length: 12 }).map((_, index) => (
+        <line
+          key={index}
+          x1="24"
+          y1="12"
+          x2="24"
+          y2="17"
+          stroke={stroke}
+          strokeWidth="1.2"
+          strokeLinecap="round"
+          transform={`rotate(${index * 30} 24 24)`}
+        />
+      ))}
+      <path d="M24 5.5 27.1 17h12L29.4 24.1 33 36 24 28.9 15 36l3.6-11.9L8.9 17h12L24 5.5Z" fill="none" stroke={stroke} strokeWidth="1.2" strokeLinejoin="round" opacity="0.88" />
+    </svg>
+  );
+}
+>>>>>>> 0819575d685c93f19a5626c9f8ef1d1c38ee05a2
 
 
 export default function ParamVirChakraPage() {
@@ -200,6 +346,7 @@ export default function ParamVirChakraPage() {
   const [activeHash, setActiveHash] = useState('#hero');
   const [timeLeft, setTimeLeft] = useState({ days: 6, hours: 0, minutes: 0, seconds: 0 });
   const schemas = useMemo(() => {
+<<<<<<< HEAD
   
 const whyAttend = [
   { title: "देशभक्ति", text: "भारत के वीरों के प्रति सम्मान और राष्ट्र के प्रति जिम्मेदारी की भावना को गहराई से अनुभव करने का अवसर।", accent: "saffron" },
@@ -268,6 +415,26 @@ const whyAttend = [
         '@type': 'BreadcrumbList',
         'itemListElement': [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://vardhmancreativestudio.com/' }, { '@type': 'ListItem', position: 2, name: 'Param Vir Chakra Shaurya Gatha', item: canonicalUrl }]
       }
+=======
+    const organization = {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: 'Vardhman Creative Studio',
+      url: 'https://vardhmancreativestudio.com/',
+      email: 'vardhmancreativestudio@gmail.com',
+      telephone: '+91-7990106225',
+    };
+
+    const event = {
+      '@context': 'https://schema.org',
+      '@type': 'Event',
+      name: 'Param Vir Chakra - Shaurya Gatha',
+      alternateName: 'परमवीर चक्र - शौर्यगाथा',
+      description:
+        'Param Vir Chakra Shaurya Gatha is an inspirational patriotic event in Ahmedabad dedicated to bravery, sacrifice, courage, leadership and national pride.',
+      image: `https://vardhmancreativestudio.com${heroImage}`,\n      startDate: eventStart,\n      endDate: '2026-08-09T13:00:00+05:30',\n      eventStatus: 'https://schema.org/EventScheduled',\n      eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',\n      location: {\n        '@type': 'Place',\n        name: 'Dinesh Hall',\n        address: {\n          '@type': 'PostalAddress',\n          addressLocality: 'Ahmedabad',\n          addressRegion: 'Gujarat',\n          addressCountry: 'IN',\n        },\n      },\n      organizer: {\n        '@type': 'Organization',\n        name: 'Shri Vardhman Shwetambar Murtipujak Jain Sangh',\n        address: 'Usmanpura, Ahmedabad',\n        url: canonicalUrl,\n      },\n      offers: {\n        '@type': 'Offer',\n        url: canonicalUrl,\n        price: '100',\n        priceCurrency: 'INR',\n        validFrom: '2026-07-15T00:00:00+05:30',\n        availabilityStarts: '2026-07-15T00:00:00+05:30',\n        availability: 'https://schema.org/InStock',\n      },
+      performer: guests.map((guest) => ({ '@type': 'Person', name: guest.name })),
+>>>>>>> 0819575d685c93f19a5626c9f8ef1d1c38ee05a2
     };
   }, []);
 
@@ -341,6 +508,7 @@ const whyAttend = [
           <div className="absolute inset-0 opacity-[0.025] noise-bg" aria-hidden="true" />
         </div>
 
+<<<<<<< HEAD
         {/* Main Content Layout Container */}
         <div className="mx-auto w-full max-w-7xl px-5 pt-12 pb-6 lg:px-8 flex-1 grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
           
@@ -349,6 +517,26 @@ const whyAttend = [
             
             {/* Main Luxury Event Typography (Fixed Hindi Matra Clipping Issue) */}
             <h1 className="font-serif text-[3.5rem] font-bold leading-[1.2] tracking-tight text-white sm:text-6xl md:text-7xl lg:text-[5rem] pb-2">
+=======
+        <div className="absolute inset-0 -z-10">
+          <img
+            src={heroImage}
+            alt="Param Vir Chakra Shaurya Gatha memorial hero visual"
+            className="h-full w-full object-cover opacity-90"
+            loading="eager"
+            fetchpriority="high"
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,#07111f_0%,rgba(7,17,31,0.86)_38%,rgba(7,17,31,0.35)_68%,rgba(7,17,31,0.15)_100%)]" />
+        </div>
+
+        <div className="mx-auto grid min-h-[92svh] max-w-7xl items-center gap-12 px-5 py-16 lg:grid-cols-[1fr] lg:px-8">
+          <div className="max-w-3xl">
+            <p className="mb-6 inline-flex items-center gap-2 rounded-[8px] border border-[#ff9933]/35 bg-white/[0.055] px-4 py-2 text-sm font-semibold uppercase tracking-[0.22em] text-[#ff9933] backdrop-blur-xl">
+              <Flame className="h-4 w-4" aria-hidden="true" />
+              Registration Opens 15 July 2026
+            </p>
+            <h1 className="font-serif text-[3.25rem] font-semibold leading-[1.04] tracking-normal text-white sm:text-6xl md:text-7xl lg:text-8xl">
+>>>>>>> 0819575d685c93f19a5626c9f8ef1d1c38ee05a2
               परमवीर चक्र
               <span className="mt-2 block text-[#FF9933] filter drop-shadow-[0_2px_15px_rgba(255,153,51,0.3)]">
                 शौर्यगाथा
@@ -379,6 +567,7 @@ const whyAttend = [
                 Learn More
               </a>
             </div>
+<<<<<<< HEAD
 
             {/* Exact Match Reference Grid Cards (Matched with image_d9b941.jpg) */}
             <div className="mt-12 grid gap-4 grid-cols-2 sm:grid-cols-4 lg:max-w-3xl">
@@ -387,6 +576,66 @@ const whyAttend = [
                   <card.icon className="mb-4 h-7 w-7 text-[#FF9933]" strokeWidth={1.5} />
                   <h3 className="text-[17px] font-bold text-white tracking-wide">{card.label}</h3>
                   <p className="mt-1.5 text-[13px] text-white/50 font-medium">{card.detail}</p>
+=======
+            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:max-w-2xl">
+              {eventCards.map((card) => (
+                <StatCard key={card.label} {...card} />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="border-y border-[#d8c096]/60 bg-[#fffaf0] px-5 py-10 lg:px-8" aria-labelledby="registration-open-heading">
+        <div className="mx-auto grid max-w-7xl items-center gap-8 md:grid-cols-[1fr_auto]">
+          <div>
+            <p className="mb-2 flex items-center gap-2 text-sm font-bold uppercase tracking-[0.2em] text-[#a35f10]">
+              <Ticket className="h-5 w-5" aria-hidden="true" />
+              Registration Opens
+            </p>
+            <h2 id="registration-open-heading" className="font-serif text-3xl font-semibold tracking-normal text-[#172033] md:text-5xl">
+              15 July 2026
+            </h2>
+            <p className="mt-3 text-base font-semibold text-[#56616f]">
+              {countdown.isOpen ? 'रजिस्ट्रेशन अब खुले हैं' : 'बुकिंग 15 जुलाई 2026 से प्रारंभ होगी'}
+            </p>
+          </div>
+          <div className="grid grid-cols-4 gap-2 rounded-[8px] border border-[#d8c096] bg-white p-2 shadow-xl shadow-[#7c4a0b]/10" aria-label="Countdown to registration opening">
+            {[
+              ['दिन', countdown.days],
+              ['घंटे', countdown.hours],
+              ['मिनट', countdown.minutes],
+              ['सेकंड', countdown.seconds],
+            ].map(([label, value]) => (
+              <div key={label} className="min-w-16 rounded-[8px] bg-[#101927] px-3 py-4 text-center text-white">
+                <span className="block text-2xl font-bold tracking-normal md:text-3xl">{value}</span>
+                <span className="text-xs text-white/60">{label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="blessings" className="px-5 py-16 lg:px-8 lg:py-20">
+        <SectionHeader eyebrow="Sacred Inspiration" title="पावन प्रेरणा">
+          आध्यात्मिक प्रेरणा, सेवा और संस्कारों की गरिमा के साथ यह आयोजन राष्ट्रभक्ति के भाव को और गहरा बनाता है।
+        </SectionHeader>
+        <article className="mx-auto max-w-7xl rounded-[8px] border border-[#d7c096] bg-white p-5 shadow-2xl shadow-[#60410f]/10 md:p-10">
+          <div className="mx-auto max-w-3xl text-center">
+            <PremiumEmblem />
+            <p className="text-sm font-bold uppercase tracking-[0.22em] text-[#9d6b26]">Blessings & Guidance</p>
+          </div>
+          <div className="mt-8 rounded-[8px] border border-[#ead9ba] bg-[#fffaf0] p-5 md:p-8">
+            <div className="mx-auto max-w-4xl text-center">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#ff9933]">{blessings[0].title}</p>
+              <h3 className="mt-3 font-serif text-[1.42rem] font-semibold leading-snug tracking-normal text-[#172033] md:text-3xl">{blessings[0].text}</h3>
+            </div>
+            <div className="mt-8 grid gap-5 md:grid-cols-2">
+              {blessings.slice(1).map((item, index) => (
+                <div key={item.title} className={`rounded-[8px] border border-[#ead9ba] bg-white p-5 ${index === 0 ? 'text-left' : 'text-right'}`}>
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#138808]">{item.title}</p>
+                  <h3 className="mt-3 font-serif text-[1.25rem] font-semibold leading-snug tracking-normal text-[#172033] md:text-2xl">{item.text}</h3>
+>>>>>>> 0819575d685c93f19a5626c9f8ef1d1c38ee05a2
                 </div>
               ))}
             </div>
@@ -818,6 +1067,7 @@ const whyAttend = [
           <div className="rounded-3xl border border-[#dcc395] bg-[#fffaf0] p-8 shadow-xl">
             <h2 className="font-serif text-3xl font-semibold text-[#172033]">Contact</h2>
             <div className="mt-8 grid gap-4">
+<<<<<<< HEAD
               <a href="tel:+916352188150" className="group flex items-center gap-4 rounded-3xl border border-[#ead9ba] bg-white p-4 font-semibold text-[#172033] transition-all hover:-translate-y-1 shadow-sm">
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#b57a2a]/10"><Phone className="h-5 w-5 text-[#b57a2a]" /></span>
                 <div className="flex flex-col"><span className="text-xs uppercase text-[#9d6b26]">Call Us</span><span className="text-[15px]">+91 63521 88150</span></div>
@@ -829,6 +1079,16 @@ const whyAttend = [
               <a href="https://maps.app.goo.gl/r76fhgM7NS8AJaBw8" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 rounded-3xl border border-[#ead9ba] bg-white p-4 font-semibold text-[#172033] transition-all hover:-translate-y-1 shadow-sm">
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#b57a2a]/10"><MapPin className="h-5 w-5 text-[#b57a2a]" /></span>
                 <div className="flex flex-col"><span className="text-xs uppercase text-[#9d6b26]">Location</span><span className="text-[15px]">Dinesh Hall, Ahmedabad</span></div>
+=======
+              <a href="tel:+916352188150" className="flex items-center gap-4 rounded-[8px] bg-white p-4 font-semibold text-[#172033]">
+                <Phone className="h-5 w-5 text-[#b57a2a]" aria-hidden="true" /> Phone
+              </a>
+              <a href="https://wa.me/916352188150" className="flex items-center gap-4 rounded-[8px] bg-white p-4 font-semibold text-[#172033]">
+                <MessageCircle className="h-5 w-5 text-[#1f7a4d]" aria-hidden="true" /> WhatsApp
+              </a>
+                        <a href="https://www.google.com/maps/search/?api=1&query=Dinesh+Hall+Ahmedabad" className="flex items-center gap-4 rounded-[8px] bg-white p-4 font-semibold text-[#172033]">
+                <MapPin className="h-5 w-5 text-[#b57a2a]" aria-hidden="true" /> Google Map
+>>>>>>> 0819575d685c93f19a5626c9f8ef1d1c38ee05a2
               </a>
             </div>
           </div>
@@ -871,4 +1131,10 @@ const whyAttend = [
       </main>
     </>
   );
+<<<<<<< HEAD
 }
+=======
+}
+
+
+>>>>>>> 0819575d685c93f19a5626c9f8ef1d1c38ee05a2
