@@ -551,7 +551,7 @@ export default function ParamVirChakraPage() {
             alt="Param Vir Chakra Shaurya Gatha Luxury Artwork Background" 
             className="h-full w-full object-cover object-right-top md:object-center opacity-[0.45] scale-[1.02]" 
             loading="eager"
-            fetchpriority="high"
+            fetchPriority="high"
           />
           {/* Deep Cinematic Ambient Radial Gradients to make text readable on the left */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_40%,rgba(255,153,51,0.15),transparent_45%),radial-gradient(circle_at_85%_55%,rgba(19,136,8,0.12),transparent_50%),linear-gradient(90deg,rgba(4,11,20,0.95) 0%,rgba(4,11,20,0.7) 45%,transparent 100%),linear-gradient(180deg,rgba(4,11,20,0.85) 0%,rgba(4,11,20,0) 20%,rgba(4,11,20,0) 80%,rgba(4,11,20,0.95) 100%)]" />
