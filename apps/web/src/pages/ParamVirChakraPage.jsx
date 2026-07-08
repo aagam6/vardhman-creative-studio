@@ -226,10 +226,27 @@ export default function ParamVirChakraPage() {
             'addressCountry': 'IN'
           }
         },
-        'organizer': {
-          '@type': 'Organization',
-          'name': 'Shri Vardhman Shwetambar Murtipujak Jain Sangh'
+              {
+  "@type":"ImageObject",
+  "contentUrl":"...",
+  "caption":"Param Vir Chakra Shaurya Gatha Event Hero Image"
+}
+       "organizer": {
+  "@type": "Organization",
+  "name": "Shri Vardhman Shwetambar Murtipujak Jain Sangh",
+  "url": "https://vardhmancreativestudio.com",
+          }
         },
+      "performer": [
+  {
+    "@type": "Person",
+    "name": "Harshal Pushkarna"
+  },
+  {
+    "@type": "Person",
+    "name": "Muni Shri Shramanchandrasagarji Maharaj"
+  }
+]
         'offers': {
           '@type': 'Offer',
           'url': canonicalUrl,
@@ -245,6 +262,9 @@ export default function ParamVirChakraPage() {
         'name': 'Shri Vardhman Shwetambar Murtipujak Jain Sangh',
         'address': { '@type': 'PostalAddress', addressLocality: 'Ahmedabad', addressRegion: 'Gujarat' }
       },
+  {
+  "@type": "SpeakableSpecification"
+}
       faq: {
         '@context': 'https://schema.org',
         '@type': 'FAQPage',
@@ -264,16 +284,178 @@ export default function ParamVirChakraPage() {
 
   return (
     <>
-      <Helmet>
-        <title>Param Vir Chakra Shaurya Gatha Ahmedabad | Official Event</title>
-        <meta name="description" content="Join us at Dinesh Hall, Ahmedabad on 9 August 2026 for the Param Vir Chakra Shaurya Gatha." />
-        <link rel="canonical" href={canonicalUrl} />
-        {/* Structured Data Scripts */}
-        <script type="application/ld+json">{JSON.stringify(schemas.event)}</script>
-        <script type="application/ld+json">{JSON.stringify(schemas.localBusiness)}</script>
-        <script type="application/ld+json">{JSON.stringify(schemas.faq)}</script>
-        <script type="application/ld+json">{JSON.stringify(schemas.breadcrumb)}</script>
-      </Helmet>
+             <Helmet>
+  {/* ================================
+      BASIC SEO
+  ================================= */}
+  <title>
+    Param Vir Chakra – Shaurya Gatha | Official Event | Ahmedabad
+  </title>
+
+  <meta
+    name="description"
+    content="Join Param Vir Chakra – Shaurya Gatha, a grand patriotic event dedicated to India's Param Vir Chakra awardees. 9 August 2026 | Dinesh Hall | Ahmedabad."
+  />
+
+  <meta
+    name="keywords"
+    content="Param Vir Chakra, Shaurya Gatha, Param Vir Chakra Event, Ahmedabad Event, Harshal Pushkarna, Patriotic Event, Indian Army, Military History, Jain Event Ahmedabad"
+  />
+
+  <meta
+    name="author"
+    content="Vardhman Creative Studio"
+  />
+
+  <meta
+    name="publisher"
+    content="Vardhman Creative Studio"
+  />
+
+  <meta
+    name="robots"
+    content="index, follow, max-image-preview:large"
+  />
+
+  <meta
+    name="googlebot"
+    content="index,follow,max-image-preview:large"
+  />
+
+  <meta
+    name="theme-color"
+    content="#081320"
+  />
+
+  <link
+    rel="canonical"
+    href={canonicalUrl}
+  />
+
+  {/* ================================
+      OPEN GRAPH
+  ================================= */}
+
+  <meta property="og:type" content="website" />
+
+  <meta
+    property="og:site_name"
+    content="Vardhman Creative Studio"
+  />
+
+  <meta
+    property="og:locale"
+    content="en_IN"
+  />
+
+  <meta
+    property="og:url"
+    content={canonicalUrl}
+  />
+
+  <meta
+    property="og:title"
+    content="Param Vir Chakra – Shaurya Gatha | Official Event"
+  />
+
+  <meta
+    property="og:description"
+    content="A Grand Patriotic Experience dedicated to India's Param Vir Chakra Heroes. 9 August 2026 • Dinesh Hall • Ahmedabad."
+  />
+
+  <meta
+    property="og:image"
+    content="https://vardhmancreativestudio.com/assets/param-vir-chakra-og.jpg"
+  />
+
+  <meta
+    property="og:image:secure_url"
+    content="https://vardhmancreativestudio.com/assets/param-vir-chakra-og.jpg"
+  />
+
+  <meta
+    property="og:image:width"
+    content="1200"
+  />
+
+  <meta
+    property="og:image:height"
+    content="630"
+  />
+
+  <meta
+    property="og:image:type"
+    content="image/jpeg"
+  />
+
+  <meta
+    property="og:image:alt"
+    content="Param Vir Chakra Shaurya Gatha Official Event"
+  />
+
+  {/* ================================
+      TWITTER
+  ================================= */}
+
+  <meta
+    name="twitter:card"
+    content="summary_large_image"
+  />
+
+  <meta
+    name="twitter:title"
+    content="Param Vir Chakra – Shaurya Gatha"
+  />
+
+  <meta
+    name="twitter:description"
+    content="Official Event • 9 August 2026 • Dinesh Hall • Ahmedabad"
+  />
+
+  <meta
+    name="twitter:image"
+    content="https://vardhmancreativestudio.com/assets/param-vir-chakra-og.jpg"
+  />
+
+  {/* ================================
+      EXTRA SEO
+  ================================= */}
+
+  <meta
+    property="article:publisher"
+    content="https://vardhmancreativestudio.com"
+  />
+
+  <meta
+    property="business:contact_data:locality"
+    content="Ahmedabad"
+  />
+
+  <meta
+    property="business:contact_data:country_name"
+    content="India"
+  />
+
+  {/* ================================
+      JSON-LD
+  ================================= */}
+
+  <script type="application/ld+json">
+    {JSON.stringify(schemas.event)}
+  </script>
+
+  <script type="application/ld+json">
+    {JSON.stringify(schemas.localBusiness)}
+  </script>
+
+  <script type="application/ld+json">
+    {JSON.stringify(schemas.faq)}
+  </script>
+
+  <script type="application/ld+json">
+    {JSON.stringify(schemas.breadcrumb)}
+  </script>
+</Helmet>
 
       <main className="min-h-screen bg-[#f7f1e5] text-[#172033] relative">
       {/* HEADER SECTION */}
