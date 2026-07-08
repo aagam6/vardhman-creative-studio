@@ -226,25 +226,17 @@ export default function ParamVirChakraPage() {
             'addressCountry': 'IN'
           }
         },
-              const schemas = {
-  event: {
-    ...
-  },
-
-  image: {
-    "@context": "https://schema.org",
-    "@type": "ImageObject",
-    contentUrl: "https://vardhmancreativestudio.com/assets/param-vir-chakra-og.jpg",
-    url: "https://vardhmancreativestudio.com/assets/param-vir-chakra-og.jpg",
-    caption: "Param Vir Chakra – Shaurya Gatha Official Event",
-    width: 1200,
-    height: 630
-  },
-
-  faq: {
-    ...
-  }
-}
+              image: {
+  "@context": "https://schema.org",
+  "@type": "ImageObject",
+  contentUrl: "https://vardhmancreativestudio.com/assets/param-vir-chakra-og.jpg",
+  url: "https://vardhmancreativestudio.com/assets/param-vir-chakra-og.jpg",
+  name: "Param Vir Chakra – Shaurya Gatha",
+  caption: "Official Hero Image of Param Vir Chakra – Shaurya Gatha",
+  width: 1200,
+  height: 630,
+  encodingFormat: "image/jpeg"
+},
        "organizer": {
   "@type": "Organization",
   "name": "Shri Vardhman Shwetambar Murtipujak Jain Sangh",
