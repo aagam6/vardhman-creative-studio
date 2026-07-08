@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Martel:wght@400;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,56 +6,60 @@
 
 @layer base {
   :root {
-    --background: 0 0% 4%;
-    --foreground: 0 0% 90%;
-    --card: 0 0% 7%;
-    --card-foreground: 0 0% 90%;
-    --popover: 0 0% 7%;
-    --popover-foreground: 0 0% 90%;
-    --primary: 262 83% 58%;
+    --background: 213 64% 8%;
+    --foreground: 0 0% 100%;
+    --card: 214 49% 12%;
+    --card-foreground: 0 0% 100%;
+    --popover: 214 49% 12%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 32 100% 60%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 255 92% 82%;
+    --secondary: 210 18% 18%;
     --secondary-foreground: 262 83% 15%;
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 65%;
-    --accent: 262 83% 58%;
+    --muted: 210 22% 16%;
+    --muted-foreground: 0 0% 72%;
+    --accent: 120 88% 28%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
-    --ring: 262 83% 58%;
-    --radius: 1rem;
-    
-    --glow-purple: 270 100% 50%;
-    --glow-violet: 280 100% 55%;
+    --border: 0 0% 100% / 0.08;
+    --input: 0 0% 100% / 0.08;
+    --ring: 45 65% 52%;
+    --radius: 1.5rem;
+
+    --glow-purple: 32 100% 60%;
+    --glow-violet: 45 65% 52%;
     --glow-dark: 0 0% 5%;
     --glow-light: 0 0% 15%;
+
+    --font-sans: "Outfit", "Noto Sans Devanagari", sans-serif;
+    --font-display: "Martel", "Noto Sans Devanagari", serif;
+    --font-accent: "Rajdhani", "Noto Sans Devanagari", sans-serif;
   }
 
   .dark {
-    --background: 0 0% 4%;
-    --foreground: 0 0% 90%;
-    --card: 0 0% 7%;
-    --card-foreground: 0 0% 90%;
-    --popover: 0 0% 7%;
-    --popover-foreground: 0 0% 90%;
-    --primary: 262 83% 58%;
+    --background: 213 64% 8%;
+    --foreground: 0 0% 100%;
+    --card: 214 49% 12%;
+    --card-foreground: 0 0% 100%;
+    --popover: 214 49% 12%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 32 100% 60%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 255 92% 82%;
+    --secondary: 210 18% 18%;
     --secondary-foreground: 262 83% 15%;
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 65%;
-    --accent: 262 83% 58%;
+    --muted: 210 22% 16%;
+    --muted-foreground: 0 0% 72%;
+    --accent: 120 88% 28%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
-    --ring: 262 83% 58%;
-    
-    --glow-purple: 270 100% 50%;
-    --glow-violet: 280 100% 55%;
+    --border: 0 0% 100% / 0.08;
+    --input: 0 0% 100% / 0.08;
+    --ring: 45 65% 52%;
+
+    --glow-purple: 32 100% 60%;
+    --glow-violet: 45 65% 52%;
     --glow-dark: 0 0% 5%;
     --glow-light: 0 0% 15%;
   }
@@ -73,7 +77,7 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: "Outfit", sans-serif;
+    font-family: var(--font-sans);
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -81,19 +85,24 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
     text-wrap: balance;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.01em;
     line-height: 1.4;
+  }
+
+  :lang(hi) {
+    font-family: "Noto Sans Devanagari", var(--font-sans);
   }
 }
 
 @layer utilities {
-  .glass-effect {
-    background: rgba(20, 20, 20, 0.4);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
+    .glass-effect {
+    background: rgba(15, 27, 45, 0.62);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: inset 0 0 20px rgba(168, 85, 247, 0.05);
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   }
 
   .glow-purple {
@@ -104,17 +113,17 @@
     box-shadow: 0 0 15px -3px hsl(var(--glow-purple) / 0.3);
   }
 
-  .text-gradient {
-    background: linear-gradient(135deg, hsl(var(--glow-purple)), hsl(var(--glow-violet)));
+    .text-gradient {
+    background: linear-gradient(135deg, #ffffff, #ffdfad 28%, #ff9933 60%, #d4af37 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
-  
+
   .noise-bg {
     position: relative;
   }
-  
+
   .noise-bg::before {
     content: "";
     position: absolute;
@@ -123,6 +132,14 @@
     opacity: 0.03;
     pointer-events: none;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
+
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  .font-accent {
+    font-family: var(--font-accent);
   }
 }
 
@@ -169,3 +186,4 @@
   background-size: 200% 200%;
   animation: gradient-shift 15s ease infinite;
 }
+
