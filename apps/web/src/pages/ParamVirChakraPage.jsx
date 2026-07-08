@@ -226,10 +226,24 @@ export default function ParamVirChakraPage() {
             'addressCountry': 'IN'
           }
         },
-              {
-  "@type":"ImageObject",
-  "contentUrl":"...",
-  "caption":"Param Vir Chakra Shaurya Gatha Event Hero Image"
+              const schemas = {
+  event: {
+    ...
+  },
+
+  image: {
+    "@context": "https://schema.org",
+    "@type": "ImageObject",
+    contentUrl: "https://vardhmancreativestudio.com/assets/param-vir-chakra-og.jpg",
+    url: "https://vardhmancreativestudio.com/assets/param-vir-chakra-og.jpg",
+    caption: "Param Vir Chakra – Shaurya Gatha Official Event",
+    width: 1200,
+    height: 630
+  },
+
+  faq: {
+    ...
+  }
 }
        "organizer": {
   "@type": "Organization",
