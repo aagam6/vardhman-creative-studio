@@ -751,6 +751,14 @@ export default function ParamVirChakraPage() {
               >
                 Learn More
               </a>
+              <a 
+                href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Param+Vir+Chakra+–+Shaurya+Gatha&dates=20260809T033000Z/20260809T073000Z&details=A+premium+patriotic+Ahmedabad+event+dedicated+to+Param+Vir+Chakra+winners.&location=Dinesh+Hall,+Navrangpura,+Ahmedabad"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-[50px] items-center justify-center rounded-xl border border-white/10 bg-white/5 px-6 py-3 text-[14px] font-medium text-white/80 hover:text-white transition-all duration-300 hover:bg-white/10 hover:border-[#ff9933]/40"
+              >
+                <CalendarDays className="mr-2 h-4.5 w-4.5 text-[#ff9933]" /> Save the Date
+              </a>
             </div>
 
             {/* Exact Match Reference Grid Cards (Matched with image_d9b941.jpg) */}
@@ -1232,18 +1240,23 @@ export default function ParamVirChakraPage() {
         <div className="mx-auto grid max-w-5xl gap-y-8 md:gap-x-4 md:grid-cols-4">
           {timeline.map(([date, label], index) => {
             const flagTheme = [
-              { bg: 'bg-[#FF9933]', text: 'text-[#FF9933]' },
-              { bg: 'bg-[#000080]', text: 'text-[#000080]' },
-              { bg: 'bg-[#138808]', text: 'text-[#138808]' },
-              { bg: 'bg-[#FF9933]', text: 'text-[#FF9933]' },
+              { bg: 'bg-[#FF9933]', text: 'text-[#FF9933]', Icon: CalendarDays },
+              { bg: 'bg-[#000080]', text: 'text-[#000080]', Icon: CheckCircle2 },
+              { bg: 'bg-[#138808]', text: 'text-[#138808]', Icon: MessageCircle },
+              { bg: 'bg-[#FF9933]', text: 'text-[#FF9933]', Icon: Flag },
             ][index];
 
             return (
               <div key={label} className="relative flex flex-col md:block">
-                <article className="group relative z-10 flex h-full flex-col items-center justify-center overflow-hidden rounded-3xl border border-[#d7c096] bg-white p-6 text-center shadow-lg transition-all hover:-translate-y-1">
+                <article className="group relative z-10 flex h-full flex-col items-center justify-center overflow-hidden rounded-3xl border border-[#d7c096]/60 bg-white p-6 text-center shadow-lg transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-[#ff9933]/30">
                   <div className={`absolute inset-x-0 top-0 h-1.5 ${flagTheme.bg}`} />
-                  <p className={`text-sm font-bold uppercase tracking-[0.18em] ${flagTheme.text}`}>{date}</p>
-                  <h3 className="mt-3 font-serif text-2xl font-semibold text-[#172033]">{label}</h3>
+                  
+                  <span className={`flex h-10 w-10 items-center justify-center rounded-2xl bg-[#fffaf0] border border-[#d7c096]/30 ${flagTheme.text} mb-3 group-hover:scale-110 transition-transform duration-300`}>
+                    <flagTheme.Icon className="h-5 w-5 stroke-[1.8]" />
+                  </span>
+
+                  <p className={`text-xs font-extrabold uppercase tracking-[0.18em] ${flagTheme.text}`}>{date}</p>
+                  <h3 className="mt-2 font-serif text-lg font-bold text-[#172033]">{label}</h3>
                 </article>
                 {index < timeline.length - 1 && (
                   <>
