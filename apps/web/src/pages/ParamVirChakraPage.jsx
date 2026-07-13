@@ -148,31 +148,146 @@ const termsAndConditions = [
   "By submitting this form, you confirm that you have read, understood, and agreed to all the above Terms & Conditions."
 ];
 const faqs = [
-  { question: 'What is Param Vir Chakra Shaurya Gatha?', answer: 'Param Vir Chakra Shaurya Gatha is a premium patriotic Ahmedabad event dedicated to Param Vir Chakra winners, Indian Army heroes, courage, sacrifice and national pride.' },
-  { question: 'What is the Param Vir Chakra Award?', answer: 'The Param Vir Chakra Award is India’s highest gallantry award for acts of exceptional bravery in the presence of the enemy.' },
-  { question: 'Who are Param Vir Chakra winners?', answer: 'Param Vir Chakra winners are India’s bravest military heroes who received the highest gallantry honour for extraordinary courage and sacrifice.' },
-  { question: 'When is Param Vir Chakra Shaurya Gatha in Ahmedabad?', answer: 'The event is scheduled for 9 August 2026, Sunday, at 9:00 AM at Dinesh Hall, Ahmedabad.' },
-  { question: 'Where is the event venue?', answer: 'The venue is Dinesh Hall, Ahmedabad, Gujarat.' },
-  { question: 'When does registration start?', answer: 'Registration starts on 15 July 2026. The online form remains disabled before that date.' },
-  { question: 'Is registration mandatory?', answer: 'Yes. Registration is mandatory because seating is limited and entry is subject to verification.' },
-  { question: 'Who can attend this event?', answer: 'The suggested age group is 15 to 50 years for attendees interested in patriotism, leadership, courage and national history.' },
-  { question: 'How do I register?', answer: 'After 15 July 2026, fill the registration form, upload the payment screenshot and submit the details for verification.' },
-  { question: 'When will I receive my event pass?', answer: 'After payment verification, confirmation and the event pass will be sent on WhatsApp.' },
-  { question: 'Can I register multiple passes?', answer: 'Yes, the form includes a number of passes field. Approval remains subject to availability and verification.' },
-  { question: 'Is payment verification required?', answer: 'Yes. The organiser team will verify the uploaded payment screenshot before issuing the WhatsApp confirmation.' },
-  { question: 'Can my pass be transferred?', answer: 'Pass transfer is subject to organiser approval. Please contact the team before transferring any confirmation.' },
-  { question: 'What should I carry at the venue?', answer: 'Please carry your WhatsApp confirmation and any identity detail requested by the organisers.' },
-  { question: 'Is this a Desh Bhakti event?', answer: 'Yes. It is a Desh Bhakti event focused on Param Vir Chakra stories, patriotism, sacrifice and national pride.' },
-  { question: 'Will Param Vir Chakra stories be covered?', answer: 'Yes. The event highlights inspirational Param Vir Chakra stories and the values behind India’s highest gallantry award.' },
-  { question: 'Is this suitable for students?', answer: 'Yes. The event is especially meaningful for youth, students and organisations interested in leadership and character building.' },
-  { question: 'Who is Shri Harshal Pushkarna?', answer: 'Shri Harshal Pushkarna is listed as a writer, journalist and keynote speaker for the event.' },
-  { question: 'Who is Muni Shri Shramanchandrasagarji Maharaj?', answer: 'Pujya Muni Shri Shramanchandrasagarji Maharaj, also known as Yashonandan, is one of the inspirational personalities associated with the event.' },
-  { question: 'Who is organising the event?', answer: 'The event is organised by Shri Vardhman Shwetambar Murtipujak Jain Sangh, Usmanpura, Ahmedabad.' },
-  { question: 'Is entry guaranteed after registration?', answer: 'Entry is subject to verification, approval and seating availability.' },
-  { question: 'What topics will the event cover?', answer: 'The event covers Param Vir Chakra winners, Indian Army heroes, patriotism, leadership, sacrifice, courage and national pride.' },
-  { question: 'Is this an Ahmedabad event?', answer: 'Yes. Param Vir Chakra Shaurya Gatha is an Ahmedabad event at Dinesh Hall.' },
-  { question: 'Will I get updates on WhatsApp?', answer: 'Yes. Confirmation and event pass communication will be sent through WhatsApp after verification.' },
-  { question: 'Where can I find the official page?', answer: 'The official page is https://vardhmancreativestudio.com/param-vir-chakra.' },
+  {
+    question: "What is the Param Vir Chakra award?",
+    answer: "The Param Vir Chakra (PVC) is India's highest military decoration, awarded for displaying the most conspicuous bravery, daring, or pre-eminent act of valour or self-sacrifice in the presence of the enemy on land, at sea, or in the air."
+  },
+  {
+    question: "Who is organizing the Param Vir Chakra – Shaurya Gatha event?",
+    answer: "The event is proudly organized by the Shri Vardhman Shwetambar Murtipujak Jain Sangh, located in Usmanpura, Ahmedabad, Gujarat, India."
+  },
+  {
+    question: "Where is the venue for the Param Vir Chakra – Shaurya Gatha event?",
+    answer: "The event will be held at the historic Dinesh Hall, located in Navrangpura, Ahmedabad, Gujarat, India (Postal Code: 380009)."
+  },
+  {
+    question: "When is the Param Vir Chakra – Shaurya Gatha event scheduled?",
+    answer: "The event is scheduled for Sunday, 9 August 2026, starting at 9:00 AM onwards at Dinesh Hall, Ahmedabad."
+  },
+  {
+    question: "Who are the keynote speakers for the Shaurya Gatha event?",
+    answer: "The keynote speakers are Shri Harshal Pushkarna, a noted author and military historian, and Pujya Muni Shri Shramanchandrasagarji Maharaj, a revered Jain monk and spiritual leader."
+  },
+  {
+    question: "Under whose spiritual guidance is Pujya Muni Shri Shramanchandrasagarji Maharaj?",
+    answer: "Pujya Muni Shri Shramanchandrasagarji Maharaj is a disciple of Acharya Shri Hemchandrasagarsuriji Maharaj, under the spiritual guidance of Acharya Shri Samyakchandrasagarsuriji Maharaj and Acharya Shri Tarakchandrasagarsuriji Maharaj."
+  },
+  {
+    question: "Is there a registration fee for the Param Vir Chakra event?",
+    answer: "Yes, the registration fee is ₹100 per participant. It is fully refundable to participants who are physically present at Dinesh Hall before 9:00 AM on the day of the event."
+  },
+  {
+    question: "How do I claim a refund for the event registration fee?",
+    answer: "To claim the refund of ₹100, you must report at the venue, Dinesh Hall in Ahmedabad, before 9:00 AM on Sunday, 9 August 2026. The refund will be processed as per the organizers' instructions."
+  },
+  {
+    question: "When will the online registration open?",
+    answer: "Online registration officially opens on 15 July 2026 via the official Google Form link on https://vardhmancreativestudio.com/param-vir-chakra."
+  },
+  {
+    question: "Is prior registration mandatory to attend this event?",
+    answer: "Yes, prior registration is strictly mandatory. Seating is limited and entry to Dinesh Hall will be permitted only upon verification of the WhatsApp confirmation pass."
+  },
+  {
+    question: "What information must I provide during registration?",
+    answer: "You must provide your full name, mobile number (WhatsApp enabled), age, city, and upload a valid payment screenshot along with the Bank Transaction ID (UTR)."
+  },
+  {
+    question: "How and when will I receive my event entry pass?",
+    answer: "After successful payment verification by the organizer team, your official confirmation and entry pass will be sent directly to your registered WhatsApp number."
+  },
+  {
+    question: "Is there an age limit for attendees of the event?",
+    answer: "The recommended age limit for participants is between 15 and 50 years to ensure that the patriotic and historical concepts are well understood."
+  },
+  {
+    question: "Who was the first recipient of the Param Vir Chakra?",
+    answer: "Major Somnath Sharma of the 4th Battalion, Kumaon Regiment, was the first recipient of the Param Vir Chakra. He was posthumously awarded for his heroic stand during the Battle of Badgam in 1947."
+  },
+  {
+    question: "Who designed the Param Vir Chakra medal?",
+    answer: "The Param Vir Chakra medal was designed by Savitri Khanolkar (born Eve Yvonne Maday de Maros), a Swiss-born woman who married Captain (later Major-General) Vikram Khanolkar of the Indian Army."
+  },
+  {
+    question: "What is the literal meaning of Param Vir Chakra?",
+    answer: "Param Vir Chakra literally translates to the 'Wheel of the Ultimate Brave' (परम वीर चक्र) in Sanskrit, symbolizing the highest honor of courage and sacrifice."
+  },
+  {
+    question: "Can I book multiple passes for my family members?",
+    answer: "Yes, you can register for multiple participants by entering their details and making the payment of ₹100 per person. However, entry remains subject to verification."
+  },
+  {
+    question: "What happens if I arrive after 9:00 AM on the day of the event?",
+    answer: "No refund will be provided to participants arriving after 9:00 AM or remaining absent. General seating is on a first-come, first-served basis, so late entry might also be restricted."
+  },
+  {
+    question: "Is general seating reserved at Dinesh Hall?",
+    answer: "No, general seating is unreserved and allotted on a First-Come, First-Served basis. A limited number of seats are reserved only for invited guests, dignitaries, and organizers."
+  },
+  {
+    question: "Why should students and youth attend this event?",
+    answer: "Students and youth will get unique insights into India's military history, learn real-life values of leadership and courage, and find inspiration for character building."
+  },
+  {
+    question: "What benefits do parents get by bringing their children?",
+    answer: "Parents can introduce their children to real-life national heroes, instilling essential moral values, civic responsibility, and national pride in the young generation."
+  },
+  {
+    question: "Will photography or videography be allowed inside the venue?",
+    answer: "Official photography and videography will be conducted by the organizers. By registering, participants consent to the use of their photos and videos for documentation purposes."
+  },
+  {
+    question: "Whom can I contact for registration and queries?",
+    answer: "You can contact the support team at +91 63521 88150 or send a WhatsApp message. Support timings are Monday to Saturday, from 10:00 AM to 6:00 PM."
+  },
+  {
+    question: "Is this event only for a specific community?",
+    answer: "No, the event is open to all citizens, students, and families who wish to pay tribute to India's highest gallantry heroes and learn about our nation's history."
+  },
+  {
+    question: "How many times has the Param Vir Chakra been awarded?",
+    answer: "The Param Vir Chakra has been awarded 21 times to date. Out of these 21 bravehearts, 14 were awarded the medal posthumously for their ultimate sacrifice."
+  },
+  {
+    question: "Can I transfer my event pass to someone else?",
+    answer: "No, the pass is registered in the name of the participant. Pass transfer is generally not allowed unless explicitly approved by the organizer team."
+  },
+  {
+    question: "What should I bring to the venue on the event day?",
+    answer: "Please carry your WhatsApp confirmation pass (digital or printed copy) and a valid photo identity proof for smooth entry at Dinesh Hall."
+  },
+  {
+    question: "Is the registration fee refundable if the event is cancelled?",
+    answer: "Yes. In the highly unlikely event of cancellation or rescheduling by the organizers, the ₹100 registration fee will be fully refunded to all registered participants."
+  },
+  {
+    question: "What is the official website URL for the event?",
+    answer: "The official event page and registration hub is located at https://vardhmancreativestudio.com/param-vir-chakra."
+  },
+  {
+    question: "What does the 'Shaurya Gatha' event represent?",
+    answer: "Param Vir Chakra – Shaurya Gatha is a grand patriotic tribute celebrating the spirit of Honour, Courage, Sacrifice, and National Pride through storytelling and spiritual discourses."
+  },
+  {
+    question: "Who is Shri Harshal Pushkarna?",
+    answer: "Shri Harshal Pushkarna is a renowned Gujarati journalist, author, and military historian who has written extensively about the Indian Armed Forces and travelled to remote border frontiers."
+  },
+  {
+    question: "Who is Pujya Muni Shri Shramanchandrasagarji Maharaj?",
+    answer: "Pujya Muni Shri Shramanchandrasagarji Maharaj is a respected spiritual speaker and Jain monk who inspires the youth toward ethical living, character building, and patriotism."
+  },
+  {
+    question: "What is the role of Shri Vardhman Sangh in this event?",
+    answer: "Shri Vardhman Shwetambar Murtipujak Jain Sangh is the primary organizer, hosting this event to foster national values, moral education, and gratitude toward our soldiers."
+  },
+  {
+    question: "Are payment screenshots mandatory for registration?",
+    answer: "Yes. Uploading a valid payment screenshot and providing the correct UPI/Bank Transaction ID (UTR) is strictly mandatory for the verification process."
+  },
+  {
+    question: "By submitting the form, do I agree to all Terms and Conditions?",
+    answer: "Yes, submitting the registration form confirms that you have read, understood, and agreed to follow all 14 official Terms & Conditions specified by the organizers."
+  }
 ];
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -1440,6 +1555,289 @@ export default function ParamVirChakraPage() {
           </div>
         </div>
       </section>
+
+      {/* DETAILED KNOWLEDGE BASE & HISTORICAL GUIDE SECTION */}
+      <section id="knowledge" className="scroll-mt-24 px-5 py-24 lg:px-8 bg-[#f7f1e5] relative overflow-hidden">
+        {/* Subtle grid lines background overlay */}
+        <div className="absolute inset-0 opacity-[0.015] bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:30px_30px] pointer-events-none" />
+
+        <div className="mx-auto max-w-5xl relative">
+          <p className="mb-4 text-center text-sm font-bold uppercase tracking-[0.25em] text-[#b57a2a]">
+            AUTHORITATIVE KNOWLEDGE BASE & HISTORICAL BASE
+          </p>
+          <h2 className="text-center font-serif text-3xl font-bold leading-relaxed text-[#172033] md:text-5xl lg:leading-tight mb-16">
+            परमवीर चक्र – शौर्यगाथा: <br className="hidden md:block" />
+            ज्ञान और इतिहास कोश
+          </h2>
+
+          <div className="space-y-16">
+            
+            {/* SECTION 1: WHAT IS PARAM VIR CHAKRA? */}
+            <article className="rounded-3xl border border-[#dcc395]/40 bg-white p-8 md:p-10 shadow-lg">
+              <h3 className="font-serif text-2xl font-bold text-[#172033] mb-6">1. What is Param Vir Chakra? (परमवीर चक्र क्या है?)</h3>
+              
+              {/* AEO Direct Answer Box */}
+              <div className="bg-[#ff9933]/5 border-l-4 border-[#ff9933] p-5 rounded-r-2xl mb-6">
+                <p className="text-xs uppercase font-extrabold text-[#ff9933] mb-1">Direct Answer / मुख्य उत्तर</p>
+                <p className="font-semibold text-sm text-[#172033] leading-relaxed">
+                  The Param Vir Chakra (PVC) is India's highest military decoration, awarded for displaying the most conspicuous bravery, daring, or pre-eminent act of valour or self-sacrifice in the presence of the enemy. It is the ultimate medal of honor for our armed forces.
+                </p>
+              </div>
+
+              <div className="space-y-4 text-sm text-[#56616f] leading-relaxed font-light">
+                <p>
+                  <strong>संस्कृत मूल और अर्थ:</strong> संस्कृत भाषा में 'परम' का अर्थ है सर्वोच्च, 'वीर' का अर्थ है साहसी या योद्धा, तथा 'चक्र' का अर्थ है पहिया। शाब्दिक रूप से, परमवीर चक्र का अर्थ है <em>"परम वीर का पहिया" (Wheel of the Ultimate Brave)</em>। यह पदक युद्ध क्षेत्र में प्रदर्शित किए गए असाधारण और अतुलनीय साहस को सम्मानित करने का सर्वोच्च भारतीय माध्यम है।
+                </p>
+                <p>
+                  यह पुरस्कार थल सेना, नौसेना और वायु सेना के अधिकारियों और जवानों को शत्रु के सामने अद्भुत वीरता, आत्म-बलिदान और कर्तव्य निष्ठा दिखाने के लिए दिया जाता है। परमवीर चक्र की घोषणा के बाद से आज तक केवल 21 जांबाज भारतीय सैनिकों को इस परम गौरव से अलंकृत किया गया है। इन 21 विजेताओं में से 14 जांबाजों को यह पुरस्कार मरणोपरांत दिया गया है, जो इनके राष्ट्र के प्रति अंतिम और सर्वोच्च बलिदान को दर्शाता है।
+                </p>
+                <p>
+                  <strong>महत्व और प्रभाव:</strong> सैन्य इतिहास में परमवीर चक्र का स्थान अत्यंत गरिमामयी है। यह केवल एक धातु का पदक नहीं है, बल्कि यह देश के उन बेटों की अमर कहानी है जिन्होंने भारत की संप्रभुता और सीमाओं की रक्षा के लिए अपने प्राणों की आहुति दे दी। युद्ध के समय जब परिस्थितियाँ पूरी तरह से प्रतिकूल हों, और शत्रु संख्या और संसाधनों में भारी हो, तब भी देश के लिए सीना तानकर लड़ना और विजय पताका फहराना ही इस पदक की असली कसौटी है।
+                </p>
+              </div>
+            </article>
+
+            {/* SECTION 2: HISTORY OF PARAM VIR CHAKRA */}
+            <article className="rounded-3xl border border-[#dcc395]/40 bg-white p-8 md:p-10 shadow-lg">
+              <h3 className="font-serif text-2xl font-bold text-[#172033] mb-6">2. History of Param Vir Chakra (परमवीर चक्र का इतिहास)</h3>
+              
+              {/* AEO Direct Answer Box */}
+              <div className="bg-[#ff9933]/5 border-l-4 border-[#ff9933] p-5 rounded-r-2xl mb-6">
+                <p className="text-xs uppercase font-extrabold text-[#ff9933] mb-1">Direct Answer / मुख्य उत्तर</p>
+                <p className="font-semibold text-sm text-[#172033] leading-relaxed">
+                  Established on 26 January 1950 by the President of India, the Param Vir Chakra was backdated to 15 August 1947 to honor early post-independence heroes. The award was designed by Savitri Khanolkar, inspired by the mythical sacrifice of Sage Dadhichi.
+                </p>
+              </div>
+
+              <div className="space-y-4 text-sm text-[#56616f] leading-relaxed font-light">
+                <p>
+                  <strong>ऐतिहासिक पृष्ठभूमि:</strong> भारत के गणतंत्र बनने के ऐतिहासिक दिन, यानी 26 जनवरी 1950 को तत्कालीन राष्ट्रपति डॉ. राजेंद्र प्रसाद द्वारा इस पदक की स्थापना की गई थी। इसे 15 अगस्त 1947 (भारत की स्वतंत्रता की तिथि) से प्रभावी माना गया ताकि स्वतंत्रता के तुरंत बाद जम्मू-कश्मीर में पाकिस्तानी घुसपैठियों के खिलाफ लड़ते हुए सर्वोच्च बलिदान देने वाले सैनिकों को भी सम्मानित किया जा सके।
+                </p>
+                <p>
+                  <strong>पदक का अनोखा डिजाइन:</strong> परमवीर चक्र के पदक का डिजाइन भारत की प्राचीन संस्कृति और अध्यात्म का अद्भुत मिश्रण है। इस पदक को डिजाइन करने का श्रेय <strong>सावित्री खानोलकर (Savitri Khanolkar)</strong> को जाता है। उनका जन्म स्विट्जरलैंड में हुआ था और उनका मूल नाम इवोन मैडे डी मारोस था। उन्होंने भारतीय सेना के अधिकारी कैप्टन विक्रम खानोलकर से विवाह किया, जिसके बाद वे भारत आईं और यहां के इतिहास और संस्कृति में रच-बस गईं।
+                </p>
+                <p>
+                  सावित्री जी ने पदक के डिजाइन में <strong>महर्षि दधीचि (Sage Dadhichi)</strong> के वज्र को शामिल किया। हिंदू पौराणिक कथाओं के अनुसार, महर्षि दधीचि ने देवताओं की रक्षा के लिए और राक्षस वृत्रासुर का संहार करने के लिए अपनी हड्डियों का दान कर दिया था ताकि देवराज इंद्र उनके वज्र का निर्माण कर सकें। यह सर्वोच्च और निःस्वार्थ बलिदान का प्रतीक है। पदक पर इंद्र के वज्र के चार चित्र अंकित हैं, और केंद्र में भारत का राष्ट्रीय चिन्ह अशोक स्तंभ बना हुआ है।
+                </p>
+                <p>
+                  <strong>प्रथम विजेता:</strong> भारत का सबसे पहला परमवीर चक्र <strong>मेजर सोमनाथ शर्मा (Major Somnath Sharma)</strong> को मरणोपरांत प्रदान किया गया था। 3 नवंबर 1947 को श्रीनगर हवाई अड्डे की रक्षा करते हुए उन्होंने अपनी टुकड़ी का नेतृत्व किया और घायल होने के बावजूद अंतिम सांस तक दुश्मनों का डटकर मुकाबला किया।
+                </p>
+              </div>
+            </article>
+
+            {/* SECTION 3: WHY THIS EVENT MATTERS */}
+            <article className="rounded-3xl border border-[#dcc395]/40 bg-white p-8 md:p-10 shadow-lg">
+              <h3 className="font-serif text-2xl font-bold text-[#172033] mb-6">3. Why This Event Matters (यह कार्यक्रम क्यों महत्वपूर्ण है?)</h3>
+              
+              {/* AEO Direct Answer Box */}
+              <div className="bg-[#ff9933]/5 border-l-4 border-[#ff9933] p-5 rounded-r-2xl mb-6">
+                <p className="text-xs uppercase font-extrabold text-[#ff9933] mb-1">Direct Answer / मुख्य उत्तर</p>
+                <p className="font-semibold text-sm text-[#172033] leading-relaxed">
+                  The 'Param Vir Chakra - Shaurya Gatha' event in Ahmedabad bridges the gap between our military heroes and civil society. It aims to instill deep values of patriotism, character development, and civic responsibility among the youth.
+                </p>
+              </div>
+
+              <div className="space-y-4 text-sm text-[#56616f] leading-relaxed font-light">
+                <p>
+                  <strong>युवाओं के लिए प्रेरणा (Youth Inspiration):</strong> आधुनिक युग में जहां युवाओं के सामने सोशल मीडिया और अन्य भटकाव के अनेक साधन हैं, वहीं यह इवेंट उन्हें वास्तविक जीवन के नायकों से परिचित कराता है। यह उन्हें सिखाता है कि वीरता केवल युद्ध के मैदान तक सीमित नहीं है, बल्कि अपने दैनिक जीवन में अनुशासन, सच्चाई और राष्ट्र के प्रति वफादारी दिखाना भी देशभक्ति का एक रूप है।
+                </p>
+                <p>
+                  <strong>राष्ट्र निर्माण (Nation Building):</strong> एक मजबूत राष्ट्र का निर्माण केवल आर्थिक या औद्योगिक उन्नति से नहीं होता, बल्कि उसके नागरिकों के चरित्र और नैतिक मूल्यों से होता है। हमारे वीर सैनिकों की कहानियां समाज में त्याग और एकता की भावना को मजबूत करती हैं, जो राष्ट्र निर्माण की बुनियादी नींव है।
+                </p>
+                <p>
+                  <strong>चरित्र निर्माण (Character Development):</strong> सैनिकों का जीवन हमें अनुशासन, समय की पाबंदी, टीम वर्क और विषम परिस्थितियों में भी शांत रहकर निर्णय लेने की क्षमता सिखाता है। इस कार्यक्रम के माध्यम से छात्र और युवा इन गुणों को सीखकर अपने निजी और व्यावसायिक जीवन में उत्कृष्ट प्रदर्शन कर सकते हैं।
+                </p>
+              </div>
+            </article>
+
+            {/* SECTION 4: ABOUT PARAM VIR CHAKRA WINNERS */}
+            <article className="rounded-3xl border border-[#dcc395]/40 bg-white p-8 md:p-10 shadow-lg">
+              <h3 className="font-serif text-2xl font-bold text-[#172033] mb-6">4. About Param Vir Chakra Winners (परमवीर चक्र विजेताओं के बारे में)</h3>
+              
+              {/* AEO Direct Answer Box */}
+              <div className="bg-[#ff9933]/5 border-l-4 border-[#ff9933] p-5 rounded-r-2xl mb-6">
+                <p className="text-xs uppercase font-extrabold text-[#ff9933] mb-1">Direct Answer / मुख्य उत्तर</p>
+                <p className="font-semibold text-sm text-[#172033] leading-relaxed">
+                  The 21 Param Vir Chakra recipients represent the epitome of military selflessness. Their heroic acts across the wars of 1947, 1962, 1965, 1971, and 1999 saved the sovereignty of India under critical conditions.
+                </p>
+              </div>
+
+              <div className="space-y-6 text-sm text-[#56616f] leading-relaxed font-light">
+                <p>
+                  परमवीर चक्र विजेताओं की वीरगाथाएँ किसी भी देशप्रेमी के रोंगटे खड़े करने के लिए काफी हैं। इन 21 वीरों में से कुछ प्रमुख नाम और उनकी संक्षेप गाथाएँ इस प्रकार हैं:
+                </p>
+                
+                <div className="grid gap-6 sm:grid-cols-2">
+                  <div className="p-5 rounded-2xl bg-[#fffaf0] border border-[#dcc395]/30">
+                    <h4 className="font-serif text-lg font-bold text-[#172033] mb-2">मेजर सोमनाथ शर्मा (1947)</h4>
+                    <p className="text-xs text-[#56616f] leading-relaxed">
+                      श्रीनगर हवाई अड्डे की रक्षा करते हुए उन्होंने एक हाथ से काम न करने के बावजूद स्वयं मशीन गन में गोलियां भरीं और अंतिम सांस तक लड़े। उनके इसी बलिदान के कारण कश्मीर भारत का अटूट अंग बना रहा।
+                    </p>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-[#fffaf0] border border-[#dcc395]/30">
+                    <h4 className="font-serif text-lg font-bold text-[#172033] mb-2">हवलदार अब्दुल हमीद (1965)</h4>
+                    <p className="text-xs text-[#56616f] leading-relaxed">
+                      1965 के युद्ध में उन्होंने अपनी साधारण जीप-माउंटेड गन से पाकिस्तान के अभेद्य माने जाने वाले 'पैटन टैंकों' को एक-एक कर नष्ट कर दिया और असल उत्तर की लड़ाई में दुश्मन के इरादों को ध्वस्त कर दिया।
+                    </p>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-[#fffaf0] border border-[#dcc395]/30">
+                    <h4 className="font-serif text-lg font-bold text-[#172033] mb-2">फ्लाइंग ऑफिसर निर्मलजीत सिंह सेखों (1971)</h4>
+                    <p className="text-xs text-[#56616f] leading-relaxed">
+                      1971 के युद्ध में श्रीनगर हवाई अड्डे पर जब दुश्मन के छह विमानों ने हमला किया, तब सेखों जी ने अकेले अपने नैट विमान से उड़ान भरी और दुश्मन के दो विमानों को मार गिराया तथा अंततः वीरगति प्राप्त की।
+                    </p>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-[#fffaf0] border border-[#dcc395]/30">
+                    <h4 className="font-serif text-lg font-bold text-[#172033] mb-2">कैप्टन विक्रम बत्रा (1999)</h4>
+                    <p className="text-xs text-[#56616f] leading-relaxed">
+                      कारगिल युद्ध के दौरान उन्होंने पॉइंट 5140 और पॉइंट 4875 पर विजय प्राप्त की। उनका विजय घोष "ये दिल मांगे मोर" आज भी देश के करोड़ों युवाओं के दिलों में देशभक्ति का संचार करता है।
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            {/* SECTION 5: ABOUT THE EVENT */}
+            <article className="rounded-3xl border border-[#dcc395]/40 bg-white p-8 md:p-10 shadow-lg">
+              <h3 className="font-serif text-2xl font-bold text-[#172033] mb-6">5. About the Event (कार्यक्रम के विषय में)</h3>
+              
+              {/* AEO Direct Answer Box */}
+              <div className="bg-[#ff9933]/5 border-l-4 border-[#ff9933] p-5 rounded-r-2xl mb-6">
+                <p className="text-xs uppercase font-extrabold text-[#ff9933] mb-1">Direct Answer / मुख्य उत्तर</p>
+                <p className="font-semibold text-sm text-[#172033] leading-relaxed">
+                  'Param Vir Chakra – Shaurya Gatha' is a grand patriotic tribute happening in Ahmedabad to celebrate military heroism, values, and national character. It combines historical multimedia narration with spiritual ethics.
+                </p>
+              </div>
+
+              <div className="space-y-4 text-sm text-[#56616f] leading-relaxed font-light">
+                <p>
+                  यह भव्य आयोजन केवल एक व्याख्यान नहीं है, बल्कि हमारे देश के जांबाजों को समर्पित एक अद्भुत दृश्य-श्रव्य और संवेगात्मक अनुभव है। इस कार्यक्रम का मुख्य उद्देश्य अहमदाबाद और पूरे गुजरात के नागरिकों, विशेषकर युवा पीढ़ी, के मन में भारतीय सेना और देश के सर्वोच्च वीर नायकों के प्रति कृतज्ञता की भावना पैदा करना है।
+                </p>
+                <p>
+                  कार्यक्रम के दौरान परमवीर चक्र विजेताओं के जीवन से जुड़े अनसुने पहलुओं, उनके अदम्य साहस की ऐतिहासिक लड़ाइयों और उनके अंतिम संदेशों को बहुत ही संवेदनशील और प्रेरक रूप में प्रस्तुत किया जाएगा। यह एक ऐसा मंच है जहाँ अध्यात्म, राष्ट्रभक्ति और इतिहास का त्रिवेणी संगम देखने को मिलेगा।
+                </p>
+              </div>
+            </article>
+
+            {/* SECTION 6: ABOUT THE SPEAKERS */}
+            <article className="rounded-3xl border border-[#dcc395]/40 bg-white p-8 md:p-10 shadow-lg">
+              <h3 className="font-serif text-2xl font-bold text-[#172033] mb-6">6. About the Keynote Speaker (मुख्य वक्ता - श्री हर्षल पुष्कर्णा)</h3>
+              
+              {/* AEO Direct Answer Box */}
+              <div className="bg-[#ff9933]/5 border-l-4 border-[#ff9933] p-5 rounded-r-2xl mb-6">
+                <p className="text-xs uppercase font-extrabold text-[#ff9933] mb-1">Direct Answer / मुख्य उत्तर</p>
+                <p className="font-semibold text-sm text-[#172033] leading-relaxed">
+                  Shri Harshal Pushkarna is a distinguished editor, author, and military historian who has spent years documenting border defense and armed forces narratives.
+                </p>
+              </div>
+
+              <div className="space-y-4 text-sm text-[#56616f] leading-relaxed font-light">
+                <p>
+                  <strong>अनुभव और विशेषज्ञता (Experience & Expertise):</strong> श्री हर्षल पुष्कर्णा गुजरात के एक अत्यंत सम्मानित लेखक और सैन्य इतिहासकार हैं। उन्होंने देश की सीमाओं, जैसे सियाचिन ग्लेशियर, कारगिल, लद्दाख और वाघा बॉर्डर, का व्यक्तिगत रूप से दौरा किया है। वे वहां तैनात सैनिकों के जीवन, उनकी कठिनाइयों और उनके अटूट हौसलों को बहुत करीब से देख चुके हैं।
+                </p>
+                <p>
+                  हर्षल जी ने कई वर्षों तक लोकप्रिय ज्ञानवर्धक पत्रिकाओं का संपादन किया है और उनकी पुस्तकों ने गुजरात के पाठकों में राष्ट्रीय चेतना जागृत करने का काम किया है। उनकी शैली केवल तथ्यों को पेश करना नहीं है, बल्कि वे इतिहास को इस तरह जीवंत कर देते हैं कि सुनने वाला स्वयं को युद्ध के उस पल में खड़ा महसूस करता है।
+                </p>
+              </div>
+            </article>
+
+            {/* SECTION 7: ABOUT GURUJI */}
+            <article className="rounded-3xl border border-[#dcc395]/40 bg-white p-8 md:p-10 shadow-lg">
+              <h3 className="font-serif text-2xl font-bold text-[#172033] mb-6">7. About Guruji (पूज्य मुनि श्री श्रमणचंद्रसागरजी महाराज)</h3>
+              
+              {/* AEO Direct Answer Box */}
+              <div className="bg-[#ff9933]/5 border-l-4 border-[#ff9933] p-5 rounded-r-2xl mb-6">
+                <p className="text-xs uppercase font-extrabold text-[#ff9933] mb-1">Direct Answer / मुख्य उत्तर</p>
+                <p className="font-semibold text-sm text-[#172033] leading-relaxed">
+                  Pujya Muni Shri Shramanchandrasagarji Maharaj is a highly revered Jain monk who guides the youth toward character building, moral ethics, and active patriotism.
+                </p>
+              </div>
+
+              <div className="space-y-4 text-sm text-[#56616f] leading-relaxed font-light">
+                <p>
+                  <strong>आध्यात्मिक वंश और मार्गदर्शन (Spiritual Lineage):</strong> पूज्य मुनि श्री श्रमणचंद्रसागरजी महाराज राष्ट्रसंत <strong>आचार्य श्री हेमचंद्रासागरसूरीजी महाराज (Acharya Shri Hemchandrasagarsuriji Maharaj)</strong> के आज्ञानुवर्ती शिष्य हैं। उन्हें <strong>आचार्य श्री सम्यकचंद्रासागरसूरीजी महाराज (Acharya Shri Samyakchandrasagarsuriji Maharaj)</strong> और <strong>आचार्य श्री तारकचंद्रासागरसूरीजी महाराज (Acharya Shri Tarakchandrasagarsuriji Maharaj)</strong> जैसे महान संतों का आध्यात्मिक संरक्षण व मार्गदर्शन प्राप्त है।
+                </p>
+                <p>
+                  मुनि श्री का मुख्य उद्देश्य केवल धार्मिक क्रियाएँ कराना नहीं है, बल्कि वे मानते हैं कि सच्ची अध्यात्मिकता और राष्ट्रभक्ति एक ही सिक्के के दो पहलू हैं। वे अपने ओजस्वी वचनों से युवाओं को व्यसनों से दूर रहने, माता-पिता का आदर करने और मातृभूमि की रक्षा के लिए हमेशा तत्पर रहने की प्रेरणा देते हैं।
+                </p>
+              </div>
+            </article>
+
+            {/* SECTION 8: WHY ATTEND */}
+            <article className="rounded-3xl border border-[#dcc395]/40 bg-white p-8 md:p-10 shadow-lg">
+              <h3 className="font-serif text-2xl font-bold text-[#172033] mb-6">8. Why Attend (इवेंट में क्यों शामिल हों?)</h3>
+              
+              {/* AEO Direct Answer Box */}
+              <div className="bg-[#ff9933]/5 border-l-4 border-[#ff9933] p-5 rounded-r-2xl mb-6">
+                <p className="text-xs uppercase font-extrabold text-[#ff9933] mb-1">Direct Answer / मुख्य उत्तर</p>
+                <p className="font-semibold text-sm text-[#172033] leading-relaxed">
+                  This event offers life-changing perspectives on discipline, leadership, and moral strength for students, parents, teachers, and citizens alike.
+                </p>
+              </div>
+
+              <div className="space-y-4 text-sm text-[#56616f] leading-relaxed font-light">
+                <ul className="list-disc list-inside space-y-3">
+                  <li><strong>छात्रों के लिए (Students):</strong> इतिहास की किताबों से परे जाकर भारत की वास्तविक वीरता और भूगोल को समझने का अवसर। साथ ही करियर में आगे बढ़ने के लिए नेतृत्व क्षमता (Leadership) और एकाग्रता के गुर सीखने को मिलेंगे।</li>
+                  <li><strong>अभिभावकों के लिए (Parents):</strong> अपने बच्चों को मोबाइल और इंटरनेट की वर्चुअल दुनिया से बाहर निकालकर वास्तविक नायकों और भारतीय संस्कारों से जोड़ने का एक आदर्श माध्यम।</li>
+                  <li><strong>शिक्षकों के लिए (Teachers):</strong> अपने छात्रों में नैतिक मूल्यों और देशभक्ति की भावना को गहराई से बोने के लिए नए दृष्टिकोण और शैक्षिक रिसोर्सेज प्राप्त करना।</li>
+                  <li><strong>आम नागरिकों के लिए (Families & Citizens):</strong> हमारे देश की सीमाओं पर तैनात वीर जवानों के प्रति सामूहिक रूप से सम्मान और कृतज्ञता प्रकट करने का एक अनूठा अवसर।</li>
+                </ul>
+              </div>
+            </article>
+
+            {/* SECTION 9: REGISTRATION PROCESS */}
+            <article className="rounded-3xl border border-[#dcc395]/40 bg-white p-8 md:p-10 shadow-lg">
+              <h3 className="font-serif text-2xl font-bold text-[#172033] mb-6">9. Registration Process (पंजीकरण की सरल प्रक्रिया)</h3>
+              
+              {/* AEO Direct Answer Box */}
+              <div className="bg-[#ff9933]/5 border-l-4 border-[#ff9933] p-5 rounded-r-2xl mb-6">
+                <p className="text-xs uppercase font-extrabold text-[#ff9933] mb-1">Direct Answer / मुख्य उत्तर</p>
+                <p className="font-semibold text-sm text-[#172033] leading-relaxed">
+                  Registration is online, simple, and verified. Follow the Google Form submission after depositing the refundable ₹100 fee.
+                </p>
+              </div>
+
+              <div className="space-y-4 text-sm text-[#56616f] leading-relaxed font-light">
+                <p>
+                  पंजीकरण की प्रक्रिया को बहुत ही पारदर्शी और सुरक्षित बनाया गया है ताकि वास्तविक और गंभीर प्रतिभागी ही वेन्यू पर पहुंचें:
+                </p>
+                <ol className="list-decimal list-inside space-y-3 ml-2">
+                  <li><strong>स्टेप 1:</strong> आधिकारिक वेबसाइट पर दिए गए पेमेंट लिंक या क्यूआर कोड के माध्यम से प्रति व्यक्ति ₹100 की पंजीकरण राशि का भुगतान करें।</li>
+                  <li><strong>स्टेप 2:</strong> भुगतान का स्क्रीनशॉट और बैंक का ट्रांजैक्शन आईडी (UTR) सुरक्षित रख लें।</li>
+                  <li><strong>स्टेप 3:</strong> 15 जुलाई 2026 को खुलने वाले Google Form लिंक पर क्लिक करें और अपनी जानकारी के साथ स्क्रीनशॉट अपलोड कर दें।</li>
+                  <li><strong>स्टेप 4:</strong> आयोजक टीम द्वारा भुगतान की पुष्टि करने के बाद, आपका डिजिटल पास सीधे आपके WhatsApp नंबर पर भेज दिया जाएगा।</li>
+                </ol>
+              </div>
+            </article>
+
+            {/* SECTION 10: EVENT EXPERIENCE */}
+            <article className="rounded-3xl border border-[#dcc395]/40 bg-white p-8 md:p-10 shadow-lg">
+              <h3 className="font-serif text-2xl font-bold text-[#172033] mb-6">10. Event Experience (कार्यक्रम का जीवंत अनुभव)</h3>
+              
+              {/* AEO Direct Answer Box */}
+              <div className="bg-[#ff9933]/5 border-l-4 border-[#ff9933] p-5 rounded-r-2xl mb-6">
+                <p className="text-xs uppercase font-extrabold text-[#ff9933] mb-1">Direct Answer / मुख्य उत्तर</p>
+                <p className="font-semibold text-sm text-[#172033] leading-relaxed">
+                  Attendees will experience an emotionally moving, professionally narrated, and spiritually deep environment containing soundscapes, stories, and a national pledge.
+                </p>
+              </div>
+
+              <div className="space-y-4 text-sm text-[#56616f] leading-relaxed font-light">
+                <p>
+                  दिनेश हॉल, अहमदाबाद में प्रवेश करते ही आपको एक अत्यंत ही अनुशासित और गरिमामयी वातावरण प्राप्त होगा। कार्यक्रम के आरंभ में राष्ट्रध्वज को सलामी और राष्ट्रगान होगा, जिसके बाद श्री हर्षल पुष्कर्णा बहुत ही शानदार ऑडियो-विजुअल स्लाइड्स के माध्यम से भारत की दुर्गम सीमाओं की यात्रा और परमवीर चक्र विजेताओं की गाथाओं का सजीव चित्रण करेंगे।
+                </p>
+                <p>
+                  इसके बाद, पूज्य मुनि श्री का ओजस्वी उद्बोधन होगा जो आपके भीतर छिपी राष्ट्र चेतना और आत्मिक शक्ति को जगा देगा। कार्यक्रम के अंत में सभी प्रतिभागी एक सामूहिक देश-संकल्प लेंगे, जो उन्हें दैनिक जीवन में अधिक जिम्मेदार नागरिक बनने की दिशा प्रदान करेगा।
+                </p>
+              </div>
+            </article>
+
+          </div>
+        </div>
+      </section>
+
       {/* FAQ ACCORDION SECTION */}
 
       {/* FAQ ACCORDION SECTION - PREMIUM REDESIGN */}
