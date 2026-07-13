@@ -305,6 +305,7 @@ export default function ParamVirChakraPage() {
         location: {
           "@type": "Place",
           name: "Dinesh Hall",
+          image: "https://vardhmancreativestudio.com/assets/param-vir-chakra-og.jpg",
           address: {
             "@type": "PostalAddress",
             streetAddress: "Navrangpura",
@@ -375,6 +376,7 @@ export default function ParamVirChakraPage() {
         telephone: "+91 63521 88150",
         url: "https://vardhmancreativestudio.com",
         logo: "https://vardhmancreativestudio.com/assets/logo.png",
+        priceRange: "₹₹",
 
         address: {
           "@type": "PostalAddress",
