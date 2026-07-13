@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { MessageCircle, Award, ChevronRight, Menu, X, ShieldCheck, CheckCircle2, Phone, MapPin, Ticket, CalendarDays, Clock, Users } from 'lucide-react';
+import { MessageCircle, Award, ChevronRight, Menu, X, ShieldCheck, CheckCircle2, Phone, MapPin, Ticket, CalendarDays, Clock, Users, Flag, Sparkles, BookOpen, Flame, GraduationCap, Compass } from 'lucide-react';
 
 
 // --- DATA CONSTANTS ---
@@ -56,41 +56,49 @@ const whyAttend = [
     title: 'देशभक्ति',
     text: 'भारत के वीरों के प्रति सम्मान और राष्ट्र के प्रति जिम्मेदारी की भावना को गहराई से अनुभव करने का अवसर।',
     accent: 'saffron',
+    icon: 'Flag',
   },
   {
     title: 'प्रेरणा',
     text: 'Param Vir Chakra विजेताओं की सच्ची शौर्यगाथाएँ युवाओं और परिवारों को जीवन मूल्यों से जोड़ती हैं।',
     accent: 'white',
+    icon: 'Sparkles',
   },
   {
     title: 'इतिहास',
     text: 'India’s Highest Gallantry Award से जुड़े प्रसंगों को सरल, प्रामाणिक और यादगार storytelling में समझने का अवसर।',
     accent: 'green',
+    icon: 'BookOpen',
   },
   {
     title: 'राष्ट्र गौरव',
     text: 'भारतीय ध्वज, अशोक चक्र और National War Memorial की भावना से प्रेरित एक गरिमामय patriotic experience।',
     accent: 'gold',
+    icon: 'Award',
   },
   {
     title: 'वीरता',
     text: 'साहस, त्याग और कर्तव्यनिष्ठा के वे उदाहरण जो हर नागरिक को अपने जीवन में मजबूत बनाते हैं।',
     accent: 'saffron',
+    icon: 'Flame',
   },
   {
     title: 'युवा प्रेरणा',
     text: 'Students और young professionals के लिए leadership, discipline और character building की practical सीख।',
     accent: 'white',
+    icon: 'GraduationCap',
   },
   {
     title: 'Leadership',
     text: 'दबाव में निर्णय, जिम्मेदारी और team spirit जैसे गुणों को भारत के वीरों की कहानियों से समझना।',
     accent: 'green',
+    icon: 'Compass',
   },
   {
     title: 'Character Building',
     text: 'कार्यक्रम का उद्देश्य केवल जानकारी देना नहीं, बल्कि संयम, साहस और सेवा भाव को जीवन में उतारना है।',
     accent: 'gold',
+    icon: 'ShieldCheck',
   },
 ];
 
@@ -115,11 +123,29 @@ const seoArticle = [
   'Param Vir Chakra – Shaurya Gatha is therefore more than an event page. It is a public-facing knowledge resource, a registration platform and a digital tribute to India’s bravest sons. It honours the past while inspiring the present generation to live with courage, integrity and national responsibility.',
 ];
 const importantInfo = [
-  'Limited Seats',
-  'Registration Required',
-  'Entry subject to verification',
-  'Carry WhatsApp confirmation',
-  'Organizers reserve the right to approve or reject registrations',
+  '₹100 registration fee is fully refundable for those present at the venue before 9:00 AM.',
+  'General seating is allotted on a First-Come, First-Served basis (seats are limited).',
+  'Participants are requested to arrive before 9:00 AM for smooth entry and seating.',
+  'Official confirmation and event pass will be shared via WhatsApp after successful verification.',
+  'Uploading a valid payment screenshot & bank transaction UTR ID is mandatory.',
+  'The organisers reserve the right to approve, reject, or cancel any registration.'
+];
+
+const termsAndConditions = [
+  "Registration Fee: ₹100 per participant.",
+  "Registration is mandatory for attending the event.",
+  "Registration will be confirmed only after successful payment verification and approval by the organisers.",
+  "The ₹100 registration fee is refundable only to participants who are physically present at the venue and report before 9:00 AM on the day of the event.",
+  "No refund will be provided to participants arriving after 9:00 AM or those who remain absent from the event.",
+  "Refunds, where applicable, will be processed only as per the organisers' instructions.",
+  "Seats are limited and registrations will be confirmed on a first verified basis.",
+  "Participants must provide accurate information. Incorrect or misleading information may result in cancellation of registration.",
+  "Uploading a valid payment screenshot and providing the correct UPI/Bank Transaction ID (UTR) is mandatory.",
+  "Every participant must carry their WhatsApp Confirmation/Event Pass for entry.",
+  "The organisers reserve the right to approve, reject, or cancel any registration without assigning any reason.",
+  "The event schedule, venue, speakers, or programme may change due to unavoidable circumstances.",
+  "Photography and videography may be conducted during the event. By registering, participants consent to the use of their photographs and videos for promotional and documentation purposes.",
+  "By submitting this form, you confirm that you have read, understood, and agreed to all the above Terms & Conditions."
 ];
 const faqs = [
   { question: 'What is Param Vir Chakra Shaurya Gatha?', answer: 'Param Vir Chakra Shaurya Gatha is a premium patriotic Ahmedabad event dedicated to Param Vir Chakra winners, Indian Army heroes, courage, sacrifice and national pride.' },
@@ -198,148 +224,214 @@ export default function ParamVirChakraPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [navSolid, setNavSolid] = useState(false);
   const [activeHash, setActiveHash] = useState('#hero');
-  const [timeLeft, setTimeLeft] = useState({ days: 6, hours: 0, minutes: 0, seconds: 0 });
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+  useEffect(() => {
+    const targetDate = new Date("2026-07-15T00:00:00+05:30").getTime();
+
+    const updateCountdown = () => {
+      const now = new Date().getTime();
+      const difference = targetDate - now;
+
+      if (difference <= 0) {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+      } else {
+        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+        setTimeLeft({ days, hours, minutes, seconds });
+      }
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        setNavSolid(true);
+      } else {
+        setNavSolid(false);
+      }
+
+      const sections = ['hero', 'about', 'guests', 'registration', 'faq'];
+      let currentSection = '#hero';
+      
+      for (const sectionId of sections) {
+        const el = document.getElementById(sectionId);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= 120 && rect.bottom >= 120) {
+            currentSection = `#${sectionId}`;
+            break;
+          }
+        }
+      }
+      setActiveHash(currentSection);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const schemas = useMemo(() => {
-  
+    const schemas = {
+      event: {
+        "@context": "https://schema.org",
+        "@type": "Event",
 
+        name: "Param Vir Chakra – Shaurya Gatha",
 
+        description:
+          "A premium patriotic event dedicated to India's Param Vir Chakra heroes.",
+
+        startDate: "2026-08-09T09:00:00+05:30",
+
+        endDate: "2026-08-09T13:00:00+05:30",
+
+        image:
+          "https://vardhmancreativestudio.com/assets/param-vir-chakra-og.jpg",
+
+        eventAttendanceMode:
+          "https://schema.org/OfflineEventAttendanceMode",
+
+        eventStatus:
+          "https://schema.org/EventScheduled",
+
+        location: {
+          "@type": "Place",
+          name: "Dinesh Hall",
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: "Navrangpura",
+            addressLocality: "Ahmedabad",
+            addressRegion: "Gujarat",
+            addressCountry: "IN",
+            postalCode: "380009"
+          },
+          telephone: "+91 63521 88150"
+        },
+
+        organizer: {
+          "@type": "Organization",
+          name: "Shri Vardhman Shwetambar Murtipujak Jain Sangh",
+          url: "https://vardhmancreativestudio.com",
+          logo: "https://vardhmancreativestudio.com/assets/logo.png"
+        },
+
+        performer: [
+          {
+            "@type": "Person",
+            name: "Harshal Pushkarna"
+          },
+          {
+            "@type": "Person",
+            name: "Muni Shri Shramanchandrasagarji Maharaj"
+          }
+        ],
+
+        offers: {
+          "@type": "Offer",
+          url: canonicalUrl,
+          price: "0",
+          priceCurrency: "INR",
+          availability: "https://schema.org/InStock",
+          validFrom: "2026-07-15T00:00:00+05:30"
+        }
+      },
+
+      image: {
+        "@context": "https://schema.org",
+        "@type": "ImageObject",
+
+        contentUrl:
+          "https://vardhmancreativestudio.com/assets/param-vir-chakra-og.jpg",
+
+        url:
+          "https://vardhmancreativestudio.com/assets/param-vir-chakra-og.jpg",
+
+        name: "Param Vir Chakra – Shaurya Gatha",
+
+        caption:
+          "Official Hero Image of Param Vir Chakra – Shaurya Gatha",
+
+        width: 1200,
+
+        height: 630,
+
+        encodingFormat: "image/jpeg"
+      },
+
+      localBusiness: {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+
+        name: "Shri Vardhman Shwetambar Murtipujak Jain Sangh",
+        image: "https://vardhmancreativestudio.com/assets/param-vir-chakra-og.jpg",
+        telephone: "+91 63521 88150",
+        url: "https://vardhmancreativestudio.com",
+        logo: "https://vardhmancreativestudio.com/assets/logo.png",
+
+        address: {
+          "@type": "PostalAddress",
+          streetAddress: "Navrangpura",
+          addressLocality: "Ahmedabad",
+          addressRegion: "Gujarat",
+          addressCountry: "IN",
+          postalCode: "380009"
+        }
+      },
+
+      faq: {
+        "@context": "https://schema.org",
+
+        "@type": "FAQPage",
+
+        mainEntity: faqs.map(item => ({
+          "@type": "Question",
+          name: item.question,
+
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: item.answer
+          }
+        }))
+      },
+
+      breadcrumb: {
+        "@context": "https://schema.org",
+
+        "@type": "BreadcrumbList",
+
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: "https://vardhmancreativestudio.com/"
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Param Vir Chakra Shaurya Gatha",
+            item: canonicalUrl
+          }
+        ]
+      }
+    };
 
     return {
-         const schemas = {
-  event: {
-    "@context": "https://schema.org",
-    "@type": "Event",
-
-    name: "Param Vir Chakra – Shaurya Gatha",
-
-    description:
-      "A premium patriotic event dedicated to India's Param Vir Chakra heroes.",
-
-    startDate: "2026-08-09T09:00:00+05:30",
-
-    endDate: "2026-08-09T13:00:00+05:30",
-
-    image:
-      "https://vardhmancreativestudio.com/assets/param-vir-chakra-og.jpg",
-
-    eventAttendanceMode:
-      "https://schema.org/OfflineEventAttendanceMode",
-
-    eventStatus:
-      "https://schema.org/EventScheduled",
-
-    location: {
-      "@type": "Place",
-      name: "Dinesh Hall",
-      address: {
-        "@type": "PostalAddress",
-        streetAddress: "Navrangpura",
-        addressLocality: "Ahmedabad",
-        addressRegion: "Gujarat",
-        addressCountry: "IN"
-      }
-    },
-
-    organizer: {
-      "@type": "Organization",
-      name: "Shri Vardhman Shwetambar Murtipujak Jain Sangh",
-      url: "https://vardhmancreativestudio.com"
-    },
-
-    performer: [
-      {
-        "@type": "Person",
-        name: "Harshal Pushkarna"
-      },
-      {
-        "@type": "Person",
-        name: "Muni Shri Shramanchandrasagarji Maharaj"
-      }
-    ],
-
-    offers: {
-      "@type": "Offer",
-      url: canonicalUrl,
-      price: "0",
-      priceCurrency: "INR",
-      availability: "https://schema.org/InStock",
-      validFrom: "2026-07-15T00:00:00+05:30"
-    }
-  },
-
-  image: {
-    "@context": "https://schema.org",
-    "@type": "ImageObject",
-
-    contentUrl:
-      "https://vardhmancreativestudio.com/assets/param-vir-chakra-og.jpg",
-
-    url:
-      "https://vardhmancreativestudio.com/assets/param-vir-chakra-og.jpg",
-
-    name: "Param Vir Chakra – Shaurya Gatha",
-
-    caption:
-      "Official Hero Image of Param Vir Chakra – Shaurya Gatha",
-
-    width: 1200,
-
-    height: 630,
-
-    encodingFormat: "image/jpeg"
-  },
-
-  localBusiness: {
-    "@context": "https://schema.org",
-
-    "@type": "LocalBusiness",
-
-    name: "Shri Vardhman Shwetambar Murtipujak Jain Sangh",
-
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: "Ahmedabad",
-      addressRegion: "Gujarat"
-    }
-  },
-
-  faq: {
-    "@context": "https://schema.org",
-
-    "@type": "FAQPage",
-
-    mainEntity: faqs.map(item => ({
-      "@type": "Question",
-      name: item.question,
-
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: item.answer
-      }
-    }))
-  },
-
-  breadcrumb: {
-    "@context": "https://schema.org",
-
-    "@type": "BreadcrumbList",
-
-    itemListElement: [
-      {
-        "@type": "ListItem",
-        position: 1,
-        name: "Home",
-        item: "https://vardhmancreativestudio.com/"
-      },
-      {
-        "@type": "ListItem",
-        position: 2,
-        name: "Param Vir Chakra Shaurya Gatha",
-        item: canonicalUrl
-      }
-    ]
-  }
-};
+      event: schemas.event,
+      image: schemas.image,
+      localBusiness: schemas.localBusiness,
+      faq: schemas.faq,
+      breadcrumb: schemas.breadcrumb
+    };
+  }, []);
 
   return (
     <>
@@ -502,41 +594,105 @@ export default function ParamVirChakraPage() {
 </Helmet>
 
       <main className="min-h-screen bg-[#f7f1e5] text-[#172033] relative">
-      {/* HEADER SECTION */}
-      <nav className={`fixed inset-x-0 top-0 z-50 border-b backdrop-blur-2xl transition-all duration-300 ${navSolid ? "border-white/12 bg-[#07111f]/92 shadow-[0_18px_60px_rgba(0,0,0,0.35)]" : "border-white/0 bg-transparent"}`} aria-label="Primary navigation">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
-          <a href="#hero" className="flex items-center gap-3 text-white" aria-label="Param Vir Chakra Shaurya Gatha home">
-            <span className="flex h-10 w-10 items-center justify-center rounded-3xl border border-[#e4b45f]/40 bg-[#e4b45f]/15">
-              <Award className="h-5 w-5 text-[#ff9933]" aria-hidden="true" />
+      {/* HEADER SECTION - PREMIUM TRICOLOR REDESIGN */}
+      <nav 
+        className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
+          navSolid 
+            ? "py-3 bg-[#050b14]/85 backdrop-blur-xl border-b border-white/5 shadow-[0_20px_50px_rgba(0,0,0,0.4)]" 
+            : "py-5 bg-transparent"
+        }`} 
+        aria-label="Primary navigation"
+      >
+        {/* Tricolor top indicator line */}
+        <div className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[#ff9933] via-white to-[#138808]" />
+
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-1.5 lg:px-8">
+          
+          {/* Logo Brand Frame */}
+          <a href="#hero" className="flex items-center gap-3 text-white group" aria-label="Param Vir Chakra Shaurya Gatha home">
+            <span className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 border border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)] transition-all duration-300 group-hover:border-[#ff9933]/50">
+              {/* Tricolor glowing ring on hover */}
+              <div className="absolute -inset-px -z-10 rounded-xl bg-gradient-to-r from-[#ff9933] via-white to-[#138808] opacity-35 blur-[2px] transition-all duration-300 group-hover:opacity-100 group-hover:blur-[4px]" />
+              <Award className="h-5 w-5 text-[#ff9933] transition-transform duration-300 group-hover:scale-110" aria-hidden="true" />
             </span>
             <span className="leading-tight">
-              <span className="block text-sm font-semibold tracking-[0.16em]">PARAM VIR CHAKRA</span>
-              <span className="block text-xs text-white/65">Shaurya Gatha</span>
+              <span className="block text-[13px] font-extrabold tracking-[0.2em] text-white">PARAM VIR CHAKRA</span>
+              <span className="block text-[10px] uppercase font-bold tracking-[0.15em] text-white/50 group-hover:text-white/70 transition-colors">Shaurya Gatha</span>
             </span>
           </a>
-
+ 
+          {/* Floating Pill Nav Dock */}
           <div className="hidden items-center gap-8 md:flex">
-            {navItems.map((item) => (
-              <a key={item.href} href={item.href} className={`relative text-sm font-semibold tracking-wide text-white/75 hover:text-white transition-colors after:absolute after:-bottom-2 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-gradient-to-r after:from-[#ff9933] after:via-white/85 after:to-[#138808] after:transition-transform after:duration-300 hover:after:scale-x-100 ${activeHash === item.href ? "text-white after:scale-x-100" : ""}`}>
-                {item.label}
-              </a>
-            ))}
-            <a href="#registration" className="inline-flex items-center gap-2 rounded-3xl bg-[#ff9933] px-4 py-2 text-sm font-bold text-[#171009] shadow-lg shadow-[#ff9933]/20 hover:bg-white hover:-translate-y-0.5 transition-all">
-              Register <ChevronRight className="h-4 w-4" aria-hidden="true" />
+            <div className="flex items-center gap-1 bg-white/[0.03] border border-white/10 backdrop-blur-md px-1.5 py-1.5 rounded-full shadow-[0_4px_30px_rgba(0,0,0,0.2)]">
+              {navItems.map((item) => (
+                <a 
+                  key={item.href} 
+                  href={item.href} 
+                  className={`relative text-[13px] font-bold uppercase tracking-wider transition-all duration-300 py-2 px-5 rounded-full hover:bg-white/5 ${
+                    activeHash === item.href 
+                      ? "text-white bg-gradient-to-r from-white/10 to-white/5 shadow-md shadow-black/20" 
+                      : "text-white/60 hover:text-white"
+                  }`}
+                >
+                  {activeHash === item.href && (
+                    <span className="absolute -bottom-1 left-1/2 h-[3px] w-5 -translate-x-1/2 rounded-full bg-gradient-to-r from-[#ff9933] via-white to-[#138808]" />
+                  )}
+                  {item.label}
+                </a>
+              ))}
+            </div>
+
+            {/* Custom CTA Outline Button */}
+            <a 
+              href="#registration" 
+              className="relative inline-flex items-center justify-center gap-2 rounded-full bg-[#050b14] px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white border border-transparent transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(255,153,51,0.35)] group overflow-hidden"
+            >
+              {/* Tricolor glowing outline border */}
+              <span className="absolute inset-0 bg-gradient-to-r from-[#ff9933] via-white to-[#138808] p-[1.5px] rounded-full -z-10 [mask-image:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)] [mask-composite:xor]" />
+              <span className="relative z-10 flex items-center gap-1.5">
+                Register <ChevronRight className="h-3.5 w-3.5 stroke-[2.5]" aria-hidden="true" />
+              </span>
             </a>
           </div>
-
-          <button type="button" className="rounded-3xl border border-white/15 p-2 text-white md:hidden" aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen} onClick={() => setMenuOpen((open) => !open)}>
+ 
+          {/* Mobile Hamburg Trigger */}
+          <button 
+            type="button" 
+            className="rounded-xl border border-white/10 bg-white/5 p-2 text-white transition-colors hover:bg-white/10 md:hidden" 
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'} 
+            aria-expanded={menuOpen} 
+            onClick={() => setMenuOpen((open) => !open)}
+          >
             {menuOpen ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
           </button>
         </div>
+
+        {/* Mobile slide drawer */}
         {menuOpen ? (
-          <div className="border-t border-white/10 bg-[#061120] px-5 py-4 md:hidden">
-            {navItems.map((item) => (
-              <a key={item.href} href={item.href} className="block rounded-3xl px-3 py-3 text-sm font-semibold text-white/80" onClick={() => setMenuOpen(false)}>
-                {item.label}
+          <div className="border-t border-white/5 bg-[#050b14]/95 backdrop-blur-2xl px-5 py-6 md:hidden shadow-[0_15px_30px_rgba(0,0,0,0.5)]">
+            <div className="flex flex-col gap-3">
+              {navItems.map((item) => (
+                <a 
+                  key={item.href} 
+                  href={item.href} 
+                  className={`block rounded-2xl px-4 py-3 text-sm font-semibold tracking-wide transition-all ${
+                    activeHash === item.href 
+                      ? "text-white bg-white/10 border-l-2 border-[#ff9933]" 
+                      : "text-white/70 hover:text-white hover:bg-white/5"
+                  }`} 
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {item.label}
+                </a>
+              ))}
+              <a 
+                href="#registration" 
+                className="mt-2 inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#ff9933] to-[#138808] py-3.5 text-sm font-extrabold uppercase tracking-wider text-white shadow-lg shadow-[#ff9933]/15"
+                onClick={() => setMenuOpen(false)}
+              >
+                Register Now <ChevronRight className="h-4 w-4 stroke-[2.5]" aria-hidden="true" />
               </a>
-            ))}
+            </div>
           </div>
         ) : null}
       </nav>
@@ -614,43 +770,46 @@ export default function ParamVirChakraPage() {
           <div className="hidden lg:block pointer-events-none select-none" aria-hidden="true" />
         </div>
 
-        {/* MIDDLE HIGHLIGHTS: CONTENT-RICH BOXES */}
-<div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl mx-auto mt-12 px-4">
-  
-  {/* Box 1: वीर गाथा */}
-  <div className="flex flex-col items-center text-center p-8 rounded-3xl border border-[#FFB854]/30 bg-gradient-to-b from-[#0a1526] to-[#07111f] hover:border-[#FFB854]/60 transition-all duration-500 group">
-    <div className="p-4 rounded-full bg-[#FFB854]/10 mb-6 group-hover:scale-110 transition-transform">
-      <ShieldCheck className="h-10 w-10 text-[#FFB854]" />
-    </div>
-    <h3 className="text-2xl font-serif font-bold text-white mb-3">वीर गाथा</h3>
-    <p className="text-white/60 leading-relaxed text-sm">
-      भारत के उन जाबांज़ों की अनकही कहानियाँ, जिन्होंने अपने साहस से इतिहास के पन्नों को स्वर्ण अक्षरों में दर्ज किया। 
-    </p>
-  </div>
+        {/* MIDDLE HIGHLIGHTS: TRICOLOR THEMED HERO BOXES */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl mx-auto mt-12 px-4 pb-12">
+          
+          {/* Box 1: वीर गाथा (Saffron / केसरिया) */}
+          <div className="relative flex flex-col items-center text-center p-8 rounded-3xl border border-[#ff9933]/15 bg-[#0c192d]/40 backdrop-blur-xl hover:border-[#ff9933]/60 hover:shadow-[0_15px_45px_rgba(255,153,51,0.15)] transition-all duration-500 group overflow-hidden">
+            <div className="absolute inset-0 -z-10 bg-gradient-to-b from-[#ff9933]/[0.02] to-transparent" />
+            <div className="p-4 rounded-2xl bg-[#ff9933]/10 mb-6 group-hover:scale-110 group-hover:bg-[#ff9933]/15 transition-all text-[#ff9933]">
+              <ShieldCheck className="h-9 w-9 stroke-[1.8]" />
+            </div>
+            <h3 className="text-2xl font-serif font-bold text-white mb-3 transition-colors group-hover:text-[#ff9933]">वीर गाथा</h3>
+            <p className="text-white/60 leading-relaxed text-sm">
+              भारत के उन जाबांज़ों की अनकही कहानियाँ, जिन्होंने अपने साहस से इतिहास के पन्नों को स्वर्ण अक्षरों में दर्ज किया। 
+            </p>
+          </div>
 
-  {/* Box 2: विशेष सम्मान */}
-  <div className="flex flex-col items-center text-center p-8 rounded-3xl border border-[#FFB854]/30 bg-gradient-to-b from-[#0a1526] to-[#07111f] hover:border-[#FFB854]/60 transition-all duration-500 group">
-    <div className="p-4 rounded-full bg-[#FFB854]/10 mb-6 group-hover:scale-110 transition-transform">
-      <Award className="h-10 w-10 text-[#FFB854]" />
-    </div>
-    <h3 className="text-2xl font-serif font-bold text-white mb-3">विशेष सम्मान</h3>
-    <p className="text-white/60 leading-relaxed text-sm">
-      देश सेवा और अटूट पराक्रम की मिसाल पेश करने वाले असली नायकों का सम्मान, जो हम सभी को गौरवान्वित करते हैं।
-    </p>
-  </div>
+          {/* Box 2: विशेष सम्मान (White / Blue - Ashoka Chakra vibe) */}
+          <div className="relative flex flex-col items-center text-center p-8 rounded-3xl border border-white/10 bg-[#0c192d]/40 backdrop-blur-xl hover:border-white/30 hover:shadow-[0_15px_45px_rgba(255,255,255,0.08)] transition-all duration-500 group overflow-hidden">
+            <div className="absolute inset-0 -z-10 bg-gradient-to-b from-white/[0.01] to-transparent" />
+            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 mb-6 group-hover:scale-110 group-hover:border-[#4d82f3]/50 transition-all text-[#4d82f3]">
+              <Award className="h-9 w-9 stroke-[1.8]" />
+            </div>
+            <h3 className="text-2xl font-serif font-bold text-white mb-3 transition-colors group-hover:text-[#4d82f3]">विशेष सम्मान</h3>
+            <p className="text-white/60 leading-relaxed text-sm">
+              देश सेवा और अटूट पराक्रम की मिसाल पेश करने वाले असली नायकों का सम्मान, जो हम सभी को गौरवान्वित करते हैं।
+            </p>
+          </div>
 
-  {/* Box 3: प्रेरणा */}
-  <div className="flex flex-col items-center text-center p-8 rounded-3xl border border-[#FFB854]/30 bg-gradient-to-b from-[#0a1526] to-[#07111f] hover:border-[#FFB854]/60 transition-all duration-500 group">
-    <div className="p-4 rounded-full bg-[#FFB854]/10 mb-6 group-hover:scale-110 transition-transform">
-      <Users className="h-10 w-10 text-[#FFB854]" />
-    </div>
-    <h3 className="text-2xl font-serif font-bold text-white mb-3">प्रेरणा</h3>
-    <p className="text-white/60 leading-relaxed text-sm">
-      युवा पीढ़ी में राष्ट्रप्रेम और वीरता की भावना जगाने का एक महा-अभियान, जो आने वाली पीढ़ियों को दिशा दिखाएगा।
-    </p>
-  </div>
+          {/* Box 3: प्रेरणा (Green / हरा) */}
+          <div className="relative flex flex-col items-center text-center p-8 rounded-3xl border border-[#138808]/15 bg-[#0c192d]/40 backdrop-blur-xl hover:border-[#138808]/60 hover:shadow-[0_15px_45px_rgba(19,136,8,0.12)] transition-all duration-500 group overflow-hidden">
+            <div className="absolute inset-0 -z-10 bg-gradient-to-b from-[#138808]/[0.02] to-transparent" />
+            <div className="p-4 rounded-2xl bg-[#138808]/10 mb-6 group-hover:scale-110 group-hover:bg-[#138808]/15 transition-all text-[#138808]">
+              <Users className="h-9 w-9 stroke-[1.8]" />
+            </div>
+            <h3 className="text-2xl font-serif font-bold text-white mb-3 transition-colors group-hover:text-[#138808]">प्रेरणा</h3>
+            <p className="text-white/60 leading-relaxed text-sm">
+              युवा पीढ़ी में राष्ट्रप्रेम और वीरता की भावना जगाने का एक महा-अभियान, जो आने वाली पीढ़ियों को दिशा दिखाएगा।
+            </p>
+          </div>
 
-</div>
+        </div>
 
       </section>
 
@@ -746,8 +905,8 @@ export default function ParamVirChakraPage() {
             {guests.map((guest, idx) => {
               // Left Card gets Saffron accent, Right Card gets Green accent
               const theme = idx === 0 
-                ? { border: 'group-hover:border-[#FF9933]/50', glow: 'from-transparent via-[#FF9933] to-transparent', icon: 'text-[#FF9933]', bg: 'bg-[#FF9933]/5', pill: 'border-[#FF9933]/30 bg-[#FF9933]/10 text-[#FF9933]' }
-                : { border: 'group-hover:border-[#138808]/50', glow: 'from-transparent via-[#138808] to-transparent', icon: 'text-[#138808]', bg: 'bg-[#138808]/5', pill: 'border-[#138808]/30 bg-[#138808]/10 text-[#138808]' };
+                ? { border: 'group-hover:border-[#FF9933]/50', glow: 'from-transparent via-[#FF9933] to-transparent', icon: 'text-[#FF9933]', bg: 'bg-[#FF9933]/5', pill: 'border-[#FF9933]/30 bg-[#FF9933]/10 text-[#FF9933]', Icon: BookOpen }
+                : { border: 'group-hover:border-[#138808]/50', glow: 'from-transparent via-[#138808] to-transparent', icon: 'text-[#138808]', bg: 'bg-[#138808]/5', pill: 'border-[#138808]/30 bg-[#138808]/10 text-[#138808]', Icon: Sparkles };
 
               return (
                 <motion.article 
@@ -759,7 +918,7 @@ export default function ParamVirChakraPage() {
                   <div className={`absolute inset-x-0 top-0 h-1 w-full opacity-0 transition-opacity duration-500 group-hover:opacity-100 bg-gradient-to-r ${theme.glow}`} />
                   
                   <div className={`mb-8 inline-flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 ${theme.bg}`}>
-                    <ShieldCheck className={`h-8 w-8 ${theme.icon}`} aria-hidden="true" />
+                    <theme.Icon className={`h-8 w-8 ${theme.icon}`} aria-hidden="true" />
                   </div>
                   
                   <h3 className="font-serif text-[1.75rem] font-bold leading-tight text-white md:text-3xl">
@@ -774,7 +933,7 @@ export default function ParamVirChakraPage() {
                     ))}
                   </div>
                   
-                  <p className="mt-6 text-[15px] leading-8 text-white/60 font-light transition-colors duration-300 group-hover:text-white/80">
+                  <p className="mt-6 text-[14px] leading-relaxed text-white/60 font-light transition-colors duration-300 group-hover:text-white/80">
                     {guest.bio}
                   </p>
                 </motion.article>
@@ -808,11 +967,11 @@ export default function ParamVirChakraPage() {
               >
                 {['Patriotism', 'Leadership', 'Sacrifice', 'Courage', 'National Pride'].map((item, index) => {
                   const valueColors = [
-                    { border: 'hover:border-[#FF9933]/50', icon: 'text-[#FF9933]', hoverBg: 'hover:bg-[#FF9933]/5' },
-                    { border: 'hover:border-[#000080]/40', icon: 'text-[#000080]', hoverBg: 'hover:bg-[#000080]/5' },
-                    { border: 'hover:border-[#138808]/50', icon: 'text-[#138808]', hoverBg: 'hover:bg-[#138808]/5' },
-                    { border: 'hover:border-[#FF9933]/50', icon: 'text-[#FF9933]', hoverBg: 'hover:bg-[#FF9933]/5' },
-                    { border: 'hover:border-[#138808]/50', icon: 'text-[#138808]', hoverBg: 'hover:bg-[#138808]/5' },
+                    { border: 'hover:border-[#FF9933]/50', icon: 'text-[#FF9933]', hoverBg: 'hover:bg-[#FF9933]/5', Icon: Flag },
+                    { border: 'hover:border-[#000080]/40', icon: 'text-[#000080]', hoverBg: 'hover:bg-[#000080]/5', Icon: Compass },
+                    { border: 'hover:border-[#138808]/50', icon: 'text-[#138808]', hoverBg: 'hover:bg-[#138808]/5', Icon: Flame },
+                    { border: 'hover:border-[#FF9933]/50', icon: 'text-[#FF9933]', hoverBg: 'hover:bg-[#FF9933]/5', Icon: ShieldCheck },
+                    { border: 'hover:border-[#138808]/50', icon: 'text-[#138808]', hoverBg: 'hover:bg-[#138808]/5', Icon: Award },
                   ][index];
 
                   return (
@@ -822,7 +981,7 @@ export default function ParamVirChakraPage() {
                       className={`group flex items-center justify-between rounded-2xl border border-[#ead9ba] bg-white px-5 py-4 transition-all duration-300 ${valueColors.border} ${valueColors.hoverBg}`}
                     >
                       <span className="font-semibold tracking-wide text-[#172033]">{item}</span>
-                      <CheckCircle2 className={`h-5 w-5 shrink-0 transition-transform duration-300 group-hover:scale-110 ${valueColors.icon}`} />
+                      <valueColors.Icon className={`h-5 w-5 shrink-0 transition-transform duration-300 group-hover:scale-110 ${valueColors.icon}`} />
                     </motion.div>
                   );
                 })}
@@ -883,13 +1042,13 @@ export default function ParamVirChakraPage() {
           className="mx-auto grid max-w-7xl gap-8 sm:grid-cols-2 lg:grid-cols-5"
         >
           {attractions.map((item, index) => {
-            // Tricolor Theme Rotation
+            // Tricolor Theme Rotation with unique icons
             const blockTheme = [
-              { border: 'border-[#FF9933]/30 hover:border-[#FF9933]/60', bg: 'bg-[#FF9933]', text: 'text-[#FF9933]' },
-              { border: 'border-[#000080]/20 hover:border-[#000080]/50', bg: 'bg-[#000080]', text: 'text-[#000080]' },
-              { border: 'border-[#138808]/30 hover:border-[#138808]/60', bg: 'bg-[#138808]', text: 'text-[#138808]' },
-              { border: 'border-[#FF9933]/30 hover:border-[#FF9933]/60', bg: 'bg-[#FF9933]', text: 'text-[#FF9933]' },
-              { border: 'border-[#138808]/30 hover:border-[#138808]/60', bg: 'bg-[#138808]', text: 'text-[#138808]' },
+              { border: 'border-[#FF9933]/30 hover:border-[#FF9933]/60', bg: 'bg-[#FF9933]', text: 'text-[#FF9933]', Icon: Flag },
+              { border: 'border-[#000080]/20 hover:border-[#000080]/50', bg: 'bg-[#000080]', text: 'text-[#000080]', Icon: Flame },
+              { border: 'border-[#138808]/30 hover:border-[#138808]/60', bg: 'bg-[#138808]', text: 'text-[#138808]', Icon: Sparkles },
+              { border: 'border-[#FF9933]/30 hover:border-[#FF9933]/60', bg: 'bg-[#FF9933]', text: 'text-[#FF9933]', Icon: BookOpen },
+              { border: 'border-[#138808]/30 hover:border-[#138808]/60', bg: 'bg-[#138808]', text: 'text-[#138808]', Icon: Award },
             ][index];
 
             return (
@@ -901,7 +1060,11 @@ export default function ParamVirChakraPage() {
                 {/* Premium Active Top Line */}
                 <div className={`absolute inset-x-0 top-0 h-1.5 transition-all duration-300 group-hover:h-2.5 ${blockTheme.bg}`} aria-hidden="true" />
                 
-                <PremiumEmblem tone="gold" />
+                <div className="flex justify-center mb-4">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#fffaf0] border border-[#d7c096]/30 text-[#b57a2a] group-hover:scale-110 group-hover:bg-[#ff9933]/5 group-hover:border-[#ff9933]/30 group-hover:text-[#ff9933] transition-all duration-300 shadow-sm">
+                    <blockTheme.Icon className="h-6 w-6 stroke-[1.8]" />
+                  </span>
+                </div>
                 
                 <h3 className={`mt-4 font-serif text-[1.25rem] font-bold leading-snug transition-colors duration-300 ${blockTheme.text}`}>
                   {item}
@@ -912,45 +1075,153 @@ export default function ParamVirChakraPage() {
         </motion.div>
       </section>
 
-      {/* PVC HEROES SECTION */}
-      <section className="px-5 py-20 lg:px-8 bg-[#f7f1e5]">
+      {/* PVC HEROES SECTION - PREMIUM REDESIGN */}
+      <section className="px-5 py-24 lg:px-8 bg-gradient-to-b from-[#f7f1e5] via-[#fffaf0] to-[#f7f1e5] relative overflow-hidden">
+        
+        {/* Subtle grid lines background overlay */}
+        <div className="absolute inset-0 opacity-[0.015] bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:30px_30px] pointer-events-none" />
+
         <SectionHeader eyebrow="Param Vir Chakra Heroes" title="वीरता की अमर शौर्यगाथाएँ" />
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={staggerContainer} className="mx-auto grid max-w-7xl gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        
+        <motion.div 
+          initial="hidden" 
+          whileInView="visible" 
+          viewport={{ once: true, margin: '-50px' }} 
+          variants={staggerContainer} 
+          className="mx-auto grid max-w-7xl gap-6 sm:grid-cols-2 lg:grid-cols-4 relative"
+        >
           {pvcHeroes.map((hero, index) => {
-            const heroColors = [{ line: 'bg-[#FF9933]' }, { line: 'bg-[#000080]' }, { line: 'bg-[#138808]' }, { line: 'bg-[#FF9933]' }][index % 4];
+            const heroColors = [
+              { border: 'border-[#ff9933]/20 hover:border-[#ff9933]/50', line: 'bg-[#ff9933]', hoverShadow: 'hover:shadow-[0_20px_50px_rgba(255,153,51,0.1)]', text: 'text-[#ff9933]' },
+              { border: 'border-[#4d82f3]/25 hover:border-[#4d82f3]/50', line: 'bg-[#4d82f3]', hoverShadow: 'hover:shadow-[0_20px_50px_rgba(77,130,243,0.08)]', text: 'text-[#4d82f3]' },
+              { border: 'border-[#138808]/20 hover:border-[#138808]/50', line: 'bg-[#138808]', hoverShadow: 'hover:shadow-[0_20px_50px_rgba(19,136,8,0.08)]', text: 'text-[#138808]' },
+              { border: 'border-[#ff9933]/20 hover:border-[#ff9933]/50', line: 'bg-[#ff9933]', hoverShadow: 'hover:shadow-[0_20px_50px_rgba(255,153,51,0.1)]', text: 'text-[#ff9933]' }
+            ][index % 4];
+
             return (
-              <motion.article key={hero.name} variants={fadeInUp} className="group relative overflow-hidden rounded-3xl border border-[#d7c096] bg-white p-6 shadow-xl transition-all hover:-translate-y-1">
-                <div className={`absolute inset-x-0 top-0 h-1.5 ${heroColors.line}`} />
-                <h3 className="mt-4 font-serif text-2xl font-semibold text-[#172033]">{hero.name}</h3>
-                <p className="mt-2 text-sm text-[#9d6b26]">{hero.year} · {hero.battle}</p>
-                <p className="mt-4 text-sm text-[#56616f] leading-7">{hero.story}</p>
+              <motion.article 
+                key={hero.name} 
+                variants={fadeInUp} 
+                className={`group relative overflow-hidden rounded-3xl border bg-white p-7 shadow-lg transition-all duration-500 hover:-translate-y-2 ${heroColors.border} ${heroColors.hoverShadow}`}
+              >
+                {/* Active top color strip */}
+                <div className={`absolute inset-x-0 top-0 h-1.5 transition-all duration-300 group-hover:h-2 ${heroColors.line}`} />
+                
+                {/* Decorative badge representing military honor */}
+                <div className="absolute right-6 top-6 opacity-5 group-hover:opacity-10 transition-opacity duration-300">
+                  <Award className="h-10 w-10 text-[#000080]" strokeWidth={1.5} />
+                </div>
+                
+                <h3 className="mt-4 font-serif text-2xl font-bold text-[#172033] transition-colors duration-300 group-hover:text-[#000080]">
+                  {hero.name}
+                </h3>
+                <p className={`mt-2 text-xs font-bold uppercase tracking-wider ${heroColors.text}`}>
+                  {hero.year} · {hero.battle}
+                </p>
+                <p className="mt-4 text-[14px] leading-relaxed text-[#56616f] font-light">
+                  {hero.story}
+                </p>
               </motion.article>
             );
           })}
         </motion.div>
       </section>
 
-      {/* WHY ATTEND SECTION - FULL COMPLIANCE */}
-      <section className="relative overflow-hidden bg-[#07111f] px-5 py-20 text-white lg:px-8">
+      {/* WHY ATTEND SECTION - PREMIUM MODERN REDESIGN */}
+      <section className="relative overflow-hidden bg-[#07111f] px-5 py-24 text-white lg:px-8">
+        
+        {/* Glow lights in background */}
+        <div className="absolute left-1/4 top-1/4 -z-10 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#ff9933]/5 blur-[120px] pointer-events-none" />
+        <div className="absolute right-1/4 bottom-1/4 -z-10 h-[400px] w-[400px] translate-x-1/2 translate-y-1/2 rounded-full bg-[#138808]/6 blur-[120px] pointer-events-none" />
+        
+        {/* Subtle grid mesh overlay for high-tech premium feel */}
+        <div className="absolute inset-0 -z-10 opacity-[0.02] bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
+        
+        {/* Tri-color top layout thin indicator lines */}
         <div className="absolute left-0 top-0 h-1 w-1/3 bg-[#ff9933]" />
-        <div className="absolute left-1/3 top-0 h-1 w-1/3 bg-white/80" />
+        <div className="absolute left-1/3 top-0 h-1 w-1/3 bg-white/70" />
         <div className="absolute right-0 top-0 h-1 w-1/3 bg-[#138808]" />
+        
         <div className="relative mx-auto max-w-7xl">
           <SectionHeader eyebrow="Why Attend" title="क्यों शामिल हों" light>
             यह कार्यक्रम ज्ञान, संवेदना और चरित्र निर्माण को एक साथ जोड़ता है, ताकि हर visitor केवल event attend न करे बल्कि राष्ट्र गौरव को महसूस करे।
           </SectionHeader>
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} variants={staggerContainer} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {whyAttend.map((item, index) => (
-              <motion.article key={item.title} variants={fadeInUp} className="group relative flex min-h-[260px] flex-col justify-between overflow-hidden rounded-3xl border border-white/12 bg-white/[0.07] p-6 text-center shadow-2xl backdrop-blur-xl transition duration-300 hover:-translate-y-1">
-                <div className={`absolute inset-x-0 top-0 h-1 ${item.accent === 'saffron' ? 'bg-[#ff9933]' : item.accent === 'green' ? 'bg-[#138808]' : 'bg-white/85'}`} />
-                <span className="absolute right-5 top-5 text-xs font-bold text-white/22">{String(index + 1).padStart(2, '0')}</span>
-                <div>
-                  <PremiumEmblem tone="light" />
-                  <h3 className="mx-auto max-w-[12rem] font-serif text-2xl font-semibold text-white">{item.title}</h3>
-                </div>
-                <p className="mt-5 text-sm leading-7 text-white/70">{item.text}</p>
-              </motion.article>
-            ))}
+          
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} variants={staggerContainer} className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {whyAttend.map((item, index) => {
+              const accentStyles = {
+                saffron: {
+                  line: 'bg-[#ff9933]',
+                  iconBorder: 'border-[#ff9933]/30 bg-[#ff9933]/10 text-[#ff9933] group-hover:border-[#ff9933] group-hover:shadow-[0_0_20px_rgba(255,153,51,0.45)]',
+                  glow: 'bg-[#ff9933]/10'
+                },
+                green: {
+                  line: 'bg-[#138808]',
+                  iconBorder: 'border-[#138808]/30 bg-[#138808]/10 text-[#138808] group-hover:border-[#138808] group-hover:shadow-[0_0_20px_rgba(19,136,8,0.45)]',
+                  glow: 'bg-[#138808]/10'
+                },
+                gold: {
+                  line: 'bg-[#d7c096]',
+                  iconBorder: 'border-[#d7c096]/30 bg-[#d7c096]/10 text-[#d7c096] group-hover:border-[#d7c096] group-hover:shadow-[0_0_20px_rgba(215,192,150,0.45)]',
+                  glow: 'bg-[#d7c096]/15'
+                },
+                white: {
+                  line: 'bg-white/80',
+                  iconBorder: 'border-white/20 bg-white/5 text-white/90 group-hover:border-white group-hover:shadow-[0_0_20px_rgba(255,255,255,0.45)]',
+                  glow: 'bg-white/5'
+                }
+              };
+
+              const accent = accentStyles[item.accent] || accentStyles.white;
+              
+              const IconComponent = {
+                Flag: Flag,
+                Sparkles: Sparkles,
+                BookOpen: BookOpen,
+                Award: Award,
+                Flame: Flame,
+                GraduationCap: GraduationCap,
+                Compass: Compass,
+                ShieldCheck: ShieldCheck
+              }[item.icon] || Award;
+
+              return (
+                <motion.article 
+                  key={item.title} 
+                  variants={fadeInUp} 
+                  className="group relative flex min-h-[290px] flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-[#0c192d]/50 p-6 text-center shadow-2xl backdrop-blur-xl transition-all duration-300 hover:-translate-y-2 hover:border-white/20"
+                >
+                  {/* Subtle glass overlay background gradient */}
+                  <div className="absolute inset-0 -z-10 bg-gradient-to-b from-white/[0.02] to-transparent" />
+                  
+                  {/* Glow effect in background of card on hover */}
+                  <div className={`absolute -inset-px -z-20 rounded-3xl opacity-0 transition-opacity duration-500 group-hover:opacity-100 blur-xl ${accent.glow}`} />
+
+                  {/* Top animated bar */}
+                  <div className={`absolute inset-x-0 top-0 h-1 transition-all duration-300 group-hover:h-1.5 ${accent.line}`} />
+                  
+                  {/* Index badge at top right */}
+                  <span className="absolute right-5 top-5 text-[11px] font-extrabold tracking-wider text-white/20 group-hover:text-white/40 transition-colors duration-300">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                  
+                  <div className="flex flex-col items-center mt-4">
+                    {/* Custom animated Icon Box */}
+                    <div className={`mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border transition-all duration-300 group-hover:scale-110 ${accent.iconBorder}`}>
+                      <IconComponent className="h-7 w-7 transition-transform duration-300" />
+                    </div>
+                    
+                    <h3 className="font-serif text-2xl font-bold tracking-tight text-white transition-colors duration-300 group-hover:text-white/95">
+                      {item.title}
+                    </h3>
+                  </div>
+                  
+                  <p className="mt-4 text-[14px] leading-relaxed text-white/70 group-hover:text-white/80 transition-colors duration-300">
+                    {item.text}
+                  </p>
+                </motion.article>
+              );
+            })}
           </motion.div>
         </div>
       </section>
@@ -990,62 +1261,159 @@ export default function ParamVirChakraPage() {
         </div>
       </section>
 
-      {/* REGISTRATION FORM SECTION */}
-      <section id="registration" className="relative overflow-hidden bg-[#0a1320] px-5 py-20 text-white lg:px-8">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(255,153,51,0.18),transparent_28%),radial-gradient(circle_at_82%_24%,rgba(19,136,8,0.14),transparent_28%),linear-gradient(180deg,#07111f,#101927)]" />
-        <div className="relative mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[0.85fr_1.15fr]">
-          <div>
-            <p className="mb-3 text-sm font-semibold uppercase tracking-[0.24em] text-[#ff9933]">Registration</p>
-            <h2 className="font-serif text-4xl font-semibold tracking-normal md:text-6xl">Register Now</h2>
-            <p className="mt-5 text-lg leading-8 text-white/72">Registration Google Form के माध्यम से होगा. कृपया form में सभी details सही भरें; verification के बाद WhatsApp confirmation भेजा जाएगा.</p>
-            <div className="mt-8 rounded-3xl border border-[#138808]/35 bg-[#138808]/10 p-5">
-              <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#ff9933]">Organised By</p>
-              <h3 className="mt-3 font-serif text-2xl font-semibold text-white">श्री वर्धमान श्वेतांबर मूर्तिपूजक जैन संघ</h3>
-              <p className="mt-2 text-white/70">उस्मानपुरा, अहमदाबाद</p>
+      {/* REGISTRATION FORM SECTION - PREMIUM TRICOLOR REDESIGN */}
+      <section id="registration" className="relative overflow-hidden bg-[#050b13] px-5 py-24 text-white lg:px-8">
+        
+        {/* Cinematic background light layers */}
+        <div className="absolute left-1/4 top-1/3 -z-10 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#ff9933]/6 blur-[130px] pointer-events-none" />
+        <div className="absolute right-1/4 bottom-1/3 -z-10 h-[500px] w-[500px] translate-x-1/2 translate-y-1/2 rounded-full bg-[#138808]/5 blur-[130px] pointer-events-none" />
+        <div className="absolute inset-0 -z-10 opacity-[0.015] bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
+
+        <div className="relative mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[1fr_1.1fr]">
+          
+          {/* Left Column: Branding details */}
+          <div className="flex flex-col justify-center">
+            <p className="mb-4 text-xs font-extrabold uppercase tracking-[0.3em] text-[#ff9933]">Registration</p>
+            <h2 className="font-serif text-4xl font-bold tracking-tight text-white md:text-6xl">Register Now</h2>
+            <p className="mt-6 text-[15px] leading-relaxed text-white/70 font-light">
+              Registration Google Form के माध्यम से होगा। कृपया form में सभी details सही भरें; verification के बाद WhatsApp पर confirmation और event pass भेजा जाएगा।
+            </p>
+            
+            {/* Plaque-style Sangh info box (Green Accent) */}
+            <div className="relative mt-8 overflow-hidden rounded-3xl border border-[#138808]/30 bg-[#138808]/5 p-6 backdrop-blur-sm group hover:border-[#138808]/60 transition-all duration-300 shadow-xl">
+              <div className="absolute inset-x-0 top-0 h-0.5 bg-[#138808]" />
+              <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-[#138808]">Organised By</p>
+              <h3 className="mt-3 font-serif text-2xl font-bold text-white transition-colors group-hover:text-[#138808]">श्री वर्धमान श्वेतांबर मूर्तिपूजक जैन संघ</h3>
+              <p className="mt-2 text-sm text-white/70 flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-[#138808]" /> उस्मानपुरा, अहमदाबाद
+              </p>
             </div>
           </div>
 
-          <article className="rounded-3xl border border-white/15 bg-white/[0.08] p-6 text-center shadow-2xl backdrop-blur-2xl md:p-10">
+          {/* Right Column: Interactive card with live countdown */}
+          <article className="relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-[#0c1a2e]/60 p-8 text-center shadow-[0_30px_70px_rgba(0,0,0,0.5)] backdrop-blur-2xl md:p-12 group hover:border-white/20 transition-all duration-300">
+            {/* Subtle tricolor top bar */}
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#ff9933] via-white/50 to-[#138808]" />
+            
             <PremiumEmblem tone="light" />
-            <p className="text-sm font-bold uppercase tracking-[0.22em] text-[#ff9933]">Official Registration Form</p>
-            <h3 className="mt-4 font-serif text-3xl font-semibold text-white md:text-5xl">Google Form से Registration</h3>
-            <p className="mx-auto mt-5 max-w-xl text-base leading-8 text-white/72">नीचे दिए गए button पर click करके official Google Form भरें. Payment और pass confirmation की जानकारी form submission के बाद verify की जाएगी.</p>
-            <a href={registrationFormUrl} target="_blank" rel="noopener noreferrer" className="mt-8 inline-flex min-h-14 w-full items-center justify-center rounded-3xl bg-[#ff9933] px-6 py-4 text-base font-extrabold text-[#171009] shadow-xl hover:bg-white hover:-translate-y-0.5 sm:w-auto transition-all">
-              Open Google Form <ChevronRight className="ml-2 h-5 w-5" aria-hidden="true" />
-            </a>
-            <p className="mt-5 text-sm text-white/55">Registration starts: 15 July 2026</p>
+            <p className="mt-6 text-[11px] font-extrabold uppercase tracking-[0.25em] text-[#ff9933]">Official Registration Form</p>
+            <h3 className="mt-3 font-serif text-3xl font-bold text-white md:text-4xl">Google Form से Registration</h3>
+            
+            <p className="mx-auto mt-4 max-w-xl text-[14px] leading-relaxed text-white/70 font-light">
+              नीचे दिए गए button पर click करके official Google Form भरें। Payment UTR और screenshot अपलोड करना अनिवार्य है।
+            </p>
+
+            {/* Registration Fee Block */}
+            <div className="mt-6 p-5 rounded-2xl border border-white/10 bg-white/[0.04] max-w-md mx-auto text-left">
+              <p className="text-[15px] font-extrabold text-[#ff9933]">Registration Fee: ₹100 per participant</p>
+              <p className="mt-1.5 text-[11px] leading-relaxed text-white/60 font-light">
+                *The registration fee is fully refundable to participants who are physically present at the venue before 9:00 AM on the event day, in accordance with the organisers' refund process.
+              </p>
+            </div>
+
+            {/* LIVE COUNTDOWN TIMER DESIGN */}
+            {(timeLeft.days > 0 || timeLeft.hours > 0 || timeLeft.minutes > 0 || timeLeft.seconds > 0) ? (
+              <div className="mt-8">
+                <p className="text-xs font-bold uppercase tracking-wider text-white/40 mb-3">Registration opens in:</p>
+                <div className="grid grid-cols-4 gap-3 max-w-xs mx-auto">
+                  <div className="flex flex-col items-center bg-white/5 border border-white/10 rounded-2xl py-3 px-1 backdrop-blur-md hover:border-[#ff9933]/30 transition-colors">
+                    <span className="text-2xl font-extrabold text-[#ff9933]">{timeLeft.days}</span>
+                    <span className="text-[9px] uppercase font-bold text-white/50 tracking-wider">Days</span>
+                  </div>
+                  <div className="flex flex-col items-center bg-white/5 border border-white/10 rounded-2xl py-3 px-1 backdrop-blur-md hover:border-white/20 transition-colors">
+                    <span className="text-2xl font-extrabold text-white">{timeLeft.hours}</span>
+                    <span className="text-[9px] uppercase font-bold text-white/50 tracking-wider">Hours</span>
+                  </div>
+                  <div className="flex flex-col items-center bg-white/5 border border-white/10 rounded-2xl py-3 px-1 backdrop-blur-md hover:border-white/20 transition-colors">
+                    <span className="text-2xl font-extrabold text-white">{timeLeft.minutes}</span>
+                    <span className="text-[9px] uppercase font-bold text-white/50 tracking-wider">Mins</span>
+                  </div>
+                  <div className="flex flex-col items-center bg-white/5 border border-white/10 rounded-2xl py-3 px-1 backdrop-blur-md hover:border-[#138808]/30 transition-colors">
+                    <span className="text-2xl font-extrabold text-[#138808]">{timeLeft.seconds}</span>
+                    <span className="text-[9px] uppercase font-bold text-white/50 tracking-wider">Secs</span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="mt-6 flex justify-center">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#138808]/15 border border-[#138808]/40 px-3.5 py-1 text-xs font-bold text-[#138808] uppercase tracking-wide">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#138808] animate-ping" /> Registration Open
+                </span>
+              </div>
+            )}
+
+            <div className="mt-8">
+              <a 
+                href={registrationFormUrl} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="inline-flex min-h-[50px] w-full items-center justify-center rounded-xl bg-gradient-to-r from-[#ff9933] to-[#ffb854] px-8 py-3.5 text-[15px] font-bold text-[#050b14] shadow-[0_12px_40px_rgba(255,153,51,0.3)] transition-all duration-300 hover:from-white hover:to-white hover:text-[#050b14] hover:shadow-[0_15px_45px_rgba(255,255,255,0.4)] hover:-translate-y-0.5 sm:w-auto"
+              >
+                Open Google Form <ChevronRight className="ml-2 h-5 w-5 shrink-0 stroke-[2.5]" aria-hidden="true" />
+              </a>
+            </div>
+            <p className="mt-4 text-[12px] text-white/50">Registration opens on 15 July 2026</p>
           </article>
         </div>
       </section>
 
-      {/* INFORMATION & CONTACT GRID */}
-      <section className="px-5 py-20 lg:px-8 bg-white">
+      {/* INFORMATION & CONTACT GRID - PREMIUM TRICOLOR REDESIGN */}
+      <section className="px-5 py-24 lg:px-8 bg-white">
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1fr_0.9fr]">
           <div>
-            <h2 className="font-serif text-3xl font-semibold text-[#172033] md:text-5xl">Important Information</h2>
+            <h2 className="font-serif text-3xl font-bold text-[#172033] md:text-5xl">Important Information</h2>
             <div className="mt-8 grid gap-3">
-              {importantInfo.map((item) => (
-                <div key={item} className="flex items-center gap-3 rounded-3xl border border-[#dcc395] bg-white px-5 py-4">
-                  <CheckCircle2 className="h-5 w-5 shrink-0 text-[#1f7a4d]" />
-                  <p className="font-semibold text-[#172033]">{item}</p>
-                </div>
-              ))}
+              {importantInfo.map((item, index) => {
+                const InfoIcon = [
+                  Users,         // Limited Seats
+                  Ticket,        // Registration Required
+                  ShieldCheck,   // Entry subject to verification
+                  MessageCircle, // Carry WhatsApp confirmation
+                  CheckCircle2   // Organizers reserve the right...
+                ][index] || CheckCircle2;
+
+                return (
+                  <div key={item} className="flex items-center gap-3 rounded-2xl border border-[#dcc395]/60 bg-[#fffaf0]/20 px-5 py-4 transition-colors hover:border-[#ff9933]/30 shadow-sm">
+                    <InfoIcon className="h-5 w-5 shrink-0 text-[#138808]" />
+                    <p className="font-semibold text-sm text-[#172033]">{item}</p>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Scrollable Terms & Conditions box */}
+            <div className="mt-8 rounded-3xl border border-[#dcc395]/40 bg-[#fffaf0]/40 p-6 shadow-sm">
+              <h3 className="font-serif text-lg font-bold text-[#172033] mb-4">Terms & Conditions (नियम और शर्तें)</h3>
+              <div className="h-44 overflow-y-auto pr-2 space-y-3 text-xs text-[#56616f] scrollbar-thin scrollbar-thumb-amber-700">
+                {termsAndConditions.map((term, index) => (
+                  <p key={index} className="leading-relaxed">
+                    <strong className="text-[#172033]">{index + 1}.</strong> {term}
+                  </p>
+                ))}
+              </div>
             </div>
           </div>
-          <div className="rounded-3xl border border-[#dcc395] bg-[#fffaf0] p-8 shadow-xl">
-            <h2 className="font-serif text-3xl font-semibold text-[#172033]">Contact</h2>
+          <div className="rounded-3xl border border-[#dcc395]/60 bg-[#fffaf0]/70 p-8 shadow-xl">
+            <h2 className="font-serif text-3xl font-bold text-[#172033]">Contact & Timings</h2>
             <div className="mt-8 grid gap-4">
-              <a href="tel:+916352188150" className="group flex items-center gap-4 rounded-3xl border border-[#ead9ba] bg-white p-4 font-semibold text-[#172033] transition-all hover:-translate-y-1 shadow-sm">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#b57a2a]/10"><Phone className="h-5 w-5 text-[#b57a2a]" /></span>
-                <div className="flex flex-col"><span className="text-xs uppercase text-[#9d6b26]">Call Us</span><span className="text-[15px]">+91 63521 88150</span></div>
+              <a href="tel:+916352188150" className="group flex items-center gap-4 rounded-3xl border border-[#ead9ba] bg-white p-4 font-semibold text-[#172033] transition-all hover:-translate-y-1 shadow-sm hover:border-[#ff9933]/30">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#ff9933]/10"><Phone className="h-5 w-5 text-[#ff9933]" /></span>
+                <div className="flex flex-col"><span className="text-xs uppercase text-[#ff9933]">Call Us</span><span className="text-[15px]">+91 63521 88150</span></div>
               </a>
-              <a href="https://wa.me/916352188150?text=Jai%20Hind!%20I%20want%20to%20know%20more%20about%20the%20Param%20Vir%20Chakra%20Shaurya%20Gatha%20event." target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 rounded-3xl border border-[#ead9ba] bg-white p-4 font-semibold text-[#172033] transition-all hover:-translate-y-1 shadow-sm">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#1f7a4d]/10"><MessageCircle className="h-5 w-5 text-[#1f7a4d]" /></span>
-                <div className="flex flex-col"><span className="text-xs uppercase text-[#1f7a4d]">WhatsApp</span><span className="text-[15px]">+91 63521 88150</span></div>
+              <a href="https://wa.me/916352188150?text=Jai%20Hind!%20I%20want%20to%20know%20more%20about%20the%20Param%20Vir%20Chakra%20Shaurya%20Gatha%20event." target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 rounded-3xl border border-[#ead9ba] bg-white p-4 font-semibold text-[#172033] transition-all hover:-translate-y-1 shadow-sm hover:border-[#138808]/30">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#138808]/10"><MessageCircle className="h-5 w-5 text-[#138808]" /></span>
+                <div className="flex flex-col"><span className="text-xs uppercase text-[#138808]">WhatsApp</span><span className="text-[15px]">+91 63521 88150</span></div>
               </a>
-              <a href="https://maps.app.goo.gl/r76fhgM7NS8AJaBw8" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 rounded-3xl border border-[#ead9ba] bg-white p-4 font-semibold text-[#172033] transition-all hover:-translate-y-1 shadow-sm">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#b57a2a]/10"><MapPin className="h-5 w-5 text-[#b57a2a]" /></span>
-                <div className="flex flex-col"><span className="text-xs uppercase text-[#9d6b26]">Location</span><span className="text-[15px]">Dinesh Hall, Ahmedabad</span></div>
+              <div className="flex items-center gap-4 rounded-3xl border border-[#ead9ba] bg-white p-4 font-semibold text-[#172033] shadow-sm">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#000080]/5"><Clock className="h-5 w-5 text-[#000080]" /></span>
+                <div className="flex flex-col">
+                  <span className="text-xs uppercase text-white/40 bg-[#000080]/80 rounded px-1.5 py-0.5 w-fit text-[9px] tracking-wide font-extrabold mb-0.5">TIMINGS</span>
+                  <span className="text-[14px]">Mon to Sat (10 am to 6 pm)</span>
+                </div>
+              </div>
+              <a href="https://maps.app.goo.gl/r76fhgM7NS8AJaBw8" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 rounded-3xl border border-[#ead9ba] bg-white p-4 font-semibold text-[#172033] transition-all hover:-translate-y-1 shadow-sm hover:border-[#ff9933]/30">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#ff9933]/10"><MapPin className="h-5 w-5 text-[#ff9933]" /></span>
+                <div className="flex flex-col"><span className="text-xs uppercase text-[#ff9933]">Location</span><span className="text-[15px]">Dinesh Hall, Ahmedabad</span></div>
               </a>
             </div>
           </div>
@@ -1053,17 +1421,26 @@ export default function ParamVirChakraPage() {
       </section>
       {/* FAQ ACCORDION SECTION */}
 
-      <section id="faq" className="bg-white px-5 py-20 lg:px-8">
+      {/* FAQ ACCORDION SECTION - PREMIUM REDESIGN */}
+      <section id="faq" className="bg-white px-5 py-24 lg:px-8">
         <SectionHeader eyebrow="FAQ" title="Frequently Asked Questions" />
         <div className="mx-auto grid max-w-4xl gap-4">
           {faqs.map((faq, index) => (
-            <details key={faq.question} className="group rounded-3xl border border-[#d7c096] bg-[#fffaf0] shadow-sm transition-all hover:shadow-md" open={index === 0}>
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 outline-none px-5 py-5 text-left text-lg font-bold text-[#172033] marker:hidden md:px-6">
-                <span className="group-hover:text-[#9d6b26] transition-colors">{faq.question}</span>
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-[#d7c096] bg-white text-[#9d6b26] transition-all group-open:rotate-45"><X className="h-4 w-4 rotate-45" /></span>
+            <details 
+              key={faq.question} 
+              className="group rounded-3xl border border-[#d7c096]/50 bg-white shadow-sm transition-all duration-300 hover:shadow-md hover:border-[#ff9933]/40 overflow-hidden" 
+              open={index === 0}
+            >
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 outline-none px-6 py-5 text-left text-lg font-bold text-[#172033] marker:hidden">
+                <span className="group-hover:text-[#ff9933] transition-colors duration-300">{faq.question}</span>
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[#d7c096]/50 bg-[#fffaf0] text-[#9d6b26] transition-all duration-300 group-open:rotate-45 group-open:bg-[#ff9933]/10 group-open:text-[#ff9933] group-open:border-[#ff9933]/40">
+                  <X className="h-4 w-4 rotate-45" />
+                </span>
               </summary>
-              <div className="px-5 pb-5 md:px-6">
-                <p className="border-t border-[#ead9ba] pt-4 text-[15px] leading-7 text-[#56616f]">{faq.answer}</p>
+              <div className="px-6 pb-6">
+                <div className="border-t border-[#ead9ba] pt-4 text-[15px] leading-relaxed text-[#56616f]">
+                  {faq.answer}
+                </div>
               </div>
             </details>
           ))}
