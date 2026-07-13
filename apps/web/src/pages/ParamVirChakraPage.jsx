@@ -1426,9 +1426,9 @@ export default function ParamVirChakraPage() {
                   <span className="text-[15px]">Mon to Sat (10 am to 6 pm)</span>
                 </div>
               </div>
-              <a href="https://maps.app.goo.gl/r76fhgM7NS8AJaBw8" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 rounded-3xl border border-[#ead9ba] bg-white p-4 font-semibold text-[#172033] transition-all hover:-translate-y-1 shadow-sm hover:border-[#ff9933]/30">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#ff9933]/10"><MapPin className="h-5 w-5 text-[#ff9933]" /></span>
-                <div className="flex flex-col"><span className="text-xs uppercase text-[#ff9933]">Location</span><span className="text-[15px]">Dinesh Hall, Ahmedabad</span></div>
+              <a href="https://maps.app.goo.gl/r76fhgM7NS8AJaBw8" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 rounded-3xl border border-[#ead9ba] bg-white p-4 font-semibold text-[#172033] transition-all hover:-translate-y-1 shadow-sm hover:border-[#138808]/30">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#138808]/10"><MapPin className="h-5 w-5 text-[#138808]" /></span>
+                <div className="flex flex-col"><span className="text-xs uppercase text-[#138808]">Location</span><span className="text-[15px]">Dinesh Hall, Ahmedabad</span></div>
               </a>
             </div>
           </div>
