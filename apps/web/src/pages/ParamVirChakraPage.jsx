@@ -1420,10 +1420,10 @@ export default function ParamVirChakraPage() {
                 <div className="flex flex-col"><span className="text-xs uppercase text-[#138808]">WhatsApp</span><span className="text-[15px]">+91 63521 88150</span></div>
               </a>
               <div className="flex items-center gap-4 rounded-3xl border border-[#ead9ba] bg-white p-4 font-semibold text-[#172033] shadow-sm">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#000080]/5"><Clock className="h-5 w-5 text-[#000080]" /></span>
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#ff9933]/10"><Clock className="h-5 w-5 text-[#ff9933]" /></span>
                 <div className="flex flex-col">
-                  <span className="text-xs uppercase text-white/40 bg-[#000080]/80 rounded px-1.5 py-0.5 w-fit text-[9px] tracking-wide font-extrabold mb-0.5">TIMINGS</span>
-                  <span className="text-[14px]">Mon to Sat (10 am to 6 pm)</span>
+                  <span className="text-xs uppercase text-[#ff9933]">Call Timings</span>
+                  <span className="text-[15px]">Mon to Sat (10 am to 6 pm)</span>
                 </div>
               </div>
               <a href="https://maps.app.goo.gl/r76fhgM7NS8AJaBw8" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 rounded-3xl border border-[#ead9ba] bg-white p-4 font-semibold text-[#172033] transition-all hover:-translate-y-1 shadow-sm hover:border-[#ff9933]/30">
