@@ -327,11 +327,17 @@ export default function ParamVirChakraPage() {
         performer: [
           {
             "@type": "Person",
-            name: "Harshal Pushkarna"
+            name: "Harshal Pushkarna",
+            jobTitle: "Author and Editor",
+            description: "Prominent writer, editor and public speaker focusing on the patriotic and historical narratives of Indian military heroes.",
+            url: "https://vardhmancreativestudio.com/param-vir-chakra"
           },
           {
             "@type": "Person",
-            name: "Muni Shri Shramanchandrasagarji Maharaj"
+            name: "Muni Shri Shramanchandrasagarji Maharaj",
+            jobTitle: "Spiritual Leader",
+            description: "Respected Jain Muni inspiring national values, spiritual discipline, and character building among modern youth.",
+            url: "https://vardhmancreativestudio.com/param-vir-chakra"
           }
         ],
 
@@ -630,7 +636,7 @@ export default function ParamVirChakraPage() {
                 <a 
                   key={item.href} 
                   href={item.href} 
-                  className={`relative text-[13px] font-bold uppercase tracking-wider transition-all duration-300 py-2 px-5 rounded-full hover:bg-white/5 ${
+                  className={`relative text-[13px] font-bold uppercase tracking-wider transition-all duration-300 py-2 px-5 rounded-full hover:bg-white/5 focus-visible:ring-2 focus-visible:ring-[#ff9933] outline-none ${
                     activeHash === item.href 
                       ? "text-white bg-gradient-to-r from-white/10 to-white/5 shadow-md shadow-black/20" 
                       : "text-white/60 hover:text-white"
@@ -647,7 +653,7 @@ export default function ParamVirChakraPage() {
             {/* Custom CTA Outline Button */}
             <a 
               href="#registration" 
-              className="relative inline-flex items-center justify-center gap-2 rounded-full bg-[#050b14] px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white border border-transparent transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(255,153,51,0.35)] group overflow-hidden"
+              className="relative inline-flex items-center justify-center gap-2 rounded-full bg-[#050b14] px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white border border-transparent transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(255,153,51,0.35)] group overflow-hidden focus-visible:ring-2 focus-visible:ring-[#ff9933] focus-visible:ring-offset-2 outline-none"
             >
               {/* Tricolor glowing outline border */}
               <span className="absolute inset-0 bg-gradient-to-r from-[#ff9933] via-white to-[#138808] p-[1.5px] rounded-full -z-10 [mask-image:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)] [mask-composite:xor]" />
@@ -660,7 +666,7 @@ export default function ParamVirChakraPage() {
           {/* Mobile Hamburg Trigger */}
           <button 
             type="button" 
-            className="rounded-xl border border-white/10 bg-white/5 p-2 text-white transition-colors hover:bg-white/10 md:hidden" 
+            className="rounded-xl border border-white/10 bg-white/5 p-2 text-white transition-colors hover:bg-white/10 md:hidden focus-visible:ring-2 focus-visible:ring-[#ff9933] outline-none" 
             aria-label={menuOpen ? 'Close menu' : 'Open menu'} 
             aria-expanded={menuOpen} 
             onClick={() => setMenuOpen((open) => !open)}
@@ -677,7 +683,7 @@ export default function ParamVirChakraPage() {
                 <a 
                   key={item.href} 
                   href={item.href} 
-                  className={`block rounded-2xl px-4 py-3 text-sm font-semibold tracking-wide transition-all ${
+                  className={`block rounded-2xl px-4 py-3 text-sm font-semibold tracking-wide transition-all focus-visible:ring-2 focus-visible:ring-[#ff9933] outline-none ${
                     activeHash === item.href 
                       ? "text-white bg-white/10 border-l-2 border-[#ff9933]" 
                       : "text-white/70 hover:text-white hover:bg-white/5"
@@ -689,7 +695,7 @@ export default function ParamVirChakraPage() {
               ))}
               <a 
                 href="#registration" 
-                className="mt-2 inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#ff9933] to-[#138808] py-3.5 text-sm font-extrabold uppercase tracking-wider text-white shadow-lg shadow-[#ff9933]/15"
+                className="mt-2 inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#ff9933] to-[#138808] py-3.5 text-sm font-extrabold uppercase tracking-wider text-white shadow-lg shadow-[#ff9933]/15 focus-visible:ring-2 focus-visible:ring-white outline-none"
                 onClick={() => setMenuOpen(false)}
               >
                 Register Now <ChevronRight className="h-4 w-4 stroke-[2.5]" aria-hidden="true" />
