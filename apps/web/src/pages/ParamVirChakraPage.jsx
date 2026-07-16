@@ -2,6 +2,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { MessageCircle, Award, ChevronRight, Menu, X, ShieldCheck, CheckCircle2, Phone, MapPin, Ticket, CalendarDays, Clock, Users, Flag, Sparkles, BookOpen, Flame, GraduationCap, Compass } from 'lucide-react';
+import { contactConfig } from '@/lib/contactConfig';
 
 
 // --- DATA CONSTANTS ---
@@ -103,10 +104,10 @@ const whyAttend = [
 ];
 
 const timeline = [
-  ['15 July', 'Registration Starts'],
-  ['Step 2', 'Payment Verification'],
-  ['Step 3', 'WhatsApp Confirmation'],
-  ['09 August', 'Event'],
+  ['Open Now', 'Register Online'],
+  ['WhatsApp', 'Receive Collection Info'],
+  ['Pre-Event', 'Collect Physical Pass'],
+  ['09 August', 'Event Entry'],
 ];
 const seoArticle = [
   'Param Vir Chakra – Shaurya Gatha is designed as an official patriotic experience that brings together history, emotion, learning and national pride. The Param Vir Chakra is India’s Highest Gallantry Award, and every Param Vir Chakra Award story carries a message of courage that goes far beyond the battlefield. This Ahmedabad Event is created for people who want to understand the values behind sacrifice, discipline, leadership and service to the nation.',
@@ -118,30 +119,25 @@ const seoArticle = [
   'For parents, teachers and organisations, this patriotic event offers a meaningful way to introduce the next generation to India’s Highest Gallantry Award. Many people know the name Param Vir Chakra, but fewer know the complete stories, the battles, the decisions and the personal courage behind each awardee. This event aims to make those stories memorable and relevant.',
   'The programme naturally includes themes such as Patriotism, Sacrifice, Courage, National Pride, Indian Army Heroes, Veer Gatha, Shaurya Gatha and leadership. These keywords are not added only for search engines; they are the real substance of the event. The goal is to create content useful enough for Google and powerful enough for the heart.',
   'Param Vir Chakra Ahmedabad searches often come from people looking for a serious patriotic event, a Desh Bhakti Event, a youth inspiration programme or a National Pride Event. This official page answers those needs with event details, registration information, guest details, organiser information, FAQs and an accessible mobile-first structure.',
-  'Every registration will be handled with verification because limited seats require responsibility. Registration opens on 15 July 2026. Visitors can review the event details, understand the purpose, read about Param Vir Chakra heroes and return when booking starts. After submission and payment verification, confirmation will be sent on WhatsApp.',
+  'Every registration will be handled with verification because limited seats require responsibility. Registration is now open. Visitors can review the event details, understand the purpose, read about Param Vir Chakra heroes and register. After submission, confirmation will be sent on WhatsApp.',
   'The presence of Shri Harshal Pushkarna and Pujya Muni Shri Shramanchandrasagarji Maharaj adds intellectual and spiritual depth. One side brings research, storytelling and public communication; the other brings values, discipline and inner inspiration. Together, they support the larger mission of transforming patriotic remembrance into living character.',
   'Param Vir Chakra – Shaurya Gatha is therefore more than an event page. It is a public-facing knowledge resource, a registration platform and a digital tribute to India’s bravest sons. It honours the past while inspiring the present generation to live with courage, integrity and national responsibility.',
 ];
 const importantInfo = [
-  '₹100 registration fee is fully refundable for those present at the venue before 9:00 AM.',
+  'Registration is completely FREE. Advance registration is mandatory.',
   'General seating is allotted on a First-Come, First-Served basis (seats are limited).',
-  'Participants are requested to arrive before 9:00 AM for smooth entry and seating.',
-  'Official confirmation and event pass will be shared via WhatsApp after successful verification.',
-  'Uploading a valid payment screenshot & bank transaction UTR ID is mandatory.',
+  'Participants must collect their physical entry pass prior to the event as per the WhatsApp instructions.',
+  'Only participants carrying a valid Physical Entry Pass will be allowed entry into the event.',
   'The organisers reserve the right to approve, reject, or cancel any registration.'
 ];
 
 const termsAndConditions = [
-  "Registration Fee: ₹100 per participant.",
-  "Registration is mandatory for attending the event.",
-  "Registration will be confirmed only after successful payment verification and approval by the organisers.",
-  "The ₹100 registration fee is refundable only to participants who are physically present at the venue and report before 9:00 AM on the day of the event.",
-  "No refund will be provided to participants arriving after 9:00 AM or those who remain absent from the event.",
-  "Refunds, where applicable, will be processed only as per the organisers' instructions.",
-  "Seats are limited and registrations will be confirmed on a first verified basis.",
+  "Registration is completely FREE but advance registration is mandatory.",
+  "Seats are limited and registrations will be confirmed on a first-come, first-served basis.",
+  "After successful registration, participants will receive a WhatsApp message containing the Pass Collection details.",
+  "Participants must visit the designated Pass Collection Centre to collect their Official Physical Entry Pass before the event.",
+  "Only participants carrying a valid Physical Entry Pass will be allowed entry into Dinesh Hall.",
   "Participants must provide accurate information. Incorrect or misleading information may result in cancellation of registration.",
-  "Uploading a valid payment screenshot and providing the correct UPI/Bank Transaction ID (UTR) is mandatory.",
-  "Every participant must carry their WhatsApp Confirmation/Event Pass for entry.",
   "The organisers reserve the right to approve, reject, or cancel any registration without assigning any reason.",
   "The event schedule, venue, speakers, or programme may change due to unavoidable circumstances.",
   "Photography and videography may be conducted during the event. By registering, participants consent to the use of their photographs and videos for promotional and documentation purposes.",
@@ -173,28 +169,28 @@ const faqs = [
     answer: "Pujya Muni Shri Shramanchandrasagarji Maharaj is a disciple of Acharya Shri Hemchandrasagarsuriji Maharaj, under the spiritual guidance of Acharya Shri Samyakchandrasagarsuriji Maharaj and Acharya Shri Tarakchandrasagarsuriji Maharaj."
   },
   {
-    question: "Is there a registration fee for the Param Vir Chakra event?",
-    answer: "Yes, the registration fee is ₹100 per participant. It is fully refundable to participants who are physically present at Dinesh Hall before 9:00 AM on the day of the event."
+    question: "Is registration free for the Param Vir Chakra event?",
+    answer: "Yes, registration is completely FREE. However, advance online registration is strictly mandatory to attend the event."
   },
   {
-    question: "How do I claim a refund for the event registration fee?",
-    answer: "To claim the refund of ₹100, you must report at the venue, Dinesh Hall in Ahmedabad, before 9:00 AM on Sunday, 9 August 2026. The refund will be processed as per the organizers' instructions."
+    question: "How will I receive my entry pass after registration?",
+    answer: "After successful online registration, you will receive a WhatsApp message on your registered mobile number containing the designated Pass Collection Address, Date, Time, and further instructions to collect your Physical Entry Pass."
   },
   {
-    question: "When will the online registration open?",
-    answer: "Online registration officially opens on 15 July 2026 via the official Google Form link on https://vardhmancreativestudio.com/param-vir-chakra."
+    question: "Is the online registration open?",
+    answer: "Yes, registration is now open. You can register via the official Google Form link on https://vardhmancreativestudio.com/param-vir-chakra."
   },
   {
     question: "Is prior registration mandatory to attend this event?",
-    answer: "Yes, prior registration is strictly mandatory. Seating is limited and entry to Dinesh Hall will be permitted only upon verification of the WhatsApp confirmation pass."
+    answer: "Yes, prior registration is strictly mandatory. Seating is limited, and entry to Dinesh Hall will be permitted only to participants carrying their valid Physical Entry Pass."
   },
   {
     question: "What information must I provide during registration?",
-    answer: "You must provide your full name, mobile number (WhatsApp enabled), age, city, and upload a valid payment screenshot along with the Bank Transaction ID (UTR)."
+    answer: "You must provide your full name, mobile number (WhatsApp enabled), age, and city on the official Google Form."
   },
   {
-    question: "How and when will I receive my event entry pass?",
-    answer: "After successful payment verification by the organizer team, your official confirmation and entry pass will be sent directly to your registered WhatsApp number."
+    question: "How and where do I collect my Physical Entry Pass?",
+    answer: "Once registered, you will receive details on your WhatsApp number regarding the Pass Collection Centre address, dates, and times. You must visit the designated center to collect your Physical Entry Pass prior to the event."
   },
   {
     question: "Is there an age limit for attendees of the event?",
@@ -213,12 +209,12 @@ const faqs = [
     answer: "Param Vir Chakra literally translates to the 'Wheel of the Ultimate Brave' (परम वीर चक्र) in Sanskrit, symbolizing the highest honor of courage and sacrifice."
   },
   {
-    question: "Can I book multiple passes for my family members?",
-    answer: "Yes, you can register for multiple participants by entering their details and making the payment of ₹100 per person. However, entry remains subject to verification."
+    question: "Can I register for multiple family members?",
+    answer: "Yes, you can register for multiple family members by entering their details on the registration form. However, entry remains subject to verification and pass collection."
   },
   {
-    question: "What happens if I arrive after 9:00 AM on the day of the event?",
-    answer: "No refund will be provided to participants arriving after 9:00 AM or remaining absent. General seating is on a first-come, first-served basis, so late entry might also be restricted."
+    question: "What is the entry policy on the day of the event?",
+    answer: "Only participants carrying a valid Physical Entry Pass collected from the designated center prior to the event will be allowed entry. Seating is on a first-come, first-served basis, so please arrive early."
   },
   {
     question: "Is general seating reserved at Dinesh Hall?",
@@ -254,11 +250,11 @@ const faqs = [
   },
   {
     question: "What should I bring to the venue on the event day?",
-    answer: "Please carry your WhatsApp confirmation pass (digital or printed copy) and a valid photo identity proof for smooth entry at Dinesh Hall."
+    answer: "Please carry your Official Physical Entry Pass (collected prior to the event) and a valid photo identity proof for entry at Dinesh Hall."
   },
   {
-    question: "Is the registration fee refundable if the event is cancelled?",
-    answer: "Yes. In the highly unlikely event of cancellation or rescheduling by the organizers, the ₹100 registration fee will be fully refunded to all registered participants."
+    question: "What should I do if I cannot attend the event after registering?",
+    answer: "Since seating is limited, if you are unable to attend, please inform the support team at +91 63521 88150 so your seat can be allocated to another participant."
   },
   {
     question: "What is the official website URL for the event?",
@@ -281,12 +277,12 @@ const faqs = [
     answer: "Shri Vardhman Shwetambar Murtipujak Jain Sangh is the primary organizer, hosting this event to foster national values, moral education, and gratitude toward our soldiers."
   },
   {
-    question: "Are payment screenshots mandatory for registration?",
-    answer: "Yes. Uploading a valid payment screenshot and providing the correct UPI/Bank Transaction ID (UTR) is strictly mandatory for the verification process."
+    question: "Do I need to pay or upload a screenshot to register?",
+    answer: "No. Registration is completely FREE and there is no payment required. You do not need to upload any payment screenshot or UTR."
   },
   {
     question: "By submitting the form, do I agree to all Terms and Conditions?",
-    answer: "Yes, submitting the registration form confirms that you have read, understood, and agreed to follow all 14 official Terms & Conditions specified by the organizers."
+    answer: "Yes, submitting the registration form confirms that you have read, understood, and agreed to follow all 10 official Terms & Conditions specified by the organizers."
   }
 ];
 const fadeUp = {
@@ -339,30 +335,6 @@ export default function ParamVirChakraPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [navSolid, setNavSolid] = useState(false);
   const [activeHash, setActiveHash] = useState('#hero');
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-
-  useEffect(() => {
-    const targetDate = new Date("2026-07-15T00:00:00+05:30").getTime();
-
-    const updateCountdown = () => {
-      const now = new Date().getTime();
-      const difference = targetDate - now;
-
-      if (difference <= 0) {
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-      } else {
-        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-        setTimeLeft({ days, hours, minutes, seconds });
-      }
-    };
-
-    updateCountdown();
-    const interval = setInterval(updateCountdown, 1000);
-    return () => clearInterval(interval);
-  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -488,24 +460,23 @@ export default function ParamVirChakraPage() {
         encodingFormat: "image/jpeg"
       },
 
-      localBusiness: {
+      organization: {
         "@context": "https://schema.org",
-        "@type": "LocalBusiness",
-
-        name: "Shri Vardhman Shwetambar Murtipujak Jain Sangh",
-        image: "https://vardhmancreativestudio.com/assets/param-vir-chakra-og.jpg",
-        telephone: "+91 63521 88150",
-        url: "https://vardhmancreativestudio.com",
-        logo: "https://vardhmancreativestudio.com/assets/logo.png",
-        priceRange: "₹₹",
-
-        address: {
-          "@type": "PostalAddress",
-          streetAddress: "Navrangpura",
-          addressLocality: "Ahmedabad",
-          addressRegion: "Gujarat",
-          addressCountry: "IN",
-          postalCode: "380009"
+        "@type": "Organization",
+        "name": contactConfig.orgName,
+        "alternateName": "Vardhman CS",
+        "description": contactConfig.orgDescription,
+        "image": "https://vardhmancreativestudio.com/assets/param-vir-chakra-og.jpg",
+        "telephone": contactConfig.contactPhone,
+        "email": contactConfig.supportEmail,
+        "url": contactConfig.orgWebsite,
+        "logo": contactConfig.orgLogo,
+        "sameAs": contactConfig.orgSocials,
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "telephone": contactConfig.contactPhone,
+          "contactType": "customer service",
+          "availableLanguage": ["English", "Hindi", "Gujarati"]
         }
       },
 
@@ -550,7 +521,7 @@ export default function ParamVirChakraPage() {
     return {
       event: schemas.event,
       image: schemas.image,
-      localBusiness: schemas.localBusiness,
+      organization: schemas.organization,
       faq: schemas.faq,
       breadcrumb: schemas.breadcrumb
     };
@@ -704,7 +675,7 @@ export default function ParamVirChakraPage() {
   </script>
 
   <script type="application/ld+json">
-    {JSON.stringify(schemas.localBusiness)}
+    {JSON.stringify(schemas.organization)}
   </script>
 
   <script type="application/ld+json">
@@ -813,7 +784,7 @@ export default function ParamVirChakraPage() {
                 className="mt-2 inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#ff9933] to-[#138808] py-3.5 text-sm font-extrabold uppercase tracking-wider text-white shadow-lg shadow-[#ff9933]/15 focus-visible:ring-2 focus-visible:ring-white outline-none"
                 onClick={() => setMenuOpen(false)}
               >
-                Register Now <ChevronRight className="h-4 w-4 stroke-[2.5]" aria-hidden="true" />
+                Register for Free <ChevronRight className="h-4 w-4 stroke-[2.5]" aria-hidden="true" />
               </a>
             </div>
           </div>
@@ -866,7 +837,7 @@ export default function ParamVirChakraPage() {
                 href="#registration" 
                 className="inline-flex min-h-[50px] items-center justify-center rounded-xl bg-[#FF9933] px-8 py-3 text-[15px] font-bold text-[#090f19] shadow-[0_12px_40px_rgba(255,153,51,0.25)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_16px_50px_rgba(255,153,51,0.35)]"
               >
-                Register Now <ChevronRight className="ml-1 h-5 w-5 shrink-0 stroke-[2.5]" />
+                Register for Free <ChevronRight className="ml-1 h-5 w-5 shrink-0 stroke-[2.5]" />
               </a>
               <a 
                 href="#about" 
@@ -1410,9 +1381,9 @@ export default function ParamVirChakraPage() {
           {/* Left Column: Branding details */}
           <div className="flex flex-col justify-center">
             <p className="mb-4 text-xs font-extrabold uppercase tracking-[0.3em] text-[#ff9933]">Registration</p>
-            <h2 className="font-serif text-4xl font-bold tracking-tight text-white md:text-6xl">Register Now</h2>
+            <h2 className="font-serif text-4xl font-bold tracking-tight text-white md:text-6xl">Register for Free</h2>
             <p className="mt-6 text-[15px] leading-relaxed text-white/70 font-light">
-              Registration Google Form के माध्यम से होगा। कृपया form में सभी details सही भरें; verification के बाद WhatsApp पर confirmation और event pass भेजा जाएगा।
+              Registration Google Form के माध्यम से होगा। कृपया form में सभी details सही भरें; सफल पंजीकरण के बाद WhatsApp पर Physical Entry Pass कलेक्ट करने का पता, दिनांक और समय भेजा जाएगा।
             </p>
             
             {/* Plaque-style Sangh info box (Green Accent) */}
@@ -1426,7 +1397,7 @@ export default function ParamVirChakraPage() {
             </div>
           </div>
 
-          {/* Right Column: Interactive card with live countdown */}
+          {/* Right Column: Interactive card with live status */}
           <article className="relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-[#0c1a2e]/60 p-8 text-center shadow-[0_30px_70px_rgba(0,0,0,0.5)] backdrop-blur-2xl md:p-12 group hover:border-white/20 transition-all duration-300">
             {/* Subtle tricolor top bar */}
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#ff9933] via-white/50 to-[#138808]" />
@@ -1436,47 +1407,25 @@ export default function ParamVirChakraPage() {
             <h3 className="mt-3 font-serif text-3xl font-bold text-white md:text-4xl">Google Form से Registration</h3>
             
             <p className="mx-auto mt-4 max-w-xl text-[14px] leading-relaxed text-white/70 font-light">
-              नीचे दिए गए button पर click करके official Google Form भरें। Payment UTR और screenshot अपलोड करना अनिवार्य है।
+              नीचे दिए गए button पर click करके official Google Form भरें। Advance Registration पूरी तरह से निःशुल्क (FREE) और अनिवार्य है।
             </p>
 
-            {/* Registration Fee Block */}
-            <div className="mt-6 p-5 rounded-2xl border border-white/10 bg-white/[0.04] max-w-md mx-auto text-left">
-              <p className="text-[15px] font-extrabold text-[#ff9933]">Registration Fee: ₹100 per participant</p>
-              <p className="mt-1.5 text-[11px] leading-relaxed text-white/60 font-light">
-                *The registration fee is fully refundable to participants who are physically present at the venue before 9:00 AM on the event day, in accordance with the organisers' refund process.
-              </p>
+            {/* Registration Notice Block */}
+            <div className="mt-6 p-5 rounded-2xl border border-[#ff9933]/20 bg-[#ff9933]/5 max-w-md mx-auto text-left">
+              <p className="text-[15px] font-extrabold text-[#ff9933]">Registration is completely FREE</p>
+              <div className="mt-2 text-[11.5px] leading-relaxed text-white/80 font-light space-y-1">
+                <p>• Advance registration is mandatory.</p>
+                <p>• Successful registrants will receive a WhatsApp message with Pass Collection details (Address, Date, Time).</p>
+                <p>• Entry is allowed only with a valid Physical Entry Pass collected prior to the event.</p>
+              </div>
             </div>
 
-            {/* LIVE COUNTDOWN TIMER DESIGN */}
-            {(timeLeft.days > 0 || timeLeft.hours > 0 || timeLeft.minutes > 0 || timeLeft.seconds > 0) ? (
-              <div className="mt-8">
-                <p className="text-xs font-bold uppercase tracking-wider text-white/40 mb-3">Registration opens in:</p>
-                <div className="grid grid-cols-4 gap-3 max-w-xs mx-auto">
-                  <div className="flex flex-col items-center bg-white/5 border border-white/10 rounded-2xl py-3 px-1 backdrop-blur-md hover:border-[#ff9933]/30 transition-colors">
-                    <span className="text-2xl font-extrabold text-[#ff9933]">{timeLeft.days}</span>
-                    <span className="text-[9px] uppercase font-bold text-white/50 tracking-wider">Days</span>
-                  </div>
-                  <div className="flex flex-col items-center bg-white/5 border border-white/10 rounded-2xl py-3 px-1 backdrop-blur-md hover:border-white/20 transition-colors">
-                    <span className="text-2xl font-extrabold text-white">{timeLeft.hours}</span>
-                    <span className="text-[9px] uppercase font-bold text-white/50 tracking-wider">Hours</span>
-                  </div>
-                  <div className="flex flex-col items-center bg-white/5 border border-white/10 rounded-2xl py-3 px-1 backdrop-blur-md hover:border-white/20 transition-colors">
-                    <span className="text-2xl font-extrabold text-white">{timeLeft.minutes}</span>
-                    <span className="text-[9px] uppercase font-bold text-white/50 tracking-wider">Mins</span>
-                  </div>
-                  <div className="flex flex-col items-center bg-white/5 border border-white/10 rounded-2xl py-3 px-1 backdrop-blur-md hover:border-[#138808]/30 transition-colors">
-                    <span className="text-2xl font-extrabold text-[#138808]">{timeLeft.seconds}</span>
-                    <span className="text-[9px] uppercase font-bold text-white/50 tracking-wider">Secs</span>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="mt-6 flex justify-center">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#138808]/15 border border-[#138808]/40 px-3.5 py-1 text-xs font-bold text-[#138808] uppercase tracking-wide">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#138808] animate-ping" /> Registration Open
-                </span>
-              </div>
-            )}
+            {/* REGISTRATION IS NOW OPEN STATE */}
+            <div className="mt-6 flex justify-center">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#138808]/15 border border-[#138808]/40 px-3.5 py-1 text-xs font-bold text-[#138808] uppercase tracking-wide">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#138808] animate-ping" /> Registration is Now Open
+              </span>
+            </div>
 
             <div className="mt-8">
               <a 
@@ -1488,7 +1437,7 @@ export default function ParamVirChakraPage() {
                 Open Google Form <ChevronRight className="ml-2 h-5 w-5 shrink-0 stroke-[2.5]" aria-hidden="true" />
               </a>
             </div>
-            <p className="mt-4 text-[12px] text-white/50">Registration opens on 15 July 2026</p>
+            <p className="mt-4 text-[12px] text-white/50">Registration is Now Open</p>
           </article>
         </div>
       </section>
@@ -1532,13 +1481,13 @@ export default function ParamVirChakraPage() {
           <div className="rounded-3xl border border-[#dcc395]/60 bg-[#fffaf0]/70 p-8 shadow-xl">
             <h2 className="font-serif text-3xl font-bold text-[#172033]">Contact & Timings</h2>
             <div className="mt-8 grid gap-4">
-              <a href="tel:+916352188150" className="group flex items-center gap-4 rounded-3xl border border-[#ead9ba] bg-white p-4 font-semibold text-[#172033] transition-all hover:-translate-y-1 shadow-sm hover:border-[#ff9933]/30">
+              <a href={`tel:${contactConfig.contactPhone.replace(/\s+/g, '')}`} className="group flex items-center gap-4 rounded-3xl border border-[#ead9ba] bg-white p-4 font-semibold text-[#172033] transition-all hover:-translate-y-1 shadow-sm hover:border-[#ff9933]/30">
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#ff9933]/10"><Phone className="h-5 w-5 text-[#ff9933]" /></span>
-                <div className="flex flex-col"><span className="text-xs uppercase text-[#ff9933]">Call Us</span><span className="text-[15px]">+91 63521 88150</span></div>
+                <div className="flex flex-col"><span className="text-xs uppercase text-[#ff9933]">Call Us</span><span className="text-[15px]">{contactConfig.contactPhone}</span></div>
               </a>
-              <a href="https://wa.me/916352188150?text=Jai%20Hind!%20I%20want%20to%20know%20more%20about%20the%20Param%20Vir%20Chakra%20Shaurya%20Gatha%20event." target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 rounded-3xl border border-[#ead9ba] bg-white p-4 font-semibold text-[#172033] transition-all hover:-translate-y-1 shadow-sm hover:border-[#138808]/30">
+              <a href={`https://wa.me/${contactConfig.contactWhatsApp.replace(/[^\d+]/g, '')}?text=Jai%20Hind!%20I%20want%20to%20know%20more%20about%20the%20Param%20Vir%20Chakra%20Shaurya%20Gatha%20event.`} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 rounded-3xl border border-[#ead9ba] bg-white p-4 font-semibold text-[#172033] transition-all hover:-translate-y-1 shadow-sm hover:border-[#138808]/30">
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#138808]/10"><MessageCircle className="h-5 w-5 text-[#138808]" /></span>
-                <div className="flex flex-col"><span className="text-xs uppercase text-[#138808]">WhatsApp</span><span className="text-[15px]">+91 63521 88150</span></div>
+                <div className="flex flex-col"><span className="text-xs uppercase text-[#138808]">WhatsApp</span><span className="text-[15px]">{contactConfig.contactWhatsApp}</span></div>
               </a>
               <div className="flex items-center gap-4 rounded-3xl border border-[#ead9ba] bg-white p-4 font-semibold text-[#172033] shadow-sm">
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#ff9933]/10"><Clock className="h-5 w-5 text-[#ff9933]" /></span>
@@ -1795,19 +1744,19 @@ export default function ParamVirChakraPage() {
               <div className="bg-[#ff9933]/5 border-l-4 border-[#ff9933] p-5 rounded-r-2xl mb-6">
                 <p className="text-xs uppercase font-extrabold text-[#ff9933] mb-1">Direct Answer / मुख्य उत्तर</p>
                 <p className="font-semibold text-sm text-[#172033] leading-relaxed">
-                  Registration is online, simple, and verified. Follow the Google Form submission after depositing the refundable ₹100 fee.
+                  Registration is completely FREE. Advance registration is mandatory. Complete the official Google Form, after which you will receive WhatsApp details to collect your Physical Entry Pass.
                 </p>
               </div>
 
               <div className="space-y-4 text-sm text-[#56616f] leading-relaxed font-light">
                 <p>
-                  पंजीकरण की प्रक्रिया को बहुत ही पारदर्शी और सुरक्षित बनाया गया है ताकि वास्तविक और गंभीर प्रतिभागी ही वेन्यू पर पहुंचें:
+                  पंजीकरण की प्रक्रिया बहुत सरल और सुरक्षित है:
                 </p>
                 <ol className="list-decimal list-inside space-y-3 ml-2">
-                  <li><strong>स्टेप 1:</strong> आधिकारिक वेबसाइट पर दिए गए पेमेंट लिंक या क्यूआर कोड के माध्यम से प्रति व्यक्ति ₹100 की पंजीकरण राशि का भुगतान करें।</li>
-                  <li><strong>स्टेप 2:</strong> भुगतान का स्क्रीनशॉट और बैंक का ट्रांजैक्शन आईडी (UTR) सुरक्षित रख लें।</li>
-                  <li><strong>स्टेप 3:</strong> 15 जुलाई 2026 को खुलने वाले Google Form लिंक पर क्लिक करें और अपनी जानकारी के साथ स्क्रीनशॉट अपलोड कर दें।</li>
-                  <li><strong>स्टेप 4:</strong> आयोजक टीम द्वारा भुगतान की पुष्टि करने के बाद, आपका डिजिटल पास सीधे आपके WhatsApp नंबर पर भेज दिया जाएगा।</li>
+                  <li><strong>स्टेप 1:</strong> आधिकारिक वेबसाइट पर दिए गए बटन पर क्लिक करके सीधे Google Form खोलें।</li>
+                  <li><strong>स्टेप 2:</strong> फॉर्म में अपनी सही जानकारी (नाम, मोबाइल नंबर, आयु, शहर) भरकर सबमिट करें।</li>
+                  <li><strong>स्टेप 3:</strong> सफल पंजीकरण के बाद, आपके व्हाट्सएप (WhatsApp) नंबर पर पास कलेक्शन सेंटर का पता, तिथि और समय भेजा जाएगा।</li>
+                  <li><strong>स्टेप 4:</strong> बताए गए समय पर कलेक्शन सेंटर जाकर अपना भौतिक पास (Physical Entry Pass) कलेक्ट करें, जिसे कार्यक्रम के दिन वेन्यू पर लाना अनिवार्य है।</li>
                 </ol>
               </div>
             </article>

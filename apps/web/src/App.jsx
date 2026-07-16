@@ -4,6 +4,7 @@ import { Toaster } from 'sonner';
 import ScrollToTop from '@/components/ScrollToTop.jsx';
 import ParamVirChakraPage from '@/pages/ParamVirChakraPage.jsx';
 import PrivacyPolicyPage from '@/pages/PrivacyPolicyPage.jsx';
+import PassCollectionPage from '@/pages/PassCollectionPage.jsx';
 import VardhmanComingSoonPage from '@/pages/VardhmanComingSoonPage.jsx';
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
                 <Route path="/" element={<VardhmanComingSoonPage />} />
                 <Route path="/param-vir-chakra" element={<ParamVirChakraPage />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+                <Route path="/pass-collection" element={<PassCollectionPage />} />
                 <Route path="*" element={<VardhmanComingSoonPage />} />
             </Routes>
             <Toaster position="bottom-right" theme="dark" />

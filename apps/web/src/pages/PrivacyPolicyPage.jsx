@@ -2,6 +2,7 @@ import React from 'react';
 import { Helmet } from 'react-helmet';
 import { ArrowLeft, ShieldCheck, Mail, Phone, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { contactConfig } from '@/lib/contactConfig';
 
 export default function PrivacyPolicyPage() {
   return (
@@ -84,16 +85,12 @@ export default function PrivacyPolicyPage() {
                 By registering for the event, you agree to follow and abide by these official terms and conditions:
               </p>
               <ol className="list-decimal list-inside text-white/60 text-sm space-y-3.5 ml-2 leading-relaxed">
-                <li><strong>Registration Fee:</strong> ₹100 per participant.</li>
-                <li>Registration is mandatory for attending the event.</li>
-                <li>Registration will be confirmed only after successful payment verification and approval by the organisers.</li>
-                <li><strong>Refund Policy:</strong> The ₹100 registration fee is refundable only to participants who are physically present at the venue and report before 9:00 AM on the day of the event.</li>
-                <li>No refund will be provided to participants arriving after 9:00 AM or those who remain absent from the event.</li>
-                <li>Refunds, where applicable, will be processed only as per the organisers' instructions.</li>
-                <li>Seats are limited and registrations will be confirmed on a first verified basis.</li>
+                <li>Registration is completely FREE but advance registration is mandatory.</li>
+                <li>Seats are limited and registrations will be confirmed on a first-come, first-served basis.</li>
+                <li>After successful registration, participants will receive a WhatsApp message containing the Pass Collection details.</li>
+                <li>Participants must visit the designated Pass Collection Centre to collect their Official Physical Entry Pass before the event.</li>
+                <li>Only participants carrying a valid Physical Entry Pass will be allowed entry into Dinesh Hall.</li>
                 <li>Participants must provide accurate information. Incorrect or misleading information may result in cancellation of registration.</li>
-                <li>Uploading a valid payment screenshot and providing the correct UPI/Bank Transaction ID (UTR) is mandatory.</li>
-                <li>Every participant must carry their WhatsApp Confirmation/Event Pass for entry.</li>
                 <li>The organisers reserve the right to approve, reject, or cancel any registration without assigning any reason.</li>
                 <li>The event schedule, venue, speakers, or programme may change due to unavoidable circumstances.</li>
                 <li><strong>Photography & Media Consent:</strong> Photography and videography may be conducted during the event. By registering, participants consent to the use of their photographs and videos for promotional and documentation purposes.</li>
@@ -109,15 +106,15 @@ export default function PrivacyPolicyPage() {
                 If you have questions regarding your registration, entry passes, or privacy details, please contact:
               </p>
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5 flex items-start gap-4">
+                <a href={`tel:${contactConfig.contactPhone.replace(/\s+/g, '')}`} className="rounded-2xl border border-white/5 bg-white/[0.02] p-5 flex items-start gap-4 hover:bg-white/5 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[#ff9933]">
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#138808]/10 text-[#138808] border border-[#138808]/20">
                     <Phone className="h-5 w-5" />
                   </span>
                   <div>
                     <p className="text-xs uppercase text-white/50 font-bold tracking-wider">Call / Support</p>
-                    <p className="text-sm font-bold text-white mt-1">+91 63521 88150</p>
+                    <p className="text-sm font-bold text-white mt-1">{contactConfig.contactPhone}</p>
                   </div>
-                </div>
+                </a>
 
                 <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5 flex items-start gap-4">
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#ff9933]/10 text-[#ff9933] border border-[#ff9933]/20">
