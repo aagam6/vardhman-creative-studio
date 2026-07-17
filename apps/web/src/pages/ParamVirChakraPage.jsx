@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { MessageCircle, Award, ChevronRight, Menu, X, ShieldCheck, CheckCircle2, Phone, MapPin, Ticket, CalendarDays, Clock, Users, Flag, Sparkles, BookOpen, Flame, GraduationCap, Compass } from 'lucide-react';
 import { contactConfig } from '@/lib/contactConfig';
+import EventFooter from '@/components/EventFooter.jsx';
 
 
 // --- DATA CONSTANTS ---
@@ -1815,21 +1816,7 @@ export default function ParamVirChakraPage() {
         </div>
       </section>
 
-      {/* COMPACT FOOTER OVERLAY */}
-      <footer className="relative bg-[#061120] px-5 py-12 text-white lg:px-8">
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 text-center md:flex-row md:text-left">
-          <div>
-            <p className="text-sm text-white/50">Copyright © {new Date().getFullYear()}</p>
-            <p className="mt-2 flex items-center gap-2 font-serif text-lg font-semibold text-white/95">Vardhman Creative Studio</p>
-          </div>
-          <nav className="flex flex-wrap justify-center gap-x-8 gap-y-3 text-sm font-semibold text-white/60">
-            <a href="#about" className="hover:text-[#ff9933] transition-colors">About</a>
-            <a href="#registration" className="hover:text-[#ff9933] transition-colors">Contact</a>
-            <a href="/privacy-policy" className="hover:text-[#ff9933] transition-colors">Privacy Policy</a>
-          </nav>
-        </div>
-      </footer>
+      <EventFooter />
       </main>
     </>
   );

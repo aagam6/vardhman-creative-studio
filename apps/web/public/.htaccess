@@ -1,6 +1,15 @@
 <IfModule mod_rewrite.c>
 	RewriteEngine On
 	RewriteBase /
+
+	# Collapse duplicate slashes
+	RewriteCond %{THE_REQUEST} \s[^?]*//
+	RewriteRule ^(.*)$ /$1 [R=301,L]
+
+	# Remove trailing slash except for directories
+	RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteRule ^(.*)/$ /$1 [R=301,L]
+
 	RewriteCond %{REQUEST_FILENAME} !-f
 	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteRule ^ index.html [L]

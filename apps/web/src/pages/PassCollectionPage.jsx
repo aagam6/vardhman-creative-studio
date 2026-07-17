@@ -1,9 +1,10 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Calendar, Clock, MapPin, Phone, MessageCircle, ShieldAlert, CheckCircle2, Globe, Instagram, Facebook, Linkedin, Youtube, Twitter } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, MapPin, Phone, MessageCircle, ShieldAlert, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { contactConfig } from '@/lib/contactConfig';
+import EventFooter from '@/components/EventFooter.jsx';
 
 // --- CONFIGURATION CONSTANTS (Update here to change details) ---
 const collectionCentreName = "To be Announced";
@@ -63,15 +64,6 @@ export default function PassCollectionPage() {
     }
   };
 
-  // Social icon helper
-  const getSocialIcon = (url) => {
-    if (url.includes('instagram.com')) return <Instagram className="h-5 w-5" />;
-    if (url.includes('facebook.com')) return <Facebook className="h-5 w-5" />;
-    if (url.includes('linkedin.com')) return <Linkedin className="h-5 w-5" />;
-    if (url.includes('youtube.com')) return <Youtube className="h-5 w-5" />;
-    if (url.includes('x.com') || url.includes('twitter.com')) return <Twitter className="h-5 w-5" />;
-    return <Globe className="h-5 w-5" />;
-  };
 
   return (
     <>
@@ -274,33 +266,7 @@ export default function PassCollectionPage() {
             <p className="mt-4 text-xs text-white/40">Timings: Mon to Sat (10 am to 6 pm)</p>
           </motion.div>
 
-          {/* Premium Footer matching branding */}
-          <footer className="border-t border-white/10 pt-8 text-center text-xs text-white/40">
-            <p className="mb-2">Official Event Website: <Link to="/param-vir-chakra" className="text-white hover:text-[#ff9933] transition-colors">Param Vir Chakra – Shauryagatha</Link></p>
-            <p className="mb-4">
-              Powered by <a href={contactConfig.orgWebsite} target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#ff9933] transition-colors">{contactConfig.orgName}</a>
-            </p>
-            <div className="flex justify-center gap-6 mb-6">
-              <Link to="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link>
-              <Link to="/privacy-policy" className="hover:text-white transition-colors">Terms of Service</Link>
-            </div>
-            
-            {/* Social Icons */}
-            <div className="flex justify-center gap-4 mb-6">
-              {contactConfig.orgSocials.map((url, idx) => (
-                <a 
-                  key={idx} 
-                  href={url} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all text-white/70 hover:text-white"
-                >
-                  {getSocialIcon(url)}
-                </a>
-              ))}
-            </div>
-            <p>Copyright © {new Date().getFullYear()} {contactConfig.orgName}. All Rights Reserved.</p>
-          </footer>
+          <EventFooter />
 
         </div>
       </main>

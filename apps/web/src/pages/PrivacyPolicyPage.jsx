@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet';
 import { ArrowLeft, ShieldCheck, Mail, Phone, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { contactConfig } from '@/lib/contactConfig';
+import EventFooter from '@/components/EventFooter.jsx';
 
 export default function PrivacyPolicyPage() {
   return (
@@ -138,6 +139,7 @@ export default function PrivacyPolicyPage() {
           </div>
         </div>
       </main>
+      <EventFooter />
     </>
   );
 }
