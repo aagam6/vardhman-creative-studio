@@ -6,6 +6,11 @@ const ScrollToTop = () => {
 
     useLayoutEffect(() => {
         window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        
+        // Track page view in Meta Pixel on route change
+        if (typeof window.fbq === 'function') {
+            window.fbq('track', 'PageView');
+        }
     }, [pathname]);
 
     return null;
