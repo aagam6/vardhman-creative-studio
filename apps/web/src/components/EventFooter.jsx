@@ -218,6 +218,7 @@ export default function EventFooter() {
           <div>
             <p>Official Event Website: <Link to="/param-vir-chakra" className="text-white/70 hover:text-[#ff9933] transition-colors font-medium">Param Vir Chakra – Shauryagatha</Link></p>
             <p className="mt-1">Copyright © {currentYear} {contactConfig.orgName}. All Rights Reserved.</p>
+            <p className="mt-1 text-[11px] text-white/30 font-medium">Last Updated: 30 July 2026</p>
           </div>
           <div className="md:text-right">
             <p>

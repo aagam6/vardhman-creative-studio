@@ -1,10 +1,10 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { MessageCircle, Award, ChevronRight, Menu, X, ShieldCheck, CheckCircle2, Phone, MapPin, Ticket, CalendarDays, Clock, Users, Flag, Sparkles, BookOpen, Flame, GraduationCap, Compass } from 'lucide-react';
 import { contactConfig } from '@/lib/contactConfig';
 import EventFooter from '@/components/EventFooter.jsx';
-import { Play, Share2, Send, Facebook, Twitter, Copy, ExternalLink } from 'lucide-react';
+import { Play, Share2, Send, Facebook, Twitter, Copy, ExternalLink, Linkedin, Mail } from 'lucide-react';
 
 
 // --- DATA CONSTANTS ---
@@ -344,10 +344,100 @@ export default function ParamVirChakraPage() {
   const [activeHash, setActiveHash] = useState('#hero');
   const [copied, setCopied] = useState(false);
 
+  // Google Map Loading State & Ref
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const mapRef = useRef(null);
+
+  // Reading Progress Bar State
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [showProgress, setShowProgress] = useState(false);
+
+  // Live Countdown State & Logic
+  const calculateTimeLeft = () => {
+    // Target Event: 9 August 2026 09:00 AM IST (Asia/Kolkata)
+    const targetDate = new Date("2026-08-09T09:00:00+05:30");
+    const conclusionDate = new Date("2026-08-09T13:00:00+05:30"); // Estimated 4 hours duration
+    const difference = +targetDate - +new Date();
+    const conclusionDiff = +conclusionDate - +new Date();
+    
+    if (difference > 0) {
+      return {
+        status: "upcoming",
+        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((difference / 1000 / 60) % 60),
+        seconds: Math.floor((difference / 1000) % 60)
+      };
+    } else if (conclusionDiff > 0) {
+      return { status: "live" };
+    } else {
+      return { status: "concluded" };
+    }
+  };
+
+  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(calculateTimeLeft());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Map Intersection Observer
+  useEffect(() => {
+    if (!mapRef.current) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setMapLoaded(true);
+        observer.disconnect();
+      }
+    }, { rootMargin: '200px' });
+    observer.observe(mapRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  // Reading Progress Listener
+  useEffect(() => {
+    const handleScrollProgress = () => {
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (totalHeight > 0) {
+        const progress = (window.scrollY / totalHeight) * 100;
+        setScrollProgress(progress);
+        
+        // Show reading progress only when user is reading main content (e.g. past hero)
+        if (window.scrollY > 400 && window.scrollY < totalHeight - 300) {
+          setShowProgress(true);
+        } else {
+          setShowProgress(false);
+        }
+      }
+    };
+    
+    window.addEventListener('scroll', handleScrollProgress);
+    return () => window.removeEventListener('scroll', handleScrollProgress);
+  }, []);
+
   const handleCopyLink = () => {
     navigator.clipboard.writeText(canonicalUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  // Web Share API with Manual Fallback Support
+  const handleShareEvent = (platform, e) => {
+    const shareData = {
+      title: "Param Vir Chakra – Shaurya Gatha Event",
+      text: "Experience the patriotic grand book launch & event 'Param Vir Chakra – Shauryagatha' on 9 August 2026 at Ahmedabad.",
+      url: canonicalUrl
+    };
+
+    if (platform !== 'copy' && navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+      e.preventDefault();
+      navigator.share(shareData).catch(() => {
+        // Silent catch or fallback to manual share
+      });
+    }
   };
 
   useEffect(() => {
@@ -551,6 +641,61 @@ export default function ParamVirChakraPage() {
             "url": "https://vardhmancreativestudio.com/assets/logo.png"
           }
         }
+      },
+      place: {
+        "@context": "https://schema.org",
+        "@type": "Place",
+        "name": "Dinesh Hall",
+        "description": "Historic community auditorium and event venue in Navrangpura, Ahmedabad.",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Opp. Income Tax Office, Ashram Road, Navrangpura",
+          "addressLocality": "Ahmedabad",
+          "addressRegion": "Gujarat",
+          "postalCode": "380009",
+          "addressCountry": "IN"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": "23.0353816",
+          "longitude": "72.5696144"
+        },
+        "sameAs": "https://maps.app.goo.gl/NC4XSturo5sA2736A"
+      },
+      aboutPage: {
+        "@context": "https://schema.org",
+        "@type": "AboutPage",
+        "name": "About Param Vir Chakra – Shauryagatha Event",
+        "description": "Learn about the Shaurya Gatha event in Ahmedabad, dedicated to honoring India's Param Vir Chakra recipients.",
+        "url": `${canonicalUrl}#about`,
+        "mainEntity": {
+          "@type": "Event",
+          "name": "Param Vir Chakra – Shaurya Gatha"
+        }
+      },
+      website: {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Vardhman Creative Studio",
+        "url": "https://vardhmancreativestudio.com",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://vardhmancreativestudio.com/?s={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      },
+      webpage: {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Param Vir Chakra – Shaurya Gatha Official Site",
+        "description": "Watch the official video teaser of Param Vir Chakra – Shaurya Gatha, a grand patriotic event and book launch dedicated to India's Param Vir Chakra heroes.",
+        "url": canonicalUrl,
+        "datePublished": "2026-07-28T09:00:00+05:30",
+        "dateModified": "2026-07-30T12:00:00+05:30",
+        "publisher": {
+          "@type": "Organization",
+          "name": "Vardhman Creative Studio"
+        }
       }
     };
 
@@ -560,7 +705,11 @@ export default function ParamVirChakraPage() {
       organization: schemas.organization,
       faq: schemas.faq,
       breadcrumb: schemas.breadcrumb,
-      video: schemas.video
+      video: schemas.video,
+      place: schemas.place,
+      aboutPage: schemas.aboutPage,
+      website: schemas.website,
+      webpage: schemas.webpage
     };
   }, []);
 
@@ -568,14 +717,28 @@ export default function ParamVirChakraPage() {
     <>
              <Helmet>
   {/* ================================
-      PRECONNECT
+      PRECONNECT & DNS PREFETCH
   ================================= */}
   <link rel="preconnect" href="https://www.youtube.com" />
   <link rel="preconnect" href="https://i.ytimg.com" />
   <link rel="preconnect" href="https://img.youtube.com" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+  <link rel="dns-prefetch" href="https://www.youtube.com" />
+  <link rel="dns-prefetch" href="https://i.ytimg.com" />
 
   {/* ================================
-      BASIC SEO
+      PRELOAD CRITICAL ASSETS
+  ================================= */}
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Martel:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap" as="style" />
+  <link rel="preload" href={heroImage} as="image" />
+  <link rel="preload" href="/assets/logo.png" as="image" />
+  <link rel="preload" href="https://vardhmancreativestudio.com/assets/param-vir-chakra-og.jpg" as="image" />
+
+  {/* ================================
+      BASIC SEO & LAST UPDATED META
   ================================= */}
 
 <script type="application/ld+json">
@@ -613,6 +776,14 @@ export default function ParamVirChakraPage() {
   <meta
     name="theme-color"
     content="#081320"
+  />
+  <meta
+    name="revised"
+    content="Thursday, July 30th, 2026, 12:00 pm"
+  />
+  <meta
+    property="article:modified_time"
+    content="2026-07-30T12:00:00+05:30"
   />
   <link
     rel="canonical"
@@ -733,9 +904,34 @@ export default function ParamVirChakraPage() {
   <script type="application/ld+json">
     {JSON.stringify(schemas.video)}
   </script>
+
+  <script type="application/ld+json">
+    {JSON.stringify(schemas.place)}
+  </script>
+
+  <script type="application/ld+json">
+    {JSON.stringify(schemas.aboutPage)}
+  </script>
+
+  <script type="application/ld+json">
+    {JSON.stringify(schemas.website)}
+  </script>
+
+  <script type="application/ld+json">
+    {JSON.stringify(schemas.webpage)}
+  </script>
 </Helmet>
 
       <main className="min-h-screen bg-[#f7f1e5] text-[#172033] relative">
+        {/* Sticky Reading Progress Bar */}
+        {showProgress && (
+          <div className="fixed top-[74px] left-0 right-0 z-[100] h-[3px] bg-[#d7c096]/20 pointer-events-none">
+            <div 
+              className="h-full bg-gradient-to-r from-[#ff9933] via-white to-[#138808] transition-all duration-100 ease-out"
+              style={{ width: `${scrollProgress}%` }}
+            />
+          </div>
+        )}
       {/* HEADER SECTION - PREMIUM TRICOLOR REDESIGN */}
       <nav 
         className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
@@ -878,6 +1074,44 @@ export default function ParamVirChakraPage() {
             <p className="mt-4 max-w-xl text-[15px] leading-7 text-white/70 font-light">
               भारत के सर्वोच्च वीरता सम्मान <strong className="font-medium text-white">परमवीर चक्र</strong> से सम्मानित अमर वीरों के अद्भुत साहस, त्याग और राष्ट्रभक्ति की प्रेरणादायी शौर्यगाथाओं पर आधारित एक भव्य कार्यक्रम।
             </p>
+
+            {/* Live Event Countdown */}
+            <div className="mt-6 max-w-xl">
+              {timeLeft.status === 'upcoming' && (
+                <div className="flex items-center gap-3">
+                  <div className="flex flex-col items-center min-w-[65px] rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 backdrop-blur-md">
+                    <span className="text-xl font-bold text-[#ff9933]">{timeLeft.days}</span>
+                    <span className="text-[10px] uppercase tracking-wider text-white/40 font-semibold">Days</span>
+                  </div>
+                  <div className="flex flex-col items-center min-w-[65px] rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 backdrop-blur-md">
+                    <span className="text-xl font-bold text-[#ff9933]">{timeLeft.hours}</span>
+                    <span className="text-[10px] uppercase tracking-wider text-white/40 font-semibold">Hours</span>
+                  </div>
+                  <div className="flex flex-col items-center min-w-[65px] rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 backdrop-blur-md">
+                    <span className="text-xl font-bold text-[#ff9933]">{timeLeft.minutes}</span>
+                    <span className="text-[10px] uppercase tracking-wider text-white/40 font-semibold">Mins</span>
+                  </div>
+                  <div className="flex flex-col items-center min-w-[65px] rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 backdrop-blur-md">
+                    <span className="text-xl font-bold text-[#ff9933]">{timeLeft.seconds}</span>
+                    <span className="text-[10px] uppercase tracking-wider text-white/40 font-semibold">Secs</span>
+                  </div>
+                  <div className="ml-2 hidden sm:block text-xs uppercase tracking-widest text-[#ff9933]/70 font-bold animate-pulse">
+                    Countdown Live
+                  </div>
+                </div>
+              )}
+              {timeLeft.status === 'live' && (
+                <div className="inline-flex items-center gap-2 rounded-xl border border-[#138808]/40 bg-[#138808]/15 px-4 py-2 text-sm font-bold text-white animate-pulse">
+                  <span className="h-2 w-2 rounded-full bg-[#138808]" />
+                  Event Live Now
+                </div>
+              )}
+              {timeLeft.status === 'concluded' && (
+                <div className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-white/50">
+                  This Event Has Concluded
+                </div>
+              )}
+            </div>
 
             {/* Interactive Call to Action Triggers */}
             <div className="mt-8 flex flex-wrap gap-4 items-center">
@@ -1040,16 +1274,17 @@ export default function ParamVirChakraPage() {
             </div>
 
             {/* Social Share Buttons */}
-            <div className="flex flex-col items-center gap-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-white/40">Share Teaser</span>
-              <div className="flex items-center gap-3">
+            <div className="flex flex-col items-center gap-3 w-full max-w-lg mx-auto">
+              <span className="text-xs font-bold uppercase tracking-wider text-white/40 flex items-center gap-1.5"><Share2 className="h-3.5 w-3.5" /> Share Event / इवेंट शेयर करें</span>
+              <div className="flex flex-wrap items-center justify-center gap-3">
                 
                 {/* WhatsApp */}
                 <a 
                   href={`https://api.whatsapp.com/send?text=Watch%20the%20Official%20Teaser%20of%20Param%20Vir%20Chakra%20%E2%80%93%20Shauryagatha%20here%3A%20${encodeURIComponent(canonicalUrl)}`}
+                  onClick={(e) => handleShareEvent('whatsapp', e)}
                   target="_blank" 
                   rel="noopener noreferrer"
-                  aria-label="Share on WhatsApp"
+                  aria-label="Share Event on WhatsApp"
                   className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 border border-white/15 hover:bg-[#138808]/10 hover:border-[#138808]/50 hover:text-[#138808] transition-all duration-300"
                 >
                   <MessageCircle className="h-5 w-5" />
@@ -1058,9 +1293,10 @@ export default function ParamVirChakraPage() {
                 {/* Facebook */}
                 <a 
                   href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(canonicalUrl)}`}
+                  onClick={(e) => handleShareEvent('facebook', e)}
                   target="_blank" 
                   rel="noopener noreferrer"
-                  aria-label="Share on Facebook"
+                  aria-label="Share Event on Facebook"
                   className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 border border-white/15 hover:bg-[#3b5998]/10 hover:border-[#3b5998]/50 hover:text-[#3b5998] transition-all duration-300"
                 >
                   <Facebook className="h-5 w-5" />
@@ -1069,9 +1305,10 @@ export default function ParamVirChakraPage() {
                 {/* X / Twitter */}
                 <a 
                   href={`https://twitter.com/intent/tweet?text=Watch%20the%20Official%20Teaser%20of%20Param%20Vir%20Chakra%20%E2%80%93%20Shauryagatha%20here%3A&url=${encodeURIComponent(canonicalUrl)}`}
+                  onClick={(e) => handleShareEvent('twitter', e)}
                   target="_blank" 
                   rel="noopener noreferrer"
-                  aria-label="Share on X"
+                  aria-label="Share Event on X"
                   className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 border border-white/15 hover:bg-white/15 hover:border-white/40 transition-all duration-300"
                 >
                   <Twitter className="h-5 w-5" />
@@ -1080,18 +1317,41 @@ export default function ParamVirChakraPage() {
                 {/* Telegram */}
                 <a 
                   href={`https://t.me/share/url?url=${encodeURIComponent(canonicalUrl)}&text=Watch%20the%20Official%20Teaser%20of%20Param%20Vir%20Chakra%20%E2%80%93%20Shauryagatha`}
+                  onClick={(e) => handleShareEvent('telegram', e)}
                   target="_blank" 
                   rel="noopener noreferrer"
-                  aria-label="Share on Telegram"
+                  aria-label="Share Event on Telegram"
                   className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 border border-white/15 hover:bg-[#0088cc]/10 hover:border-[#0088cc]/50 hover:text-[#0088cc] transition-all duration-300"
                 >
                   <Send className="h-5 w-5" />
                 </a>
 
+                {/* LinkedIn */}
+                <a 
+                  href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(canonicalUrl)}`}
+                  onClick={(e) => handleShareEvent('linkedin', e)}
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  aria-label="Share Event on LinkedIn"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 border border-white/15 hover:bg-[#0077b5]/10 hover:border-[#0077b5]/50 hover:text-[#0077b5] transition-all duration-300"
+                >
+                  <Linkedin className="h-5 w-5" />
+                </a>
+
+                {/* Email */}
+                <a 
+                  href={`mailto:?subject=Param%20Vir%20Chakra%20%E2%80%93%20Shaurya%20Gatha%20Event&body=Watch%20the%20Official%20Teaser%20of%20Param%20Vir%20Chakra%20%E2%80%93%20Shauryagatha%20event%20here%3A%20${encodeURIComponent(canonicalUrl)}`}
+                  onClick={(e) => handleShareEvent('email', e)}
+                  aria-label="Share Event via Email"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 border border-white/15 hover:bg-[#ea4335]/10 hover:border-[#ea4335]/50 hover:text-[#ea4335] transition-all duration-300"
+                >
+                  <Mail className="h-5 w-5" />
+                </a>
+
                 {/* Copy Link */}
                 <button 
                   onClick={handleCopyLink}
-                  aria-label="Copy teaser link"
+                  aria-label="Copy Event link"
                   className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 border border-white/15 hover:bg-[#ff9933]/10 hover:border-[#ff9933]/50 hover:text-[#ff9933] transition-all duration-300"
                 >
                   {copied ? <CheckCircle2 className="h-5 w-5 text-[#138808]" /> : <Copy className="h-5 w-5" />}
@@ -1973,6 +2233,102 @@ export default function ParamVirChakraPage() {
                 </p>
               </div>
             </article>
+
+          </div>
+        </div>
+      </section>
+
+      {/* VENUE & DIRECTIONS SECTION */}
+      <section id="venue" ref={mapRef} className="scroll-mt-24 px-5 py-24 lg:px-8 bg-[#fffaf0] border-t border-[#d7c096]/30 relative overflow-hidden">
+        <div className="absolute top-0 right-1/4 w-[400px] h-[400px] bg-[#ff9933]/5 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-[#138808]/3 rounded-full blur-[100px] pointer-events-none" />
+
+        <div className="mx-auto max-w-7xl relative z-10">
+          <SectionHeader eyebrow="Location" title="Venue & Directions">
+            Find your way to the historic venue in Navrangpura, Ahmedabad.
+          </SectionHeader>
+
+          <div className="grid gap-8 lg:grid-cols-[1fr_1.3fr] items-stretch">
+            
+            {/* Left Column: Venue Info Card */}
+            <div className="flex flex-col justify-between rounded-3xl border border-[#d7c096]/40 bg-white p-8 shadow-md">
+              <div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#ff9933]/10 text-[#ff9933] mb-6">
+                  <MapPin className="h-6 w-6 stroke-[1.8]" />
+                </div>
+                
+                <h3 className="font-serif text-3xl font-bold text-[#172033] tracking-tight">Dinesh Hall</h3>
+                <p className="mt-2 text-xs uppercase font-extrabold tracking-widest text-[#b57a2a]">Official Event Venue</p>
+                
+                <div className="mt-6 space-y-4">
+                  <div className="flex items-start gap-3">
+                    <span className="shrink-0 text-base" role="img" aria-label="pin">📍</span>
+                    <div>
+                      <p className="font-semibold text-sm text-[#172033]">Dinesh Hall</p>
+                      <p className="text-xs text-[#56616f] mt-0.5 leading-relaxed">
+                        Opp. Income Tax Office, Ashram Road,<br />
+                        Navrangpura, Ahmedabad, Gujarat, India<br />
+                        Pin Code: 380009
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="shrink-0 text-base" role="img" aria-label="clock">⏰</span>
+                    <div>
+                      <p className="font-semibold text-sm text-[#172033]">Event Time</p>
+                      <p className="text-xs text-[#56616f] mt-0.5">
+                        Sunday, 9 August 2026<br />
+                        Gates open at 08:30 AM | Starts at 09:00 AM
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-8 pt-6 border-t border-[#d7c096]/20 flex flex-col sm:flex-row gap-3">
+                <a 
+                  href="https://maps.app.goo.gl/NC4XSturo5sA2736A" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  aria-label="Get Directions to Dinesh Hall on Google Maps"
+                  className="inline-flex min-h-[46px] flex-1 items-center justify-center gap-2 rounded-xl bg-[#ff9933] px-5 py-2.5 text-sm font-bold text-[#090f19] hover:bg-[#172033] hover:text-white transition-all duration-300"
+                >
+                  <Compass className="h-4 w-4" /> Get Directions
+                </a>
+                <a 
+                  href="https://maps.google.com/?q=Dinesh+Hall+Navrangpura+Ahmedabad" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  aria-label="Open Dinesh Hall Location in Google Maps"
+                  className="inline-flex min-h-[46px] flex-1 items-center justify-center gap-2 rounded-xl border border-[#d7c096]/60 bg-[#fffaf0] px-5 py-2.5 text-sm font-semibold text-[#172033] hover:bg-white hover:border-[#ff9933]/50 transition-all duration-300"
+                >
+                  <ExternalLink className="h-4 w-4 text-[#ff9933]" /> Open in Google Maps
+                </a>
+              </div>
+            </div>
+
+            {/* Right Column: Google Maps Iframe */}
+            <div className="relative rounded-3xl overflow-hidden border border-[#d7c096]/40 bg-white p-2.5 shadow-md min-h-[350px]">
+              {mapLoaded ? (
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3671.6841285226107!2d72.5696144!3d23.0353816!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395e846064f2fb9f%3A0xc0497ca1a587d60f!2sDinesh%20Hall!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Google Maps Location for Dinesh Hall, Ahmedabad"
+                  className="w-full h-full min-h-[350px] rounded-2xl"
+                  aria-label="Google Maps Location for Dinesh Hall, Ahmedabad"
+                />
+              ) : (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#fffaf0] text-[#56616f]/60 text-sm font-medium gap-2">
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#ff9933] animate-ping" />
+                  Loading Venue Map...
+                </div>
+              )}
+            </div>
 
           </div>
         </div>
