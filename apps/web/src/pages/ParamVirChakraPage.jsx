@@ -550,11 +550,6 @@ export default function ParamVirChakraPage() {
             "@type": "ImageObject",
             "url": "https://vardhmancreativestudio.com/assets/logo.png"
           }
-        },
-        "interactionStatistic": {
-          "@type": "InteractionCounter",
-          "interactionType": { "@type": "WatchAction" },
-          "userInteractionCount": "15000"
         }
       }
     };
