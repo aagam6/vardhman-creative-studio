@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { MessageCircle, Award, ChevronRight, Menu, X, ShieldCheck, CheckCircle2, Phone, MapPin, Ticket, CalendarDays, Clock, Users, Flag, Sparkles, BookOpen, Flame, GraduationCap, Compass } from 'lucide-react';
 import { contactConfig } from '@/lib/contactConfig';
 import EventFooter from '@/components/EventFooter.jsx';
+import { Play, Share2, Send, Facebook, Twitter, Copy, ExternalLink } from 'lucide-react';
 
 
 // --- DATA CONSTANTS ---
@@ -158,6 +159,10 @@ const faqs = [
     answer: "The event will be held at the historic Dinesh Hall, located in Navrangpura, Ahmedabad, Gujarat, India (Postal Code: 380009)."
   },
   {
+    question: "Is there an official teaser available?",
+    answer: "Yes. Watch the Official Teaser on YouTube before attending the event to experience its vision and inspiration."
+  },
+  {
     question: "When is the Param Vir Chakra – Shaurya Gatha event scheduled?",
     answer: "The event is scheduled for Sunday, 9 August 2026, starting at 9:00 AM onwards at Dinesh Hall, Ahmedabad."
   },
@@ -302,6 +307,7 @@ const staggerContainer = {
 
 const navItems = [
   { label: 'About', href: '#about' },
+  { label: 'Watch Teaser', href: '#teaser' },
   { label: 'Guests', href: '#guests' },
   { label: 'Registration', href: '#registration' },
   { label: 'FAQ', href: '#faq' }
@@ -336,6 +342,13 @@ export default function ParamVirChakraPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [navSolid, setNavSolid] = useState(false);
   const [activeHash, setActiveHash] = useState('#hero');
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(canonicalUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -345,7 +358,7 @@ export default function ParamVirChakraPage() {
         setNavSolid(false);
       }
 
-      const sections = ['hero', 'about', 'guests', 'registration', 'faq'];
+      const sections = ['hero', 'teaser', 'about', 'guests', 'registration', 'faq'];
       let currentSection = '#hero';
       
       for (const sectionId of sections) {
@@ -516,6 +529,33 @@ export default function ParamVirChakraPage() {
             item: canonicalUrl
           }
         ]
+      },
+      video: {
+        "@context": "https://schema.org",
+        "@type": "VideoObject",
+        "name": "Param Vir Chakra – Shaurya Gatha Official Teaser",
+        "description": "Watch the official video teaser of 'Param Vir Chakra – Shauryagatha', a cinematic tribute celebrating the courage, sacrifice and legacy of India's greatest heroes.",
+        "thumbnailUrl": [
+          "https://img.youtube.com/vi/U2QBAxmlohw/maxresdefault.jpg",
+          "https://img.youtube.com/vi/U2QBAxmlohw/sddefault.jpg",
+          "https://img.youtube.com/vi/U2QBAxmlohw/hqdefault.jpg"
+        ],
+        "uploadDate": "2026-07-28T09:00:00Z",
+        "embedUrl": "https://www.youtube.com/embed/U2QBAxmlohw?rel=0&modestbranding=1",
+        "contentUrl": "https://youtu.be/U2QBAxmlohw?si=vBgeDE_bZFlaxpVB",
+        "publisher": {
+          "@type": "Organization",
+          "name": "Vardhman Creative Studio",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://vardhmancreativestudio.com/assets/logo.png"
+          }
+        },
+        "interactionStatistic": {
+          "@type": "InteractionCounter",
+          "interactionType": { "@type": "WatchAction" },
+          "userInteractionCount": "15000"
+        }
       }
     };
 
@@ -524,13 +564,21 @@ export default function ParamVirChakraPage() {
       image: schemas.image,
       organization: schemas.organization,
       faq: schemas.faq,
-      breadcrumb: schemas.breadcrumb
+      breadcrumb: schemas.breadcrumb,
+      video: schemas.video
     };
   }, []);
 
   return (
     <>
              <Helmet>
+  {/* ================================
+      PRECONNECT
+  ================================= */}
+  <link rel="preconnect" href="https://www.youtube.com" />
+  <link rel="preconnect" href="https://i.ytimg.com" />
+  <link rel="preconnect" href="https://img.youtube.com" />
+
   {/* ================================
       BASIC SEO
   ================================= */}
@@ -539,17 +587,17 @@ export default function ParamVirChakraPage() {
   {JSON.stringify(schemas.image)}
 </script>
   <title>
-    Param Vir Chakra – Shaurya Gatha | Official Event | Ahmedabad
+    Param Vir Chakra – Shaurya Gatha | Official Event & Video Teaser | Ahmedabad
   </title>
 
   <meta
     name="description"
-    content="Join Param Vir Chakra – Shaurya Gatha, a grand patriotic event dedicated to India's Param Vir Chakra awardees. 9 August 2026 | Dinesh Hall | Ahmedabad."
+    content="Watch the official video teaser of Param Vir Chakra – Shaurya Gatha, a grand patriotic event and book launch dedicated to India's Param Vir Chakra heroes. 9 August 2026 | Dinesh Hall | Ahmedabad."
   />
 
   <meta
     name="keywords"
-    content="Param Vir Chakra, Shaurya Gatha, Param Vir Chakra Event, Ahmedabad Event, Harshal Pushkarna, Patriotic Event, Indian Army, Military History, Jain Event Ahmedabad"
+    content="Param Vir Chakra, Shaurya Gatha, Official Teaser, Watch Trailer, Param Vir Chakra Shauryagatha Teaser, Independence Day Event, Book Launch, Patriotic Event, Ahmedabad Event, Harshal Pushkarna, Indian Army, Jain Event Ahmedabad"
   />
   <meta
     name="author"
@@ -594,11 +642,11 @@ export default function ParamVirChakraPage() {
   />
   <meta
     property="og:title"
-    content="Param Vir Chakra – Shaurya Gatha | Official Event"
+    content="Param Vir Chakra – Shaurya Gatha | Official Event & Video Teaser"
   />
   <meta
     property="og:description"
-    content="A Grand Patriotic Experience dedicated to India's Param Vir Chakra Heroes. 9 August 2026 • Dinesh Hall • Ahmedabad."
+    content="Watch the official video teaser of Param Vir Chakra – Shaurya Gatha. A Grand Patriotic Experience celebrating India's greatest heroes. 9 August 2026 • Dinesh Hall • Ahmedabad."
   />
   <meta
     property="og:image"
@@ -622,7 +670,7 @@ export default function ParamVirChakraPage() {
   />
   <meta
     property="og:image:alt"
-    content="Param Vir Chakra Shaurya Gatha Official Event"
+    content="Param Vir Chakra Shaurya Gatha Official Event & Teaser"
   />
   {/* ================================
       TWITTER
@@ -635,12 +683,12 @@ export default function ParamVirChakraPage() {
 
   <meta
     name="twitter:title"
-    content="Param Vir Chakra – Shaurya Gatha"
+    content="Param Vir Chakra – Shaurya Gatha | Official Event & Video Teaser"
   />
 
   <meta
     name="twitter:description"
-    content="Official Event • 9 August 2026 • Dinesh Hall • Ahmedabad"
+    content="Watch the official video teaser of Param Vir Chakra – Shaurya Gatha. 9 August 2026 • Dinesh Hall • Ahmedabad"
   />
 
   <meta
@@ -685,6 +733,10 @@ export default function ParamVirChakraPage() {
 
   <script type="application/ld+json">
     {JSON.stringify(schemas.breadcrumb)}
+  </script>
+
+  <script type="application/ld+json">
+    {JSON.stringify(schemas.video)}
   </script>
 </Helmet>
 
@@ -841,6 +893,12 @@ export default function ParamVirChakraPage() {
                 Register for Free <ChevronRight className="ml-1 h-5 w-5 shrink-0 stroke-[2.5]" />
               </a>
               <a 
+                href="#teaser" 
+                className="inline-flex min-h-[50px] items-center justify-center rounded-xl border border-white/20 bg-white/[0.03] px-8 py-3 text-[15px] font-semibold text-white backdrop-blur-md transition-all duration-300 hover:bg-[#FF9933]/10 hover:border-[#FF9933]/50 hover:text-[#FF9933]"
+              >
+                ▶ Watch Official Teaser
+              </a>
+              <a 
                 href="#about" 
                 className="inline-flex min-h-[50px] items-center justify-center rounded-xl border border-white/20 bg-white/[0.03] px-8 py-3 text-[15px] font-medium text-white backdrop-blur-md transition-all duration-300 hover:bg-white/[0.08] hover:border-white/40"
               >
@@ -914,6 +972,143 @@ export default function ParamVirChakraPage() {
 
         </div>
 
+      </section>
+
+      {/* OFFICIAL TEASER SECTION - CINEMATIC YOUTUBE INTEGRATION */}
+      <section id="teaser" className="relative px-5 py-20 lg:px-8 lg:py-28 bg-[#050c16] text-white overflow-hidden border-t border-white/5">
+        {/* Decorative background gradients */}
+        <div className="absolute top-0 left-1/4 -translate-x-1/2 w-[500px] h-[500px] bg-[#ff9933]/5 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-0 right-1/4 translate-x-1/2 w-[500px] h-[500px] bg-[#138808]/5 rounded-full blur-[120px] pointer-events-none" />
+
+        <div className="mx-auto max-w-5xl relative z-10">
+          
+          <div className="mx-auto mb-12 max-w-3xl text-center">
+            <p className="mb-3 text-sm font-bold uppercase tracking-[0.25em] text-[#ff9933]">Watch Trailer</p>
+            <h2 className="font-serif text-3xl font-bold md:text-5xl text-white">Official Video Teaser</h2>
+            <p className="mt-4 text-white/60 text-[15px] md:text-lg">Experience the inspiring story before the event.</p>
+          </div>
+
+          {/* YouTube Video Player with 16:9 ratio and Glassmorphism Container */}
+          <motion.div 
+            initial="hidden" 
+            whileInView="visible" 
+            viewport={{ once: true, margin: '-50px' }} 
+            variants={fadeInUp}
+            className="relative aspect-video w-full rounded-3xl overflow-hidden border border-white/10 bg-white/5 backdrop-blur-md p-2 md:p-4 shadow-2xl hover:border-[#ff9933]/30 transition-all duration-500 mb-8"
+          >
+            <iframe
+              src="https://www.youtube.com/embed/U2QBAxmlohw?rel=0&modestbranding=1"
+              title="Param Vir Chakra – Shauryagatha Official Teaser Video"
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              className="h-full w-full rounded-2xl"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              loading="lazy"
+              aria-label="Param Vir Chakra – Shauryagatha Official Teaser Video"
+            />
+          </motion.div>
+
+          {/* Video Description */}
+          <div className="max-w-3xl mx-auto text-center mb-10">
+            <p className="text-white/80 text-[15px] leading-relaxed md:text-base font-light">
+              Watch the official teaser of <strong className="font-medium text-[#ff9933]">"Param Vir Chakra – Shauryagatha"</strong>, a cinematic tribute celebrating the courage, sacrifice and legacy of India's greatest heroes. This patriotic event and book launch honors our brave defenders.
+            </p>
+          </div>
+
+          {/* Action CTAs & Social Share Wrapper */}
+          <div className="flex flex-col items-center gap-8 border-t border-white/5 pt-10">
+            
+            {/* Primary Action Buttons */}
+            <div className="flex flex-wrap justify-center gap-4">
+              <a 
+                href="#registration" 
+                className="inline-flex min-h-[46px] items-center justify-center rounded-xl bg-[#ff9933] px-6 py-2.5 text-sm font-bold text-[#090f19] hover:bg-white transition-all duration-300 hover:scale-105"
+              >
+                Register Now
+              </a>
+              <a 
+                href="#about" 
+                className="inline-flex min-h-[46px] items-center justify-center rounded-xl border border-white/20 bg-white/5 px-6 py-2.5 text-sm font-medium text-white hover:bg-white/10 transition-all duration-300"
+              >
+                View Event Details
+              </a>
+              <a 
+                href="https://youtu.be/U2QBAxmlohw?si=vBgeDE_bZFlaxpVB" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="inline-flex min-h-[46px] items-center justify-center rounded-xl border border-white/15 bg-white/5 px-6 py-2.5 text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300"
+              >
+                Watch on YouTube <ExternalLink className="ml-1.5 h-4 w-4" />
+              </a>
+            </div>
+
+            {/* Social Share Buttons */}
+            <div className="flex flex-col items-center gap-3">
+              <span className="text-xs font-bold uppercase tracking-wider text-white/40">Share Teaser</span>
+              <div className="flex items-center gap-3">
+                
+                {/* WhatsApp */}
+                <a 
+                  href={`https://api.whatsapp.com/send?text=Watch%20the%20Official%20Teaser%20of%20Param%20Vir%20Chakra%20%E2%80%93%20Shauryagatha%20here%3A%20${encodeURIComponent(canonicalUrl)}`}
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  aria-label="Share on WhatsApp"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 border border-white/15 hover:bg-[#138808]/10 hover:border-[#138808]/50 hover:text-[#138808] transition-all duration-300"
+                >
+                  <MessageCircle className="h-5 w-5" />
+                </a>
+
+                {/* Facebook */}
+                <a 
+                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(canonicalUrl)}`}
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  aria-label="Share on Facebook"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 border border-white/15 hover:bg-[#3b5998]/10 hover:border-[#3b5998]/50 hover:text-[#3b5998] transition-all duration-300"
+                >
+                  <Facebook className="h-5 w-5" />
+                </a>
+
+                {/* X / Twitter */}
+                <a 
+                  href={`https://twitter.com/intent/tweet?text=Watch%20the%20Official%20Teaser%20of%20Param%20Vir%20Chakra%20%E2%80%93%20Shauryagatha%20here%3A&url=${encodeURIComponent(canonicalUrl)}`}
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  aria-label="Share on X"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 border border-white/15 hover:bg-white/15 hover:border-white/40 transition-all duration-300"
+                >
+                  <Twitter className="h-5 w-5" />
+                </a>
+
+                {/* Telegram */}
+                <a 
+                  href={`https://t.me/share/url?url=${encodeURIComponent(canonicalUrl)}&text=Watch%20the%20Official%20Teaser%20of%20Param%20Vir%20Chakra%20%E2%80%93%20Shauryagatha`}
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  aria-label="Share on Telegram"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 border border-white/15 hover:bg-[#0088cc]/10 hover:border-[#0088cc]/50 hover:text-[#0088cc] transition-all duration-300"
+                >
+                  <Send className="h-5 w-5" />
+                </a>
+
+                {/* Copy Link */}
+                <button 
+                  onClick={handleCopyLink}
+                  aria-label="Copy teaser link"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 border border-white/15 hover:bg-[#ff9933]/10 hover:border-[#ff9933]/50 hover:text-[#ff9933] transition-all duration-300"
+                >
+                  {copied ? <CheckCircle2 className="h-5 w-5 text-[#138808]" /> : <Copy className="h-5 w-5" />}
+                </button>
+                
+              </div>
+              {copied && <span className="text-[10px] text-[#138808] font-bold tracking-wider uppercase animate-pulse">Link Copied!</span>}
+            </div>
+
+          </div>
+
+        </div>
       </section>
 
      {/* BLESSINGS SECTION - PREMIUM ROYAL REDESIGN */}

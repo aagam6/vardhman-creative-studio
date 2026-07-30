@@ -69,6 +69,17 @@ export default function EventFooter() {
               </li>
               <li>
                 {isParamVirChakraPage ? (
+                  <a href="#teaser" className="flex items-center gap-1.5 hover:text-[#ff9933] transition-colors">
+                    <ChevronRight className="h-3 w-3" /> Watch Official Teaser
+                  </a>
+                ) : (
+                  <Link to="/param-vir-chakra#teaser" className="flex items-center gap-1.5 hover:text-[#ff9933] transition-colors">
+                    <ChevronRight className="h-3 w-3" /> Watch Official Teaser
+                  </Link>
+                )}
+              </li>
+              <li>
+                {isParamVirChakraPage ? (
                   <a href="#registration" className="flex items-center gap-1.5 hover:text-[#ff9933] transition-colors">
                     <ChevronRight className="h-3 w-3" /> Registration
                   </a>
