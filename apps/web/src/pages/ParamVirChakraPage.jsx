@@ -316,7 +316,7 @@ const navItems = [
 const eventCards = [
   { icon: CalendarDays, title: 'कार्यक्रम तिथि', label: '9 अगस्त 2026', detail: 'रविवार' },
   { icon: Clock, title: 'समय', label: 'प्रातः 9:00 बजे', detail: 'कार्यक्रम प्रारंभ' },
-  { icon: MapPin, title: 'स्थान', label: 'दीनेश हॉल', detail: 'नवरंगपुरा, अहमदाबाद' },
+  { icon: MapPin, title: 'स्थान', label: 'दीनेश हॉल', detail: 'नवरंगपुरा, अहमदाबाद', link: 'https://maps.app.goo.gl/NC4XSturo5sA2736A' },
   { icon: Users, title: 'आयु सीमा', label: '15–50 वर्ष', detail: 'पंजीकरण आवश्यक' },
 ];
 const countdown = {
@@ -343,6 +343,33 @@ export default function ParamVirChakraPage() {
   const [navSolid, setNavSolid] = useState(false);
   const [activeHash, setActiveHash] = useState('#hero');
   const [copied, setCopied] = useState(false);
+  const [showCalendarMenu, setShowCalendarMenu] = useState(false);
+
+  const downloadIcsFile = () => {
+    const calendarData = [
+      "BEGIN:VCALENDAR",
+      "VERSION:2.0",
+      "PRODID:-//Vardhman Creative Studio//Param Vir Chakra Event//EN",
+      "BEGIN:VEVENT",
+      "UID:pvc-shaurya-gatha-2026",
+      "DTSTAMP:20260730T120000Z",
+      "DTSTART:20260809T033000Z", // 9:00 AM IST in UTC
+      "DTEND:20260809T073000Z",   // 1:00 PM IST in UTC
+      "SUMMARY:Param Vir Chakra – Shaurya Gatha",
+      "DESCRIPTION:A premium patriotic Ahmedabad event dedicated to Param Vir Chakra winners.",
+      "LOCATION:Dinesh Hall, Navrangpura, Ahmedabad",
+      "END:VEVENT",
+      "END:VCALENDAR"
+    ].join("\r\n");
+
+    const blob = new Blob([calendarData], { type: "text/calendar;charset=utf-8" });
+    const link = document.createElement("a");
+    link.href = window.URL.createObjectURL(blob);
+    link.setAttribute("download", "event-shaurya-gatha.ics");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   // Google Map Loading State & Ref
   const [mapLoaded, setMapLoaded] = useState(false);
@@ -1036,7 +1063,7 @@ export default function ParamVirChakraPage() {
       </nav>
 
       {/* HERO SECTION - ULTIMATE CINEMATIC PREMIUM REDESIGN */}
-      <section id="hero" className="relative isolate overflow-hidden bg-[#040b14] pt-24 text-white min-h-[95svh] flex flex-col justify-between">
+      <section id="hero" className="relative isolate overflow-hidden bg-[#040b14] pt-20 pb-12 text-white min-h-[95svh] flex flex-col justify-between">
         
         {/* Absolute Background Master Layers */}
         <div className="absolute inset-0 -z-10 select-none pointer-events-none">
@@ -1048,110 +1075,156 @@ export default function ParamVirChakraPage() {
             fetchPriority="high"
           />
           {/* Deep Cinematic Ambient Radial Gradients to make text readable on the left */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_40%,rgba(255,153,51,0.15),transparent_45%),radial-gradient(circle_at_85%_55%,rgba(19,136,8,0.12),transparent_50%),linear-gradient(90deg,rgba(4,11,20,0.95) 0%,rgba(4,11,20,0.7) 45%,transparent 100%),linear-gradient(180deg,rgba(4,11,20,0.85) 0%,rgba(4,11,20,0) 20%,rgba(4,11,20,0) 80%,rgba(4,11,20,0.95) 100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_40%,rgba(255,153,51,0.12),transparent_45%),radial-gradient(circle_at_85%_55%,rgba(19,136,8,0.1),transparent_50%),linear-gradient(90deg,rgba(4,11,20,0.98) 0%,rgba(4,11,20,0.85) 45%,rgba(4,11,20,0.4) 75%,rgba(4,11,20,0.2) 100%),linear-gradient(180deg,rgba(4,11,20,0.85) 0%,rgba(4,11,20,0) 20%,rgba(4,11,20,0) 80%,rgba(4,11,20,0.98) 100%)]" />
           <div className="absolute inset-0 opacity-[0.025] noise-bg" aria-hidden="true" />
         </div>
 
         {/* Main Content Layout Container */}
-        <div className="mx-auto w-full max-w-7xl px-5 pt-12 pb-6 lg:px-8 flex-1 grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
+        <div className="mx-auto w-full max-w-7xl px-5 pt-8 pb-6 lg:px-8 flex-1 grid items-center gap-12 lg:grid-cols-[1.15fr_0.85fr]">
           
           {/* Left Column: Typographic Branding & Details */}
           <motion.div initial="hidden" animate="visible" variants={fadeInUp} className="flex flex-col justify-center">
             
             {/* Main Luxury Event Typography (Fixed Hindi Matra Clipping Issue) */}
-            <h1 className="font-serif text-[3.5rem] font-bold leading-[1.2] tracking-tight text-white sm:text-6xl md:text-7xl lg:text-[5rem] pb-2">
+            <h1 className="font-serif text-[3.2rem] font-bold leading-[1.05] tracking-tight text-white sm:text-6xl md:text-7xl lg:text-[4.8rem] pb-1">
               परमवीर चक्र
-              <span className="mt-2 block text-[#FF9933] filter drop-shadow-[0_2px_15px_rgba(255,153,51,0.3)]">
+              <span className="mt-1 block text-[#FF9933] filter drop-shadow-[0_2px_15px_rgba(255,153,51,0.3)]">
                 शौर्यगाथा
               </span>
             </h1>
 
             {/* Event Explainer Hooks */}
-            <p className="mt-4 max-w-xl text-lg font-medium leading-relaxed text-[#FFB854] sm:text-xl md:text-2xl">
+            <p className="mt-3 max-w-lg text-lg font-semibold leading-relaxed text-[#FFB854] sm:text-xl">
               भारत के वीरों को समर्पित एक अद्भुत देशभक्ति अनुभव
             </p>
             
-            <p className="mt-4 max-w-xl text-[15px] leading-7 text-white/70 font-light">
+            <p className="mt-3 max-w-lg text-[14px] leading-6 text-white/90 font-light">
               भारत के सर्वोच्च वीरता सम्मान <strong className="font-medium text-white">परमवीर चक्र</strong> से सम्मानित अमर वीरों के अद्भुत साहस, त्याग और राष्ट्रभक्ति की प्रेरणादायी शौर्यगाथाओं पर आधारित एक भव्य कार्यक्रम।
             </p>
 
             {/* Live Event Countdown */}
-            <div className="mt-6 max-w-xl">
+            <div className="mt-5 max-w-xl">
               {timeLeft.status === 'upcoming' && (
-                <div className="flex items-center gap-3">
-                  <div className="flex flex-col items-center min-w-[65px] rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 backdrop-blur-md">
-                    <span className="text-xl font-bold text-[#ff9933]">{timeLeft.days}</span>
-                    <span className="text-[10px] uppercase tracking-wider text-white/40 font-semibold">Days</span>
-                  </div>
-                  <div className="flex flex-col items-center min-w-[65px] rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 backdrop-blur-md">
-                    <span className="text-xl font-bold text-[#ff9933]">{timeLeft.hours}</span>
-                    <span className="text-[10px] uppercase tracking-wider text-white/40 font-semibold">Hours</span>
-                  </div>
-                  <div className="flex flex-col items-center min-w-[65px] rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 backdrop-blur-md">
-                    <span className="text-xl font-bold text-[#ff9933]">{timeLeft.minutes}</span>
-                    <span className="text-[10px] uppercase tracking-wider text-white/40 font-semibold">Mins</span>
-                  </div>
-                  <div className="flex flex-col items-center min-w-[65px] rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 backdrop-blur-md">
-                    <span className="text-xl font-bold text-[#ff9933]">{timeLeft.seconds}</span>
-                    <span className="text-[10px] uppercase tracking-wider text-white/40 font-semibold">Secs</span>
-                  </div>
-                  <div className="ml-2 hidden sm:block text-xs uppercase tracking-widest text-[#ff9933]/70 font-bold animate-pulse">
-                    Countdown Live
+                <div className="flex flex-col gap-2">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#ff9933] filter drop-shadow-[0_2px_8px_rgba(255,153,51,0.2)]">
+                    कार्यक्रम प्रारंभ होने में / EVENT STARTS IN
+                  </span>
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex flex-col items-center min-w-[62px] rounded-xl border border-white/10 bg-white/[0.04] p-2.5 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] backdrop-blur-md transition-all duration-300 hover:border-[#ff9933]/30 hover:scale-105">
+                      <span className="text-xl font-bold text-white tracking-tight">{timeLeft.days}</span>
+                      <span className="text-[8px] uppercase tracking-widest text-white/40 font-bold mt-0.5">Days</span>
+                    </div>
+                    <div className="flex flex-col items-center min-w-[62px] rounded-xl border border-white/10 bg-white/[0.04] p-2.5 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] backdrop-blur-md transition-all duration-300 hover:border-[#ff9933]/30 hover:scale-105">
+                      <span className="text-xl font-bold text-white tracking-tight">{timeLeft.hours}</span>
+                      <span className="text-[8px] uppercase tracking-widest text-white/40 font-bold mt-0.5">Hours</span>
+                    </div>
+                    <div className="flex flex-col items-center min-w-[62px] rounded-xl border border-white/10 bg-white/[0.04] p-2.5 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] backdrop-blur-md transition-all duration-300 hover:border-[#ff9933]/30 hover:scale-105">
+                      <span className="text-xl font-bold text-white tracking-tight">{timeLeft.minutes}</span>
+                      <span className="text-[8px] uppercase tracking-widest text-white/40 font-bold mt-0.5">Mins</span>
+                    </div>
+                    <div className="flex flex-col items-center min-w-[62px] rounded-xl border border-white/10 bg-white/[0.04] p-2.5 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] backdrop-blur-md transition-all duration-300 hover:border-[#ff9933]/30 hover:scale-105">
+                      <span className="text-xl font-bold text-white tracking-tight">{timeLeft.seconds}</span>
+                      <span className="text-[8px] uppercase tracking-widest text-white/40 font-bold mt-0.5">Secs</span>
+                    </div>
                   </div>
                 </div>
               )}
               {timeLeft.status === 'live' && (
-                <div className="inline-flex items-center gap-2 rounded-xl border border-[#138808]/40 bg-[#138808]/15 px-4 py-2 text-sm font-bold text-white animate-pulse">
-                  <span className="h-2 w-2 rounded-full bg-[#138808]" />
-                  Event Live Now
+                <div className="inline-flex items-center gap-2 rounded-xl border border-[#138808]/40 bg-[#138808]/15 px-4 py-2 text-xs font-bold text-white animate-pulse shadow-[0_0_15px_rgba(19,136,8,0.2)]">
+                  <span className="h-2 w-2 rounded-full bg-[#138808] animate-ping" />
+                  Event Live Now / कार्यक्रम लाइव है
                 </div>
               )}
               {timeLeft.status === 'concluded' && (
-                <div className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-white/50">
-                  This Event Has Concluded
+                <div className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-xs font-medium text-white/50 shadow-inner">
+                  This Event Has Concluded / कार्यक्रम संपन्न हो चुका है
                 </div>
               )}
             </div>
 
             {/* Interactive Call to Action Triggers */}
-            <div className="mt-8 flex flex-wrap gap-4 items-center">
+            <div className="mt-6 flex flex-wrap gap-3 items-center">
               <a 
                 href="#registration" 
-                className="inline-flex min-h-[50px] items-center justify-center rounded-xl bg-[#FF9933] px-8 py-3 text-[15px] font-bold text-[#090f19] shadow-[0_12px_40px_rgba(255,153,51,0.25)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_16px_50px_rgba(255,153,51,0.35)]"
+                className="inline-flex min-h-[46px] h-[46px] items-center justify-center rounded-xl bg-[#FF9933] px-6 text-[14px] font-bold text-[#090f19] shadow-[0_8px_24px_rgba(255,153,51,0.2)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_12px_32px_rgba(255,153,51,0.3)] active:scale-[0.98] outline-none focus-visible:ring-2 focus-visible:ring-[#ff9933]"
               >
-                Register for Free <ChevronRight className="ml-1 h-5 w-5 shrink-0 stroke-[2.5]" />
+                Register for Free <ChevronRight className="ml-1 h-4 w-4 shrink-0 stroke-[2.5]" />
               </a>
               <a 
                 href="#teaser" 
-                className="inline-flex min-h-[50px] items-center justify-center rounded-xl border border-white/20 bg-white/[0.03] px-8 py-3 text-[15px] font-semibold text-white backdrop-blur-md transition-all duration-300 hover:bg-[#FF9933]/10 hover:border-[#FF9933]/50 hover:text-[#FF9933]"
+                className="inline-flex min-h-[46px] h-[46px] items-center justify-center rounded-xl border border-white/20 bg-white/[0.03] px-6 text-[14px] font-bold text-white backdrop-blur-md transition-all duration-300 hover:bg-[#FF9933]/10 hover:border-[#FF9933]/50 hover:text-[#FF9933] active:scale-[0.98] outline-none focus-visible:ring-2 focus-visible:ring-[#ff9933]"
               >
                 ▶ Watch Official Teaser
               </a>
               <a 
                 href="#about" 
-                className="inline-flex min-h-[50px] items-center justify-center rounded-xl border border-white/20 bg-white/[0.03] px-8 py-3 text-[15px] font-medium text-white backdrop-blur-md transition-all duration-300 hover:bg-white/[0.08] hover:border-white/40"
+                className="inline-flex min-h-[46px] h-[46px] items-center justify-center rounded-xl border border-white/20 bg-white/[0.03] px-6 text-[14px] font-semibold text-white backdrop-blur-md transition-all duration-300 hover:bg-white/[0.08] hover:border-white/40 active:scale-[0.98] outline-none focus-visible:ring-2 focus-visible:ring-white"
               >
                 Learn More
               </a>
-              <a 
-                href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Param+Vir+Chakra+–+Shaurya+Gatha&dates=20260809T033000Z/20260809T073000Z&details=A+premium+patriotic+Ahmedabad+event+dedicated+to+Param+Vir+Chakra+winners.&location=Dinesh+Hall,+Navrangpura,+Ahmedabad"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex min-h-[50px] items-center justify-center rounded-xl border border-white/10 bg-white/5 px-6 py-3 text-[14px] font-medium text-white/80 hover:text-white transition-all duration-300 hover:bg-white/10 hover:border-[#ff9933]/40"
-              >
-                <CalendarDays className="mr-2 h-4.5 w-4.5 text-[#ff9933]" /> Save the Date
-              </a>
+              
+              {/* Save the Date Dropdown Calendar */}
+              <div className="relative">
+                <button 
+                  onClick={() => setShowCalendarMenu(!showCalendarMenu)}
+                  className="inline-flex min-h-[46px] h-[46px] items-center justify-center rounded-xl border border-white/20 bg-white/[0.03] px-5 text-[14px] font-bold text-white backdrop-blur-md transition-all duration-300 hover:bg-white/10 hover:border-[#ff9933]/40 active:scale-[0.98] outline-none focus-visible:ring-2 focus-visible:ring-[#ff9933]"
+                  aria-expanded={showCalendarMenu}
+                  aria-haspopup="true"
+                >
+                  <CalendarDays className="mr-2 h-4 w-4 text-[#ff9933]" /> Save the Date
+                </button>
+                {showCalendarMenu && (
+                  <div className="absolute left-0 mt-2 z-50 w-52 rounded-xl border border-white/10 bg-[#090f19]/95 p-1.5 shadow-[0_10px_40px_rgba(0,0,0,0.5)] backdrop-blur-xl animate-in fade-in slide-in-from-top-2 duration-200">
+                    <a 
+                      href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Param+Vir+Chakra+–+Shaurya+Gatha&dates=20260809T033000Z/20260809T073000Z&details=A+premium+patriotic+Ahmedabad+event+dedicated+to+Param+Vir+Chakra+winners.&location=Dinesh+Hall,+Navrangpura,+Ahmedabad"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-white/80 hover:bg-white/10 hover:text-white transition-colors"
+                      onClick={() => setShowCalendarMenu(false)}
+                    >
+                      Google Calendar
+                    </a>
+                    <button 
+                      onClick={() => { downloadIcsFile(); setShowCalendarMenu(false); }}
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs text-white/80 hover:bg-white/10 hover:text-white transition-colors"
+                    >
+                      Apple Calendar (.ics)
+                    </button>
+                    <button 
+                      onClick={() => { downloadIcsFile(); setShowCalendarMenu(false); }}
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs text-white/80 hover:bg-white/10 hover:text-white transition-colors"
+                    >
+                      Outlook (.ics)
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Exact Match Reference Grid Cards (Matched with image_d9b941.jpg) */}
-            <div className="mt-12 grid gap-4 grid-cols-2 sm:grid-cols-4 lg:max-w-3xl">
-              {eventCards.map((card) => (
-                <div key={card.label} className="relative flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-6 text-center backdrop-blur-md transition-all duration-300 hover:border-[#FF9933]/50 hover:bg-white/[0.06] shadow-lg">
-                  <card.icon className="mb-4 h-7 w-7 text-[#FF9933]" strokeWidth={1.5} />
-                  <h3 className="text-[17px] font-bold text-white tracking-wide">{card.label}</h3>
-                  <p className="mt-1.5 text-[13px] text-white/50 font-medium">{card.detail}</p>
-                </div>
-              ))}
+            <div className="mt-8 grid gap-3 grid-cols-2 sm:grid-cols-4 lg:max-w-3xl">
+              {eventCards.map((card) => {
+                const CardElement = card.link ? 'a' : 'div';
+                return (
+                  <CardElement 
+                    key={card.label} 
+                    href={card.link}
+                    target={card.link ? "_blank" : undefined}
+                    rel={card.link ? "noopener noreferrer" : undefined}
+                    aria-label={card.link ? `View event venue ${card.label} on Google Maps` : undefined}
+                    className={`relative flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03] px-2.5 py-4 text-center backdrop-blur-md transition-all duration-300 hover:border-[#FF9933]/50 hover:bg-white/[0.08] hover:-translate-y-1 hover:shadow-[0_12px_24px_rgba(255,153,51,0.15)] shadow-lg ${card.link ? 'cursor-pointer' : ''}`}
+                  >
+                    <card.icon className="mb-2.5 h-8.5 w-8.5 text-[#FF9933] transition-transform duration-300 group-hover:scale-110" strokeWidth={1.5} />
+                    <h3 className="text-[15px] font-bold text-white tracking-wide">{card.label}</h3>
+                    <p className="mt-1 text-[11px] text-white/50 font-medium">{card.detail}</p>
+                    {card.link && (
+                      <span className="absolute bottom-1 right-2 text-[8px] text-[#ff9933]/60 uppercase tracking-widest font-semibold flex items-center gap-0.5">
+                        Map <ExternalLink className="h-2 w-2" />
+                      </span>
+                    )}
+                  </CardElement>
+                );
+              })}
             </div>
 
           </motion.div>
