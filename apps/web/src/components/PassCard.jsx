@@ -81,32 +81,32 @@ const PassCard = memo(({
               </div>
               
               <div className="mt-8 flex flex-col items-center">
-                <h1 className="font-serif text-[64px] font-extrabold leading-tight text-transparent bg-clip-text bg-gradient-to-b from-[#ffedba] via-[#d4af37] to-[#aa7c11] drop-shadow-[0_4px_6px_rgba(0,0,0,0.6)]">
+                <h1 className="font-serif text-[84px] font-extrabold leading-tight text-transparent bg-clip-text bg-gradient-to-b from-[#ffedba] via-[#d4af37] to-[#aa7c11] drop-shadow-[0_4px_6px_rgba(0,0,0,0.6)]">
                   परमवीर चक्र
                 </h1>
                 
                 <div className="mt-3 flex items-center gap-5">
                   <div className="h-[2px] w-10 bg-gradient-to-r from-transparent to-[#d5ad5b]" />
-                  <h2 className="font-serif text-[32px] font-bold tracking-[0.2em] text-[#f4db9c] drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                  <h2 className="font-serif text-[38px] font-bold tracking-[0.2em] text-[#f4db9c] drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                     शौर्यगाथा
                   </h2>
                   <div className="h-[2px] w-10 bg-gradient-to-l from-transparent to-[#d5ad5b]" />
                 </div>
 
-                <h3 className="mt-5 font-serif text-[28px] font-semibold italic tracking-wide text-[#e8e4c9]">
+                <h3 className="mt-5 font-serif text-[34px] font-bold italic tracking-wide text-[#e8e4c9]">
                   "आर्यावर्त का गौरव"
                 </h3>
-                <p className="mt-3 text-[14px] font-semibold tracking-[0.4em] uppercase text-[#d5ad5b]/80">
+                <p className="mt-3 text-[16px] font-bold tracking-[0.4em] uppercase text-[#d5ad5b]/80">
                   Historic Literary Masterpiece
                 </p>
               </div>
             </div>
 
             {/* CENTER COLUMN: Information Panels (48% Width) */}
-            <div className="flex w-[48%] shrink-0 flex-col justify-between py-2 px-2">
+            <div className="flex w-[48%] shrink-0 flex-col justify-center gap-6 py-2 px-2">
               <div className="text-center">
-                <p className="text-[14px] font-bold tracking-[0.3em] text-[#d5ad5b] uppercase">Organised By</p>
-                <p className="mt-2 font-serif text-[24px] font-bold text-white tracking-wide">
+                <p className="text-[15px] font-bold tracking-[0.3em] text-[#d5ad5b] uppercase">Organised By</p>
+                <p className="mt-2 font-serif text-[28px] font-bold text-white tracking-wide">
                   श्री वर्धमान श्वेतांबर मूर्तिपूजक जैन संघ
                 </p>
               </div>
@@ -175,29 +175,29 @@ const PassCard = memo(({
                 {/* ID Body */}
                 <div className="flex flex-col gap-6 p-6">
                   <div className="overflow-hidden">
-                    <p className="text-[12px] font-bold tracking-[0.15em] text-[#8495a8] uppercase">Participant Name</p>
-                    <p className="mt-1 font-serif text-[24px] font-bold leading-tight text-white truncate">
+                    <p className="text-[13px] font-bold tracking-[0.15em] text-[#8495a8] uppercase">Participant Name</p>
+                    <p className="mt-1 font-serif text-[28px] font-bold leading-tight text-white truncate">
                       {name || 'Guest Participant'}
                     </p>
                   </div>
                   
                   <div className="overflow-hidden">
-                    <p className="text-[12px] font-bold tracking-[0.15em] text-[#8495a8] uppercase">Registered Mobile</p>
-                    <p className="mt-1 font-mono text-[20px] font-semibold text-white truncate">
+                    <p className="text-[13px] font-bold tracking-[0.15em] text-[#8495a8] uppercase">Registered Mobile</p>
+                    <p className="mt-1 font-mono text-[22px] font-semibold text-white truncate">
                       {formatMobile(mobile) || 'XXXXXX----'}
                     </p>
                   </div>
                   
                   <div className="overflow-hidden">
-                    <p className="text-[12px] font-bold tracking-[0.15em] text-[#8495a8] uppercase">City / District</p>
-                    <p className="mt-1 text-[20px] font-semibold text-white truncate">
+                    <p className="text-[13px] font-bold tracking-[0.15em] text-[#8495a8] uppercase">City / District</p>
+                    <p className="mt-1 text-[22px] font-semibold text-white truncate">
                       {city || 'Ahmedabad'}
                     </p>
                   </div>
                   
                   <div className="rounded-lg border border-[#d5ad5b]/30 bg-black/40 p-3 text-center mt-1">
-                    <p className="text-[12px] font-bold tracking-[0.15em] text-[#8495a8] uppercase">Official Pass Number</p>
-                    <p className="mt-1 font-mono text-[22px] font-bold text-[#f4db9c] truncate">
+                    <p className="text-[13px] font-bold tracking-[0.15em] text-[#8495a8] uppercase">Official Pass Number</p>
+                    <p className="mt-1 font-mono text-[24px] font-bold text-[#f4db9c] truncate">
                       {passNumber || 'PVC-2026-XXXXXX'}
                     </p>
                   </div>
@@ -234,9 +234,9 @@ const PassCard = memo(({
           <div className="relative z-10 flex h-full flex-col px-[140px] py-[120px]">
             {/* Header */}
             <div className="text-center">
-              <p className="text-[16px] font-bold tracking-[0.4em] text-[#d5ad5b] uppercase">Official Guidelines</p>
-              <h1 className="mt-4 font-serif text-[54px] font-bold tracking-[0.05em] text-white drop-shadow-md">आवश्यक निर्देश</h1>
-              <div className="mx-auto mt-5 h-[2px] w-[200px] bg-gradient-to-r from-transparent via-[#d5ad5b] to-transparent" />
+              <p className="text-[18px] font-bold tracking-[0.4em] text-[#d5ad5b] uppercase">Official Guidelines</p>
+              <h1 className="mt-4 font-serif text-[68px] font-bold tracking-[0.05em] text-white drop-shadow-md">आवश्यक निर्देश</h1>
+              <div className="mx-auto mt-5 h-[2px] w-[260px] bg-gradient-to-r from-transparent via-[#d5ad5b] to-transparent" />
             </div>
             
             {/* Instructions Grid */}
