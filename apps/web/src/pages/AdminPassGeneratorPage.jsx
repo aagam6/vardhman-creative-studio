@@ -24,6 +24,9 @@ export default function AdminPassGeneratorPage() {
   const [startingPassSeq, setStartingPassSeq] = useState(1);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationProgress, setGenerationProgress] = useState("");
+  const [previewModalData, setPreviewModalData] = useState(null);
+  const [modalPassIndex, setModalPassIndex] = useState(0);
+  const [modalSide, setModalSide] = useState("front");
   
   // Ref for rendering off-screen pass card for image capture
   const offscreenRenderRef = useRef(null);
@@ -159,21 +162,15 @@ export default function AdminPassGeneratorPage() {
     return list;
   };
 
-  // Run PDF Generation for a specific row
-  const handleGeneratePass = async (index) => {
+  // Handle click on "Generate Pass" - prepares data and opens the Preview Modal
+  const clickGeneratePass = (index) => {
     const row = excelData[index];
     if (!row.name) {
       toast.error("Applicant Name is empty in this row.");
       return;
     }
 
-    setIsGenerating(true);
-    setGenerationProgress("Preparing tickets...");
-
-    // Determine sequence numbers to assign
     const passCount = row.passCount || 1;
-    
-    // Assign pass numbers from startingPassSeq
     let currentSeq = startingPassSeq;
     const participants = getParticipantList(row);
     const passAssignments = [];
@@ -188,12 +185,40 @@ export default function AdminPassGeneratorPage() {
       currentSeq++;
     }
 
+    setModalPassIndex(0);
+    setModalSide("front");
+    setPreviewModalData({
+      rowIndex: index,
+      passAssignments
+    });
+  };
+
+  // Triggered when user confirms generation from the Preview Modal
+  const confirmGeneratePass = async () => {
+    if (!previewModalData) return;
+    const { rowIndex, passAssignments } = previewModalData;
+    
+    // Close the preview modal first
+    setPreviewModalData(null);
+    
+    // Start generating passes
+    await executeGeneratePass(rowIndex, passAssignments);
+  };
+
+  // Run PDF Generation for the verified list of passes (Front & Back for each pass)
+  const executeGeneratePass = async (rowIndex, passAssignments) => {
+    const row = excelData[rowIndex];
+    setIsGenerating(true);
+    setGenerationProgress("Preparing tickets...");
+
+    const passCount = passAssignments.length;
+    
     // Set starting pass sequence for future rows (so we don't conflict)
-    setStartingPassSeq(currentSeq);
+    const lastSeq = parsePassSeq(passAssignments[passCount - 1].passNumber);
+    setStartingPassSeq(lastSeq + 1);
 
     try {
-      // jsPDF setup - A4 aspect ratio or standard 1080x1920 aspect
-      // We will create the PDF matching the 1080x1920 ticket canvas exactly for sharp display
+      // jsPDF setup - standard 1080x1920 aspect ratio
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'px',
@@ -202,7 +227,9 @@ export default function AdminPassGeneratorPage() {
 
       for (let i = 0; i < passCount; i++) {
         const assignment = passAssignments[i];
-        setGenerationProgress(`Rendering pass ${i + 1} of ${passCount} (${assignment.name})...`);
+        
+        // 1. Capture Front Side
+        setGenerationProgress(`Rendering pass ${i + 1} of ${passCount} (Front Side)...`);
 
         // Update target renderProps so the offscreen React component re-renders
         await new Promise((resolve) => {
@@ -216,16 +243,16 @@ export default function AdminPassGeneratorPage() {
           setTimeout(resolve, 150);
         });
 
-        // Capture offscreen element as image
-        const container = offscreenRenderRef.current;
-        if (!container) {
-          throw new Error("Offscreen renderer node not found.");
+        // Capture offscreen element Front side
+        const frontEl = document.getElementById(`pass-front-${assignment.passNumber}`);
+        if (!frontEl) {
+          throw new Error("Front pass card element not found in DOM.");
         }
 
         // Wait a tiny bit for fonts & styling
         await new Promise(r => setTimeout(r, 100));
 
-        const dataUrl = await toPng(container, {
+        const frontDataUrl = await toPng(frontEl, {
           width: 1080,
           height: 1920,
           style: {
@@ -237,8 +264,27 @@ export default function AdminPassGeneratorPage() {
         if (i > 0) {
           pdf.addPage([1080, 1920], 'portrait');
         }
+        pdf.addImage(frontDataUrl, 'PNG', 0, 0, 1080, 1920, undefined, 'FAST');
+
+        // 2. Capture Back Side
+        setGenerationProgress(`Rendering pass ${i + 1} of ${passCount} (Back Side)...`);
         
-        pdf.addImage(dataUrl, 'PNG', 0, 0, 1080, 1920, undefined, 'FAST');
+        const backEl = document.getElementById(`pass-back-${assignment.passNumber}`);
+        if (!backEl) {
+          throw new Error("Back pass card element not found in DOM.");
+        }
+
+        const backDataUrl = await toPng(backEl, {
+          width: 1080,
+          height: 1920,
+          style: {
+            transform: 'scale(1)',
+            transformOrigin: 'top left'
+          }
+        });
+
+        pdf.addPage([1080, 1920], 'portrait');
+        pdf.addImage(backDataUrl, 'PNG', 0, 0, 1080, 1920, undefined, 'FAST');
       }
 
       // Generate date & time strings
@@ -248,7 +294,7 @@ export default function AdminPassGeneratorPage() {
       let hours = now.getHours();
       const ampm = hours >= 12 ? 'PM' : 'AM';
       hours = hours % 12;
-      hours = hours ? hours : 12; // the hour '0' should be '12'
+      hours = hours ? hours : 12; 
       const formattedTime = `${hours.toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')} ${ampm}`;
 
       const passNumberRange = passCount === 1 
@@ -257,7 +303,7 @@ export default function AdminPassGeneratorPage() {
 
       // Update excel data state
       const updatedData = [...excelData];
-      updatedData[index] = {
+      updatedData[rowIndex] = {
         ...row,
         passGenerated: 'YES',
         passNumber: passNumberRange,
@@ -272,7 +318,7 @@ export default function AdminPassGeneratorPage() {
       const safeName = row.name.toLowerCase().replace(/[^a-z0-9]/g, '_');
       pdf.save(`pvc_pass_${safeName}.pdf`);
       
-      toast.success(`Successfully generated ${passCount} passes for ${row.name}!`);
+      toast.success(`Successfully generated ${passCount} passes (Front & Back) for ${row.name}!`);
     } catch (err) {
       console.error(err);
       toast.error(`Failed to generate passes: ${err.message}`);
@@ -366,6 +412,130 @@ export default function AdminPassGeneratorPage() {
             <p className="text-[#ff9933]/70 font-semibold text-xs uppercase mt-6 tracking-[0.2em] animate-pulse">
               Please do not close this window
             </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Preview Modal Popup before generating */}
+      <AnimatePresence>
+        {previewModalData && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-[#02050a]/90 flex items-center justify-center z-50 p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              className="bg-[#081224] border border-white/10 rounded-[2.5rem] w-full max-w-4xl p-6 md:p-8 max-h-[95vh] overflow-y-auto shadow-2xl relative flex flex-col justify-between"
+            >
+              {/* Header */}
+              <div className="border-b border-white/10 pb-4 mb-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                  <h3 className="font-serif text-2xl font-bold text-gradient">Review Digital Passes</h3>
+                  <p className="text-xs text-white/50 mt-1">
+                    Confirm details before generating PDF for {excelData[previewModalData.rowIndex].name} ({previewModalData.passAssignments.length} passes)
+                  </p>
+                </div>
+                
+                <div className="flex rounded-xl bg-white/5 p-1 border border-white/10 text-xs font-semibold">
+                  <button
+                    onClick={() => setModalSide("front")}
+                    className={`px-3 py-1.5 rounded-lg transition-all ${
+                      modalSide === 'front' ? 'bg-[#ff9933] text-white' : 'text-white/60 hover:text-white'
+                    }`}
+                  >
+                    Front Side
+                  </button>
+                  <button
+                    onClick={() => setModalSide("back")}
+                    className={`px-3 py-1.5 rounded-lg transition-all ${
+                      modalSide === 'back' ? 'bg-[#ff9933] text-white' : 'text-white/60 hover:text-white'
+                    }`}
+                  >
+                    Back Side
+                  </button>
+                </div>
+              </div>
+
+              {/* Selector for multi-pass bookings */}
+              {previewModalData.passAssignments.length > 1 && (
+                <div className="mb-4 bg-white/2px p-3 rounded-2xl border border-white/5 flex flex-col gap-1.5">
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-white/40">
+                    Select Participant Pass to Inspect:
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {previewModalData.passAssignments.map((assignment, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setModalPassIndex(idx)}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all border ${
+                          modalPassIndex === idx 
+                            ? 'bg-[#ff9933]/15 text-[#ff9933] border-[#ff9933]/30' 
+                            : 'bg-white/5 text-white/55 border-transparent hover:bg-white/10'
+                        }`}
+                      >
+                        Pass {idx + 1}: {assignment.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Pass Card Container */}
+              <div className="relative flex justify-center items-center border border-white/10 rounded-2xl bg-[#02050a] p-4 overflow-hidden h-[490px] w-full mb-6">
+                <div 
+                  style={{ 
+                    width: '1080px', 
+                    height: '1920px', 
+                    transform: 'scale(0.24)', 
+                    transformOrigin: 'top center',
+                    marginTop: '20px'
+                  }}
+                  className="origin-top select-none pointer-events-none"
+                >
+                  {modalSide === 'front' ? (
+                    <PassCard 
+                      name={previewModalData.passAssignments[modalPassIndex].name}
+                      mobile={previewModalData.passAssignments[modalPassIndex].mobile}
+                      city={previewModalData.passAssignments[modalPassIndex].city}
+                      passNumber={previewModalData.passAssignments[modalPassIndex].passNumber}
+                      scale={1}
+                    />
+                  ) : (
+                    <PassCard 
+                      name={previewModalData.passAssignments[modalPassIndex].name}
+                      mobile={previewModalData.passAssignments[modalPassIndex].mobile}
+                      city={previewModalData.passAssignments[modalPassIndex].city}
+                      passNumber={previewModalData.passAssignments[modalPassIndex].passNumber}
+                      scale={1}
+                    />
+                  )}
+                </div>
+              </div>
+
+              {/* Footer actions */}
+              <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-white/10">
+                <button
+                  onClick={() => setPreviewModalData(null)}
+                  className="px-5 py-3 rounded-xl bg-white/5 border border-white/10 text-sm font-bold text-white hover:bg-white/10 transition-all"
+                >
+                  Cancel
+                </button>
+
+                <div className="flex items-center gap-3">
+                  <span className="text-xs text-white/50 font-medium">Looks Good?</span>
+                  <button
+                    onClick={confirmGeneratePass}
+                    className="px-6 py-3 rounded-xl bg-[#ff9933] text-white hover:bg-[#ffaa4d] text-sm font-bold shadow-lg shadow-[#ff9933]/10 transition-all"
+                  >
+                    Generate PDF
+                  </button>
+                </div>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -537,7 +707,7 @@ export default function AdminPassGeneratorPage() {
                               </td>
                               <td className="py-4 px-5 text-center" onClick={(e) => e.stopPropagation()}>
                                 <button
-                                  onClick={() => handleGeneratePass(realIdx)}
+                                  onClick={() => clickGeneratePass(realIdx)}
                                   className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold shadow-md transition-all ${
                                     row.passGenerated === 'YES'
                                       ? 'bg-white/5 text-white hover:bg-white/10'
