@@ -6,6 +6,7 @@ import ParamVirChakraPage from '@/pages/ParamVirChakraPage.jsx';
 import PrivacyPolicyPage from '@/pages/PrivacyPolicyPage.jsx';
 import PassCollectionPage from '@/pages/PassCollectionPage.jsx';
 import VardhmanComingSoonPage from '@/pages/VardhmanComingSoonPage.jsx';
+import AdminPassGeneratorPage from '@/pages/AdminPassGeneratorPage.jsx';
 
 function App() {
     return (
@@ -16,6 +17,7 @@ function App() {
                 <Route path="/param-vir-chakra" element={<ParamVirChakraPage />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
                 <Route path="/pass-collection" element={<PassCollectionPage />} />
+                <Route path="/admin/pass-generator" element={<AdminPassGeneratorPage />} />
                 <Route path="*" element={<VardhmanComingSoonPage />} />
             </Routes>
             <Toaster position="bottom-right" theme="dark" />
