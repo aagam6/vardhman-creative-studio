@@ -27,6 +27,7 @@ export default function AdminPassGeneratorPage() {
   const [previewModalData, setPreviewModalData] = useState(null);
   const [modalPassIndex, setModalPassIndex] = useState(0);
   const [modalSide, setModalSide] = useState("front");
+  const [modalZoom, setModalZoom] = useState(0.24);
   
   // Ref for rendering off-screen pass card for image capture
   const offscreenRenderRef = useRef(null);
@@ -187,6 +188,7 @@ export default function AdminPassGeneratorPage() {
 
     setModalPassIndex(0);
     setModalSide("front");
+    setModalZoom(0.24);
     setPreviewModalData({
       rowIndex: index,
       passAssignments
@@ -432,7 +434,7 @@ export default function AdminPassGeneratorPage() {
               className="bg-[#081224] border border-white/10 rounded-[2.5rem] w-full max-w-4xl p-6 md:p-8 max-h-[95vh] overflow-y-auto shadow-2xl relative flex flex-col justify-between"
             >
               {/* Header */}
-              <div className="border-b border-white/10 pb-4 mb-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="border-b border-white/10 pb-4 mb-4 flex flex-col md:flex-row items-center justify-between gap-4">
                 <div>
                   <h3 className="font-serif text-2xl font-bold text-gradient">Review Digital Passes</h3>
                   <p className="text-xs text-white/50 mt-1">
@@ -440,23 +442,47 @@ export default function AdminPassGeneratorPage() {
                   </p>
                 </div>
                 
-                <div className="flex rounded-xl bg-white/5 p-1 border border-white/10 text-xs font-semibold">
-                  <button
-                    onClick={() => setModalSide("front")}
-                    className={`px-3 py-1.5 rounded-lg transition-all ${
-                      modalSide === 'front' ? 'bg-[#ff9933] text-white' : 'text-white/60 hover:text-white'
-                    }`}
-                  >
-                    Front Side
-                  </button>
-                  <button
-                    onClick={() => setModalSide("back")}
-                    className={`px-3 py-1.5 rounded-lg transition-all ${
-                      modalSide === 'back' ? 'bg-[#ff9933] text-white' : 'text-white/60 hover:text-white'
-                    }`}
-                  >
-                    Back Side
-                  </button>
+                <div className="flex flex-wrap items-center gap-3">
+                  {/* Zoom Controls */}
+                  <div className="flex rounded-xl bg-white/5 p-1 border border-white/10 text-xs font-semibold gap-1 items-center">
+                    <span className="text-white/40 text-[9px] uppercase font-bold tracking-wider px-2">Zoom:</span>
+                    {[
+                      { label: "25%", value: 0.24 },
+                      { label: "50%", value: 0.50 },
+                      { label: "75%", value: 0.75 },
+                      { label: "100%", value: 1.00 }
+                    ].map((z) => (
+                      <button
+                        key={z.value}
+                        onClick={() => setModalZoom(z.value)}
+                        className={`px-2.5 py-1 rounded-lg transition-all ${
+                          modalZoom === z.value ? 'bg-[#ff9933] text-white' : 'text-white/60 hover:text-white'
+                        }`}
+                      >
+                        {z.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Side Switcher */}
+                  <div className="flex rounded-xl bg-white/5 p-1 border border-white/10 text-xs font-semibold">
+                    <button
+                      onClick={() => setModalSide("front")}
+                      className={`px-3 py-1.5 rounded-lg transition-all ${
+                        modalSide === 'front' ? 'bg-[#ff9933] text-white' : 'text-white/60 hover:text-white'
+                      }`}
+                    >
+                      Front Side
+                    </button>
+                    <button
+                      onClick={() => setModalSide("back")}
+                      className={`px-3 py-1.5 rounded-lg transition-all ${
+                        modalSide === 'back' ? 'bg-[#ff9933] text-white' : 'text-white/60 hover:text-white'
+                      }`}
+                    >
+                      Back Side
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -485,34 +511,25 @@ export default function AdminPassGeneratorPage() {
               )}
 
               {/* Pass Card Container */}
-              <div className="relative flex justify-center items-center border border-white/10 rounded-2xl bg-[#02050a] p-4 overflow-hidden h-[490px] w-full mb-6">
+              <div className="relative flex justify-center items-start border border-white/10 rounded-2xl bg-[#02050a] p-4 overflow-auto h-[600px] w-full mb-6">
                 <div 
                   style={{ 
                     width: '1080px', 
                     height: '1920px', 
-                    transform: 'scale(0.24)', 
+                    transform: `scale(${modalZoom})`, 
                     transformOrigin: 'top center',
-                    marginTop: '20px'
+                    marginBottom: `calc(1920px * (${modalZoom} - 1))`
                   }}
                   className="origin-top select-none pointer-events-none"
                 >
-                  {modalSide === 'front' ? (
-                    <PassCard 
-                      name={previewModalData.passAssignments[modalPassIndex].name}
-                      mobile={previewModalData.passAssignments[modalPassIndex].mobile}
-                      city={previewModalData.passAssignments[modalPassIndex].city}
-                      passNumber={previewModalData.passAssignments[modalPassIndex].passNumber}
-                      scale={1}
-                    />
-                  ) : (
-                    <PassCard 
-                      name={previewModalData.passAssignments[modalPassIndex].name}
-                      mobile={previewModalData.passAssignments[modalPassIndex].mobile}
-                      city={previewModalData.passAssignments[modalPassIndex].city}
-                      passNumber={previewModalData.passAssignments[modalPassIndex].passNumber}
-                      scale={1}
-                    />
-                  )}
+                  <PassCard 
+                    name={previewModalData.passAssignments[modalPassIndex].name}
+                    mobile={previewModalData.passAssignments[modalPassIndex].mobile}
+                    city={previewModalData.passAssignments[modalPassIndex].city}
+                    passNumber={previewModalData.passAssignments[modalPassIndex].passNumber}
+                    scale={1}
+                    activeSide={modalSide}
+                  />
                 </div>
               </div>
 
@@ -836,38 +853,20 @@ export default function AdminPassGeneratorPage() {
                       }}
                       className="origin-top select-none pointer-events-none"
                     >
-                      {/* We display Front/Back depending on toggled previewSide state */}
-                      <div className={previewSide === 'back' ? 'hidden' : 'block'}>
-                        <PassCard 
-                          name={participantList[selectedPassIndex] || selectedRow.name} 
-                          mobile={selectedRow.mobile} 
-                          city={selectedRow.city} 
-                          passNumber={
-                            selectedRow.passNumber
-                              ? (selectedRow.passCount === 1 
-                                  ? selectedRow.passNumber 
-                                  : formatPassNumber(parsePassSeq(selectedRow.passNumber.split(/\s+to\s+/i)[0]) + selectedPassIndex))
-                              : `PVC-2026-${startingPassSeq.toString().padStart(6, '0')}`
-                          }
-                          scale={1} 
-                        />
-                      </div>
-                      <div className={previewSide === 'front' ? 'hidden' : 'block'}>
-                        {/* Simply mirror the pass card rendering back page */}
-                        <PassCard 
-                          name={participantList[selectedPassIndex] || selectedRow.name} 
-                          mobile={selectedRow.mobile} 
-                          city={selectedRow.city} 
-                          passNumber={
-                            selectedRow.passNumber
-                              ? (selectedRow.passCount === 1 
-                                  ? selectedRow.passNumber 
-                                  : formatPassNumber(parsePassSeq(selectedRow.passNumber.split(/\s+to\s+/i)[0]) + selectedPassIndex))
-                              : `PVC-2026-${startingPassSeq.toString().padStart(6, '0')}`
-                          }
-                          scale={1} 
-                        />
-                      </div>
+                      <PassCard 
+                        name={participantList[selectedPassIndex] || selectedRow.name} 
+                        mobile={selectedRow.mobile} 
+                        city={selectedRow.city} 
+                        passNumber={
+                          selectedRow.passNumber
+                            ? (selectedRow.passCount === 1 
+                                ? selectedRow.passNumber 
+                                : formatPassNumber(parsePassSeq(selectedRow.passNumber.split(/\s+to\s+/i)[0]) + selectedPassIndex))
+                            : `PVC-2026-${startingPassSeq.toString().padStart(6, '0')}`
+                        }
+                        scale={1} 
+                        activeSide={previewSide}
+                      />
                     </div>
                   </div>
 
