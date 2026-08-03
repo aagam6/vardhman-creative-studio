@@ -529,6 +529,7 @@ export default function AdminPassGeneratorPage() {
                     passNumber={previewModalData.passAssignments[modalPassIndex].passNumber}
                     scale={1}
                     activeSide={modalSide}
+                    previewMode={true}
                   />
                 </div>
               </div>
@@ -866,6 +867,7 @@ export default function AdminPassGeneratorPage() {
                         }
                         scale={1} 
                         activeSide={previewSide}
+                        previewMode={true}
                       />
                     </div>
                   </div>
