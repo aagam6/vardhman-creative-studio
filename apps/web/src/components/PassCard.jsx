@@ -118,9 +118,9 @@ const PassCard = memo(({
                   <p className="mt-2 font-serif text-[20px] font-semibold text-white/90">
                     परम पूज्य आचार्यदेव श्री जिन-हेमचंद्रसागरसूरिजी महाराज के शिष्यरत्न
                   </p>
-                  <div className="mt-3 flex flex-col items-center justify-center gap-1 font-serif text-[22px] font-bold text-[#f4db9c]">
+                  <div className="mt-2.5 flex flex-col items-center justify-center font-serif text-[22px] font-bold text-[#f4db9c] leading-tight">
                     <span>परम पूज्य आचार्यदेव श्री सम्यकचंद्रसागरसूरिजी महाराज</span>
-                    <span className="text-[16px] text-[#d5ad5b] my-1">तथा</span>
+                    <span className="text-[15px] text-[#d5ad5b]/80 my-0.5 font-sans tracking-wide">तथा</span>
                     <span>परम पूज्य आचार्यदेव श्री तारकचंद्रसागरसूरिजी महाराज</span>
                   </div>
                 </div>
@@ -150,15 +150,15 @@ const PassCard = memo(({
               </div>
 
               {/* Luxury Event Chips - Safe Margins */}
-              <div className="mt-5 flex justify-center gap-4">
-                <div className="rounded-full border border-[#d5ad5b]/30 bg-black/40 px-5 py-2 text-center">
-                  <p className="text-[16px] font-serif font-bold text-[#f4db9c]">09 अगस्त 2026 (रविवार)</p>
+              <div className="mt-5 flex justify-center gap-5">
+                <div className="rounded-full border border-[#d5ad5b]/30 bg-black/40 px-6 py-3.5 text-center shadow-md">
+                  <p className="text-[20px] font-serif font-extrabold text-[#f4db9c]">09 अगस्त 2026 (रविवार)</p>
                 </div>
-                <div className="rounded-full border border-[#d5ad5b]/30 bg-black/40 px-5 py-2 text-center">
-                  <p className="text-[16px] font-serif font-bold text-[#f4db9c]">प्रातः 9:00 बजे</p>
+                <div className="rounded-full border border-[#d5ad5b]/30 bg-black/40 px-6 py-3.5 text-center shadow-md">
+                  <p className="text-[20px] font-serif font-extrabold text-[#f4db9c]">प्रातः 9:00 बजे</p>
                 </div>
-                <div className="rounded-full border border-[#d5ad5b]/30 bg-black/40 px-5 py-2 text-center">
-                  <p className="text-[16px] font-serif font-bold text-[#f4db9c]">दिनेश हॉल, अहमदाबाद</p>
+                <div className="rounded-full border border-[#d5ad5b]/30 bg-black/40 px-6 py-3.5 text-center shadow-md">
+                  <p className="text-[20px] font-serif font-extrabold text-[#f4db9c]">दिनेश हॉल, अहमदाबाद</p>
                 </div>
               </div>
             </div>
@@ -167,9 +167,8 @@ const PassCard = memo(({
             <div className="flex w-[22%] shrink-0 flex-col items-center justify-center border-l border-[#d5ad5b]/20 pl-6">
               <div className="w-full overflow-hidden rounded-xl border border-[#d5ad5b]/50 bg-gradient-to-b from-[#0e1726] to-[#040a12] shadow-[0_20px_40px_rgba(0,0,0,0.7)]">
                 {/* ID Header */}
-                <div className="border-b border-[#d5ad5b]/30 bg-[#d5ad5b]/10 py-4 text-center">
-                  <p className="text-[14px] font-bold tracking-[0.25em] text-[#d5ad5b]">GOVERNMENT OF INDIA</p>
-                  <p className="mt-1 text-[16px] font-bold tracking-[0.1em] text-white">ONLINE ENTRY PASS</p>
+                <div className="border-b border-[#d5ad5b]/30 bg-[#d5ad5b]/10 py-5 text-center">
+                  <p className="text-[20px] font-bold tracking-[0.15em] text-[#d5ad5b] uppercase">ONLINE ENTRY PASS</p>
                 </div>
                 
                 {/* ID Body */}
