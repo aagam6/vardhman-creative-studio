@@ -32,51 +32,6 @@ const PassCard = memo(({
   const goldTextGrad = "linear-gradient(to bottom, #ffffff 0%, #ffeab3 25%, #e6be75 60%, #c59b4c 85%, #835b12 100%)";
   const titleGoldGrad = "linear-gradient(to bottom, #ffffff 0%, #ffeaa7 15%, #d4af37 50%, #aa7c11 85%, #6a4b02 100%)";
 
-  // Waving Tricolor Gradient Beams (representing national pride elegantly in landscape)
-  const TricolorBeams = () => (
-    <div className="absolute inset-0 pointer-events-none z-0 mix-blend-color-dodge opacity-[0.09]">
-      <svg width="100%" height="100%" viewBox="0 0 2000 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M-200 0 Q 500 450, 2200 100 L 2200 450 Q 500 900, -200 450 Z" fill="url(#saffronBeam)" />
-        <path d="M-200 350 Q 500 800, 2200 450 L 2200 800 Q 500 1250, -200 800 Z" fill="url(#whiteBeam)" />
-        <path d="M-200 700 Q 500 1150, 2200 800 L 2200 1250 Q 500 1700, -200 1250 Z" fill="url(#greenBeam)" />
-        <defs>
-          <linearGradient id="saffronBeam" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#FF9933" stopOpacity="0.85" />
-            <stop offset="100%" stopColor="#FF9933" stopOpacity="0" />
-          </linearGradient>
-          <linearGradient id="whiteBeam" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.65" />
-            <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
-          </linearGradient>
-          <linearGradient id="greenBeam" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#138808" stopOpacity="0.85" />
-            <stop offset="100%" stopColor="#138808" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-      </svg>
-    </div>
-  );
-
-  // Large Ashoka Chakra Watermark behind the title
-  const GiantAshokaChakra = () => (
-    <svg className="absolute w-[850px] h-[850px] text-[#fad88d]/[0.025] pointer-events-none z-0" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="100" cy="100" r="90" stroke="currentColor" strokeWidth="1" strokeDasharray="2 2" />
-      <circle cx="100" cy="100" r="82" stroke="currentColor" strokeWidth="0.8" />
-      <circle cx="100" cy="100" r="16" stroke="currentColor" strokeWidth="1.5" />
-      {Array.from({ length: 24 }).map((_, i) => (
-        <line 
-          key={i} 
-          x1="100" 
-          y1="100" 
-          x2={100 + 82 * Math.cos((i * 15 * Math.PI) / 180)} 
-          y2={100 + 82 * Math.sin((i * 15 * Math.PI) / 180)} 
-          stroke="currentColor" 
-          strokeWidth="0.6" 
-        />
-      ))}
-    </svg>
-  );
-
   const showFront = activeSide === "both" || activeSide === "front";
   const showBack = activeSide === "both" || activeSide === "back";
 
@@ -125,16 +80,7 @@ const PassCard = memo(({
             backgroundImage: 'radial-gradient(circle at center, #0c2547 0%, #040d1c 100%)'
           }}
         >
-          {/* Subtle noise and sandstone textures representing National War Memorial */}
-          <div className="absolute inset-0 opacity-[0.02] bg-[radial-gradient(circle_at_center,#fff_1.5px,transparent_1.5px)] [background-size:24px_24px] pointer-events-none z-0" />
-          <div className="absolute inset-0 bg-gradient-to-tr from-[#138808]/4 via-transparent to-[#ff9933]/4 pointer-events-none z-0" />
-          
-          <TricolorBeams />
-          
-          {/* Giant Ashoka Chakra Watermark behind the title */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 opacity-[0.85]">
-            <GiantAshokaChakra />
-          </div>
+          {/* Pure midnight-navy-blue radial gradient background is rendered directly by class pvc-pass-card-bg */}
 
           {/* Luxury Gold/Bronze Border Frame (Government Invitation Style) */}
           <div 
@@ -407,16 +353,7 @@ const PassCard = memo(({
             backgroundImage: 'radial-gradient(circle at center, #0c2547 0%, #040d1c 100%)'
           }}
         >
-          {/* Backdrop Overlays */}
-          <div className="absolute inset-0 bg-[#030814]/90 pointer-events-none z-0" />
-          <div className="absolute inset-0 opacity-[0.02] bg-[radial-gradient(circle_at_center,#fff_1.5px,transparent_1.5px)] [background-size:24px_24px] pointer-events-none z-0" />
-          
-          <TricolorBeams />
-          
-          {/* Watermarks */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 opacity-[0.85]">
-            <GiantAshokaChakra />
-          </div>
+          {/* Pure midnight-navy-blue radial gradient background is rendered directly by class pvc-pass-card-bg */}
 
           {/* Border Frame */}
           <div 
