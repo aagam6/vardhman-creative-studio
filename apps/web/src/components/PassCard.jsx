@@ -167,8 +167,8 @@ const PassCard = memo(({
             <div className="flex w-[22%] shrink-0 flex-col items-center justify-center border-l border-[#d5ad5b]/20 pl-6">
               <div className="w-full overflow-hidden rounded-xl border border-[#d5ad5b]/50 bg-gradient-to-b from-[#0e1726] to-[#040a12] shadow-[0_20px_40px_rgba(0,0,0,0.7)]">
                 {/* ID Header */}
-                <div className="border-b border-[#d5ad5b]/30 bg-[#d5ad5b]/10 py-5 text-center">
-                  <p className="text-[20px] font-bold tracking-[0.15em] text-[#d5ad5b] uppercase">ONLINE ENTRY PASS</p>
+                <div className="border-b border-[#d5ad5b]/30 bg-[#d5ad5b]/10 py-4.5 text-center">
+                  <p className="text-[17px] font-bold tracking-[0.08em] text-[#d5ad5b] uppercase">ONLINE ENTRY PASS</p>
                 </div>
                 
                 {/* ID Body */}
