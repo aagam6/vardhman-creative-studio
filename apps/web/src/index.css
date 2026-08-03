@@ -207,3 +207,8 @@
   background-size: 200% 200%;
   animation: gradient-shift 15s ease infinite;
 }
+
+.pvc-pass-card-bg {
+  background-color: #040d1c !important;
+  background-image: radial-gradient(circle at center, #0c2547 0%, #040d1c 100%) !important;
+}

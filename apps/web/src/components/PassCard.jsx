@@ -118,7 +118,7 @@ const PassCard = memo(({
       {showFront && (
         <div 
           id={`pass-front-${passNumber}`}
-          className="relative text-white flex flex-col items-center justify-between p-12 overflow-hidden select-none shrink-0"
+          className="pvc-pass-card-bg relative text-white flex flex-col items-center justify-between p-12 overflow-hidden select-none shrink-0"
           style={{
             ...cardStyle,
             backgroundColor: '#040d1c',
@@ -400,11 +400,11 @@ const PassCard = memo(({
       {showBack && (
         <div 
           id={`pass-back-${passNumber}`}
-          className="relative text-white flex flex-col items-center justify-between p-12 overflow-hidden select-none shrink-0"
+          className="pvc-pass-card-bg relative text-white flex flex-col items-center justify-between p-12 overflow-hidden select-none shrink-0"
           style={{
             ...cardStyle,
-            backgroundColor: '#030814',
-            backgroundImage: 'radial-gradient(circle at center, #071630 0%, #030814 100%)'
+            backgroundColor: '#040d1c',
+            backgroundImage: 'radial-gradient(circle at center, #0c2547 0%, #040d1c 100%)'
           }}
         >
           {/* Backdrop Overlays */}
