@@ -224,11 +224,11 @@ export default function AdminPassGeneratorPage() {
     setStartingPassSeq(lastSeq + 1);
 
     try {
-      // jsPDF setup - standard 2000x1200 landscape aspect ratio
+      // jsPDF setup - standard 2480x1300 print-ready aspect ratio
       const pdf = new jsPDF({
         orientation: 'landscape',
         unit: 'px',
-        format: [2000, 1200]
+        format: [2480, 1300]
       });
 
       for (let i = 0; i < passCount; i++) {
@@ -264,8 +264,8 @@ export default function AdminPassGeneratorPage() {
         }
 
         const frontDataUrl = await toPng(frontEl, {
-          width: 2000,
-          height: 1200,
+          width: 2480,
+          height: 1300,
           cacheBust: true,
           pixelRatio: 1,
           style: {
@@ -275,9 +275,9 @@ export default function AdminPassGeneratorPage() {
         });
 
         if (i > 0) {
-          pdf.addPage([2000, 1200], 'landscape');
+          pdf.addPage([2480, 1300], 'landscape');
         }
-        pdf.addImage(frontDataUrl, 'PNG', 0, 0, 2000, 1200, undefined, 'FAST');
+        pdf.addImage(frontDataUrl, 'PNG', 0, 0, 2480, 1300, undefined, 'FAST');
 
         // 2. Capture Back Side
         setGenerationProgress(`Rendering pass ${i + 1} of ${passCount} (Back Side)...`);
@@ -296,8 +296,8 @@ export default function AdminPassGeneratorPage() {
         await new Promise(r => setTimeout(r, 100));
 
         const backDataUrl = await toPng(backEl, {
-          width: 2000,
-          height: 1200,
+          width: 2480,
+          height: 1300,
           cacheBust: true,
           pixelRatio: 1,
           style: {
@@ -306,8 +306,8 @@ export default function AdminPassGeneratorPage() {
           }
         });
 
-        pdf.addPage([2000, 1200], 'landscape');
-        pdf.addImage(backDataUrl, 'PNG', 0, 0, 2000, 1200, undefined, 'FAST');
+        pdf.addPage([2480, 1300], 'landscape');
+        pdf.addImage(backDataUrl, 'PNG', 0, 0, 2480, 1300, undefined, 'FAST');
       }
 
       // Generate date & time strings
@@ -535,12 +535,12 @@ export default function AdminPassGeneratorPage() {
               <div className="relative flex justify-center items-start border border-white/10 rounded-2xl bg-[#02050a] p-4 overflow-auto h-[420px] w-full mb-6">
                 <div 
                   style={{ 
-                    width: '2000px', 
-                    height: '1200px', 
+                    width: '2480px', 
+                    height: '1300px', 
                     transform: `scale(${modalZoom})`, 
                     transformOrigin: 'top center',
-                    marginBottom: `calc(1200px * (${modalZoom} - 1))`,
-                    marginRight: `calc(2000px * (${modalZoom} - 1))`
+                    marginBottom: `calc(1300px * (${modalZoom} - 1))`,
+                    marginRight: `calc(2480px * (${modalZoom} - 1))`
                   }}
                   className="origin-top select-none pointer-events-none"
                 >
@@ -868,12 +868,12 @@ export default function AdminPassGeneratorPage() {
                     {/* Floating Zoom Wrapper */}
                     <div 
                       style={{ 
-                        width: '2000px', 
-                        height: '1200px', 
+                        width: '2480px', 
+                        height: '1300px', 
                         transform: `scale(${zoom})`, 
                         transformOrigin: 'top center',
-                        marginBottom: `calc(1200px * (${zoom} - 1))`,
-                        marginRight: `calc(2000px * (${zoom} - 1))`
+                        marginBottom: `calc(1300px * (${zoom} - 1))`,
+                        marginRight: `calc(2480px * (${zoom} - 1))`
                       }}
                       className="origin-top select-none pointer-events-none"
                     >
@@ -913,12 +913,12 @@ export default function AdminPassGeneratorPage() {
         </div>
 
         {/* Hidden Container for offscreen high-res pass rendering & capture */}
-        <div className="absolute top-0 left-0 -z-50 overflow-hidden pointer-events-none" style={{ width: '2500px', height: '2500px' }}>
+        <div className="absolute top-0 left-0 -z-50 overflow-hidden pointer-events-none" style={{ width: '3000px', height: '3000px' }}>
           <div ref={offscreenRenderRef} className="relative w-full h-full">
             {renderProps && (
               <>
                 {/* Front Side Render Target (forced absolute at 0,0) */}
-                <div className="absolute top-0 left-0" style={{ width: '2000px', height: '1200px' }}>
+                <div className="absolute top-0 left-0" style={{ width: '2480px', height: '1300px' }}>
                   <PassCard 
                     name={renderProps.name} 
                     mobile={renderProps.mobile} 
@@ -928,8 +928,8 @@ export default function AdminPassGeneratorPage() {
                     activeSide="front"
                   />
                 </div>
-                {/* Back Side Render Target (forced absolute at 1300px down) */}
-                <div className="absolute top-[1300px] left-0" style={{ width: '2000px', height: '1200px' }}>
+                {/* Back Side Render Target (forced absolute at 1400px down) */}
+                <div className="absolute top-[1400px] left-0" style={{ width: '2480px', height: '1300px' }}>
                   <PassCard 
                     name={renderProps.name} 
                     mobile={renderProps.mobile} 
