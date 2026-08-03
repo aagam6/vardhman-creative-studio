@@ -913,16 +913,33 @@ export default function AdminPassGeneratorPage() {
         </div>
 
         {/* Hidden Container for offscreen high-res pass rendering & capture */}
-        <div className="absolute top-0 left-0 -z-50 overflow-hidden pointer-events-none" style={{ width: '3000px', height: '3000px' }}>
-          <div ref={offscreenRenderRef}>
+        <div className="absolute top-0 left-0 -z-50 overflow-hidden pointer-events-none" style={{ width: '2500px', height: '2500px' }}>
+          <div ref={offscreenRenderRef} className="relative w-full h-full">
             {renderProps && (
-              <PassCard 
-                name={renderProps.name} 
-                mobile={renderProps.mobile} 
-                city={renderProps.city} 
-                passNumber={renderProps.passNumber} 
-                scale={1} 
-              />
+              <>
+                {/* Front Side Render Target (forced absolute at 0,0) */}
+                <div className="absolute top-0 left-0" style={{ width: '2000px', height: '1200px' }}>
+                  <PassCard 
+                    name={renderProps.name} 
+                    mobile={renderProps.mobile} 
+                    city={renderProps.city} 
+                    passNumber={renderProps.passNumber} 
+                    scale={1} 
+                    activeSide="front"
+                  />
+                </div>
+                {/* Back Side Render Target (forced absolute at 1300px down) */}
+                <div className="absolute top-[1300px] left-0" style={{ width: '2000px', height: '1200px' }}>
+                  <PassCard 
+                    name={renderProps.name} 
+                    mobile={renderProps.mobile} 
+                    city={renderProps.city} 
+                    passNumber={renderProps.passNumber} 
+                    scale={1} 
+                    activeSide="back"
+                  />
+                </div>
+              </>
             )}
           </div>
         </div>
