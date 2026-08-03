@@ -20,10 +20,10 @@ const PassCard = memo(({
 
   const formattedMobile = formatMobile(mobile);
 
-  // Standard dimensions for each side (1080x1920 px)
+  // Landscape card sizing (2480x1300 px)
   const cardStyle = {
-    width: '1080px',
-    height: '1920px',
+    width: '2480px',
+    height: '1300px',
     transform: scale !== 1 ? `scale(${scale})` : undefined,
     transformOrigin: 'top left',
   };
@@ -32,14 +32,14 @@ const PassCard = memo(({
   const outerBorderGrad = "linear-gradient(135deg, #8a5c1e 0%, #fadc96 25%, #4e320d 50%, #fad88d 75%, #2a1602 100%)";
   const goldTextGrad = "linear-gradient(to bottom, #ffffff 0%, #ffeab3 20%, #e6be75 55%, #c59b4c 85%, #835b12 100%)";
   const titleGoldGrad = "linear-gradient(to bottom, #ffffff 0%, #ffeaa7 15%, #d4af37 50%, #aa7c11 85%, #6a4b02 100%)";
-  
-  // Waving Tricolor Gradient Beams (representing national pride elegantly)
+
+  // Waving Tricolor Gradient Beams (representing national pride elegantly in landscape)
   const TricolorBeams = () => (
-    <div className="absolute inset-0 pointer-events-none z-0 mix-blend-color-dodge opacity-[0.07]">
-      <svg width="100%" height="100%" viewBox="0 0 1080 1920" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M-200 0 Q 300 400, 1080 100 L 1080 600 Q 300 900, -200 400 Z" fill="url(#saffronBeam)" />
-        <path d="M-200 400 Q 300 900, 1080 600 L 1080 1100 Q 300 1400, -200 900 Z" fill="url(#whiteBeam)" />
-        <path d="M-200 900 Q 300 1400, 1080 1100 L 1080 1700 Q 300 2000, -200 1500 Z" fill="url(#greenBeam)" />
+    <div className="absolute inset-0 pointer-events-none z-0 mix-blend-color-dodge opacity-[0.08]">
+      <svg width="100%" height="100%" viewBox="0 0 2480 1300" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M-200 0 Q 600 500, 2680 100 L 2680 500 Q 600 1000, -200 500 Z" fill="url(#saffronBeam)" />
+        <path d="M-200 400 Q 600 900, 2680 500 L 2680 900 Q 600 1400, -200 900 Z" fill="url(#whiteBeam)" />
+        <path d="M-200 800 Q 600 1300, 2680 900 L 2680 1400 Q 600 1900, -200 1400 Z" fill="url(#greenBeam)" />
         <defs>
           <linearGradient id="saffronBeam" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stopColor="#FF9933" stopOpacity="0.8" />
@@ -60,7 +60,7 @@ const PassCard = memo(({
 
   // Large Ashoka Chakra Watermark behind the title
   const GiantAshokaChakra = () => (
-    <svg className="absolute w-[800px] h-[800px] text-white/[0.015] pointer-events-none z-0" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg className="absolute w-[950px] h-[950px] text-white/[0.015] pointer-events-none z-0" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
       <circle cx="100" cy="100" r="90" stroke="currentColor" strokeWidth="1" strokeDasharray="2 2" />
       <circle cx="100" cy="100" r="82" stroke="currentColor" strokeWidth="0.8" />
       <circle cx="100" cy="100" r="16" stroke="currentColor" strokeWidth="1.5" />
@@ -95,7 +95,7 @@ const PassCard = memo(({
   const showBack = activeSide === "both" || activeSide === "back";
 
   return (
-    <div className={`flex flex-col xl:flex-row gap-12 items-center justify-center ${scale !== 1 ? 'overflow-visible' : ''}`}>
+    <div className={`flex flex-col gap-12 items-center justify-center ${scale !== 1 ? 'overflow-visible' : ''}`}>
       
       {/* Inject custom micro-animations tag if in preview mode */}
       {previewMode && (
@@ -132,7 +132,7 @@ const PassCard = memo(({
       {showFront && (
         <div 
           id={`pass-front-${passNumber}`}
-          className="relative text-white flex flex-col items-center justify-between p-11 overflow-hidden select-none shrink-0"
+          className="relative text-white flex flex-col items-center justify-between p-14 overflow-hidden select-none shrink-0"
           style={{
             ...cardStyle,
             backgroundImage: "url('/assets/param-vir-chakra-hero.png')",
@@ -157,254 +157,262 @@ const PassCard = memo(({
 
           {/* Luxury Gold/Bronze Border Frame */}
           <div 
-            className="absolute inset-6 pointer-events-none z-10 border-[6px]"
+            className="absolute inset-8 pointer-events-none z-10 border-[8px]"
             style={{ borderImage: `${outerBorderGrad} 1` }}
           />
           
           {/* Inner thin frame */}
           <div 
-            className="absolute inset-9 pointer-events-none z-10 border border-opacity-25" 
+            className="absolute inset-12 pointer-events-none z-10 border border-opacity-25" 
             style={{ borderColor: 'rgba(250,216,141,0.2)' }}
           />
 
           {/* Ornate Corner Corners */}
-          <div className="absolute top-8 left-8 w-12 h-12 border-t-[3px] border-l-[3px] z-10" style={{ borderColor: '#fadc96' }} />
-          <div className="absolute top-8 right-8 w-12 h-12 border-t-[3px] border-r-[3px] z-10" style={{ borderColor: '#fadc96' }} />
-          <div className="absolute bottom-8 left-8 w-12 h-12 border-b-[3px] border-l-[3px] z-10" style={{ borderColor: '#fadc96' }} />
-          <div className="absolute bottom-8 right-8 w-12 h-12 border-b-[3px] border-r-[3px] z-10" style={{ borderColor: '#fadc96' }} />
+          <div className="absolute top-11 left-11 w-16 h-16 border-t-[3px] border-l-[3px] z-10" style={{ borderColor: '#fadc96' }} />
+          <div className="absolute top-11 right-11 w-16 h-16 border-t-[3px] border-r-[3px] z-10" style={{ borderColor: '#fadc96' }} />
+          <div className="absolute bottom-11 left-11 w-16 h-16 border-b-[3px] border-l-[3px] z-10" style={{ borderColor: '#fadc96' }} />
+          <div className="absolute bottom-11 right-11 w-16 h-16 border-b-[3px] border-r-[3px] z-10" style={{ borderColor: '#fadc96' }} />
 
           {/* Front Content Container */}
-          <div className="w-full h-full flex flex-col justify-between items-center relative z-20 pt-2">
+          <div className="w-full h-full flex flex-col justify-between items-center relative z-20">
             
             {/* 1. TOP HEADER SECTION */}
             <div className="w-full flex flex-col items-center">
-              <h1 className="font-serif text-[18px] tracking-[0.2em] font-semibold text-[#fadc96] uppercase text-center leading-tight">
+              <h1 className="font-serif text-[28px] tracking-[0.22em] font-semibold text-[#fadc96] uppercase text-center leading-tight">
                 श्री वर्धमान श्वेतांबर मूर्तिपूजक जैन संघ
               </h1>
-              <p className="font-sans text-[11px] tracking-[0.35em] text-[#fffae8]/60 uppercase mt-1 text-center">
+              <p className="font-sans text-[15px] tracking-[0.35em] text-[#fffae8]/60 uppercase mt-1 text-center">
                 उस्मानपुरा, अहमदाबाद
               </p>
               
               {/* National Emblem Inspired Divider */}
-              <div className="flex items-center gap-3 w-48 mt-3.5 text-[#fadc96]/35">
+              <div className="flex items-center gap-3 w-72 mt-4 text-[#fadc96]/35">
                 <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent to-[#fadc96]/40" />
-                <svg className="w-4 h-4 text-[#fadc96]/80" viewBox="0 0 20 20" fill="currentColor">
+                <svg className="w-5 h-5 text-[#fadc96]/80" viewBox="0 0 20 20" fill="currentColor">
                   <path d="M10 0 L12 7 L19 10 L12 13 L10 20 L8 13 L1 10 L8 7 Z" />
                 </svg>
                 <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent to-[#fadc96]/40" />
               </div>
             </div>
 
-            {/* 2. HERO Centerpiece: PVC Medal (40% larger) & Calligraphy */}
-            <div className="flex flex-col items-center w-full mt-2">
-              {/* Medal Container (40% Larger, about 280px Height) */}
-              <div className={`relative flex items-center justify-center h-[290px] w-[290px] mb-2 ${previewMode ? 'animate-medal-glow' : 'drop-shadow-[0_12px_24px_rgba(0,0,0,0.65)]'}`}>
-                <div className="absolute inset-0 rounded-full bg-orange-600/[0.05] blur-3xl pointer-events-none" />
-                <PvcMedalSvg className="h-[280px] w-[280px]" />
-              </div>
+            {/* 2. MIDDLE LAYOUT GRID: Left (Medal & Title), Center (Guru Panel), Right (Speakers & Event) */}
+            <div className="w-full grid grid-cols-12 gap-8 items-start my-6 px-4">
+              
+              {/* LEFT COLUMN: HERO (PVC Medal & Calligraphy) */}
+              <div className="col-span-4 flex flex-col items-center border-r border-white/5 pr-4 h-[520px] justify-center">
+                {/* Medal Container (40% Larger, about 280px Height) */}
+                <div className={`relative flex items-center justify-center h-[290px] w-[290px] mb-4 ${previewMode ? 'animate-medal-glow' : 'drop-shadow-[0_12px_24px_rgba(0,0,0,0.65)]'}`}>
+                  <div className="absolute inset-0 rounded-full bg-orange-600/[0.05] blur-3xl pointer-events-none" />
+                  <PvcMedalSvg className="h-[280px] w-[280px]" />
+                </div>
 
-              {/* Embossed Gold Foil Title Calligraphy */}
-              <h2 
-                className={`font-serif text-[58px] font-extrabold tracking-[0.06em] leading-none text-center select-none ${previewMode ? 'animate-title-shine' : ''}`}
-                style={!previewMode ? {
-                  background: titleGoldGrad,
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                  filter: 'drop-shadow(1px 2px 2px rgba(0,0,0,0.85)) drop-shadow(0px 6px 12px rgba(0,0,0,0.5))',
-                } : undefined}
-              >
-                परमवीर चक्र
-              </h2>
-
-              {/* Subtitle "शौर्यगाथा" (White + Saffron combination) */}
-              <div className="flex items-center justify-center gap-3.5 mt-2.5 w-full">
-                <div className="h-[1.5px] w-16 bg-gradient-to-r from-[#ff9933]/65 to-transparent" />
-                <h3 
-                  className="font-serif text-[32px] font-extrabold tracking-[0.25em] leading-none uppercase text-center"
-                  style={{
-                    background: "linear-gradient(to right, #ffffff 20%, #ffe0b3 50%, #ff9933 100%)",
+                {/* Embossed Gold Foil Title Calligraphy */}
+                <h2 
+                  className={`font-serif text-[48px] font-extrabold tracking-[0.06em] leading-none text-center select-none ${previewMode ? 'animate-title-shine' : ''}`}
+                  style={!previewMode ? {
+                    background: titleGoldGrad,
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                     backgroundClip: 'text',
-                    filter: 'drop-shadow(1px 2px 2px rgba(0,0,0,0.8))',
-                  }}
+                    filter: 'drop-shadow(1px 2px 2px rgba(0,0,0,0.85)) drop-shadow(0px 6px 12px rgba(0,0,0,0.5))',
+                  } : undefined}
                 >
-                  शौर्यगाथा
-                </h3>
-                <div className="h-[1.5px] w-16 bg-gradient-to-l from-[#138808]/65 to-transparent" />
-              </div>
+                  परमवीर चक्र
+                </h2>
 
-              {/* Dedication Tagline */}
-              <p className="text-[11px] uppercase tracking-[0.28em] text-[#fffae8]/85 text-center font-bold mt-3">
-                भारत के सच्चे वीरों को समर्पित एक ऐतिहासिक राष्ट्रभक्ति अनुभव
-              </p>
-            </div>
-
-            {/* 3. DETAILS SECTION (G20 style card layouts) */}
-            <div className="w-full flex flex-col gap-3.5 px-4 my-1.5">
-              
-              {/* Grid 1: आशीर्वाद & शास्त्रज्ञ (Side-by-side cards) */}
-              <div className="grid grid-cols-2 gap-3.5">
-                <div className="rounded-xl border border-[#fadc96]/15 bg-[#060b14]/90 p-3.5 text-left shadow-lg relative">
-                  <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-[#fadc96]/30 rounded-tl-md" />
-                  <p className="text-[9.5px] uppercase tracking-[0.15em] text-[#fadc96] font-bold">आशीर्वाद (Blessings)</p>
-                  <p className="text-[9px] font-sans text-white/40 mt-0.5">गच्छाधिपति परम पूज्य आचार्यदेव</p>
-                  <p className="text-[13.5px] font-serif font-bold text-[#fffae8] mt-0.5 leading-tight truncate">
-                    श्री नरदेवसागरसूरीश्वरजी महाराज
-                  </p>
+                {/* Subtitle "शौर्यगाथा" (White + Saffron combination) */}
+                <div className="flex items-center justify-center gap-3.5 mt-2 w-full">
+                  <div className="h-[1.5px] w-12 bg-gradient-to-r from-[#ff9933]/65 to-transparent" />
+                  <h3 
+                    className="font-serif text-[28px] font-extrabold tracking-[0.25em] leading-none uppercase text-center"
+                    style={{
+                      background: "linear-gradient(to right, #ffffff 20%, #ffe0b3 50%, #ff9933 100%)",
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text',
+                      filter: 'drop-shadow(1px 2px 2px rgba(0,0,0,0.8))',
+                    }}
+                  >
+                    शौर्यगाथा
+                  </h3>
+                  <div className="h-[1.5px] w-12 bg-gradient-to-l from-[#138808]/65 to-transparent" />
                 </div>
-                
-                <div className="rounded-xl border border-[#fadc96]/15 bg-[#060b14]/90 p-3.5 text-left shadow-lg relative">
-                  <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-[#fadc96]/30 rounded-tl-md" />
-                  <p className="text-[9.5px] uppercase tracking-[0.15em] text-[#fadc96] font-bold">शास्त्रज्ञ (Presence)</p>
-                  <p className="text-[9px] font-sans text-white/40 mt-0.5">पूज्य मुनि श्री</p>
-                  <p className="text-[13.5px] font-serif font-bold text-[#fffae8] mt-0.5 leading-tight truncate">
-                    अर्हमचंद्रसागरजी महाराज
-                  </p>
-                </div>
-              </div>
 
-              {/* Card 2: प्रेरणा (Full Width) */}
-              <div className="rounded-xl border border-[#fadc96]/15 bg-[#060b14]/90 p-3.5 text-left shadow-lg relative">
-                <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-[#fadc96]/30 rounded-tl-md" />
-                <p className="text-[9.5px] uppercase tracking-[0.15em] text-[#fadc96] font-bold">प्रेरणा (Inspiration)</p>
-                <p className="text-[9px] font-sans text-white/45 mt-0.5">
-                  परम पूज्य आचार्यदेव श्री जिन-हेमचंद्रसागरसूरिजी महाराज के शिष्यरत्न
+                <p className="text-[11px] uppercase tracking-[0.2em] text-[#fffae8]/70 text-center font-bold mt-3 leading-snug">
+                  भारत के सच्चे वीरों को समर्पित एक ऐतिहासिक राष्ट्रभक्ति अनुभव
                 </p>
-                <div className="grid grid-cols-2 gap-3 mt-1.5 pt-1.5 border-t border-white/5">
-                  <p className="text-[12.5px] font-serif font-bold text-white leading-tight">
-                    प.पू. आचार्यदेव श्री सम्यकचंद्रसागरसूरिजी म.सा.
-                  </p>
-                  <p className="text-[12.5px] font-serif font-bold text-white leading-tight border-l border-white/10 pl-2">
-                    प.पू. आचार्यदेव श्री तारकचंद्रसागरसूरिजी म.सा.
-                  </p>
+              </div>
+
+              {/* CENTER COLUMN: GURUJI SECTION (Single elegant premium panel) */}
+              <div className="col-span-4 flex flex-col gap-4 border-r border-white/5 px-4 h-[520px] justify-between text-left">
+                <div className="rounded-2xl border border-[#fadc96]/15 bg-[#060b14]/90 p-6 flex flex-col gap-4 h-full relative">
+                  <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-[#fadc96]/30 rounded-tl-md" />
+                  
+                  {/* आशीर्वाद */}
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.18em] text-[#fadc96] font-bold">आशीर्वाद (Blessings)</p>
+                    <p className="text-[11px] font-sans text-white/40 mt-1">गच्छाधिपति परम पूज्य आचार्यदेव</p>
+                    <p className="text-[18px] font-serif font-bold text-[#fffae8] mt-0.5 leading-snug">
+                      श्री नरदेवसागरसूरीश्वरजी महाराज
+                    </p>
+                  </div>
+                  
+                  <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-[#fadc96]/20 to-transparent my-1" />
+
+                  {/* प्रेरणा */}
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.18em] text-[#fadc96] font-bold">प्रेरणा (Inspiration)</p>
+                    <p className="text-[11px] font-sans text-white/40 mt-1">
+                      परम पूज्य आचार्यदेव श्री जिन-हेमचंद्रसागरसूरिजी महाराज के शिष्यरत्न
+                    </p>
+                    <p className="text-[16px] font-serif font-bold text-[#fffae8] mt-1.5 leading-snug">
+                      परम पूज्य आचार्यदेव श्री सम्यकचंद्रसागरसूरिजी महाराज
+                    </p>
+                    <p className="text-[12px] font-sans text-white/35 my-1 text-center font-bold">तथा</p>
+                    <p className="text-[16px] font-serif font-bold text-[#fffae8] leading-snug">
+                      परम पूज्य आचार्यदेव श्री तारकचंद्रसागरसूरिजी महाराज
+                    </p>
+                  </div>
+
+                  <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-[#fadc96]/20 to-transparent my-1" />
+
+                  {/* शास्त्रज्ञ */}
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.18em] text-[#fadc96] font-bold">शास्त्रज्ञ (Special Presence)</p>
+                    <p className="text-[11px] font-sans text-white/40 mt-1">पूज्य मुनि श्री</p>
+                    <p className="text-[18px] font-serif font-bold text-[#fffae8] mt-0.5 leading-snug">
+                      अर्हमचंद्रसागरजी महाराज
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              {/* Grid 3: Speakers & Book Launch */}
-              <div className="grid grid-cols-12 gap-3.5">
-                {/* Speaker Card (Col 7) */}
-                <div className="col-span-7 rounded-xl border border-[#fadc96]/15 bg-[#060b14]/90 p-3.5 text-left shadow-lg relative">
-                  <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-[#fadc96]/30 rounded-tl-md" />
-                  <p className="text-[9.5px] uppercase tracking-[0.15em] text-[#fadc96] font-bold">मुख्य वक्ता (Speakers)</p>
-                  <div className="mt-1">
-                    <p className="text-[13.5px] font-serif font-bold text-white leading-snug">श्री हर्षल पुष्कर्णा</p>
-                    <p className="text-[9px] font-sans text-white/40">प्रख्यात लेखक, पत्रकार एवं वक्ता</p>
-                  </div>
-                  <div className="mt-1.5 pt-1.5 border-t border-white/5">
-                    <p className="text-[13.5px] font-serif font-bold text-[#fffae8] leading-snug">प.पू. मुनि श्री श्रमणचंद्रसागरजी महाराज</p>
-                    <p className="text-[9px] font-sans text-white/40">विश्व रिकॉर्ड धारक</p>
+              {/* RIGHT COLUMN: SPEAKERS, BOOK LAUNCH & EVENT DETAILS */}
+              <div className="col-span-4 flex flex-col gap-4 pl-4 h-[520px] justify-between text-left">
+                
+                {/* Speakers Card */}
+                <div className="rounded-2xl border border-[#fadc96]/15 bg-[#060b14]/90 p-5 relative">
+                  <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-[#fadc96]/30 rounded-tl-md" />
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-[#fadc96] font-bold mb-2.5">मुख्य वक्ता (Speakers)</p>
+                  <div className="flex flex-col gap-3">
+                    <div>
+                      <p className="text-[18px] font-serif font-bold text-white">श्री हर्षल पुष्कर्णा</p>
+                      <p className="text-[11px] font-sans text-white/40 leading-snug">प्रख्यात लेखक, पत्रकार, वक्ता एवं विश्व रिकॉर्ड धारक</p>
+                    </div>
+                    <div className="border-t border-white/5 pt-2">
+                      <p className="text-[17px] font-serif font-bold text-white">पूज्य मुनि श्री श्रमणचंद्रसागरजी महाराज</p>
+                      <p className="text-[11px] font-sans text-white/40">परम देशभक्त राष्ट्र-संत</p>
+                    </div>
                   </div>
                 </div>
 
-                {/* Book Launch Card (Col 5) - Saffron/Bronze theme */}
-                <div className="col-span-5 rounded-xl border border-[#7c521f]/35 bg-gradient-to-br from-[#180e05] to-[#080401] p-3.5 text-left shadow-lg flex flex-col justify-between relative">
-                  <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-[#ff9933]/30 rounded-tl-md" />
-                  <p className="text-[9px] uppercase tracking-[0.15em] text-[#ff9933] font-bold">भव्य विमोचन</p>
-                  <div className="my-1.5">
-                    <p className="text-[14px] font-serif font-extrabold text-[#fadc96] leading-tight">"आर्यावर्त का गौरव"</p>
-                    <p className="text-[9.5px] font-sans text-white/45 mt-0.5 leading-snug">ऐतिहासिक महाकृति</p>
+                {/* Book Launch Badge & Details Card */}
+                <div className="rounded-2xl border border-[#7c521f]/35 bg-gradient-to-br from-[#180e05] to-[#080401] p-4 flex flex-col gap-1.5 relative">
+                  <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-[#ff9933]/30 rounded-tl-md" />
+                  <p className="text-[10px] uppercase tracking-[0.18em] text-[#ff9933] font-bold">भव्य विमोचन (Book Launch)</p>
+                  <p className="text-[20px] font-serif font-extrabold text-[#fadc96] leading-tight">"आर्यावर्त का गौरव"</p>
+                  <p className="text-[11px] font-sans text-white/50">ऐतिहासिक साहित्यिक महाकृति का भव्य विमोचन</p>
+                </div>
+
+                {/* Event Details Card */}
+                <div className="rounded-2xl border border-[#fadc96]/15 bg-[#060b14]/90 p-4 grid grid-cols-3 gap-2 relative">
+                  <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-[#fadc96]/30 rounded-tl-md" />
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.15em] text-white/40">📅 दिनांक</p>
+                    <p className="text-[14px] font-serif font-bold text-white mt-0.5">09 अगस्त 2026</p>
+                    <p className="text-[9.5px] font-sans text-[#ff9933] font-bold">रविवार</p>
+                  </div>
+                  <div className="border-l border-white/10 pl-2">
+                    <p className="text-[10px] uppercase tracking-[0.15em] text-white/40">🕘 समय</p>
+                    <p className="text-[14px] font-serif font-bold text-white mt-0.5">प्रातः 9:00 बजे</p>
+                    <p className="text-[9.5px] font-sans text-white/40">Reporting</p>
+                  </div>
+                  <div className="border-l border-white/10 pl-2">
+                    <p className="text-[10px] uppercase tracking-[0.15em] text-white/40">📍 स्थान</p>
+                    <p className="text-[14px] font-serif font-bold text-[#fadc96] mt-0.5 truncate">दिनेश हॉल</p>
+                    <p className="text-[9.5px] font-sans text-white/40 truncate">नवरंगपुरा, अमदावाद</p>
                   </div>
                 </div>
-              </div>
 
-              {/* Grid 4: Event details card */}
-              <div className="rounded-xl border border-[#fadc96]/15 bg-[#060b14]/90 p-3.5 text-left shadow-lg grid grid-cols-3 gap-2 relative">
-                <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-[#fadc96]/30 rounded-tl-md" />
-                <div>
-                  <p className="text-[8.5px] uppercase tracking-[0.15em] text-white/40">📅 दिनांक (Date)</p>
-                  <p className="text-[13.5px] font-serif font-bold text-white mt-0.5">09 अगस्त 2026</p>
-                  <p className="text-[9px] font-sans text-[#ff9933] font-semibold">रविवार / Sunday</p>
-                </div>
-                <div className="border-l border-white/10 pl-2">
-                  <p className="text-[8.5px] uppercase tracking-[0.15em] text-white/40">🕘 समय (Time)</p>
-                  <p className="text-[13.5px] font-serif font-bold text-white mt-0.5">प्रातः 9:00 बजे</p>
-                  <p className="text-[9px] font-sans text-white/45">Reporting Time</p>
-                </div>
-                <div className="border-l border-white/10 pl-2">
-                  <p className="text-[8.5px] uppercase tracking-[0.15em] text-white/40">📍 स्थान (Venue)</p>
-                  <p className="text-[13.5px] font-serif font-bold text-[#fadc96] mt-0.5 truncate">दिनेश हॉल</p>
-                  <p className="text-[9px] font-sans text-white/45 truncate">नवरंगपुरा, अहमदाबाद</p>
-                </div>
               </div>
 
             </div>
 
-            {/* 4. PREMIUM PARTICIPANT IDENTITY CARD (Government ID layout with larger QR) */}
+            {/* 3. BOTTOM PANEL: Organizer & Dynamic Identity Card layout with larger QR */}
             <div 
-              className="w-full rounded-2xl border border-[#7c521f]/50 bg-gradient-to-r from-[#110903] via-[#211508] to-[#110903] p-5 my-1 flex items-center justify-between relative shadow-2xl"
+              className="w-full rounded-2xl border border-[#7c521f]/50 bg-gradient-to-r from-[#110903] via-[#211508] to-[#110903] p-7 flex items-center justify-between relative shadow-2xl"
               style={{ boxShadow: '0 20px 40px rgba(0,0,0,0.6)' }}
             >
               {/* Inner frame lines */}
               <div className="absolute inset-0.5 rounded-[14px] border border-white/5 pointer-events-none" />
               
-              {/* Left Column values */}
-              <div className="flex-1 flex flex-col gap-3.5 text-left min-w-0 pr-4">
+              {/* Left Column: Organizer Details */}
+              <div className="text-left border-r border-[#7c521f]/30 pr-8 shrink-0">
+                <p className="text-[11px] uppercase tracking-[0.18em] text-[#fadc96] font-bold">आयोजक (Organiser)</p>
+                <p className="text-[18px] font-serif font-bold text-white mt-1 max-w-[340px]">
+                  श्री वर्धमान श्वेतांबर मूर्तिपूजक जैन संघ
+                </p>
+                <p className="text-[13px] font-sans text-white/50">उस्मानपुरा, अहमदाबाद</p>
+              </div>
+
+              {/* Center Column: Participant Details Grid */}
+              <div className="flex-1 grid grid-cols-4 gap-6 px-8 text-left">
                 <div>
-                  <p className="text-[8.5px] uppercase tracking-[0.15em] text-white/40 font-bold">NAME</p>
-                  <p className="text-[21px] font-serif font-bold text-white truncate mt-0.5">
+                  <p className="text-[10px] uppercase tracking-[0.15em] text-white/40 font-bold">PARTICIPANT NAME</p>
+                  <p className="text-[22px] font-serif font-bold text-white truncate mt-1">
                     {name || 'Guest Participant'}
                   </p>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <p className="text-[8.5px] uppercase tracking-[0.15em] text-white/40 font-bold">WHATSAPP</p>
-                    <p className="text-[13.5px] font-sans font-medium text-white/80 mt-0.5">
-                      {formattedMobile || 'XXXXXX----'}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-[8.5px] uppercase tracking-[0.15em] text-white/40 font-bold">CITY</p>
-                    <p className="text-[13.5px] font-sans font-medium text-white/80 mt-0.5 truncate">
-                      {city || 'Ahmedabad'}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 border-t border-white/5 pt-2">
-                  <div>
-                    <p className="text-[8.5px] uppercase tracking-[0.15em] text-white/40 font-bold">ENTRY TYPE</p>
-                    <p className="text-[12.5px] font-sans font-bold text-white mt-0.5">ONLINE PASS</p>
-                  </div>
-                  <div>
-                    <p className="text-[8.5px] uppercase tracking-[0.15em] text-white/40 font-bold">STATUS</p>
-                    <p className="text-[12.5px] font-sans font-bold text-green-400 mt-0.5">VERIFIED</p>
-                  </div>
-                </div>
-
-                <div className="mt-1">
-                  <p className="text-[8.5px] uppercase tracking-[0.15em] text-white/40 font-bold">UNIQUE DIGITAL PASS</p>
-                  <p className="text-[18px] font-mono font-bold text-[#fadc96] mt-0.5">
-                    {passNumber || 'PVC-2026-XXXXXX'}
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.15em] text-white/40 font-bold">WHATSAPP NUMBER</p>
+                  <p className="text-[16px] font-sans font-semibold text-white/90 mt-1">
+                    {formattedMobile || 'XXXXXX----'}
                   </p>
+                </div>
+
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.15em] text-white/40 font-bold">CITY</p>
+                  <p className="text-[16px] font-sans font-semibold text-white/90 mt-1 truncate">
+                    {city || 'Ahmedabad'}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.15em] text-[#ff9933] font-bold">ENTRY TYPE</p>
+                  <p className="text-[16px] font-sans font-extrabold text-white mt-1">ONLINE ENTRY PASS</p>
                 </div>
               </div>
 
-              {/* Right Column: LARGE QR Code & Hologram */}
-              <div className="shrink-0 flex flex-col items-center gap-3">
-                {/* Gold rounded luxury frame QR code (Increased size for V3) */}
-                <div className="h-[130px] w-[130px] bg-[#03060d] border border-[#fadc96]/40 rounded-2xl p-3 flex items-center justify-center shadow-2xl relative overflow-hidden">
+              {/* Right Column: LARGE QR Code & verified badge */}
+              <div className="shrink-0 flex items-center gap-6 border-l border-[#7c521f]/30 pl-8">
+                <div className="flex flex-col gap-1.5 text-right">
+                  <p className="text-[9px] uppercase tracking-[0.15em] text-white/40 font-bold">UNIQUE DIGITAL PASS</p>
+                  <p className="text-[20px] font-mono font-bold text-[#fadc96]">
+                    {passNumber || 'PVC-2026-XXXXXX'}
+                  </p>
+                  {/* Verified Badge Stamp */}
+                  <div className="flex items-center gap-1.5 border border-dashed border-[#138808]/50 bg-[#138808]/10 px-2.5 py-1 rounded-md self-end mt-1">
+                    <div className={`h-1.5 w-1.5 rounded-full bg-[#138808] ${previewMode ? 'animate-beacon' : ''}`} />
+                    <span className="text-[8px] font-mono font-extrabold uppercase tracking-widest text-green-400">VERIFIED VIP</span>
+                  </div>
+                </div>
+
+                {/* Gold rounded luxury frame QR code (130px size) */}
+                <div className="h-[130px] w-[130px] bg-[#03060d] border border-[#fadc96]/45 rounded-2xl p-3 flex items-center justify-center shadow-2xl relative overflow-hidden shrink-0">
                   <GoldQrCode />
                   {/* Subtle hologram glow shine */}
                   <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent pointer-events-none" />
                 </div>
-
-                {/* Verified Badge Stamp */}
-                <div className="flex items-center gap-1.5 border border-dashed border-[#138808]/50 bg-[#138808]/15 px-3 py-1 rounded-md">
-                  <div className={`h-1.5 w-1.5 rounded-full bg-[#138808] ${previewMode ? 'animate-beacon' : ''}`} />
-                  <span className="text-[8px] font-mono font-extrabold uppercase tracking-widest text-green-400">VERIFIED PASS</span>
-                </div>
               </div>
             </div>
 
-            {/* 5. BRANDING (Designed & Developed by VCS) */}
-            <div className="w-full flex flex-col items-center border-t border-white/5 pt-3.5 mt-1 text-center">
-              <p className="text-[10px] font-sans font-bold tracking-[0.18em] text-white/35 uppercase">
+            {/* 4. BRANDING FOOTER (Designed & Developed by VCS) */}
+            <div className="w-full flex flex-col items-center border-t border-white/5 pt-4 mt-2 text-center">
+              <p className="text-[11px] font-sans font-bold tracking-[0.2em] text-white/35 uppercase">
                 Designed & Developed by <span className="text-[#fadc96]/70">Vardhman Creative Studio®</span>
               </p>
-              <p className="text-[8px] font-sans tracking-[0.25em] text-white/20 uppercase mt-0.5">
+              <p className="text-[9px] font-sans tracking-[0.25em] text-white/20 uppercase mt-0.5">
                 AI Creative Technology Partner <span className="mx-1.5">•</span> www.vardhmancreativestudio.com
               </p>
             </div>
@@ -417,7 +425,7 @@ const PassCard = memo(({
       {showBack && (
         <div 
           id={`pass-back-${passNumber}`}
-          className="relative text-white flex flex-col items-center justify-between p-11 overflow-hidden select-none shrink-0"
+          className="relative text-white flex flex-col items-center justify-between p-14 overflow-hidden select-none shrink-0"
           style={{
             ...cardStyle,
             backgroundImage: "url('/assets/param-vir-chakra-hero.png')",
@@ -440,29 +448,29 @@ const PassCard = memo(({
 
           {/* Border Frame */}
           <div 
-            className="absolute inset-6 pointer-events-none z-10 border-[6px]"
+            className="absolute inset-8 pointer-events-none z-10 border-[8px]"
             style={{ borderImage: `${outerBorderGrad} 1` }}
           />
           
           {/* Inner thin frame */}
           <div 
-            className="absolute inset-9 pointer-events-none z-10 border border-opacity-25" 
+            className="absolute inset-12 pointer-events-none z-10 border border-opacity-25" 
             style={{ borderColor: 'rgba(250,216,141,0.2)' }}
           />
 
           {/* Corners */}
-          <div className="absolute top-8 left-8 w-12 h-12 border-t-[3px] border-l-[3px] z-10" style={{ borderColor: '#fadc96' }} />
-          <div className="absolute top-8 right-8 w-12 h-12 border-t-[3px] border-r-[3px] z-10" style={{ borderColor: '#fadc96' }} />
-          <div className="absolute bottom-8 left-8 w-12 h-12 border-b-[3px] border-l-[3px] z-10" style={{ borderColor: '#fadc96' }} />
-          <div className="absolute bottom-8 right-8 w-12 h-12 border-b-[3px] border-r-[3px] z-10" style={{ borderColor: '#fadc96' }} />
+          <div className="absolute top-11 left-11 w-16 h-16 border-t-[3px] border-l-[3px] z-10" style={{ borderColor: '#fadc96' }} />
+          <div className="absolute top-11 right-11 w-16 h-16 border-t-[3px] border-r-[3px] z-10" style={{ borderColor: '#fadc96' }} />
+          <div className="absolute bottom-11 left-11 w-16 h-16 border-b-[3px] border-l-[3px] z-10" style={{ borderColor: '#fadc96' }} />
+          <div className="absolute bottom-11 right-11 w-16 h-16 border-b-[3px] border-r-[3px] z-10" style={{ borderColor: '#fadc96' }} />
 
           {/* Back Content Container */}
-          <div className="w-full h-full flex flex-col justify-between items-center relative z-20 pt-4">
+          <div className="w-full h-full flex flex-col justify-between items-center relative z-20">
             
             {/* Header */}
             <div className="text-center flex flex-col items-center">
               <h2 
-                className="font-serif text-[38px] font-bold tracking-[0.1em] text-[#fadc96]"
+                className="font-serif text-[42px] font-bold tracking-[0.12em] text-[#fadc96]"
                 style={{
                   background: goldTextGrad,
                   WebkitBackgroundClip: 'text',
@@ -473,54 +481,59 @@ const PassCard = memo(({
               >
                 आवश्यक निर्देश
               </h2>
-              <p className="text-[12px] uppercase tracking-[0.25em] text-white/40 mt-0.5">Important Guidelines</p>
-              <div className="w-40 h-[1px] bg-gradient-to-r from-transparent via-[#fadc96]/30 to-transparent mt-3" />
+              <p className="text-[13px] uppercase tracking-[0.25em] text-white/40 mt-1">Important Guidelines</p>
+              <div className="w-52 h-[1px] bg-gradient-to-r from-transparent via-[#fadc96]/30 to-transparent mt-3.5" />
             </div>
 
-            {/* Guidelines list with bronze circles inside beautiful card elements */}
-            <div className="w-full flex-1 flex flex-col justify-center gap-4.5 px-4 my-3">
+            {/* Guidelines list with bronze circles inside beautiful card elements (in 2 columns for landscape) */}
+            <div className="w-full grid grid-cols-2 gap-x-8 gap-y-6 px-12 my-6">
               {[
-                "प्रवेश एवं बैठने की व्यवस्था \"प्रथम आओ, प्रथम स्थान पाओ\" (First Come, First Seat) के आधार पर होगी।",
-                "प्रातः 9:00 बजे के पश्चात किसी भी परिस्थिति में प्रवेश नहीं दिया जाएगा।",
-                "यह पास केवल एक व्यक्ति के लिए मान्य है तथा हस्तांतरणीय (Non-Transferable) नहीं है।",
-                "कृपया अपना मोबाइल फोन साइलेंट अथवा स्विच ऑफ रखें।",
-                "कार्यक्रम के दौरान अनावश्यक आवागमन न करें।",
-                "आयोजकों एवं स्वयंसेवकों के निर्देशों का पालन करना अनिवार्य है।"
-              ].map((instruction, idx) => (
+                { hi: "प्रवेश एवं बैठने की व्यवस्था \"प्रथम आओ, प्रथम स्थान पाओ\" (First Come, First Seat) के आधार पर होगी।", en: "Seating is strictly first-come, first-served. Kindly arrive early." },
+                { hi: "प्रातः 9:00 बजे के पश्चात किसी भी परिस्थिति में प्रवेश नहीं दिया जाएगा।", en: "No entry will be permitted after 09:00 AM under any circumstances." },
+                { hi: "यह पास केवल एक व्यक्ति के लिए मान्य है तथा हस्तांतरणीय (Non-Transferable) नहीं है।", en: "This pass is valid for one person and is non-transferable." },
+                { hi: "कृपया अपना मोबाइल फोन साइलेंट अथवा स्विच ऑफ रखें।", en: "Kindly keep your mobile device in silent or switched off mode." },
+                { hi: "कार्यक्रम के दौरान अनावश्यक आवागमन न करें।", en: "Avoid moving inside the auditorium during the program." },
+                { hi: "आयोजकों एवं स्वयंसेवकों के निर्देशों का पालन करना अनिवार्य है।", en: "Strict compliance with volunteer team instructions is mandatory." }
+              ].map((item, idx) => (
                 <div 
                   key={idx} 
-                  className="flex items-start gap-4 rounded-xl border border-white/5 bg-[#060b14]/80 p-3.5 shadow-md relative"
+                  className="flex items-start gap-4 rounded-xl border border-white/5 bg-[#060b14]/80 p-4 shadow-md relative"
                 >
                   <div className="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-[#fadc96]/20 rounded-tl-md" />
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#fadc96]/10 border border-[#fadc96]/35 text-[#fadc96] text-[16px] font-bold font-mono mt-0.5 shadow-lg">
                     {idx + 1}
                   </span>
-                  <p className="text-[17.5px] font-serif font-semibold text-white/95 leading-normal text-left">
-                    {instruction}
-                  </p>
+                  <div>
+                    <p className="text-[19px] font-serif font-semibold text-white/95 leading-snug text-left">
+                      {item.hi}
+                    </p>
+                    <p className="text-[12px] font-sans text-white/40 text-left mt-1 tracking-wide">
+                      {item.en}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
 
             {/* Bottom Souvenir Note */}
             <div 
-              className="w-full rounded-2xl border border-[#7c521f]/35 bg-gradient-to-br from-[#140b03] to-[#070401] p-5 text-center my-2 shadow-lg relative"
+              className="w-full max-w-[1800px] rounded-2xl border border-[#7c521f]/35 bg-gradient-to-br from-[#140b03] to-[#070401] p-6 text-center my-2 shadow-lg relative"
             >
               <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-[#fadc96]/30 rounded-tl-md" />
-              <p className="font-serif text-[18px] font-bold text-[#fadc96] tracking-[0.08em]">
+              <p className="font-serif text-[20px] font-bold text-[#fadc96] tracking-[0.08em]">
                 * स्मरणीय अनुरोध *
               </p>
-              <p className="text-[15px] font-serif text-[#fffae8]/90 leading-relaxed mt-2">
+              <p className="text-[17px] font-serif text-[#fffae8]/90 leading-relaxed mt-2.5">
                 इस ऐतिहासिक क्षण की मधुर स्मृति के रूप में इस डिजिटल पास को अपने पास सुरक्षित रखें।
               </p>
             </div>
 
             {/* Back Branding Footer */}
-            <div className="w-full flex flex-col items-center border-t border-white/5 pt-3.5 mt-1 text-center">
-              <p className="text-[10px] font-sans font-bold tracking-[0.18em] text-white/35 uppercase">
+            <div className="w-full flex flex-col items-center border-t border-white/5 pt-4 mt-2 text-center">
+              <p className="text-[11px] font-sans font-bold tracking-[0.2em] text-white/35 uppercase">
                 Designed & Developed by <span className="text-[#fadc96]/70">Vardhman Creative Studio®</span>
               </p>
-              <p className="text-[8px] font-sans tracking-[0.25em] text-white/20 uppercase mt-0.5">
+              <p className="text-[9px] font-sans tracking-[0.25em] text-white/20 uppercase mt-0.5">
                 www.vardhmancreativestudio.com
               </p>
             </div>

@@ -19,7 +19,7 @@ export default function AdminPassGeneratorPage() {
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
   const [selectedPassIndex, setSelectedPassIndex] = useState(0);
   const [previewSide, setPreviewSide] = useState("front"); // "front" or "back"
-  const [zoom, setZoom] = useState(0.35);
+  const [zoom, setZoom] = useState(0.22);
   const [searchQuery, setSearchQuery] = useState("");
   const [startingPassSeq, setStartingPassSeq] = useState(1);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -146,17 +146,21 @@ export default function AdminPassGeneratorPage() {
   // Get participant list for a specific row
   const getParticipantList = (row) => {
     const list = [row.name];
-    if (row.passCount > 1) {
-      // Split additional names by newline and filter out empty
+    const passCount = parseInt(row.passCount, 10) || 1;
+    if (passCount > 1) {
+      // Split additional names by newline, comma, or semicolon, and filter out empty
       const addNames = row.additionalNames
-        ? row.additionalNames.split(/[\r\n]+/).map(n => n.trim()).filter(Boolean)
+        ? row.additionalNames
+            .split(/[\r\n,;]+/)
+            .map(n => n.trim())
+            .filter(Boolean)
         : [];
       
-      for (let i = 1; i < row.passCount; i++) {
+      for (let i = 1; i < passCount; i++) {
         if (addNames[i - 1]) {
           list.push(addNames[i - 1]);
         } else {
-          list.push(`Participant ${i + 1}`);
+          list.push(`${row.name} (Guest ${i})`);
         }
       }
     }
@@ -220,11 +224,11 @@ export default function AdminPassGeneratorPage() {
     setStartingPassSeq(lastSeq + 1);
 
     try {
-      // jsPDF setup - standard 1080x1920 portrait aspect ratio
+      // jsPDF setup - standard 2480x1300 landscape aspect ratio
       const pdf = new jsPDF({
-        orientation: 'portrait',
+        orientation: 'landscape',
         unit: 'px',
-        format: [1080, 1920]
+        format: [2480, 1300]
       });
 
       for (let i = 0; i < passCount; i++) {
@@ -245,18 +249,25 @@ export default function AdminPassGeneratorPage() {
           setTimeout(resolve, 150);
         });
 
+        // Wait until render engine completes calculations and painted frames
+        await new Promise((resolve) => {
+          requestAnimationFrame(() => {
+            requestAnimationFrame(resolve);
+          });
+        });
+        await new Promise(r => setTimeout(r, 100)); // safe buffer
+
         // Capture offscreen element Front side
         const frontEl = document.getElementById(`pass-front-${assignment.passNumber}`);
         if (!frontEl) {
           throw new Error("Front pass card element not found in DOM.");
         }
 
-        // Wait a tiny bit for fonts & styling
-        await new Promise(r => setTimeout(r, 100));
-
         const frontDataUrl = await toPng(frontEl, {
-          width: 1080,
-          height: 1920,
+          width: 2480,
+          height: 1300,
+          cacheBust: true,
+          pixelRatio: 1,
           style: {
             transform: 'scale(1)',
             transformOrigin: 'top left'
@@ -264,9 +275,9 @@ export default function AdminPassGeneratorPage() {
         });
 
         if (i > 0) {
-          pdf.addPage([1080, 1920], 'portrait');
+          pdf.addPage([2480, 1300], 'landscape');
         }
-        pdf.addImage(frontDataUrl, 'PNG', 0, 0, 1080, 1920, undefined, 'FAST');
+        pdf.addImage(frontDataUrl, 'PNG', 0, 0, 2480, 1300, undefined, 'FAST');
 
         // 2. Capture Back Side
         setGenerationProgress(`Rendering pass ${i + 1} of ${passCount} (Back Side)...`);
@@ -276,17 +287,27 @@ export default function AdminPassGeneratorPage() {
           throw new Error("Back pass card element not found in DOM.");
         }
 
+        // Wait a tiny bit for layout stability
+        await new Promise((resolve) => {
+          requestAnimationFrame(() => {
+            requestAnimationFrame(resolve);
+          });
+        });
+        await new Promise(r => setTimeout(r, 100));
+
         const backDataUrl = await toPng(backEl, {
-          width: 1080,
-          height: 1920,
+          width: 2480,
+          height: 1300,
+          cacheBust: true,
+          pixelRatio: 1,
           style: {
             transform: 'scale(1)',
             transformOrigin: 'top left'
           }
         });
 
-        pdf.addPage([1080, 1920], 'portrait');
-        pdf.addImage(backDataUrl, 'PNG', 0, 0, 1080, 1920, undefined, 'FAST');
+        pdf.addPage([2480, 1300], 'landscape');
+        pdf.addImage(backDataUrl, 'PNG', 0, 0, 2480, 1300, undefined, 'FAST');
       }
 
       // Generate date & time strings
@@ -448,8 +469,8 @@ export default function AdminPassGeneratorPage() {
                     <span className="text-white/40 text-[9px] uppercase font-bold tracking-wider px-2">Zoom:</span>
                     {[
                       { label: "25%", value: 0.24 },
-                      { label: "50%", value: 0.50 },
-                      { label: "75%", value: 0.75 },
+                      { label: "50%", value: 0.38 },
+                      { label: "75%", value: 0.55 },
                       { label: "100%", value: 1.00 }
                     ].map((z) => (
                       <button
@@ -511,14 +532,15 @@ export default function AdminPassGeneratorPage() {
               )}
 
               {/* Pass Card Container */}
-              <div className="relative flex justify-center items-start border border-white/10 rounded-2xl bg-[#02050a] p-4 overflow-auto h-[600px] w-full mb-6">
+              <div className="relative flex justify-center items-start border border-white/10 rounded-2xl bg-[#02050a] p-4 overflow-auto h-[420px] w-full mb-6">
                 <div 
                   style={{ 
-                    width: '1080px', 
-                    height: '1920px', 
+                    width: '2480px', 
+                    height: '1300px', 
                     transform: `scale(${modalZoom})`, 
                     transformOrigin: 'top center',
-                    marginBottom: `calc(1920px * (${modalZoom} - 1))`
+                    marginBottom: `calc(1300px * (${modalZoom} - 1))`,
+                    marginRight: `calc(2480px * (${modalZoom} - 1))`
                   }}
                   className="origin-top select-none pointer-events-none"
                 >
@@ -841,16 +863,17 @@ export default function AdminPassGeneratorPage() {
                   </div>
 
                   {/* Render Area with scale wrapping */}
-                  <div className="relative flex justify-center items-start border border-white/10 rounded-2xl bg-[#02050a] p-4 overflow-auto h-[710px] max-w-full">
+                  <div className="relative flex justify-center items-start border border-white/10 rounded-2xl bg-[#02050a] p-4 overflow-auto h-[420px] max-w-full">
                     
                     {/* Floating Zoom Wrapper */}
                     <div 
                       style={{ 
-                        width: '1080px', 
-                        height: '1920px', 
+                        width: '2480px', 
+                        height: '1300px', 
                         transform: `scale(${zoom})`, 
                         transformOrigin: 'top center',
-                        marginBottom: `calc(1920px * (${zoom} - 1))`
+                        marginBottom: `calc(1300px * (${zoom} - 1))`,
+                        marginRight: `calc(2480px * (${zoom} - 1))`
                       }}
                       className="origin-top select-none pointer-events-none"
                     >
