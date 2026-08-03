@@ -186,13 +186,7 @@ const PassCard = memo(({
                       {formatMobile(mobile) || 'XXXXXX----'}
                     </p>
                   </div>
-                  
-                  <div className="overflow-hidden">
-                    <p className="text-[13px] font-bold tracking-[0.15em] text-[#8495a8] uppercase">City / District</p>
-                    <p className="mt-1 text-[22px] font-semibold text-white truncate">
-                      {city || 'Ahmedabad'}
-                    </p>
-                  </div>
+
                   
                   <div className="rounded-lg border border-[#d5ad5b]/30 bg-black/40 p-3 text-center mt-1">
                     <p className="text-[13px] font-bold tracking-[0.15em] text-[#8495a8] uppercase">Official Pass Number</p>
