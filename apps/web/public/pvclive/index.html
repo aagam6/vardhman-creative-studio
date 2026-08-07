@@ -56,8 +56,8 @@
           "description": "Watch the official live video stream of Param Vir Chakra – Shaurya Gatha event on 9 August 2026.",
           "thumbnailUrl": "https://vardhmancreativestudio.com/assets/param-vir-chakra-live.jpg?v=4",
           "uploadDate": "2026-08-09T09:00:00+05:30",
-          "embedUrl": "https://www.youtube.com/embed/9Gu99RvjCAA",
-          "contentUrl": "https://youtu.be/9Gu99RvjCAA",
+          "embedUrl": "https://www.youtube.com/embed/NjthLLyx964",
+          "contentUrl": "https://www.youtube.com/watch?v=NjthLLyx964",
           "duration": "PT4H0M0S",
           "isFamilyFriendly": true
         },
@@ -205,14 +205,29 @@
         </div>
         <h1 class="title">प्रवेश किया जा रहा है...</h1>
         <p class="subtitle">Entering Live Experience</p>
-        <a href="https://youtu.be/9Gu99RvjCAA" class="link-btn">
+        <a href="https://www.youtube.com/watch?v=NjthLLyx964" class="link-btn">
             Click here if not redirected / क्लिक करें
         </a>
     </div>
 
     <script>
-        // JS Fallback Redirect (instant)
-        window.location.replace("https://youtu.be/9Gu99RvjCAA");
+        const videoId = "NjthLLyx964";
+        const webUrl = "https://www.youtube.com/watch?v=" + videoId;
+        const appUrl = "youtube://www.youtube.com/watch?v=" + videoId;
+        
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        
+        if (isMobile) {
+            // Try opening in YouTube App
+            window.location.href = appUrl;
+            // Fallback to Web browser if the app is not installed or doesn't open
+            setTimeout(() => {
+                window.location.replace(webUrl);
+            }, 1500);
+        } else {
+            // Desktop browser
+            window.location.replace(webUrl);
+        }
     </script>
 </body>
 </html>

@@ -4,7 +4,20 @@ import { contactConfig } from '@/lib/contactConfig';
 
 export default function PVCLiveRedirect() {
     useEffect(() => {
-        window.location.replace(contactConfig.liveRedirectUrl);
+        const videoId = "NjthLLyx964";
+        const webUrl = "https://www.youtube.com/watch?v=" + videoId;
+        const appUrl = "youtube://www.youtube.com/watch?v=" + videoId;
+        
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        
+        if (isMobile) {
+            window.location.href = appUrl;
+            setTimeout(() => {
+                window.location.replace(webUrl);
+            }, 1500);
+        } else {
+            window.location.replace(webUrl);
+        }
     }, []);
 
     return (
@@ -63,8 +76,8 @@ export default function PVCLiveRedirect() {
                           "description": "Watch the official live video stream of Param Vir Chakra – Shaurya Gatha event on 9 August 2026.",
                           "thumbnailUrl": "https://vardhmancreativestudio.com/assets/param-vir-chakra-live.jpg?v=4",
                           "uploadDate": "2026-08-09T09:00:00+05:30",
-                          "embedUrl": "https://www.youtube.com/embed/9Gu99RvjCAA",
-                          "contentUrl": "https://youtu.be/9Gu99RvjCAA",
+                          "embedUrl": "https://www.youtube.com/embed/NjthLLyx964",
+                          "contentUrl": "https://www.youtube.com/watch?v=NjthLLyx964",
                           "duration": "PT4H0M0S",
                           "isFamilyFriendly": true
                         },

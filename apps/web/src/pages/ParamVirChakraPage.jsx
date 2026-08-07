@@ -653,13 +653,13 @@ export default function ParamVirChakraPage() {
         "name": "Param Vir Chakra – Shaurya Gatha Official Teaser",
         "description": "Watch the official video teaser of 'Param Vir Chakra – Shauryagatha', a cinematic tribute celebrating the courage, sacrifice and legacy of India's greatest heroes.",
         "thumbnailUrl": [
-          "https://img.youtube.com/vi/9Gu99RvjCAA/maxresdefault.jpg",
-          "https://img.youtube.com/vi/9Gu99RvjCAA/sddefault.jpg",
-          "https://img.youtube.com/vi/9Gu99RvjCAA/hqdefault.jpg"
+          "https://img.youtube.com/vi/NjthLLyx964/maxresdefault.jpg",
+          "https://img.youtube.com/vi/NjthLLyx964/sddefault.jpg",
+          "https://img.youtube.com/vi/NjthLLyx964/hqdefault.jpg"
         ],
         "uploadDate": "2026-07-28T09:00:00Z",
-        "embedUrl": "https://www.youtube.com/embed/9Gu99RvjCAA?rel=0&modestbranding=1",
-        "contentUrl": "https://youtu.be/9Gu99RvjCAA",
+        "embedUrl": "https://www.youtube.com/embed/NjthLLyx964?rel=0&modestbranding=1",
+        "contentUrl": "https://www.youtube.com/watch?v=NjthLLyx964",
         "publisher": {
           "@type": "Organization",
           "name": "Vardhman Creative Studio",
@@ -1299,7 +1299,7 @@ export default function ParamVirChakraPage() {
             className="relative aspect-video w-full rounded-3xl overflow-hidden border border-white/10 bg-white/5 backdrop-blur-md p-2 md:p-4 shadow-2xl hover:border-[#ff9933]/30 transition-all duration-500 mb-8"
           >
             <iframe
-              src="https://www.youtube.com/embed/9Gu99RvjCAA?rel=0&modestbranding=1"
+              src="https://www.youtube.com/embed/NjthLLyx964?rel=0&modestbranding=1"
               title="Param Vir Chakra – Shauryagatha Live Event Video"
               width="100%"
               height="100%"
@@ -1337,7 +1337,7 @@ export default function ParamVirChakraPage() {
                 View Event Details
               </a>
               <a 
-                href="https://youtu.be/9Gu99RvjCAA" 
+                href="https://www.youtube.com/watch?v=NjthLLyx964" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="inline-flex min-h-[46px] items-center justify-center rounded-xl border border-white/15 bg-white/5 px-6 py-2.5 text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300"

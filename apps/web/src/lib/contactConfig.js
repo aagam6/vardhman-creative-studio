@@ -20,5 +20,5 @@ export const contactConfig = {
   ],
 
   // Live Redirect URL for /pvclive
-  liveRedirectUrl: "https://youtu.be/9Gu99RvjCAA"
+  liveRedirectUrl: "https://www.youtube.com/watch?v=NjthLLyx964"
 };
