@@ -229,7 +229,7 @@
         </div>
         <h1 class="title">प्रवेश किया जा रहा है...</h1>
         <p class="subtitle" style="margin-bottom: 20px;">Entering Live Experience</p>
-        <a href="https://www.youtube.com/watch?v=NjthLLyx964" class="btn-premium">
+        <a href="https://www.youtube.com/watch?v=NjthLLyx964" class="btn-premium" onclick="openYouTube(event)">
             Open in YouTube App / यूट्यूब ऐप में खोलें
         </a>
         <a href="https://www.youtube.com/watch?v=NjthLLyx964" class="link-btn">
@@ -240,19 +240,38 @@
     <script>
         const videoId = "NjthLLyx964";
         const webUrl = "https://www.youtube.com/watch?v=" + videoId;
-        const appUrl = "youtube://www.youtube.com/watch?v=" + videoId;
         
-        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-        
-        if (isMobile) {
-            // Try opening in YouTube App
-            window.location.href = appUrl;
-            // Fallback to Web browser if the app is not installed or doesn't open
-            setTimeout(() => {
+        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+        const isAndroid = /android/i.test(userAgent);
+        const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+
+        function openYouTube(event) {
+            if (event) event.preventDefault();
+            
+            if (isAndroid) {
+                window.location.href = "intent://www.youtube.com/watch?v=" + videoId + "#Intent;package=com.google.android.youtube;scheme=https;end;";
+            } else if (isIOS) {
+                window.location.href = "youtube://www.youtube.com/watch?v=" + videoId;
+                setTimeout(() => {
+                    window.location.replace(webUrl);
+                }, 1500);
+            } else {
                 window.location.replace(webUrl);
-            }, 1500);
+            }
+        }
+
+        // Auto-redirect on page load
+        const isMobile = isAndroid || isIOS;
+        if (isMobile) {
+            if (isAndroid) {
+                window.location.href = "intent://www.youtube.com/watch?v=" + videoId + "#Intent;package=com.google.android.youtube;scheme=https;end;";
+            } else {
+                window.location.href = "youtube://www.youtube.com/watch?v=" + videoId;
+                setTimeout(() => {
+                    window.location.replace(webUrl);
+                }, 1500);
+            }
         } else {
-            // Desktop browser
             window.location.replace(webUrl);
         }
     </script>

@@ -3,18 +3,34 @@ import { Helmet } from 'react-helmet';
 import { contactConfig } from '@/lib/contactConfig';
 
 export default function PVCLiveRedirect() {
-    useEffect(() => {
-        const videoId = "NjthLLyx964";
-        const webUrl = "https://www.youtube.com/watch?v=" + videoId;
-        const appUrl = "youtube://www.youtube.com/watch?v=" + videoId;
-        
-        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-        
-        if (isMobile) {
-            window.location.href = appUrl;
+    const videoId = "NjthLLyx964";
+    const webUrl = "https://www.youtube.com/watch?v=" + videoId;
+
+    const openYouTube = (e) => {
+        if (e) e.preventDefault();
+        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+        const isAndroid = /android/i.test(userAgent);
+        const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+
+        if (isAndroid) {
+            window.location.href = "intent://www.youtube.com/watch?v=" + videoId + "#Intent;package=com.google.android.youtube;scheme=https;end;";
+        } else if (isIOS) {
+            window.location.href = "youtube://www.youtube.com/watch?v=" + videoId;
             setTimeout(() => {
                 window.location.replace(webUrl);
             }, 1500);
+        } else {
+            window.location.replace(webUrl);
+        }
+    };
+
+    useEffect(() => {
+        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+        const isAndroid = /android/i.test(userAgent);
+        const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+
+        if (isAndroid || isIOS) {
+            openYouTube();
         } else {
             window.location.replace(webUrl);
         }
@@ -144,6 +160,7 @@ export default function PVCLiveRedirect() {
                 
                 <a 
                     href="https://www.youtube.com/watch?v=NjthLLyx964" 
+                    onClick={openYouTube}
                     className="inline-flex items-center justify-center text-xs font-bold text-[#040b14] no-underline px-6 py-3 rounded-xl bg-gradient-to-r from-[#ff9933] to-[#ff5500] shadow-[0_8px_24px_rgba(255,85,0,0.3)] hover:scale-[1.03] hover:shadow-[0_12px_30px_rgba(255,85,0,0.45)] transition-all duration-300 mb-4 uppercase tracking-wider"
                 >
                     Open in YouTube App / यूट्यूब ऐप में खोलें
