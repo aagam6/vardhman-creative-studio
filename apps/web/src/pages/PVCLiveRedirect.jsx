@@ -94,15 +94,47 @@ export default function PVCLiveRedirect() {
                 </script>
             </Helmet>
 
-            <div className="flex flex-col items-center gap-4 text-center">
-                <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#ff9933] border-t-transparent"></div>
-                <h1 className="text-xl font-bold tracking-wide">Redirecting to YouTube / यूट्यूब पर रीडायरेक्ट किया जा रहा है...</h1>
-                <p className="text-sm text-white/50">
-                    If you are not redirected automatically,{' '}
-                    <a href={contactConfig.liveRedirectUrl} className="text-[#ff9933] underline font-bold">
-                        click here
-                    </a>.
+            <Helmet>
+                <style>{`
+                    .loader-ring {
+                        position: absolute;
+                        inset: 0;
+                        border: 3px solid transparent;
+                        border-radius: 50%;
+                        animation: spin 1.5s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+                    }
+                    @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+                `}</style>
+            </Helmet>
+
+            <div 
+                className="absolute inset-0 bg-cover bg-center filter blur-[40px] brightness-[0.25] scale-[1.1] -z-10"
+                style={{ backgroundImage: "url('/assets/param-vir-chakra-live.png')" }}
+            />
+
+            <div className="flex flex-col items-center p-10 rounded-[24px] bg-[#040b14]/60 border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-xl max-w-[420px] w-[85%] text-center animate-in fade-in slide-in-from-bottom-2 duration-700">
+                <div className="relative w-16 h-16 mb-6">
+                    <div className="loader-ring border-t-[#ff9933] -delay-300 shadow-[0_0_15px_rgba(255,153,51,0.2)]" />
+                    <div className="loader-ring border-t-white -delay-150 inset-[6px]" />
+                    <div className="loader-ring border-t-[#138808] inset-[12px] shadow-[0_0_15px_rgba(19,136,8,0.2)]" />
+                </div>
+                
+                <h1 className="text-xl font-bold bg-gradient-to-r from-white to-indigo-200 bg-clip-text text-transparent mb-1.5">
+                    प्रवेश किया जा रहा है...
+                </h1>
+                <p className="text-xs text-white/50 tracking-wider uppercase font-semibold mb-6">
+                    Entering Live Experience
                 </p>
+                
+                <a 
+                    href={contactConfig.liveRedirectUrl} 
+                    className="text-[11px] text-white/45 no-underline px-5 py-2.5 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 hover:text-[#ff9933] hover:border-[#ff9933]/30 transition-all duration-300"
+                >
+                    Click here if not redirected / क्लिक करें
+                </a>
             </div>
         </div>
     );
