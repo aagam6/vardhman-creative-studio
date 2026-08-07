@@ -63,8 +63,8 @@ export default function PVCLiveRedirect() {
                           "description": "Watch the official live video stream of Param Vir Chakra – Shaurya Gatha event on 9 August 2026.",
                           "thumbnailUrl": "https://vardhmancreativestudio.com/assets/param-vir-chakra-live.jpg?v=4",
                           "uploadDate": "2026-08-09T09:00:00+05:30",
-                          "embedUrl": "https://www.youtube.com/embed/U2QBAxmlohw",
-                          "contentUrl": "https://youtu.be/U2QBAxmlohw",
+                          "embedUrl": "https://www.youtube.com/embed/9Gu99RvjCAA",
+                          "contentUrl": "https://youtu.be/9Gu99RvjCAA",
                           "duration": "PT4H0M0S",
                           "isFamilyFriendly": true
                         },
