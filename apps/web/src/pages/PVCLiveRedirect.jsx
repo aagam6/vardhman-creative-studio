@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
+import { contactConfig } from '@/lib/contactConfig';
 
 export default function PVCLiveRedirect() {
     useEffect(() => {
-        window.location.replace("https://youtu.be/U2QBAxmlohw?si=vBgeDE_bZFlaxpVB");
+        window.location.replace(contactConfig.liveRedirectUrl);
     }, []);
 
     return (
@@ -12,7 +13,7 @@ export default function PVCLiveRedirect() {
                 <h1 className="text-xl font-bold tracking-wide">Redirecting to YouTube / यूट्यूब पर रीडायरेक्ट किया जा रहा है...</h1>
                 <p className="text-sm text-white/50">
                     If you are not redirected automatically,{' '}
-                    <a href="https://youtu.be/U2QBAxmlohw?si=vBgeDE_bZFlaxpVB" className="text-[#ff9933] underline font-bold">
+                    <a href={contactConfig.liveRedirectUrl} className="text-[#ff9933] underline font-bold">
                         click here
                     </a>.
                 </p>

@@ -17,5 +17,8 @@ export const contactConfig = {
     "https://www.linkedin.com/company/vardhmancreativestudio",
     "https://www.youtube.com/@vardhmancreativestudio",
     "https://x.com/vardhmancs"
-  ]
+  ],
+
+  // Live Redirect URL for /pvclive
+  liveRedirectUrl: "https://youtu.be/U2QBAxmlohw?si=vBgeDE_bZFlaxpVB"
 };
