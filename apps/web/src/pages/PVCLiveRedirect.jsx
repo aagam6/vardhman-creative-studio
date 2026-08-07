@@ -19,18 +19,18 @@ export default function PVCLiveRedirect() {
                 <meta property="og:title" content="Param Vir Chakra – Shaurya Gatha Live / परमवीर चक्र – शौर्यगाथा लाइव" />
                 <meta property="og:description" content="Watch the official video stream of Param Vir Chakra – Shaurya Gatha. A Grand Patriotic Experience celebrating India's greatest heroes." />
                 <meta property="og:url" content="https://vardhmancreativestudio.com/pvclive" />
-                <meta property="og:image" content="https://vardhmancreativestudio.com/assets/param-vir-chakra-live.png?v=3" />
-                <meta property="og:image:secure_url" content="https://vardhmancreativestudio.com/assets/param-vir-chakra-live.png?v=3" />
+                <meta property="og:image" content="https://vardhmancreativestudio.com/assets/param-vir-chakra-live.jpg?v=4" />
+                <meta property="og:image:secure_url" content="https://vardhmancreativestudio.com/assets/param-vir-chakra-live.jpg?v=4" />
                 <meta property="og:image:width" content="1280" />
                 <meta property="og:image:height" content="720" />
-                <meta property="og:image:type" content="image/png" />
+                <meta property="og:image:type" content="image/jpeg" />
                 <meta property="og:image:alt" content="Param Vir Chakra Shaurya Gatha Live Stream" />
 
                 {/* Twitter */}
                 <meta name="twitter:card" content="summary_large_image" />
                 <meta name="twitter:title" content="Param Vir Chakra – Shaurya Gatha Live / परमवीर चक्र – शौर्यगाथा लाइव" />
                 <meta name="twitter:description" content="Watch the official video stream of Param Vir Chakra – Shaurya Gatha. A Grand Patriotic Experience celebrating India's greatest heroes." />
-                <meta name="twitter:image" content="https://vardhmancreativestudio.com/assets/param-vir-chakra-live.png?v=3" />
+                <meta name="twitter:image" content="https://vardhmancreativestudio.com/assets/param-vir-chakra-live.jpg?v=4" />
 
                 {/* Canonical & Robots SEO tags */}
                 <link rel="canonical" href="https://vardhmancreativestudio.com/pvclive" />
@@ -61,7 +61,7 @@ export default function PVCLiveRedirect() {
                           "@type": "VideoObject",
                           "name": "Param Vir Chakra – Shaurya Gatha Live / परमवीर चक्र – शौर्यगाथा लाइव",
                           "description": "Watch the official live video stream of Param Vir Chakra – Shaurya Gatha event on 9 August 2026.",
-                          "thumbnailUrl": "https://vardhmancreativestudio.com/assets/param-vir-chakra-live.png?v=3",
+                          "thumbnailUrl": "https://vardhmancreativestudio.com/assets/param-vir-chakra-live.jpg?v=4",
                           "uploadDate": "2026-08-09T09:00:00+05:30",
                           "embedUrl": "https://www.youtube.com/embed/U2QBAxmlohw",
                           "contentUrl": "https://youtu.be/U2QBAxmlohw",
@@ -80,7 +80,7 @@ export default function PVCLiveRedirect() {
                             "url": "https://vardhmancreativestudio.com/pvclive"
                           },
                           "image": [
-                            "https://vardhmancreativestudio.com/assets/param-vir-chakra-live.png?v=3"
+                            "https://vardhmancreativestudio.com/assets/param-vir-chakra-live.jpg?v=4"
                           ],
                           "description": "Watch the live online streaming of Param Vir Chakra – Shaurya Gatha. Live from Dinesh Hall, Navrangpura, Ahmedabad.",
                           "organizer": {
@@ -112,7 +112,7 @@ export default function PVCLiveRedirect() {
 
             <div 
                 className="absolute inset-0 bg-cover bg-center filter blur-[40px] brightness-[0.25] scale-[1.1] -z-10"
-                style={{ backgroundImage: "url('/assets/param-vir-chakra-live.png')" }}
+                style={{ backgroundImage: "url('/assets/param-vir-chakra-live.jpg')" }}
             />
 
             <div className="flex flex-col items-center p-10 rounded-[24px] bg-[#040b14]/60 border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-xl max-w-[420px] w-[85%] text-center animate-in fade-in slide-in-from-bottom-2 duration-700">
