@@ -174,16 +174,40 @@
             font-size: 11px;
             color: rgba(255, 255, 255, 0.4);
             text-decoration: none;
-            padding: 10px 20px;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
             transition: all 0.3s ease;
         }
         .link-btn:hover {
             background: rgba(255, 255, 255, 0.1);
             color: #ff9933;
-            border-color: rgba(255, 153, 51, 0.3);
+            border-color: rgba(255, 153, 51, 0.2);
+        }
+        .btn-premium {
+            font-size: 13px;
+            font-weight: 700;
+            color: #040b14;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #ff9933 0%, #ff5500 100%);
+            box-shadow: 0 8px 24px rgba(255, 85, 0, 0.3);
+            transition: all 0.3s ease;
+            margin-bottom: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(255, 85, 0, 0.45);
+            background: linear-gradient(135deg, #ffb05c 0%, #ff661a 100%);
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
@@ -204,9 +228,12 @@
             <div class="loader-ring ring-green"></div>
         </div>
         <h1 class="title">प्रवेश किया जा रहा है...</h1>
-        <p class="subtitle">Entering Live Experience</p>
+        <p class="subtitle" style="margin-bottom: 20px;">Entering Live Experience</p>
+        <a href="https://www.youtube.com/watch?v=NjthLLyx964" class="btn-premium">
+            Open in YouTube App / यूट्यूब ऐप में खोलें
+        </a>
         <a href="https://www.youtube.com/watch?v=NjthLLyx964" class="link-btn">
-            Click here if not redirected / क्लिक करें
+            Open in Browser / ब्राउज़र में देखें
         </a>
     </div>
 

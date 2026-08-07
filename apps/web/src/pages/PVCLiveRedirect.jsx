@@ -138,15 +138,22 @@ export default function PVCLiveRedirect() {
                 <h1 className="text-xl font-bold bg-gradient-to-r from-white to-indigo-200 bg-clip-text text-transparent mb-1.5">
                     प्रवेश किया जा रहा है...
                 </h1>
-                <p className="text-xs text-white/50 tracking-wider uppercase font-semibold mb-6">
+                <p className="text-xs text-white/50 tracking-wider uppercase font-semibold mb-5">
                     Entering Live Experience
                 </p>
                 
                 <a 
-                    href={contactConfig.liveRedirectUrl} 
-                    className="text-[11px] text-white/45 no-underline px-5 py-2.5 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 hover:text-[#ff9933] hover:border-[#ff9933]/30 transition-all duration-300"
+                    href="https://www.youtube.com/watch?v=NjthLLyx964" 
+                    className="inline-flex items-center justify-center text-xs font-bold text-[#040b14] no-underline px-6 py-3 rounded-xl bg-gradient-to-r from-[#ff9933] to-[#ff5500] shadow-[0_8px_24px_rgba(255,85,0,0.3)] hover:scale-[1.03] hover:shadow-[0_12px_30px_rgba(255,85,0,0.45)] transition-all duration-300 mb-4 uppercase tracking-wider"
                 >
-                    Click here if not redirected / क्लिक करें
+                    Open in YouTube App / यूट्यूब ऐप में खोलें
+                </a>
+                
+                <a 
+                    href="https://www.youtube.com/watch?v=NjthLLyx964" 
+                    className="text-[11px] text-white/45 no-underline px-4 py-2 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 hover:text-[#ff9933] hover:border-[#ff9933]/30 transition-all duration-300"
+                >
+                    Open in Browser / ब्राउज़र में देखें
                 </a>
             </div>
         </div>
