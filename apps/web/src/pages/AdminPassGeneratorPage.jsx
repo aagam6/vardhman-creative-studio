@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import * as XLSX from 'xlsx';
-import { toPng } from 'html-to-image';
+import { toJpeg } from 'html-to-image';
 import { jsPDF } from 'jspdf';
 import { toast } from 'sonner';
 import PassCard from '../components/PassCard.jsx';
@@ -28,6 +28,8 @@ export default function AdminPassGeneratorPage() {
   const [modalPassIndex, setModalPassIndex] = useState(0);
   const [modalSide, setModalSide] = useState("front");
   const [modalZoom, setModalZoom] = useState(0.24);
+  const [isGeneratingAll, setIsGeneratingAll] = useState(false);
+  const [currentAllIndex, setCurrentAllIndex] = useState(0);
   
   // Ref for rendering off-screen pass card for image capture
   const offscreenRenderRef = useRef(null);
@@ -211,11 +213,13 @@ export default function AdminPassGeneratorPage() {
     await executeGeneratePass(rowIndex, passAssignments);
   };
 
-  // Run PDF Generation for the verified list of passes (Front & Back for each pass)
-  const executeGeneratePass = async (rowIndex, passAssignments) => {
-    const row = excelData[rowIndex];
+  // Run PDF Generation for the verified list of passes (Front & Back for each pass combined into one file)
+  const executeGeneratePass = async (rowIndex, passAssignments, customRow = null) => {
+    const row = customRow || excelData[rowIndex];
     setIsGenerating(true);
-    setGenerationProgress("Preparing tickets...");
+    if (!isGeneratingAll) {
+      setGenerationProgress("Preparing tickets...");
+    }
 
     const passCount = passAssignments.length;
     
@@ -224,18 +228,22 @@ export default function AdminPassGeneratorPage() {
     setStartingPassSeq(lastSeq + 1);
 
     try {
-      // jsPDF setup - standard 2480x1300 print-ready aspect ratio
+      // jsPDF setup - standard 2484x1128 print-ready aspect ratio
       const pdf = new jsPDF({
         orientation: 'landscape',
         unit: 'px',
-        format: [2480, 1300]
+        format: [2484, 1128]
       });
 
       for (let i = 0; i < passCount; i++) {
         const assignment = passAssignments[i];
         
         // 1. Capture Front Side
-        setGenerationProgress(`Rendering pass ${i + 1} of ${passCount} (Front Side)...`);
+        if (isGeneratingAll) {
+          setGenerationProgress(`[Record ${currentAllIndex} - Pass ${i + 1}/${passCount}] Rendering Front Side...`);
+        } else {
+          setGenerationProgress(`Rendering pass ${i + 1} of ${passCount} (Front Side)...`);
+        }
 
         // Update target renderProps so the offscreen React component re-renders
         await new Promise((resolve) => {
@@ -263,11 +271,13 @@ export default function AdminPassGeneratorPage() {
           throw new Error("Front pass card element not found in DOM.");
         }
 
-        const frontDataUrl = await toPng(frontEl, {
-          width: 2480,
-          height: 1300,
-          cacheBust: true,
+        const frontDataUrl = await toJpeg(frontEl, {
+          quality: 0.82,
+          width: 2484,
+          height: 1128,
+          cacheBust: false,
           pixelRatio: 1,
+          fontEmbedCSS: '', // Disables embedding massive Google Fonts base64 string, preventing major OOM leaks
           style: {
             transform: 'scale(1)',
             transformOrigin: 'top left'
@@ -275,12 +285,16 @@ export default function AdminPassGeneratorPage() {
         });
 
         if (i > 0) {
-          pdf.addPage([2480, 1300], 'landscape');
+          pdf.addPage([2484, 1128], 'landscape');
         }
-        pdf.addImage(frontDataUrl, 'PNG', 0, 0, 2480, 1300, undefined, 'FAST');
+        pdf.addImage(frontDataUrl, 'JPEG', 0, 0, 2484, 1128, undefined, 'FAST');
 
         // 2. Capture Back Side
-        setGenerationProgress(`Rendering pass ${i + 1} of ${passCount} (Back Side)...`);
+        if (isGeneratingAll) {
+          setGenerationProgress(`[Record ${currentAllIndex} - Pass ${i + 1}/${passCount}] Rendering Back Side...`);
+        } else {
+          setGenerationProgress(`Rendering pass ${i + 1} of ${passCount} (Back Side)...`);
+        }
         
         const backEl = document.getElementById(`pass-back-${assignment.passNumber}`);
         if (!backEl) {
@@ -295,20 +309,26 @@ export default function AdminPassGeneratorPage() {
         });
         await new Promise(r => setTimeout(r, 100));
 
-        const backDataUrl = await toPng(backEl, {
-          width: 2480,
-          height: 1300,
-          cacheBust: true,
+        const backDataUrl = await toJpeg(backEl, {
+          quality: 0.82,
+          width: 2484,
+          height: 1128,
+          cacheBust: false,
           pixelRatio: 1,
+          fontEmbedCSS: '', // Disables embedding massive Google Fonts base64 string, preventing major OOM leaks
           style: {
             transform: 'scale(1)',
             transformOrigin: 'top left'
           }
         });
 
-        pdf.addPage([2480, 1300], 'landscape');
-        pdf.addImage(backDataUrl, 'PNG', 0, 0, 2480, 1300, undefined, 'FAST');
+        pdf.addPage([2484, 1128], 'landscape');
+        pdf.addImage(backDataUrl, 'JPEG', 0, 0, 2484, 1128, undefined, 'FAST');
       }
+
+      // Save PDF for this row (containing all passes for this applicant combined!)
+      const safeName = row.name.toLowerCase().replace(/[^a-z0-9]/g, '_');
+      pdf.save(`${safeName}_pvc_pass.pdf`);
 
       // Generate date & time strings
       const now = new Date();
@@ -325,43 +345,144 @@ export default function AdminPassGeneratorPage() {
         : `${passAssignments[0].passNumber} to ${passAssignments[passCount - 1].passNumber}`;
 
       // Update excel data state
-      const updatedData = [...excelData];
-      updatedData[rowIndex] = {
-        ...row,
-        passGenerated: 'YES',
-        passNumber: passNumberRange,
-        generatedDate: formattedDate,
-        generatedTime: formattedTime,
-        status: 'Generated'
-      };
-
-      setExcelData(updatedData);
-
-      // Download PDF file
-      const safeName = row.name.toLowerCase().replace(/[^a-z0-9]/g, '_');
-      pdf.save(`pvc_pass_${safeName}.pdf`);
+      setExcelData(prevData => {
+        const updated = [...prevData];
+        updated[rowIndex] = {
+          ...row,
+          passGenerated: 'YES',
+          passNumber: passNumberRange,
+          generatedDate: formattedDate,
+          generatedTime: formattedTime,
+          status: 'Generated'
+        };
+        return updated;
+      });
       
-      toast.success(`Successfully generated ${passCount} passes (Front & Back) for ${row.name}!`);
+      if (!isGeneratingAll) {
+        toast.success(`Successfully generated ${passCount} passes (combined PDF) for ${row.name}!`);
+      }
     } catch (err) {
       console.error(err);
       toast.error(`Failed to generate passes: ${err.message}`);
     } finally {
+      // Always unmount the off-screen cards immediately to clear memory of DOM nodes and assets
+      setRenderProps(null);
+      if (!isGeneratingAll) {
+        setIsGenerating(false);
+        setGenerationProgress("");
+      }
+    }
+  };
+
+  // Master function to generate passes for all records in the list in one click
+  const handleGenerateAllPasses = async () => {
+    if (excelData.length === 0) return;
+    setIsGeneratingAll(true);
+    setIsGenerating(true);
+    
+    try {
+      let seq = startingPassSeq;
+      const totalRecords = excelData.length;
+      let newlyGeneratedCount = 0;
+      
+      // Local copy to prevent stale closures of excelData state during batch runs
+      const currentList = [...excelData];
+      
+      for (let idx = 0; idx < totalRecords; idx++) {
+        const row = currentList[idx];
+        if (!row.name) continue;
+        
+        // Skip already generated records to enable resuming bulk generation seamlessly
+        if (row.passGenerated === 'YES') {
+          continue;
+        }
+        
+        const passCount = row.passCount || 1;
+        const participants = getParticipantList(row);
+        const passAssignments = [];
+        for (let i = 0; i < passCount; i++) {
+          passAssignments.push({
+            name: participants[i],
+            passNumber: formatPassNumber(seq),
+            mobile: row.mobile,
+            city: row.city
+          });
+          seq++;
+        }
+        
+        setCurrentAllIndex(idx + 1);
+        setGenerationProgress(`[Record ${idx + 1} of ${totalRecords}] Preparing passes for ${row.name}...`);
+        
+        // Wait for PDF generation of this record to finish
+        await executeGeneratePass(idx, passAssignments, row);
+        
+        // Local timestamp logs to keep currentList updated for auto-saves
+        const now = new Date();
+        const formattedDate = `${now.getDate().toString().padStart(2, '0')}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getFullYear()}`;
+        let hours = now.getHours();
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12; 
+        const formattedTime = `${hours.toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')} ${ampm}`;
+        const passNumberRange = passCount === 1 
+          ? passAssignments[0].passNumber 
+          : `${passAssignments[0].passNumber} to ${passAssignments[passCount - 1].passNumber}`;
+
+        currentList[idx] = {
+          ...row,
+          passGenerated: 'YES',
+          passNumber: passNumberRange,
+          generatedDate: formattedDate,
+          generatedTime: formattedTime,
+          status: 'Generated'
+        };
+
+        newlyGeneratedCount++;
+        
+        // Update sequence for next rows
+        seq = parsePassSeq(passAssignments[passCount - 1].passNumber) + 1;
+
+        // Auto-save progress to Excel every 5 newly generated rows
+        if (newlyGeneratedCount > 0 && newlyGeneratedCount % 5 === 0) {
+          setGenerationProgress(`[Record ${idx + 1}/${totalRecords}] Auto-saving progress to Excel...`);
+          const backupName = `pvc_passes_backup_row_${idx + 1}.xlsx`;
+          handleExportExcel(currentList, backupName);
+          await new Promise(r => setTimeout(r, 1000)); // safe buffer
+        }
+        
+        // Memory-safe batch cooling: Every 10 records, take a larger breath to yield JS thread & let GC flush
+        if ((idx + 1) % 10 === 0 && idx < totalRecords - 1) {
+          setGenerationProgress(`[Record ${idx + 1}/${totalRecords}] Cleaning memory buffer for next batch...`);
+          await new Promise(r => setTimeout(r, 2200));
+        } else {
+          // Standard yield delay
+          await new Promise(r => setTimeout(r, 700));
+        }
+      }
+      
+      toast.success("Successfully generated all passes for the entire list!");
+    } catch (err) {
+      console.error(err);
+      toast.error(`Bulk generation failed: ${err.message}`);
+    } finally {
+      setIsGeneratingAll(false);
       setIsGenerating(false);
       setGenerationProgress("");
       setRenderProps(null);
     }
   };
 
-  // Export updated data to Excel file
-  const handleExportExcel = () => {
-    if (excelData.length === 0) {
+  // Export updated data to Excel file (supports auto-saving current progress)
+  const handleExportExcel = (customData = null, customName = null) => {
+    const targetData = customData || excelData;
+    if (targetData.length === 0) {
       toast.error("No data to export.");
       return;
     }
 
     try {
       // Re-map the clean UI states back to the original headers or standard logging structure
-      const exportRows = excelData.map(row => {
+      const exportRows = targetData.map(row => {
         const orig = row._originalKeys || {};
         return {
           [orig.nameKey || 'Name']: row.name,
@@ -381,15 +502,19 @@ export default function AdminPassGeneratorPage() {
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Passes");
 
-      const exportName = fileName 
+      const exportName = customName || (fileName 
         ? fileName.replace(/\.xlsx$/i, '_updated.xlsx') 
-        : 'param_vir_chakra_passes_updated.xlsx';
+        : 'param_vir_chakra_passes_updated.xlsx');
 
       XLSX.writeFile(workbook, exportName);
-      toast.success("Updated Excel spreadsheet downloaded successfully!");
+      if (!customName) {
+        toast.success("Updated Excel spreadsheet downloaded successfully!");
+      } else {
+        toast.info(`Auto-saved progress: ${exportName}`);
+      }
     } catch (err) {
       console.error(err);
-      toast.error("Error creating Excel file export.");
+      toast.error("Failed to export Excel file: " + err.message);
     }
   };
 
@@ -532,27 +657,36 @@ export default function AdminPassGeneratorPage() {
               )}
 
               {/* Pass Card Container */}
-              <div className="relative flex justify-center items-start border border-white/10 rounded-2xl bg-[#02050a] p-4 overflow-auto h-[420px] w-full mb-6">
+              <div className="relative flex justify-center items-center border border-white/10 rounded-2xl bg-[#02050a] p-4 overflow-hidden h-[420px] w-full mb-6">
                 <div 
                   style={{ 
-                    width: '2480px', 
-                    height: '1300px', 
-                    transform: `scale(${modalZoom})`, 
-                    transformOrigin: 'top center',
-                    marginBottom: `calc(1300px * (${modalZoom} - 1))`,
-                    marginRight: `calc(2480px * (${modalZoom} - 1))`
+                    width: `${2484 * modalZoom}px`, 
+                    height: `${1128 * modalZoom}px`, 
+                    position: 'relative'
                   }}
-                  className="origin-top select-none pointer-events-none"
+                  className="select-none pointer-events-none"
                 >
-                  <PassCard 
-                    name={previewModalData.passAssignments[modalPassIndex].name}
-                    mobile={previewModalData.passAssignments[modalPassIndex].mobile}
-                    city={previewModalData.passAssignments[modalPassIndex].city}
-                    passNumber={previewModalData.passAssignments[modalPassIndex].passNumber}
-                    scale={1}
-                    activeSide={modalSide}
-                    previewMode={true}
-                  />
+                  <div
+                    style={{
+                      width: '2484px',
+                      height: '1128px',
+                      transform: `scale(${modalZoom})`,
+                      transformOrigin: 'top left',
+                      position: 'absolute',
+                      left: 0,
+                      top: 0
+                    }}
+                  >
+                    <PassCard 
+                      name={previewModalData.passAssignments[modalPassIndex].name}
+                      mobile={previewModalData.passAssignments[modalPassIndex].mobile}
+                      city={previewModalData.passAssignments[modalPassIndex].city}
+                      passNumber={previewModalData.passAssignments[modalPassIndex].passNumber}
+                      scale={1}
+                      activeSide={modalSide}
+                      previewMode={true}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -615,12 +749,29 @@ export default function AdminPassGeneratorPage() {
             {/* Config & Download Buttons */}
             <div className="flex flex-wrap gap-3">
               {excelData.length > 0 && (
-                <button
-                  onClick={handleExportExcel}
-                  className="inline-flex items-center gap-2 rounded-xl bg-[#138808] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-[#138808]/15 hover:bg-[#19a50a] transition-all"
-                >
-                  <Download className="h-4 w-4" /> Download Updated Excel
-                </button>
+                <>
+                  <button
+                    onClick={handleExportExcel}
+                    className="inline-flex items-center gap-2 rounded-xl bg-[#138808] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-[#138808]/15 hover:bg-[#19a50a] transition-all"
+                  >
+                    <Download className="h-4 w-4" /> Download Updated Excel
+                  </button>
+
+                  <button
+                    onClick={handleGenerateAllPasses}
+                    disabled={isGenerating || isGeneratingAll}
+                    className={`inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-bold text-white shadow-lg transition-all ${
+                      isGeneratingAll
+                        ? 'bg-yellow-600 shadow-yellow-600/15 cursor-not-allowed'
+                        : 'bg-[#ff9933] shadow-[#ff9933]/15 hover:bg-[#ffaa4d]'
+                    }`}
+                  >
+                    <RefreshCw className={`h-4 w-4 ${isGeneratingAll ? 'animate-spin' : ''}`} />
+                    {isGeneratingAll 
+                      ? `Generating All (${currentAllIndex}/${excelData.length})...` 
+                      : `Generate All Passes (${excelData.length} records)`}
+                  </button>
+                </>
               )}
             </div>
           </div>
@@ -863,35 +1014,44 @@ export default function AdminPassGeneratorPage() {
                   </div>
 
                   {/* Render Area with scale wrapping */}
-                  <div className="relative flex justify-center items-start border border-white/10 rounded-2xl bg-[#02050a] p-4 overflow-auto h-[420px] max-w-full">
+                  <div className="relative flex justify-center items-center border border-white/10 rounded-2xl bg-[#02050a] p-4 overflow-hidden h-[420px] max-w-full">
                     
                     {/* Floating Zoom Wrapper */}
                     <div 
                       style={{ 
-                        width: '2480px', 
-                        height: '1300px', 
-                        transform: `scale(${zoom})`, 
-                        transformOrigin: 'top center',
-                        marginBottom: `calc(1300px * (${zoom} - 1))`,
-                        marginRight: `calc(2480px * (${zoom} - 1))`
+                        width: `${2484 * zoom}px`, 
+                        height: `${1128 * zoom}px`, 
+                        position: 'relative'
                       }}
-                      className="origin-top select-none pointer-events-none"
+                      className="select-none pointer-events-none"
                     >
-                      <PassCard 
-                        name={participantList[selectedPassIndex] || selectedRow.name} 
-                        mobile={selectedRow.mobile} 
-                        city={selectedRow.city} 
-                        passNumber={
-                          selectedRow.passNumber
-                            ? (selectedRow.passCount === 1 
-                                ? selectedRow.passNumber 
-                                : formatPassNumber(parsePassSeq(selectedRow.passNumber.split(/\s+to\s+/i)[0]) + selectedPassIndex))
-                            : `PVC-2026-${startingPassSeq.toString().padStart(6, '0')}`
-                        }
-                        scale={1} 
-                        activeSide={previewSide}
-                        previewMode={true}
-                      />
+                      <div
+                        style={{
+                          width: '2484px',
+                          height: '1128px',
+                          transform: `scale(${zoom})`,
+                          transformOrigin: 'top left',
+                          position: 'absolute',
+                          left: 0,
+                          top: 0
+                        }}
+                      >
+                        <PassCard 
+                          name={participantList[selectedPassIndex] || selectedRow.name} 
+                          mobile={selectedRow.mobile} 
+                          city={selectedRow.city} 
+                          passNumber={
+                            selectedRow.passNumber
+                              ? (selectedRow.passCount === 1 
+                                  ? selectedRow.passNumber 
+                                  : formatPassNumber(parsePassSeq(selectedRow.passNumber.split(/\s+to\s+/i)[0]) + selectedPassIndex))
+                              : `PVC-2026-${startingPassSeq.toString().padStart(6, '0')}`
+                          }
+                          scale={1} 
+                          activeSide={previewSide}
+                          previewMode={true}
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -918,7 +1078,7 @@ export default function AdminPassGeneratorPage() {
             {renderProps && (
               <>
                 {/* Front Side Render Target (forced absolute at 0,0) */}
-                <div className="absolute top-0 left-0" style={{ width: '2480px', height: '1300px' }}>
+                <div className="absolute top-0 left-0" style={{ width: '2484px', height: '1128px' }}>
                   <PassCard 
                     name={renderProps.name} 
                     mobile={renderProps.mobile} 
@@ -928,8 +1088,8 @@ export default function AdminPassGeneratorPage() {
                     activeSide="front"
                   />
                 </div>
-                {/* Back Side Render Target (forced absolute at 1400px down) */}
-                <div className="absolute top-[1400px] left-0" style={{ width: '2480px', height: '1300px' }}>
+                {/* Back Side Render Target (forced absolute at 1200px down) */}
+                <div className="absolute top-[1200px] left-0" style={{ width: '2484px', height: '1128px' }}>
                   <PassCard 
                     name={renderProps.name} 
                     mobile={renderProps.mobile} 

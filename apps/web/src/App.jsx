@@ -7,6 +7,7 @@ import PrivacyPolicyPage from '@/pages/PrivacyPolicyPage.jsx';
 import PassCollectionPage from '@/pages/PassCollectionPage.jsx';
 import VardhmanComingSoonPage from '@/pages/VardhmanComingSoonPage.jsx';
 import AdminPassGeneratorPage from '@/pages/AdminPassGeneratorPage.jsx';
+import PVCLiveRedirect from '@/pages/PVCLiveRedirect.jsx';
 
 function App() {
     return (
@@ -18,6 +19,7 @@ function App() {
                 <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
                 <Route path="/pass-collection" element={<PassCollectionPage />} />
                 <Route path="/admin/pass-generator" element={<AdminPassGeneratorPage />} />
+                <Route path="/pvclive" element={<PVCLiveRedirect />} />
                 <Route path="*" element={<VardhmanComingSoonPage />} />
             </Routes>
             <Toaster position="bottom-right" theme="dark" />

@@ -1,6 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Martel:wght@400;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Martel:wght@400;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Martel:wght@400;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;500;600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -41,9 +39,9 @@
     --glow-dark: 0 0% 5%;
     --glow-light: 0 0% 15%;
 
-    --font-sans: "Outfit", "Noto Sans Devanagari", sans-serif;
-    --font-display: "Martel", "Noto Sans Devanagari", serif;
-    --font-accent: "Rajdhani", "Noto Sans Devanagari", sans-serif;
+    --font-sans: "Outfit", "Inter", "Noto Sans Devanagari", "Nirmala UI", "Mangal", sans-serif;
+    --font-display: "Noto Sans Devanagari", "Nirmala UI", "Mangal", "Martel", serif;
+    --font-accent: "Rajdhani", "Noto Sans Devanagari", "Nirmala UI", "Mangal", sans-serif;
   }
 
   .dark {
@@ -84,9 +82,9 @@
 
   * {
     @apply border-border;
-    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+    transition-property: color, background-color, border-color;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 300ms;
+    transition-duration: 200ms;
   }
 
   html {
@@ -104,7 +102,7 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
-    text-wrap: balance;
+    text-wrap: normal;
 
     letter-spacing: 0.01em;
 
@@ -208,7 +206,7 @@
   animation: gradient-shift 15s ease infinite;
 }
 
-.pvc-pass-card-bg {
-  background-color: #040d1c !important;
-  background-image: radial-gradient(circle at center, #0c2547 0%, #040d1c 100%) !important;
+.pvc-pass-card-bg-v5-navy {
+  background-color: #020713 !important;
+  background-image: radial-gradient(circle at center, #0e2246 0%, #06132b 55%, #020713 100%) !important;
 }
