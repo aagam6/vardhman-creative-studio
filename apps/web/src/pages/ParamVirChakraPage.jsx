@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { MessageCircle, Award, ChevronRight, Menu, X, ShieldCheck, CheckCircle2, Phone, MapPin, Ticket, CalendarDays, Clock, Users, Flag, Sparkles, BookOpen, Flame, GraduationCap, Compass } from 'lucide-react';
+import { MessageCircle, Award, ChevronRight, Menu, X, ShieldCheck, CheckCircle2, Phone, MapPin, Ticket, CalendarDays, Clock, Users, Flag, Sparkles, BookOpen, Flame, GraduationCap, Compass, Navigation } from 'lucide-react';
 import { contactConfig } from '@/lib/contactConfig';
 import EventFooter from '@/components/EventFooter.jsx';
 import { Play, Share2, Send, Facebook, Twitter, Copy, ExternalLink, Linkedin, Mail } from 'lucide-react';
@@ -126,24 +126,23 @@ const seoArticle = [
   'Param Vir Chakra – Shaurya Gatha is therefore more than an event page. It is a public-facing knowledge resource, a registration platform and a digital tribute to India’s bravest sons. It honours the past while inspiring the present generation to live with courage, integrity and national responsibility.',
 ];
 const importantInfo = [
-  'Registration is completely FREE. Advance registration is mandatory.',
+  'Entry is completely FREE with a valid Physical Entry Pass.',
   'General seating is allotted on a First-Come, First-Served basis (seats are limited).',
-  'Participants must collect their physical entry pass prior to the event as per the WhatsApp instructions.',
-  'Only participants carrying a valid Physical Entry Pass will be allowed entry into the event.',
-  'The organisers reserve the right to approve, reject, or cancel any registration.'
+  'Passes can be collected from Shri Vardhaman Jain Sangh, Usmanpura, Ahmedabad.',
+  'Only participants carrying a valid Physical Entry Pass will be allowed entry into Dinesh Hall.',
+  'For assistance and passes, call our helpline at +91 63521 88150.'
 ];
 
 const termsAndConditions = [
-  "Registration is completely FREE but advance registration is mandatory.",
-  "Seats are limited and registrations will be confirmed on a first-come, first-served basis.",
-  "After successful registration, participants will receive a WhatsApp message containing the Pass Collection details.",
-  "Participants must visit the designated Pass Collection Centre to collect their Official Physical Entry Pass before the event.",
+  "Entry is completely FREE but possessing a valid Physical Entry Pass is mandatory.",
+  "Seats at Dinesh Hall are limited and allotted strictly on a first-come, first-served basis.",
+  "Online registration is closed. Passes can now be obtained directly from Shri Vardhaman Jain Sangh, Usmanpura, Ahmedabad.",
+  "Participants must present their physical pass at the entrance of Dinesh Hall on the day of the event.",
   "Only participants carrying a valid Physical Entry Pass will be allowed entry into Dinesh Hall.",
-  "Participants must provide accurate information. Incorrect or misleading information may result in cancellation of registration.",
-  "The organisers reserve the right to approve, reject, or cancel any registration without assigning any reason.",
-  "The event schedule, venue, speakers, or programme may change due to unavoidable circumstances.",
-  "Photography and videography may be conducted during the event. By registering, participants consent to the use of their photographs and videos for promotional and documentation purposes.",
-  "By submitting this form, you confirm that you have read, understood, and agreed to all the above Terms & Conditions."
+  "The organisers reserve the right of admission and may approve or deny entry in accordance with hall capacity.",
+  "The event schedule, venue, speakers, or programme may be subject to change due to unavoidable circumstances.",
+  "Photography and videography may be conducted during the event for documentation purposes.",
+  "All attendees are requested to be seated 15 minutes before the programme commences (by 8:45 AM)."
 ];
 const faqs = [
   {
@@ -175,28 +174,28 @@ const faqs = [
     answer: "Pujya Muni Shri Shramanchandrasagarji Maharaj is a disciple of Acharya Shri Hemchandrasagarsuriji Maharaj, under the spiritual guidance of Acharya Shri Samyakchandrasagarsuriji Maharaj and Acharya Shri Tarakchandrasagarsuriji Maharaj."
   },
   {
-    question: "Is registration free for the Param Vir Chakra event?",
-    answer: "Yes, registration is completely FREE. However, advance online registration is strictly mandatory to attend the event."
-  },
-  {
-    question: "How will I receive my entry pass after registration?",
-    answer: "After successful online registration, you will receive a WhatsApp message on your registered mobile number containing the designated Pass Collection Address, Date, Time, and further instructions to collect your Physical Entry Pass."
-  },
-  {
-    question: "Is the online registration open?",
-    answer: "Yes, registration is now open. You can register via the official Google Form link on https://vardhmancreativestudio.com/param-vir-chakra."
-  },
-  {
-    question: "Is prior registration mandatory to attend this event?",
-    answer: "Yes, prior registration is strictly mandatory. Seating is limited, and entry to Dinesh Hall will be permitted only to participants carrying their valid Physical Entry Pass."
-  },
-  {
-    question: "What information must I provide during registration?",
-    answer: "You must provide your full name, mobile number (WhatsApp enabled), age, and city on the official Google Form."
+    question: "Is entry free for the Param Vir Chakra event?",
+    answer: "Yes, entry is completely FREE. However, carrying a valid Physical Entry Pass collected prior to the event is mandatory."
   },
   {
     question: "How and where do I collect my Physical Entry Pass?",
-    answer: "Once registered, you will receive details on your WhatsApp number regarding the Pass Collection Centre address, dates, and times. You must visit the designated center to collect your Physical Entry Pass prior to the event."
+    answer: "Online pass booking is now closed. You can collect your Physical Entry Pass directly from Shri Vardhaman Jain Shwetambar Murtipujak Sangh (Usmanpura Char Rasta, Ashram Road, Ahmedabad – 380014, Gujarat) or contact Support at +91 63521 88150."
+  },
+  {
+    question: "Is the online registration currently open?",
+    answer: "Online registration via Google Form has concluded. Passes can now be obtained directly from our collection venue at Shri Vardhaman Jain Sangh, Usmanpura, Ahmedabad or by calling Support at +91 63521 88150."
+  },
+  {
+    question: "Is having an entry pass mandatory to attend this event?",
+    answer: "Yes, having a Physical Entry Pass is strictly mandatory. Seating at Dinesh Hall is limited, and entry will be permitted only to pass holders on a first-come, first-served basis."
+  },
+  {
+    question: "What information must I provide to collect passes?",
+    answer: "You can visit the collection venue at Usmanpura, Ahmedabad or contact our support team at +91 63521 88150."
+  },
+  {
+    question: "What are the timings for pass collection?",
+    answer: "Pass collection is open at Shri Vardhaman Jain Sangh, Usmanpura. You can also call or WhatsApp +91 63521 88150 between 10:00 AM and 6:00 PM for assistance."
   },
   {
     question: "Is there an age limit for attendees of the event?",
@@ -215,8 +214,8 @@ const faqs = [
     answer: "Param Vir Chakra literally translates to the 'Wheel of the Ultimate Brave' (परम वीर चक्र) in Sanskrit, symbolizing the highest honor of courage and sacrifice."
   },
   {
-    question: "Can I register for multiple family members?",
-    answer: "Yes, you can register for multiple family members by entering their details on the registration form. However, entry remains subject to verification and pass collection."
+    question: "Can I get passes for multiple family members?",
+    answer: "Yes, you can collect passes for family members by visiting Shri Vardhaman Jain Sangh, Usmanpura, Ahmedabad or by calling Support at +91 63521 88150."
   },
   {
     question: "What is the entry policy on the day of the event?",
@@ -239,8 +238,8 @@ const faqs = [
     answer: "Official photography and videography will be conducted by the organizers. By registering, participants consent to the use of their photos and videos for documentation purposes."
   },
   {
-    question: "Whom can I contact for registration and queries?",
-    answer: "You can contact the support team at +91 63521 88150 or send a WhatsApp message. Support timings are Monday to Saturday, from 10:00 AM to 6:00 PM."
+    question: "Whom can I contact for passes and queries?",
+    answer: "You can contact our support helpline at +91 63521 88150 via phone call or WhatsApp message. Support timings are Monday to Saturday, from 10:00 AM to 6:00 PM."
   },
   {
     question: "Is this event only for a specific community?",
@@ -309,7 +308,7 @@ const navItems = [
   { label: 'About', href: '#about' },
   { label: 'Watch Teaser', href: '#teaser' },
   { label: 'Guests', href: '#guests' },
-  { label: 'Registration', href: '#registration' },
+  { label: 'Pass Collection', href: '#registration' },
   { label: 'FAQ', href: '#faq' }
 ];
 
@@ -1015,7 +1014,7 @@ export default function ParamVirChakraPage() {
               {/* Tricolor glowing outline border */}
               <span className="absolute inset-0 bg-gradient-to-r from-[#ff9933] via-white to-[#138808] p-[1.5px] rounded-full -z-10 [mask-image:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)] [mask-composite:xor]" />
               <span className="relative z-10 flex items-center gap-1.5">
-                Register <ChevronRight className="h-3.5 w-3.5 stroke-[2.5]" aria-hidden="true" />
+                Entry Passes <ChevronRight className="h-3.5 w-3.5 stroke-[2.5]" aria-hidden="true" />
               </span>
             </a>
           </div>
@@ -1055,7 +1054,7 @@ export default function ParamVirChakraPage() {
                 className="mt-2 inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#ff9933] to-[#138808] py-3.5 text-sm font-extrabold uppercase tracking-wider text-white shadow-lg shadow-[#ff9933]/15 focus-visible:ring-2 focus-visible:ring-white outline-none"
                 onClick={() => setMenuOpen(false)}
               >
-                Register for Free <ChevronRight className="h-4 w-4 stroke-[2.5]" aria-hidden="true" />
+                Collect Entry Pass / पास प्राप्त करें <ChevronRight className="h-4 w-4 stroke-[2.5]" aria-hidden="true" />
               </a>
             </div>
           </div>
@@ -1148,7 +1147,7 @@ export default function ParamVirChakraPage() {
                 href="#registration" 
                 className="inline-flex min-h-[46px] h-[46px] items-center justify-center rounded-xl bg-[#FF9933] px-6 text-[14px] font-bold text-[#090f19] shadow-[0_8px_24px_rgba(255,153,51,0.2)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_12px_32px_rgba(255,153,51,0.3)] active:scale-[0.98] outline-none focus-visible:ring-2 focus-visible:ring-[#ff9933]"
               >
-                Register for Free <ChevronRight className="ml-1 h-4 w-4 shrink-0 stroke-[2.5]" />
+                Collect Entry Pass / पास प्राप्त करें <ChevronRight className="ml-1 h-4 w-4 shrink-0 stroke-[2.5]" />
               </a>
               <a 
                 href="#teaser" 
@@ -1328,7 +1327,7 @@ export default function ParamVirChakraPage() {
                 href="#registration" 
                 className="inline-flex min-h-[46px] items-center justify-center rounded-xl bg-[#ff9933] px-6 py-2.5 text-sm font-bold text-[#090f19] hover:bg-white transition-all duration-300 hover:scale-105"
               >
-                Register Now
+                Collect Entry Pass
               </a>
               <a 
                 href="#about" 
@@ -1892,7 +1891,7 @@ export default function ParamVirChakraPage() {
         </div>
       </section>
 
-      {/* REGISTRATION FORM SECTION - PREMIUM TRICOLOR REDESIGN */}
+      {/* PASS COLLECTION & OFFLINE SUPPORT SECTION - PREMIUM TRICOLOR DESIGN */}
       <section id="registration" className="relative overflow-hidden bg-[#050b13] px-5 py-24 text-white lg:px-8">
         
         {/* Cinematic background light layers */}
@@ -1902,12 +1901,17 @@ export default function ParamVirChakraPage() {
 
         <div className="relative mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[1fr_1.1fr]">
           
-          {/* Left Column: Branding details */}
+          {/* Left Column: Offline Collection Announcement */}
           <div className="flex flex-col justify-center">
-            <p className="mb-4 text-xs font-extrabold uppercase tracking-[0.3em] text-[#ff9933]">Registration</p>
-            <h2 className="font-serif text-4xl font-bold tracking-tight text-white md:text-6xl">Register for Free</h2>
-            <p className="mt-6 text-[15px] leading-relaxed text-white/70 font-light">
-              Registration Google Form के माध्यम से होगा। कृपया form में सभी details सही भरें; सफल पंजीकरण के बाद WhatsApp पर Physical Entry Pass कलेक्ट करने का पता, दिनांक और समय भेजा जाएगा।
+            <div className="inline-flex items-center gap-2 rounded-full bg-[#ff9933]/10 border border-[#ff9933]/30 px-3.5 py-1 text-xs font-bold text-[#ff9933] uppercase tracking-widest w-fit mb-4">
+              <span className="h-2 w-2 rounded-full bg-[#ff9933]" /> Pass Collection & Support
+            </div>
+            <h2 className="font-serif text-4xl font-bold tracking-tight text-white md:text-5xl lg:text-6xl">
+              Offline Entry Passes <br />
+              <span className="text-[#FF9933]">पास वितरण विवरण</span>
+            </h2>
+            <p className="mt-6 text-[15px] leading-relaxed text-white/80 font-light">
+              ऑनलाइन पास बुकिंग अब समाप्त हो चुकी है (Online Booking Closed)। जिन महानुभावों को कार्यक्रम में सम्मिलित होने के लिए प्रवेश पास (Physical Entry Pass) चाहिए, वे नीचे दिए गए पते से सीधे प्राप्त कर सकते हैं अथवा हमारे सहायता नंबर पर संपर्क करें।
             </p>
             
             {/* Plaque-style Sangh info box (Green Accent) */}
@@ -1921,47 +1925,87 @@ export default function ParamVirChakraPage() {
             </div>
           </div>
 
-          {/* Right Column: Interactive card with live status */}
+          {/* Right Column: Pass Collection Venue & Contact Card */}
           <article className="relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-[#0c1a2e]/60 p-8 text-center shadow-[0_30px_70px_rgba(0,0,0,0.5)] backdrop-blur-2xl md:p-12 group hover:border-white/20 transition-all duration-300">
             {/* Subtle tricolor top bar */}
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#ff9933] via-white/50 to-[#138808]" />
             
-            <PremiumEmblem tone="light" />
-            <p className="mt-6 text-[11px] font-extrabold uppercase tracking-[0.25em] text-[#ff9933]">Official Registration Form</p>
-            <h3 className="mt-3 font-serif text-3xl font-bold text-white md:text-4xl">Google Form से Registration</h3>
-            
-            <p className="mx-auto mt-4 max-w-xl text-[14px] leading-relaxed text-white/70 font-light">
-              नीचे दिए गए button पर click करके official Google Form भरें। Advance Registration पूरी तरह से निःशुल्क (FREE) और अनिवार्य है।
-            </p>
-
-            {/* Registration Notice Block */}
-            <div className="mt-6 p-5 rounded-2xl border border-[#ff9933]/20 bg-[#ff9933]/5 max-w-md mx-auto text-left">
-              <p className="text-[15px] font-extrabold text-[#ff9933]">Registration is completely FREE</p>
-              <div className="mt-2 text-[11.5px] leading-relaxed text-white/80 font-light space-y-1">
-                <p>• Advance registration is mandatory.</p>
-                <p>• Successful registrants will receive a WhatsApp message with Pass Collection details (Address, Date, Time).</p>
-                <p>• Entry is allowed only with a valid Physical Entry Pass collected prior to the event.</p>
-              </div>
-            </div>
-
-            {/* REGISTRATION IS NOW OPEN STATE */}
-            <div className="mt-6 flex justify-center">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#138808]/15 border border-[#138808]/40 px-3.5 py-1 text-xs font-bold text-[#138808] uppercase tracking-wide">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#138808] animate-ping" /> Registration is Now Open
+            {/* Online Booking Closed Badge */}
+            <div className="flex justify-center mb-6">
+              <span className="inline-flex items-center gap-2 rounded-full bg-red-500/10 border border-red-500/30 px-4 py-1.5 text-xs font-bold text-red-400 uppercase tracking-wider">
+                <span className="h-2 w-2 rounded-full bg-red-500" /> Online Registration Closed
               </span>
             </div>
 
-            <div className="mt-8">
-              <a 
-                href={registrationFormUrl} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="inline-flex min-h-[50px] w-full items-center justify-center rounded-xl bg-gradient-to-r from-[#ff9933] to-[#ffb854] px-8 py-3.5 text-[15px] font-bold text-[#050b14] shadow-[0_12px_40px_rgba(255,153,51,0.3)] transition-all duration-300 hover:from-white hover:to-white hover:text-[#050b14] hover:shadow-[0_15px_45px_rgba(255,255,255,0.4)] hover:-translate-y-0.5 sm:w-auto"
-              >
-                Open Google Form <ChevronRight className="ml-2 h-5 w-5 shrink-0 stroke-[2.5]" aria-hidden="true" />
-              </a>
+            <PremiumEmblem tone="light" />
+            
+            <p className="mt-6 text-[11px] font-extrabold uppercase tracking-[0.25em] text-[#ff9933]">Pass Collection Centre</p>
+            <h3 className="mt-2 font-serif text-2xl font-bold text-white md:text-3xl">पास यहाँ से प्राप्त करें</h3>
+            
+            {/* Venue Address Box */}
+            <div className="mt-6 p-6 rounded-2xl border border-white/10 bg-white/[0.03] text-left">
+              <div className="flex items-start gap-3.5">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#ff9933]/15 text-[#ff9933]">
+                  <MapPin className="h-5 w-5" />
+                </span>
+                <div>
+                  <h4 className="text-[16px] font-bold text-white">Shri Vardhaman Jain Shwetambar Murtipujak Sangh</h4>
+                  <p className="mt-1 text-[13.5px] leading-relaxed text-white/70">
+                    उस्मानपुरा चार रास्ता, आश्रम रोड, अहमदाबाद – 380014, गुजरात, भारत<br />
+                    <span className="text-white/50 text-[12px]">(Usmanpura Char Rasta, Ashram Road, Ahmedabad – 380014)</span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-4 pt-4 border-t border-white/5 flex flex-wrap gap-3">
+                <a 
+                  href="https://maps.google.com/?q=Shri+Vardhaman+Jain+Shwetambar+Murtipujak+Sangh+Usmanpura+Ahmedabad" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="inline-flex items-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 px-4 py-2 text-xs font-bold text-white transition-all hover:scale-[1.02]"
+                >
+                  <Navigation className="h-3.5 w-3.5 text-[#ff9933]" /> Open in Google Maps
+                </a>
+              </div>
             </div>
-            <p className="mt-4 text-[12px] text-white/50">Registration is Now Open</p>
+
+            {/* Helpline / Call Support Box */}
+            <div className="mt-5 p-5 rounded-2xl border border-[#138808]/20 bg-[#138808]/5 text-left">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#138808]/20 text-[#138808]">
+                    <Phone className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-[#138808]">Call Support Helpline</p>
+                    <a href="tel:+916352188150" className="text-lg font-bold text-white hover:text-[#ff9933] transition-colors">
+                      +91 63521 88150
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <a 
+                    href="tel:+916352188150"
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-[#138808] hover:bg-[#138808]/80 px-4 py-2 text-xs font-bold text-white shadow-lg shadow-[#138808]/20 transition-all hover:scale-105"
+                  >
+                    <Phone className="h-3.5 w-3.5" /> Call Now
+                  </a>
+                  <a 
+                    href="https://wa.me/916352188150?text=Jai%20Hind!%20I%20need%20passes%20for%20Param%20Vir%20Chakra%20Event."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-[#25D366] hover:bg-[#25D366]/80 px-4 py-2 text-xs font-bold text-white shadow-lg shadow-[#25D366]/20 transition-all hover:scale-105"
+                  >
+                    <MessageCircle className="h-3.5 w-3.5" /> WhatsApp
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <p className="mt-5 text-[12px] text-white/50">
+              पास सीमित संख्या में उपलब्ध हैं। कृपया पूर्व में संपर्क करके प्राप्त करें।
+            </p>
           </article>
         </div>
       </section>
@@ -2260,27 +2304,27 @@ export default function ParamVirChakraPage() {
               </div>
             </article>
 
-            {/* SECTION 9: REGISTRATION PROCESS */}
+            {/* SECTION 9: PASS COLLECTION PROCESS */}
             <article className="rounded-3xl border border-[#dcc395]/40 bg-white p-8 md:p-10 shadow-lg">
-              <h3 className="font-serif text-2xl font-bold text-[#172033] mb-6">9. Registration Process (पंजीकरण की सरल प्रक्रिया)</h3>
+              <h3 className="font-serif text-2xl font-bold text-[#172033] mb-6">9. Pass Collection Process (पास प्राप्ति की सरल प्रक्रिया)</h3>
               
               {/* AEO Direct Answer Box */}
               <div className="bg-[#ff9933]/5 border-l-4 border-[#ff9933] p-5 rounded-r-2xl mb-6">
                 <p className="text-xs uppercase font-extrabold text-[#ff9933] mb-1">Direct Answer / मुख्य उत्तर</p>
                 <p className="font-semibold text-sm text-[#172033] leading-relaxed">
-                  Registration is completely FREE. Advance registration is mandatory. Complete the official Google Form, after which you will receive WhatsApp details to collect your Physical Entry Pass.
+                  Online registration has concluded. Physical Entry Passes can now be collected directly from Shri Vardhaman Jain Shwetambar Murtipujak Sangh (Usmanpura Char Rasta, Ashram Road, Ahmedabad – 380014) or via Call Support at +91 63521 88150.
                 </p>
               </div>
 
               <div className="space-y-4 text-sm text-[#56616f] leading-relaxed font-light">
                 <p>
-                  पंजीकरण की प्रक्रिया बहुत सरल और सुरक्षित है:
+                  पास प्राप्त करने की प्रक्रिया बहुत सरल है:
                 </p>
                 <ol className="list-decimal list-inside space-y-3 ml-2">
-                  <li><strong>स्टेप 1:</strong> आधिकारिक वेबसाइट पर दिए गए बटन पर क्लिक करके सीधे Google Form खोलें।</li>
-                  <li><strong>स्टेप 2:</strong> फॉर्म में अपनी सही जानकारी (नाम, मोबाइल नंबर, आयु, शहर) भरकर सबमिट करें।</li>
-                  <li><strong>स्टेप 3:</strong> सफल पंजीकरण के बाद, आपके व्हाट्सएप (WhatsApp) नंबर पर पास कलेक्शन सेंटर का पता, तिथि और समय भेजा जाएगा।</li>
-                  <li><strong>स्टेप 4:</strong> बताए गए समय पर कलेक्शन सेंटर जाकर अपना भौतिक पास (Physical Entry Pass) कलेक्ट करें, जिसे कार्यक्रम के दिन वेन्यू पर लाना अनिवार्य है।</li>
+                  <li><strong>कलेक्शन सेंटर:</strong> श्री वर्धमान जैन श्वेतांबर मूर्तिपूजक संघ, उस्मानपुरा चार रास्ता, आश्रम रोड, अहमदाबाद – 380014 से पास प्राप्त करें।</li>
+                  <li><strong>हेल्पलाइन सपोर्ट:</strong> किसी भी सहायता अथवा पास की जानकारी हेतु <strong>+91 63521 88150</strong> पर कॉल या व्हाट्सऐप करें।</li>
+                  <li><strong>भौतिक पास (Physical Pass):</strong> दिनेश हॉल, अहमदाबाद में प्रवेश केवल वैध फिजिकल पास धारकों को ही दिया जाएगा।</li>
+                  <li><strong>समय पर प्रवेश:</strong> सीटें सीमित हैं, इसलिए कार्यक्रम के दिन सुबह 8:45 बजे तक स्थान ग्रहण कर लें।</li>
                 </ol>
               </div>
             </article>
