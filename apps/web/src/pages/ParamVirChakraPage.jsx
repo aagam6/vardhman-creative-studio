@@ -652,13 +652,13 @@ export default function ParamVirChakraPage() {
         "name": "Param Vir Chakra – Shaurya Gatha Official Teaser",
         "description": "Watch the official video teaser of 'Param Vir Chakra – Shauryagatha', a cinematic tribute celebrating the courage, sacrifice and legacy of India's greatest heroes.",
         "thumbnailUrl": [
-          "https://img.youtube.com/vi/NjthLLyx964/maxresdefault.jpg",
-          "https://img.youtube.com/vi/NjthLLyx964/sddefault.jpg",
-          "https://img.youtube.com/vi/NjthLLyx964/hqdefault.jpg"
+          "https://img.youtube.com/vi/U2QBAxmlohw/maxresdefault.jpg",
+          "https://img.youtube.com/vi/U2QBAxmlohw/sddefault.jpg",
+          "https://img.youtube.com/vi/U2QBAxmlohw/hqdefault.jpg"
         ],
         "uploadDate": "2026-07-28T09:00:00Z",
-        "embedUrl": "https://www.youtube.com/embed/NjthLLyx964?rel=0&modestbranding=1",
-        "contentUrl": "https://www.youtube.com/watch?v=NjthLLyx964",
+        "embedUrl": "https://www.youtube.com/embed/U2QBAxmlohw?rel=0&modestbranding=1",
+        "contentUrl": "https://www.youtube.com/watch?v=U2QBAxmlohw",
         "publisher": {
           "@type": "Organization",
           "name": "Vardhman Creative Studio",
@@ -1298,8 +1298,8 @@ export default function ParamVirChakraPage() {
             className="relative aspect-video w-full rounded-3xl overflow-hidden border border-white/10 bg-white/5 backdrop-blur-md p-2 md:p-4 shadow-2xl hover:border-[#ff9933]/30 transition-all duration-500 mb-8"
           >
             <iframe
-              src="https://www.youtube.com/embed/NjthLLyx964?rel=0&modestbranding=1"
-              title="Param Vir Chakra – Shauryagatha Live Event Video"
+              src="https://www.youtube.com/embed/U2QBAxmlohw?rel=0&modestbranding=1"
+              title="Param Vir Chakra – Shauryagatha Official Teaser Video"
               width="100%"
               height="100%"
               style={{ border: 0 }}
@@ -1307,14 +1307,14 @@ export default function ParamVirChakraPage() {
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
               loading="lazy"
-              aria-label="Param Vir Chakra – Shauryagatha Live Event Video"
+              aria-label="Param Vir Chakra – Shauryagatha Official Teaser Video"
             />
           </motion.div>
 
           {/* Video Description */}
           <div className="max-w-3xl mx-auto text-center mb-10">
             <p className="text-white/80 text-[15px] leading-relaxed md:text-base font-light">
-              Watch the official live stream of <strong className="font-medium text-[#ff9933]">"Param Vir Chakra – Shauryagatha"</strong>, a cinematic tribute celebrating the courage, sacrifice and legacy of India's greatest heroes. This patriotic event and book launch honors our brave defenders.
+              Watch the official teaser trailer of <strong className="font-medium text-[#ff9933]">"Param Vir Chakra – Shauryagatha"</strong>, a cinematic tribute celebrating the courage, sacrifice and legacy of India's greatest heroes. 9 अगस्त को होने वाले भव्य कार्यक्रम का सीधा प्रसारण (Live Stream) देखने के लिए नीचे दिए गए बटन पर क्लिक करें।
             </p>
           </div>
 
@@ -1324,19 +1324,19 @@ export default function ParamVirChakraPage() {
             {/* Primary Action Buttons */}
             <div className="flex flex-wrap justify-center gap-4">
               <a 
+                href="/pvclive" 
+                className="inline-flex min-h-[46px] items-center justify-center rounded-xl bg-gradient-to-r from-red-600 to-[#ff9933] px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-red-600/30 hover:scale-105 transition-all duration-300"
+              >
+                🔴 Live Stream Link / लाइव देखें
+              </a>
+              <a 
                 href="#registration" 
                 className="inline-flex min-h-[46px] items-center justify-center rounded-xl bg-[#ff9933] px-6 py-2.5 text-sm font-bold text-[#090f19] hover:bg-white transition-all duration-300 hover:scale-105"
               >
                 Collect Entry Pass
               </a>
               <a 
-                href="#about" 
-                className="inline-flex min-h-[46px] items-center justify-center rounded-xl border border-white/20 bg-white/5 px-6 py-2.5 text-sm font-medium text-white hover:bg-white/10 transition-all duration-300"
-              >
-                View Event Details
-              </a>
-              <a 
-                href="https://www.youtube.com/watch?v=NjthLLyx964" 
+                href="https://www.youtube.com/watch?v=U2QBAxmlohw" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="inline-flex min-h-[46px] items-center justify-center rounded-xl border border-white/15 bg-white/5 px-6 py-2.5 text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300"
