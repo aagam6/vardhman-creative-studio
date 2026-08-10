@@ -306,17 +306,17 @@ const staggerContainer = {
 
 const navItems = [
   { label: 'About', href: '#about' },
-  { label: 'Watch Teaser', href: '#teaser' },
+  { label: 'Watch Recording', href: '#teaser' },
   { label: 'Guests', href: '#guests' },
-  { label: 'Pass Collection', href: '#registration' },
+  { label: 'Highlights & Gratitude', href: '#highlights' },
   { label: 'FAQ', href: '#faq' }
 ];
 
 const eventCards = [
-  { icon: CalendarDays, title: 'कार्यक्रम तिथि', label: '9 अगस्त 2026', detail: 'रविवार' },
-  { icon: Clock, title: 'समय', label: 'प्रातः 9:00 बजे', detail: 'कार्यक्रम प्रारंभ' },
+  { icon: CalendarDays, title: 'कार्यक्रम तिथि', label: '9 अगस्त 2026', detail: 'रविवार (संपन्न)' },
+  { icon: Clock, title: 'समय', label: 'प्रातः 9:00 बजे', detail: 'सफलतापूर्वक संपन्न' },
   { icon: MapPin, title: 'स्थान', label: 'दीनेश हॉल', detail: 'नवरंगपुरा, अहमदाबाद', link: 'https://maps.app.goo.gl/NC4XSturo5sA2736A' },
-  { icon: Users, title: 'आयु सीमा', label: '15–50 वर्ष', detail: 'पंजीकरण आवश्यक' },
+  { icon: Award, title: 'आयोजक', label: 'श्री वर्धमान जैन संघ', detail: 'उस्मानपुरा, अहमदाबाद' },
 ];
 const countdown = {
   targetDate: '2026-08-09T09:00:00', // आपके इवेंट की तारीख
@@ -474,7 +474,7 @@ export default function ParamVirChakraPage() {
         setNavSolid(false);
       }
 
-      const sections = ['hero', 'teaser', 'about', 'guests', 'registration', 'faq'];
+      const sections = ['hero', 'teaser', 'about', 'guests', 'highlights', 'faq'];
       let currentSection = '#hero';
       
       for (const sectionId of sections) {
@@ -1008,13 +1008,13 @@ export default function ParamVirChakraPage() {
 
             {/* Custom CTA Outline Button */}
             <a 
-              href="#registration" 
-              className="relative inline-flex items-center justify-center gap-2 rounded-full bg-[#050b14] px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white border border-transparent transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(255,153,51,0.35)] group overflow-hidden focus-visible:ring-2 focus-visible:ring-[#ff9933] focus-visible:ring-offset-2 outline-none"
+              href="#teaser" 
+              className="relative inline-flex items-center justify-center gap-2 rounded-full bg-[#050b14] px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white border border-transparent transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(255,153,51,0.35)] group overflow-hidden focus-visible:ring-2 focus-visible:ring-[#ff9933] outline-none"
             >
               {/* Tricolor glowing outline border */}
-              <span className="absolute inset-0 bg-gradient-to-r from-[#ff9933] via-white to-[#138808] p-[1.5px] rounded-full -z-10 [mask-image:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)] [mask-composite:xor]" />
-              <span className="relative z-10 flex items-center gap-1.5">
-                Entry Passes <ChevronRight className="h-3.5 w-3.5 stroke-[2.5]" aria-hidden="true" />
+              <span className="absolute inset-0 bg-gradient-to-r from-[#ff9933] via-white to-[#138808] p-[1.5px] rounded-full -z-10" />
+              <span className="relative z-10 flex items-center gap-1.5 text-white">
+                <Play className="h-3.5 w-3.5 fill-[#ff9933] text-[#ff9933]" /> Watch Recording
               </span>
             </a>
           </div>
@@ -1050,11 +1050,11 @@ export default function ParamVirChakraPage() {
                 </a>
               ))}
               <a 
-                href="#registration" 
-                className="mt-2 inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#ff9933] to-[#138808] py-3.5 text-sm font-extrabold uppercase tracking-wider text-white shadow-lg shadow-[#ff9933]/15 focus-visible:ring-2 focus-visible:ring-white outline-none"
+                href="#teaser" 
+                className="mt-2 inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#ff9933] to-[#138808] py-3.5 text-sm font-extrabold uppercase tracking-wider text-white shadow-lg shadow-[#ff9933]/15 outline-none"
                 onClick={() => setMenuOpen(false)}
               >
-                Collect Entry Pass / पास प्राप्त करें <ChevronRight className="h-4 w-4 stroke-[2.5]" aria-hidden="true" />
+                <Play className="h-4 w-4 fill-white" /> Watch Full Recording / रिकॉर्डिंग देखें
               </a>
             </div>
           </div>
@@ -1101,65 +1101,33 @@ export default function ParamVirChakraPage() {
               भारत के सर्वोच्च वीरता सम्मान <strong className="font-medium text-white">परमवीर चक्र</strong> से सम्मानित अमर वीरों के अद्भुत साहस, त्याग और राष्ट्रभक्ति की प्रेरणादायी शौर्यगाथाओं पर आधारित एक भव्य कार्यक्रम।
             </p>
 
-            {/* Live Event Countdown */}
+            {/* Live Event Status Banner */}
             <div className="mt-5 max-w-xl">
-              {timeLeft.status === 'upcoming' && (
-                <div className="flex flex-col gap-2">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#ff9933] filter drop-shadow-[0_2px_8px_rgba(255,153,51,0.2)]">
-                    कार्यक्रम प्रारंभ होने में / EVENT STARTS IN
-                  </span>
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex flex-col items-center min-w-[62px] rounded-xl border border-white/10 bg-white/[0.04] p-2.5 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] backdrop-blur-md transition-all duration-300 hover:border-[#ff9933]/30 hover:scale-105">
-                      <span className="text-xl font-bold text-white tracking-tight">{timeLeft.days}</span>
-                      <span className="text-[8px] uppercase tracking-widest text-white/40 font-bold mt-0.5">Days</span>
-                    </div>
-                    <div className="flex flex-col items-center min-w-[62px] rounded-xl border border-white/10 bg-white/[0.04] p-2.5 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] backdrop-blur-md transition-all duration-300 hover:border-[#ff9933]/30 hover:scale-105">
-                      <span className="text-xl font-bold text-white tracking-tight">{timeLeft.hours}</span>
-                      <span className="text-[8px] uppercase tracking-widest text-white/40 font-bold mt-0.5">Hours</span>
-                    </div>
-                    <div className="flex flex-col items-center min-w-[62px] rounded-xl border border-white/10 bg-white/[0.04] p-2.5 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] backdrop-blur-md transition-all duration-300 hover:border-[#ff9933]/30 hover:scale-105">
-                      <span className="text-xl font-bold text-white tracking-tight">{timeLeft.minutes}</span>
-                      <span className="text-[8px] uppercase tracking-widest text-white/40 font-bold mt-0.5">Mins</span>
-                    </div>
-                    <div className="flex flex-col items-center min-w-[62px] rounded-xl border border-white/10 bg-white/[0.04] p-2.5 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] backdrop-blur-md transition-all duration-300 hover:border-[#ff9933]/30 hover:scale-105">
-                      <span className="text-xl font-bold text-white tracking-tight">{timeLeft.seconds}</span>
-                      <span className="text-[8px] uppercase tracking-widest text-white/40 font-bold mt-0.5">Secs</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-              {timeLeft.status === 'live' && (
-                <div className="inline-flex items-center gap-2 rounded-xl border border-[#138808]/40 bg-[#138808]/15 px-4 py-2 text-xs font-bold text-white animate-pulse shadow-[0_0_15px_rgba(19,136,8,0.2)]">
-                  <span className="h-2 w-2 rounded-full bg-[#138808] animate-ping" />
-                  Event Live Now / कार्यक्रम लाइव है
-                </div>
-              )}
-              {timeLeft.status === 'concluded' && (
-                <div className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-xs font-medium text-white/50 shadow-inner">
-                  This Event Has Concluded / कार्यक्रम संपन्न हो चुका है
-                </div>
-              )}
+              <div className="inline-flex items-center gap-2.5 rounded-2xl border border-[#138808]/40 bg-[#138808]/15 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-[#138808]/20 backdrop-blur-md">
+                <CheckCircle2 className="h-5 w-5 text-[#22c55e] shrink-0" />
+                <span>कार्यक्रम भव्यता के साथ संपन्न • Event Successfully Concluded</span>
+              </div>
             </div>
 
             {/* Interactive Call to Action Triggers */}
             <div className="mt-6 flex flex-wrap gap-3 items-center">
               <a 
-                href="#registration" 
-                className="inline-flex min-h-[46px] h-[46px] items-center justify-center rounded-xl bg-[#FF9933] px-6 text-[14px] font-bold text-[#090f19] shadow-[0_8px_24px_rgba(255,153,51,0.2)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_12px_32px_rgba(255,153,51,0.3)] active:scale-[0.98] outline-none focus-visible:ring-2 focus-visible:ring-[#ff9933]"
+                href="#teaser" 
+                className="inline-flex min-h-[46px] h-[46px] items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF9933] to-[#ff5500] px-6 text-[14px] font-bold text-[#090f19] shadow-[0_8px_24px_rgba(255,153,51,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(255,153,51,0.4)] hover:scale-105 active:scale-[0.98] outline-none"
               >
-                Collect Entry Pass / पास प्राप्त करें <ChevronRight className="ml-1 h-4 w-4 shrink-0 stroke-[2.5]" />
+                <Play className="h-4 w-4 fill-[#090f19]" /> Watch Full Recording / रिकॉर्डिंग देखें
               </a>
               <a 
-                href="#teaser" 
-                className="inline-flex min-h-[46px] h-[46px] items-center justify-center rounded-xl border border-white/20 bg-white/[0.03] px-6 text-[14px] font-bold text-white backdrop-blur-md transition-all duration-300 hover:bg-[#FF9933]/10 hover:border-[#FF9933]/50 hover:text-[#FF9933] active:scale-[0.98] outline-none focus-visible:ring-2 focus-visible:ring-[#ff9933]"
+                href="#highlights" 
+                className="inline-flex min-h-[46px] h-[46px] items-center justify-center rounded-xl border border-white/20 bg-white/[0.03] px-6 text-[14px] font-bold text-white backdrop-blur-md transition-all duration-300 hover:bg-[#FF9933]/10 hover:border-[#FF9933]/50 hover:text-[#FF9933] active:scale-[0.98] outline-none"
               >
-                ▶ Watch Official Teaser
+                ✨ Event Highlights & Gratitude
               </a>
               <a 
                 href="#about" 
-                className="inline-flex min-h-[46px] h-[46px] items-center justify-center rounded-xl border border-white/20 bg-white/[0.03] px-6 text-[14px] font-semibold text-white backdrop-blur-md transition-all duration-300 hover:bg-white/[0.08] hover:border-white/40 active:scale-[0.98] outline-none focus-visible:ring-2 focus-visible:ring-white"
+                className="inline-flex min-h-[46px] h-[46px] items-center justify-center rounded-xl border border-white/20 bg-white/[0.03] px-6 text-[14px] font-semibold text-white backdrop-blur-md transition-all duration-300 hover:bg-white/[0.08] hover:border-white/40 active:scale-[0.98] outline-none"
               >
-                Learn More
+                About Event
               </a>
               
               {/* Save the Date Dropdown Calendar */}
@@ -1284,9 +1252,9 @@ export default function ParamVirChakraPage() {
         <div className="mx-auto max-w-5xl relative z-10">
           
           <div className="mx-auto mb-12 max-w-3xl text-center">
-            <p className="mb-3 text-sm font-bold uppercase tracking-[0.25em] text-[#ff9933]">Watch Trailer</p>
-            <h2 className="font-serif text-3xl font-bold md:text-5xl text-white">Official Video Teaser</h2>
-            <p className="mt-4 text-white/60 text-[15px] md:text-lg">Experience the inspiring story before the event.</p>
+            <p className="mb-3 text-sm font-bold uppercase tracking-[0.25em] text-[#ff9933]">Watch Full Recording</p>
+            <h2 className="font-serif text-3xl font-bold md:text-5xl text-white">Official Event Recording</h2>
+            <p className="mt-4 text-white/60 text-[15px] md:text-lg">9 अगस्त 2026 को आयोजित भव्य कार्यक्रम का संपूर्ण वीडियो प्रसारण</p>
           </div>
 
           {/* YouTube Video Player with 16:9 ratio and Glassmorphism Container */}
@@ -1298,8 +1266,8 @@ export default function ParamVirChakraPage() {
             className="relative aspect-video w-full rounded-3xl overflow-hidden border border-white/10 bg-white/5 backdrop-blur-md p-2 md:p-4 shadow-2xl hover:border-[#ff9933]/30 transition-all duration-500 mb-8"
           >
             <iframe
-              src="https://www.youtube.com/embed/U2QBAxmlohw?rel=0&modestbranding=1"
-              title="Param Vir Chakra – Shauryagatha Official Teaser Video"
+              src="https://www.youtube.com/embed/NjthLLyx964?rel=0&modestbranding=1"
+              title="Param Vir Chakra – Shauryagatha Official Event Recording"
               width="100%"
               height="100%"
               style={{ border: 0 }}
@@ -1307,14 +1275,14 @@ export default function ParamVirChakraPage() {
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
               loading="lazy"
-              aria-label="Param Vir Chakra – Shauryagatha Official Teaser Video"
+              aria-label="Param Vir Chakra – Shauryagatha Official Event Recording"
             />
           </motion.div>
 
           {/* Video Description */}
           <div className="max-w-3xl mx-auto text-center mb-10">
             <p className="text-white/80 text-[15px] leading-relaxed md:text-base font-light">
-              Watch the official teaser trailer of <strong className="font-medium text-[#ff9933]">"Param Vir Chakra – Shauryagatha"</strong>, a cinematic tribute celebrating the courage, sacrifice and legacy of India's greatest heroes. 9 अगस्त को होने वाले भव्य कार्यक्रम का सीधा प्रसारण (Live Stream) देखने के लिए नीचे दिए गए बटन पर क्लिक करें।
+              दिनेश हॉल, नवरंगपुरा, अहमदाबाद में आयोजित <strong className="font-medium text-[#ff9933]">"परमवीर चक्र – शौर्यगाथा"</strong> के ऐतिहासिक राष्ट्रीय कार्यक्रम का पूरा वीडियो प्रसारण (Full Recording) देखें।
             </p>
           </div>
 
@@ -1324,24 +1292,24 @@ export default function ParamVirChakraPage() {
             {/* Primary Action Buttons */}
             <div className="flex flex-wrap justify-center gap-4">
               <a 
-                href="/pvclive" 
-                className="inline-flex min-h-[46px] items-center justify-center rounded-xl bg-gradient-to-r from-red-600 to-[#ff9933] px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-red-600/30 hover:scale-105 transition-all duration-300"
-              >
-                🔴 Live Stream Link / लाइव देखें
-              </a>
-              <a 
-                href="#registration" 
-                className="inline-flex min-h-[46px] items-center justify-center rounded-xl bg-[#ff9933] px-6 py-2.5 text-sm font-bold text-[#090f19] hover:bg-white transition-all duration-300 hover:scale-105"
-              >
-                Collect Entry Pass
-              </a>
-              <a 
-                href="https://www.youtube.com/watch?v=U2QBAxmlohw" 
+                href="https://www.youtube.com/watch?v=NjthLLyx964" 
                 target="_blank" 
                 rel="noopener noreferrer" 
+                className="inline-flex min-h-[46px] items-center justify-center rounded-xl bg-gradient-to-r from-red-600 to-[#ff9933] px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-red-600/30 hover:scale-105 transition-all duration-300"
+              >
+                🔴 Watch on YouTube / यूट्यूब पर देखें <ExternalLink className="ml-1.5 h-4 w-4" />
+              </a>
+              <a 
+                href="#highlights" 
+                className="inline-flex min-h-[46px] items-center justify-center rounded-xl bg-[#ff9933] px-6 py-2.5 text-sm font-bold text-[#090f19] hover:bg-white transition-all duration-300 hover:scale-105"
+              >
+                ✨ Event Highlights & Gratitude
+              </a>
+              <a 
+                href="#about" 
                 className="inline-flex min-h-[46px] items-center justify-center rounded-xl border border-white/15 bg-white/5 px-6 py-2.5 text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300"
               >
-                Watch on YouTube <ExternalLink className="ml-1.5 h-4 w-4" />
+                About Event Details
               </a>
             </div>
 
@@ -1891,27 +1859,30 @@ export default function ParamVirChakraPage() {
         </div>
       </section>
 
-      {/* PASS COLLECTION & OFFLINE SUPPORT SECTION - PREMIUM TRICOLOR DESIGN */}
-      <section id="registration" className="relative overflow-hidden bg-[#050b13] px-5 py-24 text-white lg:px-8">
+      {/* EVENT CONCLUDED & GRATITUDE SECTION - PREMIUM TRICOLOR DESIGN */}
+      <section id="highlights" className="relative overflow-hidden bg-[#050b13] px-5 py-24 text-white lg:px-8">
         
         {/* Cinematic background light layers */}
         <div className="absolute left-1/4 top-1/3 -z-10 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#ff9933]/6 blur-[130px] pointer-events-none" />
         <div className="absolute right-1/4 bottom-1/3 -z-10 h-[500px] w-[500px] translate-x-1/2 translate-y-1/2 rounded-full bg-[#138808]/5 blur-[130px] pointer-events-none" />
         <div className="absolute inset-0 -z-10 opacity-[0.015] bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
 
-        <div className="relative mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[1fr_1.1fr]">
+        <div className="relative mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
           
-          {/* Left Column: Offline Collection Announcement */}
+          {/* Left Column: Heartfelt Gratitude & Event Success Message */}
           <div className="flex flex-col justify-center">
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#ff9933]/10 border border-[#ff9933]/30 px-3.5 py-1 text-xs font-bold text-[#ff9933] uppercase tracking-widest w-fit mb-4">
-              <span className="h-2 w-2 rounded-full bg-[#ff9933]" /> Pass Collection & Support
+            <div className="inline-flex items-center gap-2 rounded-full bg-[#138808]/15 border border-[#138808]/30 px-3.5 py-1 text-xs font-bold text-[#138808] uppercase tracking-widest w-fit mb-4">
+              <span className="h-2 w-2 rounded-full bg-[#138808]" /> Event Concluded • आभार एवं कृतज्ञता
             </div>
-            <h2 className="font-serif text-4xl font-bold tracking-tight text-white md:text-5xl lg:text-6xl">
-              Offline Entry Passes <br />
-              <span className="text-[#FF9933]">पास वितरण विवरण</span>
+            <h2 className="font-serif text-3xl font-bold tracking-tight text-white md:text-5xl lg:text-6xl">
+              भव्य एवं गरिमामयी आयोजन <br />
+              <span className="text-[#FF9933]">सफलतापूर्वक संपन्न</span>
             </h2>
             <p className="mt-6 text-[15px] leading-relaxed text-white/80 font-light">
-              ऑनलाइन पास बुकिंग अब समाप्त हो चुकी है (Online Booking Closed)। जिन महानुभावों को कार्यक्रम में सम्मिलित होने के लिए प्रवेश पास (Physical Entry Pass) चाहिए, वे नीचे दिए गए पते से सीधे प्राप्त कर सकते हैं अथवा हमारे सहायता नंबर पर संपर्क करें।
+              9 अगस्त 2026 को दिनेश हॉल, नवरंगपुरा, अहमदाबाद में आयोजित <strong>"परमवीर चक्र – शौर्यगाथा"</strong> का भव्य राष्ट्रीय कार्यक्रम अपार जनसमूह, देशभक्ति और प्रेरणा के साथ सफलतापूर्वक संपन्न हुआ।
+            </p>
+            <p className="mt-3 text-[14.5px] leading-relaxed text-white/70 font-light">
+              इस ऐतिहासिक अवसर पर पधारे समस्त देशभक्त नागरिकों, युवाओं, विद्यार्थियों एवं परिवारों का श्री वर्धमान श्वेतांबर मूर्तिपूजक जैन संघ हार्दिक आभार एवं साधुवाद व्यक्त करता है।
             </p>
             
             {/* Plaque-style Sangh info box (Green Accent) */}
@@ -1925,87 +1896,62 @@ export default function ParamVirChakraPage() {
             </div>
           </div>
 
-          {/* Right Column: Pass Collection Venue & Contact Card */}
+          {/* Right Column: Watch Recording & Contact Card */}
           <article className="relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-[#0c1a2e]/60 p-8 text-center shadow-[0_30px_70px_rgba(0,0,0,0.5)] backdrop-blur-2xl md:p-12 group hover:border-white/20 transition-all duration-300">
             {/* Subtle tricolor top bar */}
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#ff9933] via-white/50 to-[#138808]" />
             
-            {/* Online Booking Closed Badge */}
-            <div className="flex justify-center mb-6">
-              <span className="inline-flex items-center gap-2 rounded-full bg-red-500/10 border border-red-500/30 px-4 py-1.5 text-xs font-bold text-red-400 uppercase tracking-wider">
-                <span className="h-2 w-2 rounded-full bg-red-500" /> Online Registration Closed
-              </span>
-            </div>
-
             <PremiumEmblem tone="light" />
             
-            <p className="mt-6 text-[11px] font-extrabold uppercase tracking-[0.25em] text-[#ff9933]">Pass Collection Centre</p>
-            <h3 className="mt-2 font-serif text-2xl font-bold text-white md:text-3xl">पास यहाँ से प्राप्त करें</h3>
+            <p className="mt-6 text-[11px] font-extrabold uppercase tracking-[0.25em] text-[#ff9933]">Watch Full Recording</p>
+            <h3 className="mt-2 font-serif text-2xl font-bold text-white md:text-3xl">सम्पूर्ण कार्यक्रम का वीडियो देखें</h3>
             
-            {/* Venue Address Box */}
-            <div className="mt-6 p-6 rounded-2xl border border-white/10 bg-white/[0.03] text-left">
-              <div className="flex items-start gap-3.5">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#ff9933]/15 text-[#ff9933]">
-                  <MapPin className="h-5 w-5" />
-                </span>
-                <div>
-                  <h4 className="text-[16px] font-bold text-white">Shri Vardhaman Jain Shwetambar Murtipujak Sangh</h4>
-                  <p className="mt-1 text-[13.5px] leading-relaxed text-white/70">
-                    उस्मानपुरा चार रास्ता, आश्रम रोड, अहमदाबाद – 380014, गुजरात, भारत<br />
-                    <span className="text-white/50 text-[12px]">(Usmanpura Char Rasta, Ashram Road, Ahmedabad – 380014)</span>
-                  </p>
-                </div>
-              </div>
+            <p className="mt-3 text-sm text-white/70 leading-relaxed font-light">
+              यदि आप कार्यक्रम में उपस्थित नहीं हो सके, तो आप यूट्यूब पर संपूर्ण लाइव प्रसारण की रिकॉर्डिंग देख सकते हैं।
+            </p>
 
-              <div className="mt-4 pt-4 border-t border-white/5 flex flex-wrap gap-3">
-                <a 
-                  href="https://maps.google.com/?q=Shri+Vardhaman+Jain+Shwetambar+Murtipujak+Sangh+Usmanpura+Ahmedabad" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="inline-flex items-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 px-4 py-2 text-xs font-bold text-white transition-all hover:scale-[1.02]"
+            <div className="mt-6 flex flex-col gap-3">
+              <a
+                href="/pvclive"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#ff9933] to-[#ff5500] px-6 py-3.5 text-sm font-bold text-[#040b14] shadow-[0_8px_30px_rgba(255,85,0,0.3)] hover:scale-105 transition-all duration-300"
+              >
+                <Play className="h-4 w-4 fill-current" /> Watch Full Live Recording / लाइव रिकॉर्डिंग देखें
+              </a>
+              <a
+                href="#teaser"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 px-6 py-3 text-xs font-semibold text-white/80 hover:text-white transition-all duration-300"
+              >
+                Watch Recording on Web / वेब पर देखें
+              </a>
+            </div>
+
+            {/* Support Helpline Box */}
+            <div className="mt-6 pt-5 border-t border-white/5 flex items-center justify-between flex-wrap gap-4 text-left">
+              <div>
+                <p className="text-[10.5px] font-bold uppercase tracking-wider text-white/40">Studio & Sangh Helpline</p>
+                <a href="tel:+916352188150" className="text-sm font-bold text-white hover:text-[#ff9933] transition-colors">
+                  +91 63521 88150
+                </a>
+              </div>
+              <div className="flex gap-2">
+                <a
+                  href="tel:+916352188150"
+                  className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-colors"
+                  title="Call Support"
                 >
-                  <Navigation className="h-3.5 w-3.5 text-[#ff9933]" /> Open in Google Maps
+                  <Phone className="h-4 w-4 text-[#ff9933]" />
+                </a>
+                <a
+                  href="https://wa.me/916352188150"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-colors"
+                  title="WhatsApp Support"
+                >
+                  <MessageCircle className="h-4 w-4 text-[#25D366]" />
                 </a>
               </div>
             </div>
-
-            {/* Helpline / Call Support Box */}
-            <div className="mt-5 p-5 rounded-2xl border border-[#138808]/20 bg-[#138808]/5 text-left">
-              <div className="flex items-center justify-between flex-wrap gap-4">
-                <div className="flex items-center gap-3">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#138808]/20 text-[#138808]">
-                    <Phone className="h-5 w-5" />
-                  </span>
-                  <div>
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-[#138808]">Call Support Helpline</p>
-                    <a href="tel:+916352188150" className="text-lg font-bold text-white hover:text-[#ff9933] transition-colors">
-                      +91 63521 88150
-                    </a>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <a 
-                    href="tel:+916352188150"
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-[#138808] hover:bg-[#138808]/80 px-4 py-2 text-xs font-bold text-white shadow-lg shadow-[#138808]/20 transition-all hover:scale-105"
-                  >
-                    <Phone className="h-3.5 w-3.5" /> Call Now
-                  </a>
-                  <a 
-                    href="https://wa.me/916352188150?text=Jai%20Hind!%20I%20need%20passes%20for%20Param%20Vir%20Chakra%20Event."
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-[#25D366] hover:bg-[#25D366]/80 px-4 py-2 text-xs font-bold text-white shadow-lg shadow-[#25D366]/20 transition-all hover:scale-105"
-                  >
-                    <MessageCircle className="h-3.5 w-3.5" /> WhatsApp
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <p className="mt-5 text-[12px] text-white/50">
-              पास सीमित संख्या में उपलब्ध हैं। कृपया पूर्व में संपर्क करके प्राप्त करें।
-            </p>
           </article>
         </div>
       </section>

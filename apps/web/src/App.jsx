@@ -1,10 +1,9 @@
 import React from 'react';
-import { Route, Routes, BrowserRouter as Router } from 'react-router-dom';
+import { Route, Routes, BrowserRouter as Router, Navigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import ScrollToTop from '@/components/ScrollToTop.jsx';
 import ParamVirChakraPage from '@/pages/ParamVirChakraPage.jsx';
 import PrivacyPolicyPage from '@/pages/PrivacyPolicyPage.jsx';
-import PassCollectionPage from '@/pages/PassCollectionPage.jsx';
 import VardhmanComingSoonPage from '@/pages/VardhmanComingSoonPage.jsx';
 import AdminPassGeneratorPage from '@/pages/AdminPassGeneratorPage.jsx';
 import PVCLiveRedirect from '@/pages/PVCLiveRedirect.jsx';
@@ -17,7 +16,7 @@ function App() {
                 <Route path="/" element={<VardhmanComingSoonPage />} />
                 <Route path="/param-vir-chakra" element={<ParamVirChakraPage />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-                <Route path="/pass-collection" element={<PassCollectionPage />} />
+                <Route path="/pass-collection" element={<Navigate to="/param-vir-chakra" replace />} />
                 <Route path="/admin/pass-generator" element={<AdminPassGeneratorPage />} />
                 <Route path="/pvclive" element={<PVCLiveRedirect />} />
                 <Route path="*" element={<VardhmanComingSoonPage />} />
