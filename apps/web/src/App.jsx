@@ -2,9 +2,9 @@ import React from 'react';
 import { Route, Routes, BrowserRouter as Router, Navigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import ScrollToTop from '@/components/ScrollToTop.jsx';
+import HomePage from '@/pages/HomePage.jsx';
 import ParamVirChakraPage from '@/pages/ParamVirChakraPage.jsx';
 import PrivacyPolicyPage from '@/pages/PrivacyPolicyPage.jsx';
-import VardhmanComingSoonPage from '@/pages/VardhmanComingSoonPage.jsx';
 import AdminPassGeneratorPage from '@/pages/AdminPassGeneratorPage.jsx';
 import PVCLiveRedirect from '@/pages/PVCLiveRedirect.jsx';
 
@@ -13,13 +13,13 @@ function App() {
         <Router>
             <ScrollToTop />
             <Routes>
-                <Route path="/" element={<VardhmanComingSoonPage />} />
+                <Route path="/" element={<HomePage />} />
                 <Route path="/param-vir-chakra" element={<ParamVirChakraPage />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
                 <Route path="/pass-collection" element={<Navigate to="/param-vir-chakra" replace />} />
                 <Route path="/admin/pass-generator" element={<AdminPassGeneratorPage />} />
                 <Route path="/pvclive" element={<PVCLiveRedirect />} />
-                <Route path="*" element={<VardhmanComingSoonPage />} />
+                <Route path="*" element={<HomePage />} />
             </Routes>
             <Toaster position="bottom-right" theme="dark" />
         </Router>
