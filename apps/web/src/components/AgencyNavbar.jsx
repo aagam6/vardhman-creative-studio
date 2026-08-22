@@ -119,6 +119,7 @@ export default function AgencyNavbar() {
         {/* Mobile Menu Trigger */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
+          aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
           className="md:hidden text-white hover:text-purple-500 transition-colors focus:outline-none"
         >
           {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
