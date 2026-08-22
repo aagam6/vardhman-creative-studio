@@ -191,7 +191,7 @@ export default function ContactFormSection() {
                   >
                     <option value="video" className="bg-[#070d19] text-white">Cinematic Video Production</option>
                     <option value="branding" className="bg-[#070d19] text-white">Visual & Brand Identity</option>
-                    <option value="web" className="bg-[#070d19] text-white">UX/UI & Web Development</option>
+                    <option value="web" className="bg-[#070d19] text-white">Web Design & Development</option>
                     <option value="campaign" className="bg-[#070d19] text-white">Creative Launch Campaign</option>
                   </select>
                 </div>

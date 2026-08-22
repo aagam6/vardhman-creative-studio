@@ -15,7 +15,7 @@ export default function HomePage() {
         <title>Vardhman Creative Studio | Premium Creative Agency Ahmedabad</title>
         <meta 
           name="description" 
-          content="Vardhman Creative Studio is a premier creative design agency in Ahmedabad, Gujarat, India. We deliver cinematic video production, corporate branding, UI/UX, and high-end digital campaigns." 
+          content="Vardhman Creative Studio is a premier creative design agency in Ahmedabad, Gujarat, India. We deliver cinematic video production, corporate branding, web design, and high-end digital campaigns." 
         />
       </Helmet>
 
