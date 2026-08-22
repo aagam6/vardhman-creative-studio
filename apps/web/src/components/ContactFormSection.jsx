@@ -50,10 +50,44 @@ export default function ContactFormSection() {
 
     setLoading(true);
 
-    // Simulate API lead ingestion
+    const serviceLabels = {
+      video: 'Cinematic Video Production',
+      branding: 'Visual Identity & Branding',
+      web: 'Web Design & Development',
+      campaign: 'Creative Launch Campaigns'
+    };
+
+    const budgetLabels = {
+      low: 'Starter (< ₹50k)',
+      mid: 'Professional (₹50k - ₹1.5L)',
+      high: 'Enterprise (₹1.5L+)'
+    };
+
+    const serviceLabel = serviceLabels[formData.service] || formData.service;
+    const budgetLabel = budgetLabels[formData.budget] || formData.budget;
+
+    // Construct the WhatsApp message text
+    const textMessage = `Hello Aagam Shah,
+
+I would like to inquire about a project:
+*Name:* ${formData.name}
+*Email:* ${formData.email}
+*Phone:* ${formData.phone || 'N/A'}
+*Service Required:* ${serviceLabel}
+*Budget Range:* ${budgetLabel}
+*Project Details:* ${formData.message}`;
+
+    const encodedText = encodeURIComponent(textMessage);
+    const whatsappUrl = `https://wa.me/917990106225?text=${encodedText}`;
+
     setTimeout(() => {
       setLoading(false);
-      toast.success('Thank you! Your message has been sent successfully. We will contact you soon.');
+      
+      // Open WhatsApp link in a new tab
+      window.open(whatsappUrl, '_blank');
+      
+      toast.success('Thank you! Redirecting to WhatsApp to send your inquiry.');
+      
       setFormData({
         name: '',
         email: '',
@@ -62,7 +96,7 @@ export default function ContactFormSection() {
         budget: 'mid',
         message: ''
       });
-    }, 1500);
+    }, 1000);
   };
 
   const handleInputChange = (e) => {

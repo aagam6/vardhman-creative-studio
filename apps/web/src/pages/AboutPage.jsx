@@ -89,7 +89,7 @@ export default function AboutPage() {
                   We bridge the gap between imagination and execution, helping national brands, local leaders, and startups express their true character.
                 </p>
                 <p className="mt-6 text-xs font-bold uppercase tracking-wider text-gray-500">
-                  — Creative Director, Vardhman
+                  — Aagam Shah, Founder & Creative Director
                 </p>
               </div>
             </div>
