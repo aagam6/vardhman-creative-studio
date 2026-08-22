@@ -24,35 +24,35 @@ export default function PortfolioSection() {
     {
       title: 'Acadexa',
       category: 'web',
-      image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80',
+      image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=500&q=75',
       link: 'https://acadexa.in',
       description: 'Manage attendance, fees, exams, communication, and school operations from one smart ERP platform.'
     },
     {
       title: 'Vardhman Flow',
       category: 'web',
-      image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80',
+      image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=500&q=75',
       link: 'https://vardhmanflow.com',
       description: 'The most powerful WhatsApp marketing platform. Scale your business with automated campaigns, advanced analytics, and seamless API integration.'
     },
     {
       title: 'Zenith Premium Branding',
       category: 'branding',
-      image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80',
+      image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=500&q=75',
       link: '#',
       description: 'Corporate logo, luxury print collateral, and complete brand identity system.'
     },
     {
       title: 'Elevate Brand Film',
       category: 'video',
-      image: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&w=800&q=80',
+      image: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&w=500&q=75',
       link: '#',
       description: 'Cinematic promotional video and motion graphic spots for tech enterprise platforms.'
     },
     {
       title: 'Genesis Soundscape Promo',
       category: 'video',
-      image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80',
+      image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=500&q=75',
       link: '#',
       description: 'Dynamic audiovisual experience combining studio recordings with motion mapping.'
     }
