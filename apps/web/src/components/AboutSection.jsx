@@ -11,10 +11,7 @@ const AboutSection = () => {
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
         >
-          <span className="text-[10px] font-black tracking-[0.3em] uppercase text-orange-500">
-            Vardhman Creative Studio
-          </span>
-          <p className="text-xl sm:text-3xl font-light leading-relaxed text-white/90 mt-8">
+          <p className="text-xl sm:text-3xl font-light leading-relaxed text-white/90 mt-0">
             We craft stories that connect, inspire, and leave a lasting impression. Every frame we create is designed to elevate your brand.
           </p>
         </motion.div>
