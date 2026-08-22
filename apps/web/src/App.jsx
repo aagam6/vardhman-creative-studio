@@ -10,7 +10,7 @@ const ParamVirChakraPage = lazy(() => import('@/pages/ParamVirChakraPage.jsx'));
 const PrivacyPolicyPage = lazy(() => import('@/pages/PrivacyPolicyPage.jsx'));
 const AgencyPrivacyPolicyPage = lazy(() => import('@/pages/AgencyPrivacyPolicyPage.jsx'));
 const AgencyTermsOfServicePage = lazy(() => import('@/pages/AgencyTermsOfServicePage.jsx'));
-const AdminPassGeneratorPage = lazy(() => import('@/pages/AdminPassGeneratorPage.jsx'));
+// const AdminPassGeneratorPage = lazy(() => import('@/pages/AdminPassGeneratorPage.jsx'));
 const PVCLiveRedirect = lazy(() => import('@/pages/PVCLiveRedirect.jsx'));
 
 const PageLoader = () => (
@@ -35,8 +35,9 @@ function App() {
                     <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
                     <Route path="/privacy" element={<AgencyPrivacyPolicyPage />} />
                     <Route path="/terms" element={<AgencyTermsOfServicePage />} />
-                    <Route path="/pass-collection" element={<Navigate to="/param-vir-chakra" replace />} />
-                    <Route path="/admin/pass-generator" element={<AdminPassGeneratorPage />} />
+                    {/* Disabled routes */}
+                    {/* <Route path="/pass-collection" element={<Navigate to="/param-vir-chakra" replace />} /> */}
+                    {/* <Route path="/admin/pass-generator" element={<AdminPassGeneratorPage />} /> */}
                     <Route path="/pvclive" element={<PVCLiveRedirect />} />
                     <Route path="*" element={<HomePage />} />
                 </Routes>
