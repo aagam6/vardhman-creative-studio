@@ -68,13 +68,13 @@ export default function ContactFormSection() {
 
               {/* Contact info deck */}
               <div className="mt-8 space-y-5">
-                <a href="tel:+916352188150" className="flex items-center gap-4 group">
+                <a href="tel:+917990106225" className="flex items-center gap-4 group">
                   <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-purple-500/10 text-purple-400 border border-purple-500/10 group-hover:bg-purple-600 group-hover:text-white transition-all duration-300">
                     <Phone className="h-5 w-5" />
                   </span>
                   <div className="flex flex-col">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500">Call Us / WhatsApp</span>
-                    <span className="text-sm font-semibold text-white/90 group-hover:text-purple-400 transition-colors">+91 63521 88150</span>
+                    <span className="text-sm font-semibold text-white/90 group-hover:text-purple-400 transition-colors">+91 79901 06225</span>
                   </div>
                 </a>
 
@@ -87,16 +87,6 @@ export default function ContactFormSection() {
                     <span className="text-sm font-semibold text-white/90 group-hover:text-purple-400 transition-colors">vardhmancreativestudio@gmail.com</span>
                   </div>
                 </a>
-
-                <div className="flex items-center gap-4">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-purple-500/10 text-purple-400 border border-purple-500/10">
-                    <MapPin className="h-5 w-5" />
-                  </span>
-                  <div className="flex flex-col">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500">Studio Location</span>
-                    <span className="text-sm font-semibold text-white/90">Ahmedabad, Gujarat, India</span>
-                  </div>
-                </div>
               </div>
             </div>
 

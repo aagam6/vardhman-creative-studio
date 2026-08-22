@@ -130,7 +130,7 @@ const importantInfo = [
   'General seating is allotted on a First-Come, First-Served basis (seats are limited).',
   'Passes can be collected from Shri Vardhaman Jain Sangh, Usmanpura, Ahmedabad.',
   'Only participants carrying a valid Physical Entry Pass will be allowed entry into Dinesh Hall.',
-  'For assistance and passes, call our helpline at +91 63521 88150.'
+  'For assistance and passes, call our helpline at +91 79901 06225.'
 ];
 
 const termsAndConditions = [
@@ -179,11 +179,11 @@ const faqs = [
   },
   {
     question: "How and where do I collect my Physical Entry Pass?",
-    answer: "Online pass booking is now closed. You can collect your Physical Entry Pass directly from Shri Vardhaman Jain Shwetambar Murtipujak Sangh (Usmanpura Char Rasta, Ashram Road, Ahmedabad – 380014, Gujarat) or contact Support at +91 63521 88150."
+    answer: "Online pass booking is now closed. You can collect your Physical Entry Pass directly from Shri Vardhaman Jain Shwetambar Murtipujak Sangh (Usmanpura Char Rasta, Ashram Road, Ahmedabad – 380014, Gujarat) or contact Support at +91 79901 06225."
   },
   {
     question: "Is the online registration currently open?",
-    answer: "Online registration via Google Form has concluded. Passes can now be obtained directly from our collection venue at Shri Vardhaman Jain Sangh, Usmanpura, Ahmedabad or by calling Support at +91 63521 88150."
+    answer: "Online registration via Google Form has concluded. Passes can now be obtained directly from our collection venue at Shri Vardhaman Jain Sangh, Usmanpura, Ahmedabad or by calling Support at +91 79901 06225."
   },
   {
     question: "Is having an entry pass mandatory to attend this event?",
@@ -191,11 +191,11 @@ const faqs = [
   },
   {
     question: "What information must I provide to collect passes?",
-    answer: "You can visit the collection venue at Usmanpura, Ahmedabad or contact our support team at +91 63521 88150."
+    answer: "You can visit the collection venue at Usmanpura, Ahmedabad or contact our support team at +91 79901 06225."
   },
   {
     question: "What are the timings for pass collection?",
-    answer: "Pass collection is open at Shri Vardhaman Jain Sangh, Usmanpura. You can also call or WhatsApp +91 63521 88150 between 10:00 AM and 6:00 PM for assistance."
+    answer: "Pass collection is open at Shri Vardhaman Jain Sangh, Usmanpura. You can also call or WhatsApp +91 79901 06225 between 10:00 AM and 6:00 PM for assistance."
   },
   {
     question: "Is there an age limit for attendees of the event?",
@@ -215,7 +215,7 @@ const faqs = [
   },
   {
     question: "Can I get passes for multiple family members?",
-    answer: "Yes, you can collect passes for family members by visiting Shri Vardhaman Jain Sangh, Usmanpura, Ahmedabad or by calling Support at +91 63521 88150."
+    answer: "Yes, you can collect passes for family members by visiting Shri Vardhaman Jain Sangh, Usmanpura, Ahmedabad or by calling Support at +91 79901 06225."
   },
   {
     question: "What is the entry policy on the day of the event?",
@@ -239,7 +239,7 @@ const faqs = [
   },
   {
     question: "Whom can I contact for passes and queries?",
-    answer: "You can contact our support helpline at +91 63521 88150 via phone call or WhatsApp message. Support timings are Monday to Saturday, from 10:00 AM to 6:00 PM."
+    answer: "You can contact our support helpline at +91 79901 06225 via phone call or WhatsApp message. Support timings are Monday to Saturday, from 10:00 AM to 6:00 PM."
   },
   {
     question: "Is this event only for a specific community?",
@@ -259,7 +259,7 @@ const faqs = [
   },
   {
     question: "What should I do if I cannot attend the event after registering?",
-    answer: "Since seating is limited, if you are unable to attend, please inform the support team at +91 63521 88150 so your seat can be allocated to another participant."
+    answer: "Since seating is limited, if you are unable to attend, please inform the support team at +91 79901 06225 so your seat can be allocated to another participant."
   },
   {
     question: "What is the official website URL for the event?",
@@ -531,7 +531,7 @@ export default function ParamVirChakraPage() {
             addressCountry: "IN",
             postalCode: "380009"
           },
-          telephone: "+91 63521 88150"
+          telephone: "+91 79901 06225"
         },
 
         organizer: {
@@ -1929,20 +1929,20 @@ export default function ParamVirChakraPage() {
             <div className="mt-6 pt-5 border-t border-white/5 flex items-center justify-between flex-wrap gap-4 text-left">
               <div>
                 <p className="text-[10.5px] font-bold uppercase tracking-wider text-white/40">Studio & Sangh Helpline</p>
-                <a href="tel:+916352188150" className="text-sm font-bold text-white hover:text-[#ff9933] transition-colors">
-                  +91 63521 88150
+                <a href="tel:+917990106225" className="text-sm font-bold text-white hover:text-[#ff9933] transition-colors">
+                  +91 79901 06225
                 </a>
               </div>
               <div className="flex gap-2">
                 <a
-                  href="tel:+916352188150"
+                  href="tel:+917990106225"
                   className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-colors"
                   title="Call Support"
                 >
                   <Phone className="h-4 w-4 text-[#ff9933]" />
                 </a>
                 <a
-                  href="https://wa.me/916352188150"
+                  href="https://wa.me/917990106225"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-colors"
@@ -2258,7 +2258,7 @@ export default function ParamVirChakraPage() {
               <div className="bg-[#ff9933]/5 border-l-4 border-[#ff9933] p-5 rounded-r-2xl mb-6">
                 <p className="text-xs uppercase font-extrabold text-[#ff9933] mb-1">Direct Answer / मुख्य उत्तर</p>
                 <p className="font-semibold text-sm text-[#172033] leading-relaxed">
-                  Online registration has concluded. Physical Entry Passes can now be collected directly from Shri Vardhaman Jain Shwetambar Murtipujak Sangh (Usmanpura Char Rasta, Ashram Road, Ahmedabad – 380014) or via Call Support at +91 63521 88150.
+                  Online registration has concluded. Physical Entry Passes can now be collected directly from Shri Vardhaman Jain Shwetambar Murtipujak Sangh (Usmanpura Char Rasta, Ashram Road, Ahmedabad – 380014) or via Call Support at +91 79901 06225.
                 </p>
               </div>
 
@@ -2268,7 +2268,7 @@ export default function ParamVirChakraPage() {
                 </p>
                 <ol className="list-decimal list-inside space-y-3 ml-2">
                   <li><strong>कलेक्शन सेंटर:</strong> श्री वर्धमान जैन श्वेतांबर मूर्तिपूजक संघ, उस्मानपुरा चार रास्ता, आश्रम रोड, अहमदाबाद – 380014 से पास प्राप्त करें।</li>
-                  <li><strong>हेल्पलाइन सपोर्ट:</strong> किसी भी सहायता अथवा पास की जानकारी हेतु <strong>+91 63521 88150</strong> पर कॉल या व्हाट्सऐप करें।</li>
+                  <li><strong>हेल्पलाइन सपोर्ट:</strong> किसी भी सहायता अथवा पास की जानकारी हेतु <strong>+91 79901 06225</strong> पर कॉल या व्हाट्सऐप करें।</li>
                   <li><strong>भौतिक पास (Physical Pass):</strong> दिनेश हॉल, अहमदाबाद में प्रवेश केवल वैध फिजिकल पास धारकों को ही दिया जाएगा।</li>
                   <li><strong>समय पर प्रवेश:</strong> सीटें सीमित हैं, इसलिए कार्यक्रम के दिन सुबह 8:45 बजे तक स्थान ग्रहण कर लें।</li>
                 </ol>

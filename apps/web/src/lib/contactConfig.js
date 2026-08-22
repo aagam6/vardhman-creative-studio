@@ -1,7 +1,7 @@
 export const contactConfig = {
   // Contact details
-  contactPhone: "+91 63521 88150",
-  contactWhatsApp: "+91 63521 88150",
+  contactPhone: "+91 79901 06225",
+  contactWhatsApp: "+91 79901 06225",
   supportEmail: "vardhmancreativestudio@gmail.com",
   
   // Organization details
