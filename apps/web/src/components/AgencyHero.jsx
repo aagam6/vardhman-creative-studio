@@ -94,28 +94,18 @@ export default function AgencyHero() {
           </motion.div>
 
           {/* Main Title Heading */}
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-4xl sm:text-6xl md:text-7xl lg:text-8.5xl font-bold mb-6 leading-[1.15] tracking-[0.05em] text-white"
-          >
+          <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8.5xl font-bold mb-6 leading-[1.15] tracking-[0.05em] text-white">
             We craft stories <br />
             that elevate{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-300 drop-shadow-[0_0_15px_rgba(168,85,247,0.35)]">
               Brands.
             </span>
-          </motion.h1>
+          </h1>
 
           {/* Subheading text */}
-          <motion.p
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto mb-10 font-light tracking-wide leading-relaxed"
-          >
+          <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto mb-10 font-light tracking-wide leading-relaxed">
             Cinematic storytelling, bold visual identity, and immersive web experiences designed to engage audiences and make your brand unforgettable.
-          </motion.p>
+          </p>
 
           {/* CTA Action Buttons */}
           <motion.div 
