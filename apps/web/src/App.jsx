@@ -3,6 +3,8 @@ import { Route, Routes, BrowserRouter as Router, Navigate } from 'react-router-d
 import { Toaster } from 'sonner';
 import ScrollToTop from '@/components/ScrollToTop.jsx';
 import HomePage from '@/pages/HomePage.jsx';
+import AboutPage from '@/pages/AboutPage.jsx';
+import ServicesPage from '@/pages/ServicesPage.jsx';
 import ParamVirChakraPage from '@/pages/ParamVirChakraPage.jsx';
 import PrivacyPolicyPage from '@/pages/PrivacyPolicyPage.jsx';
 import AdminPassGeneratorPage from '@/pages/AdminPassGeneratorPage.jsx';
@@ -14,6 +16,8 @@ function App() {
             <ScrollToTop />
             <Routes>
                 <Route path="/" element={<HomePage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/services" element={<ServicesPage />} />
                 <Route path="/param-vir-chakra" element={<ParamVirChakraPage />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
                 <Route path="/pass-collection" element={<Navigate to="/param-vir-chakra" replace />} />
