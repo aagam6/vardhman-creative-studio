@@ -21,18 +21,18 @@ export default function PortfolioSection() {
       description: 'Web development, offline pass generator, and live stream routing for a mega patriotic event.'
     },
     {
-      title: 'Acadexa Guidance Platform',
+      title: 'Acadexa',
       category: 'web',
       image: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80',
       link: 'https://acadexa.in',
-      description: 'Comprehensive academic guidance and counseling portal developed for seamless consulting.'
+      description: 'Manage attendance, fees, exams, communication, and school operations from one smart ERP platform.'
     },
     {
-      title: 'Vardhman Flow Systems',
+      title: 'Vardhman Flow',
       category: 'web',
       image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80',
       link: 'https://vardhmanflow.com',
-      description: 'Advanced enterprise process workflow engine and organizational pipeline management.'
+      description: 'The most powerful WhatsApp marketing platform. Scale your business with automated campaigns, advanced analytics, and seamless API integration.'
     },
     {
       title: 'Zenith Premium Branding',
