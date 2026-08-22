@@ -47,6 +47,7 @@ const FooterSection = () => {
 									href="https://www.instagram.com/vardhmancreativestudio/"
 									target="_blank"
 									rel="noopener noreferrer"
+									aria-label="Follow Vardhman Creative Studio on Instagram"
 									className="group p-3 rounded-full bg-white/5 backdrop-blur-md border border-white/10 
                   hover:border-primary/40 transition-all duration-300 hover:scale-110"
 								>
@@ -58,6 +59,7 @@ const FooterSection = () => {
 									href="https://www.linkedin.com/company/vardhmancreativestudio"
 									target="_blank"
 									rel="noopener noreferrer"
+									aria-label="Follow Vardhman Creative Studio on LinkedIn"
 									className="group p-3 rounded-full bg-white/5 backdrop-blur-md border border-white/10 
                   hover:border-primary/40 transition-all duration-300 hover:scale-110"
 								>
@@ -69,6 +71,7 @@ const FooterSection = () => {
 									href="https://www.facebook.com/people/Vardhmancreativestudio"
 									target="_blank"
 									rel="noopener noreferrer"
+									aria-label="Follow Vardhman Creative Studio on Facebook"
 									className="group p-3 rounded-full bg-white/5 backdrop-blur-md border border-white/10 
                   hover:border-primary/40 transition-all duration-300 hover:scale-110"
 								>
@@ -80,6 +83,7 @@ const FooterSection = () => {
 									href="https://www.youtube.com/@vardhmancreativestudio"
 									target="_blank"
 									rel="noopener noreferrer"
+									aria-label="Follow Vardhman Creative Studio on YouTube"
 									className="group p-3 rounded-full bg-white/5 backdrop-blur-md border border-white/10 
                   hover:border-primary/40 transition-all duration-300 hover:scale-110"
 								>

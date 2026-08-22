@@ -24,7 +24,7 @@ export default function PortfolioSection() {
     {
       title: 'Acadexa',
       category: 'web',
-      image: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80',
+      image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80',
       link: 'https://acadexa.in',
       description: 'Manage attendance, fees, exams, communication, and school operations from one smart ERP platform.'
     },
@@ -126,6 +126,7 @@ export default function PortfolioSection() {
                     target={p.link.startsWith('http') ? '_blank' : undefined}
                     rel={p.link.startsWith('http') ? 'noopener noreferrer' : undefined}
                     onClick={(e) => handleCardClick(e, p)}
+                    aria-label={`View details for ${p.title}`}
                     className="absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-black/60 border border-white/10 text-white backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 hover:bg-purple-600 hover:border-purple-600"
                   >
                     <ArrowUpRight className="h-4 w-4" />
