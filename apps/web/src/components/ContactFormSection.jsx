@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Send, CheckCircle2 } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
+import { Mail, Phone, Send, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function ContactFormSection() {
+  const location = useLocation();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -14,6 +16,30 @@ export default function ContactFormSection() {
   });
 
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const serviceParam = params.get('service');
+    if (serviceParam && ['video', 'branding', 'web', 'campaign'].includes(serviceParam)) {
+      setFormData((prev) => ({ ...prev, service: serviceParam }));
+      
+      setTimeout(() => {
+        const element = document.getElementById('contact');
+        if (element) {
+          const offset = 80;
+          const bodyRect = document.body.getBoundingClientRect().top;
+          const elementRect = element.getBoundingClientRect().top;
+          const elementPosition = elementRect - bodyRect;
+          const offsetPosition = elementPosition - offset;
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+        }
+      }, 300);
+    }
+  }, [location]);
 
   const handleSubmit = (e) => {
     e.preventDefault();

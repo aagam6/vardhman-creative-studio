@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, X } from 'lucide-react';
 
 export default function PortfolioSection() {
   const [filter, setFilter] = useState('all');
+  const [selectedProject, setSelectedProject] = useState(null);
 
   const categories = [
     { id: 'all', label: 'All Projects' },
@@ -61,6 +62,13 @@ export default function PortfolioSection() {
     ? projects 
     : projects.filter(p => p.category === filter);
 
+  const handleCardClick = (e, project) => {
+    if (project.link === '#') {
+      e.preventDefault();
+      setSelectedProject(project);
+    }
+  };
+
   return (
     <section id="portfolio" className="py-24 md:py-32 relative z-10 bg-black/90">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -99,7 +107,8 @@ export default function PortfolioSection() {
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.4 }}
                 key={p.title}
-                className="relative overflow-hidden rounded-3xl border border-white/5 bg-[#0a0f18] shadow-xl group hover:border-purple-500/30 transition-all duration-500 flex flex-col h-full"
+                className="relative overflow-hidden rounded-3xl border border-white/5 bg-[#0a0f18] shadow-xl group hover:border-purple-500/30 transition-all duration-500 flex flex-col h-full cursor-pointer"
+                onClick={(e) => handleCardClick(e, p)}
               >
                 {/* Image Container with Hover Zoom */}
                 <div className="relative aspect-[4/3] w-full overflow-hidden">
@@ -116,6 +125,7 @@ export default function PortfolioSection() {
                     href={p.link}
                     target={p.link.startsWith('http') ? '_blank' : undefined}
                     rel={p.link.startsWith('http') ? 'noopener noreferrer' : undefined}
+                    onClick={(e) => handleCardClick(e, p)}
                     className="absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-black/60 border border-white/10 text-white backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 hover:bg-purple-600 hover:border-purple-600"
                   >
                     <ArrowUpRight className="h-4 w-4" />
@@ -141,6 +151,7 @@ export default function PortfolioSection() {
                       href={p.link}
                       target={p.link.startsWith('http') ? '_blank' : undefined}
                       rel={p.link.startsWith('http') ? 'noopener noreferrer' : undefined}
+                      onClick={(e) => handleCardClick(e, p)}
                       className="inline-flex items-center gap-1 text-xs font-semibold text-white/75 group-hover:text-white transition-colors"
                     >
                       Explore Project <span className="inline-block transform transition-transform group-hover:translate-x-1 group-hover:-translate-y-0.5">→</span>
@@ -152,6 +163,86 @@ export default function PortfolioSection() {
           </AnimatePresence>
         </motion.div>
       </div>
+
+      {/* Project Detail Modal Overlay */}
+      <AnimatePresence>
+        {selectedProject && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md text-left">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.3 }}
+              className="relative w-full max-w-2xl overflow-hidden rounded-[2rem] border border-white/10 bg-[#070d17] p-6 sm:p-10 shadow-2xl backdrop-blur-2xl"
+            >
+              {/* Subtle top indicator */}
+              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-purple-500 to-indigo-500" />
+              
+              {/* Close Button */}
+              <button
+                onClick={() => setSelectedProject(null)}
+                className="absolute top-5 right-5 p-2 rounded-full hover:bg-white/5 text-gray-400 hover:text-white transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-purple-400">
+                {selectedProject.category === 'web' ? 'Web Design & Code' : selectedProject.category === 'video' ? 'Cinematic Video' : 'Visual Identity & Branding'}
+              </span>
+              
+              <h3 className="mt-2 text-2xl sm:text-3xl font-bold text-white font-serif tracking-tight pr-8">
+                {selectedProject.title}
+              </h3>
+
+              {/* Project Image */}
+              <div className="mt-6 aspect-video w-full overflow-hidden rounded-2xl border border-white/5 shadow-inner">
+                <img 
+                  src={selectedProject.image} 
+                  alt={selectedProject.title} 
+                  className="h-full w-full object-cover" 
+                />
+              </div>
+
+              <p className="mt-6 text-sm sm:text-base text-gray-300 leading-relaxed font-light">
+                {selectedProject.description}
+              </p>
+
+              {/* Action Buttons */}
+              <div className="mt-8 pt-6 border-t border-white/5 flex flex-wrap gap-3">
+                <a
+                  href="#contact"
+                  onClick={() => {
+                    setSelectedProject(null);
+                    setTimeout(() => {
+                      const el = document.getElementById('contact');
+                      if (el) {
+                        const offset = 80;
+                        const bodyRect = document.body.getBoundingClientRect().top;
+                        const elementRect = el.getBoundingClientRect().top;
+                        const elementPosition = elementRect - bodyRect;
+                        const offsetPosition = elementPosition - offset;
+                        window.scrollTo({
+                          top: offsetPosition,
+                          behavior: 'smooth'
+                        });
+                      }
+                    }, 100);
+                  }}
+                  className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs uppercase tracking-wider px-6 transition-all duration-300"
+                >
+                  Start Similar Project
+                </a>
+                <button
+                  onClick={() => setSelectedProject(null)}
+                  className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold text-xs uppercase tracking-wider px-6 transition-all duration-300"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }
