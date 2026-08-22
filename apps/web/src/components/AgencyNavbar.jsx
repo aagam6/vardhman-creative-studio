@@ -55,9 +55,14 @@ export default function AgencyNavbar() {
         <a 
           href="#home" 
           onClick={(e) => handleLinkClick(e, '#home')}
-          className="text-lg font-bold tracking-[0.2em] text-white uppercase hover:opacity-80 transition-opacity"
+          className="flex flex-col items-start leading-none group"
         >
-          Vardhman<span className="text-purple-500">.</span>
+          <span className="text-[17px] font-black tracking-[0.18em] text-white uppercase transition-opacity duration-300 group-hover:opacity-80">
+            Vardhman<span className="text-purple-500">.</span>
+          </span>
+          <span className="text-[8px] font-bold tracking-[0.28em] text-gray-400 uppercase mt-1">
+            Creative Studio
+          </span>
         </a>
 
         {/* Desktop Navigation Links */}
