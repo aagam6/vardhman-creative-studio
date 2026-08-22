@@ -74,24 +74,14 @@ export default function AgencyHero() {
       </div>
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 text-center">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8 }}
-          className="flex flex-col items-center"
-        >
+        <div className="flex flex-col items-center">
           {/* Badge */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="mb-8"
-          >
+          <div className="mb-8">
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-semibold tracking-wider uppercase">
               <Sparkles className="w-3.5 h-3.5" />
               Creative Agency Studio
             </span>
-          </motion.div>
+          </div>
 
           {/* Main Title Heading */}
           <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8.5xl font-bold mb-6 leading-[1.15] tracking-[0.05em] text-white">
@@ -130,7 +120,7 @@ export default function AgencyHero() {
               Explore Portfolio
             </Button>
           </motion.div>
-        </motion.div>
+        </div>
       </div>
 
       {/* Bottom Glow Divider */}
