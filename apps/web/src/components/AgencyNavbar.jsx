@@ -81,10 +81,10 @@ export default function AgencyNavbar() {
         <Link 
           to="/" 
           onClick={handleLogoClick}
-          className="flex flex-col items-start leading-[1.1] group text-left"
+          className="flex flex-col items-center leading-[1.1] group text-center"
         >
           <span className="text-xl font-black tracking-[0.16em] text-white uppercase transition-opacity duration-300 group-hover:opacity-85">
-            Vardhman<span className="text-purple-500">.</span>
+            Vardhman
           </span>
           <span className="text-[9px] font-bold tracking-[0.24em] text-gray-400 uppercase mt-0.5">
             Creative Studio
