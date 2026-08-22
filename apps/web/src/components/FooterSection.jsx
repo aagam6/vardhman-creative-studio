@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Instagram, Linkedin, Youtube, Facebook } from 'lucide-react';
 import AnimatedSection, { AnimatedItem } from './AnimatedSection.jsx';
 
@@ -99,21 +100,21 @@ const FooterSection = () => {
 
 							<div className="flex gap-8">
 
-								<a
-									href="#"
+								<Link
+									to="/privacy"
 									className="relative hover:text-primary transition-all duration-300 group"
 								>
 									Privacy Policy
 									<span className="absolute left-0 -bottom-1 w-0 h-[1px] bg-primary transition-all duration-300 group-hover:w-full"></span>
-								</a>
+								</Link>
 
-								<a
-									href="#"
+								<Link
+									to="/terms"
 									className="relative hover:text-primary transition-all duration-300 group"
 								>
 									Terms of Service
 									<span className="absolute left-0 -bottom-1 w-0 h-[1px] bg-primary transition-all duration-300 group-hover:w-full"></span>
-								</a>
+								</Link>
 
 							</div>
 						</div>

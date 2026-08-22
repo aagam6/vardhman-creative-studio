@@ -7,6 +7,8 @@ import AboutPage from '@/pages/AboutPage.jsx';
 import ServicesPage from '@/pages/ServicesPage.jsx';
 import ParamVirChakraPage from '@/pages/ParamVirChakraPage.jsx';
 import PrivacyPolicyPage from '@/pages/PrivacyPolicyPage.jsx';
+import AgencyPrivacyPolicyPage from '@/pages/AgencyPrivacyPolicyPage.jsx';
+import AgencyTermsOfServicePage from '@/pages/AgencyTermsOfServicePage.jsx';
 import AdminPassGeneratorPage from '@/pages/AdminPassGeneratorPage.jsx';
 import PVCLiveRedirect from '@/pages/PVCLiveRedirect.jsx';
 
@@ -20,6 +22,8 @@ function App() {
                 <Route path="/services" element={<ServicesPage />} />
                 <Route path="/param-vir-chakra" element={<ParamVirChakraPage />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+                <Route path="/privacy" element={<AgencyPrivacyPolicyPage />} />
+                <Route path="/terms" element={<AgencyTermsOfServicePage />} />
                 <Route path="/pass-collection" element={<Navigate to="/param-vir-chakra" replace />} />
                 <Route path="/admin/pass-generator" element={<AdminPassGeneratorPage />} />
                 <Route path="/pvclive" element={<PVCLiveRedirect />} />
