@@ -15,15 +15,11 @@ export default function PortfolioSection() {
 
   const projects = [
     {
-      title: 'Param Vir Chakra - Shaurya Gatha',
-      category: 'web',
-      image: 'https://vardhmancreativestudio.com/assets/param-vir-chakra-live.jpg',
-      link: '/param-vir-chakra',
-      description: 'Web development, offline pass generator, and live stream routing for a mega patriotic event.'
-    },
-    {
       title: 'Acadexa',
       category: 'web',
+      featured: true,
+      badge: 'Live ERP Platform',
+      tag: 'School ERP SaaS',
       image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=500&q=75',
       link: 'https://acadexa.in',
       description: 'Manage attendance, fees, exams, communication, and school operations from one smart ERP platform.'
@@ -31,9 +27,20 @@ export default function PortfolioSection() {
     {
       title: 'Vardhman Flow',
       category: 'web',
+      featured: true,
+      badge: 'Live SaaS Platform',
+      tag: 'WhatsApp Marketing',
       image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=500&q=75',
       link: 'https://vardhmanflow.com',
       description: 'The most powerful WhatsApp marketing platform. Scale your business with automated campaigns, advanced analytics, and seamless API integration.'
+    },
+    {
+      title: 'Param Vir Chakra - Shaurya Gatha',
+      category: 'web',
+      tag: 'National Event Web Campaign',
+      image: 'https://vardhmancreativestudio.com/assets/param-vir-chakra-live.jpg',
+      link: '/param-vir-chakra',
+      description: 'Web development, offline pass generator, and live stream routing for a mega patriotic event.'
     },
     {
       title: 'Zenith Premium Branding',
@@ -63,9 +70,16 @@ export default function PortfolioSection() {
     : projects.filter(p => p.category === filter);
 
   const handleCardClick = (e, project) => {
+    if (e.target.closest('a')) {
+      return;
+    }
     if (project.link === '#') {
       e.preventDefault();
       setSelectedProject(project);
+    } else if (project.link.startsWith('http')) {
+      window.open(project.link, '_blank', 'noopener,noreferrer');
+    } else {
+      window.location.href = project.link;
     }
   };
 
@@ -107,7 +121,11 @@ export default function PortfolioSection() {
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.4 }}
                 key={p.title}
-                className="relative overflow-hidden rounded-3xl border border-white/5 bg-[#0a0f18] shadow-xl group hover:border-purple-500/30 transition-all duration-500 flex flex-col h-full cursor-pointer"
+                className={`relative overflow-hidden rounded-3xl transition-all duration-500 flex flex-col h-full cursor-pointer group shadow-xl ${
+                  p.featured
+                    ? 'border-2 border-purple-500/50 bg-gradient-to-b from-[#14122d] via-[#0d1326] to-[#0a0f18] shadow-[0_0_35px_rgba(168,85,247,0.2)] ring-1 ring-purple-400/30 hover:border-purple-400 hover:shadow-[0_0_45px_rgba(168,85,247,0.35)]'
+                    : 'border border-white/5 bg-[#0a0f18] hover:border-purple-500/30'
+                }`}
                 onClick={(e) => handleCardClick(e, p)}
               >
                 {/* Image Container with Hover Zoom */}
@@ -120,6 +138,17 @@ export default function PortfolioSection() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300" />
                   
+                  {/* Featured Badge Overlay */}
+                  {p.featured && (
+                    <div className="absolute top-3.5 left-3.5 z-10 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/80 border border-purple-400/50 text-white backdrop-blur-md text-[11px] font-bold tracking-wide shadow-xl">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                      </span>
+                      <span className="bg-gradient-to-r from-purple-200 to-indigo-200 bg-clip-text text-transparent">{p.badge || 'Featured'}</span>
+                    </div>
+                  )}
+
                   {/* Action Icon overlay */}
                   <a
                     href={p.link}
@@ -136,11 +165,23 @@ export default function PortfolioSection() {
                 {/* Content description */}
                 <div className="p-6 flex-1 flex flex-col justify-between">
                   <div className="text-left">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-purple-400">
-                      {p.category === 'web' ? 'Web Design' : p.category === 'video' ? 'Cinematic Video' : 'Visual Identity'}
-                    </span>
-                    <h3 className="mt-2 text-xl font-bold text-white transition-colors group-hover:text-purple-400">
-                      {p.title}
+                    <div className="flex items-center gap-2 flex-wrap mb-2">
+                      <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-purple-400">
+                        {p.category === 'web' ? 'Web Design' : p.category === 'video' ? 'Cinematic Video' : 'Visual Identity'}
+                      </span>
+                      {p.tag && (
+                        <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+                          {p.tag}
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="mt-1 text-xl font-bold text-white transition-colors group-hover:text-purple-400 flex items-center justify-between">
+                      <span>{p.title}</span>
+                      {p.featured && (
+                        <span className="text-[9px] uppercase font-extrabold tracking-wider px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/40">
+                          Live
+                        </span>
+                      )}
                     </h3>
                     <p className="mt-3 text-sm text-gray-400 leading-relaxed font-light">
                       {p.description}
@@ -148,15 +189,28 @@ export default function PortfolioSection() {
                   </div>
 
                   <div className="mt-5 pt-5 border-t border-white/5 flex items-center justify-between">
-                    <a
-                      href={p.link}
-                      target={p.link.startsWith('http') ? '_blank' : undefined}
-                      rel={p.link.startsWith('http') ? 'noopener noreferrer' : undefined}
-                      onClick={(e) => handleCardClick(e, p)}
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-white/75 group-hover:text-white transition-colors"
-                    >
-                      Explore Project <span className="inline-block transform transition-transform group-hover:translate-x-1 group-hover:-translate-y-0.5">→</span>
-                    </a>
+                    {p.featured ? (
+                      <a
+                        href={p.link}
+                        target={p.link.startsWith('http') ? '_blank' : undefined}
+                        rel={p.link.startsWith('http') ? 'noopener noreferrer' : undefined}
+                        onClick={(e) => handleCardClick(e, p)}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 shadow-[0_4px_14px_rgba(168,85,247,0.35)] hover:shadow-[0_4px_20px_rgba(168,85,247,0.55)] transition-all duration-300 hover:scale-[1.02]"
+                      >
+                        <span>Explore Project</span>
+                        <ArrowUpRight className="h-3.5 w-3.5" />
+                      </a>
+                    ) : (
+                      <a
+                        href={p.link}
+                        target={p.link.startsWith('http') ? '_blank' : undefined}
+                        rel={p.link.startsWith('http') ? 'noopener noreferrer' : undefined}
+                        onClick={(e) => handleCardClick(e, p)}
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-white/75 hover:text-white transition-colors"
+                      >
+                        Explore Project <span className="inline-block transform transition-transform group-hover:translate-x-1 group-hover:-translate-y-0.5">→</span>
+                      </a>
+                    )}
                   </div>
                 </div>
               </motion.article>
