@@ -1,0 +1,6 @@
+project_id = "vardhman-ayambil-local-test"
+
+[functions.ayambil-test]
+# Public registration/downloads have no user JWT. Admin JWTs are verified by
+# Auth getUser and database membership inside the handler, never merely decoded.
+verify_jwt = false
