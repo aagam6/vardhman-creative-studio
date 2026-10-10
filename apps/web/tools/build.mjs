@@ -1,0 +1,11 @@
+// Portable equivalent of the optional metadata step followed by a required build.
+import { spawnSync } from 'node:child_process';
+import { createRequire } from 'node:module';
+import path from 'node:path';
+const require = createRequire(import.meta.url);
+const metadata = spawnSync(process.execPath, ['tools/generate-llms.js'], { stdio: 'inherit' });
+if (metadata.status !== 0) console.warn('Optional llms metadata generation failed; continuing with the required Vite build.');
+const vite = path.join(path.dirname(require.resolve('vite/package.json')), 'bin/vite.js');
+const result = spawnSync(process.execPath, [vite, 'build', '--outDir', '../../dist/apps/web'], { stdio: 'inherit' });
+if (result.error) console.error('Vite could not start.');
+process.exit(result.status ?? 1);

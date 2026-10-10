@@ -1,0 +1,28 @@
+# Include INSIDE the existing vardhmancreativestudio.com HTTPS VirtualHost.
+# NOT an .htaccess file. Do not install without replacing the definition below
+# using an upstream verified FROM THE APACHE HOST/network.
+# This template assumes a verified private HTTP upstream. For HTTPS upstreams,
+# use the operator's existing TLS verification configuration, never disable it.
+Define VCS_PB_UPSTREAM "http://REPLACE_WITH_VERIFIED_BACKEND_HOST_AND_PORT"
+
+ProxyRequests Off
+ProxyAddHeaders On
+ProxyPreserveHost On
+
+# Put before any broader ProxyPass rule. Both sides have matching trailing slashes.
+# /hcgi/platform/api/health -> verified upstream /api/health.
+ProxyPass        "/hcgi/platform/api/" "${VCS_PB_UPSTREAM}/api/" connectiontimeout=3 timeout=10
+ProxyPassReverse "/hcgi/platform/api/" "${VCS_PB_UPSTREAM}/api/"
+
+# Deny everything in this namespace except the audited website endpoints.
+# Collection mutations and event-admin operations still require PocketBase rules/auth.
+# No dashboard, superuser authentication, schema/settings, files or realtime exposure.
+<LocationMatch "^/hcgi/platform(?:/|$)">
+    Require expr "%{REQUEST_URI} =~ m#^/hcgi/platform/api/(?:health|ayambil/(?:status|register|pass-download|admin/(?:bookings|change|whatsapp-retry))|collections/(?:ayambil_admins/auth-with-password|leads/records))$#"
+    RequestHeader set X-Forwarded-Proto "https"
+    RequestHeader set X-Forwarded-Port "443"
+    Header unset Cache-Control
+    Header always set Cache-Control "no-store"
+    Header always set Referrer-Policy "no-referrer"
+    ProxyErrorOverride Off
+</LocationMatch>

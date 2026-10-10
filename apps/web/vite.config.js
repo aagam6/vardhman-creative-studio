@@ -287,6 +287,7 @@ logger.error = (msg, options) => {
 export default defineConfig({
 	optimizeDeps: {
 		include: allDeps,
+		esbuildOptions: { target: 'esnext' },
 	},
 	customLogger: logger,
 	plugins: [
@@ -306,6 +307,7 @@ export default defineConfig({
 			allow: [
 				path.resolve(__dirname),
 				path.join(path.resolve(__dirname, '../..'), 'node_modules'),
+				path.resolve(__dirname, '../pocketbase/pb_hooks/ayambil'),
 			],
 		},
 	},
