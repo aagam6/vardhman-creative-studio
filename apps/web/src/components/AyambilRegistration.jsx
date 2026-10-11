@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { registrationAvailability } from '@/lib/ayambilExpressClient.js';
 import { eveningConfig, registrationApi, requestKey, validateBooking } from '@/lib/ayambilRegistration';
 import { Link } from 'react-router-dom';
 import { ayambilTerms } from '@/lib/ayambilTerms';
@@ -18,7 +19,7 @@ export default function AyambilRegistration({ eventDate }) {
   const [messagingSetup,setMessagingSetup]=useState(false);
   const check = async () => {
     setAvailability('loading');
-    try { const status = await registrationApi('status'); setMessagingSetup(status?.whatsapp === 'setup_required'); setAvailability(status?.ready === true ? (status.open === true ? 'open' : 'closed') : 'unavailable'); }
+    try { const status = await registrationApi('status'); setMessagingSetup(false); setAvailability(registrationAvailability(status)); }
     catch { setAvailability('unavailable'); }
   };
   useEffect(() => { check(); }, []);

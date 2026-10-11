@@ -68,7 +68,7 @@ function booking(data, privileged = false) {
   }
 }
 export function validateResponse(path, data) {
-  if (path === 'status' && (typeof data?.ready !== 'boolean' || typeof data.open !== 'boolean' || data.whatsapp !== 'disabled')) throw new Error('Invalid availability response');
+  if (path === 'status' && (typeof data?.ready !== 'boolean' || typeof data.open !== 'boolean' || !['disabled', 'configured'].includes(data.whatsapp))) throw new Error('Invalid availability response');
   if (path === 'register') {
     booking(data);
     if (data.downloadKeys !== undefined && (!Array.isArray(data.downloadKeys) || data.downloadKeys.length !== data.attendees.length || data.downloadKeys.some(key => !/^[a-f0-9]{64}$/.test(key)))) throw new Error('Invalid private links');
@@ -82,4 +82,9 @@ export function validateResponse(path, data) {
     booking(data, true);
     if (data.downloadKey !== undefined && !/^[a-f0-9]{64}$/.test(data.downloadKey)) throw new Error('Invalid reissued link');
   }
+}
+
+export function registrationAvailability(data) {
+  validateResponse('status', data);
+  return data.ready ? (data.open ? 'open' : 'closed') : 'unavailable';
 }
