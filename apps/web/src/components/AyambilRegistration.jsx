@@ -16,10 +16,9 @@ export default function AyambilRegistration({ eventDate }) {
   const [availability, setAvailability] = useState('loading'); const [step, setStep] = useState('details');
   const [error, setError] = useState(''); const [busy, setBusy] = useState(false); const [confirmed, setConfirmed] = useState(false);
   const [receipt, setReceipt] = useState(null); const submission = useRef(null); const locked = useRef(false); const heading = useRef(null);
-  const [messagingSetup,setMessagingSetup]=useState(false);
   const check = async () => {
     setAvailability('loading');
-    try { const status = await registrationApi('status'); setMessagingSetup(false); setAvailability(registrationAvailability(status)); }
+    try { const status = await registrationApi('status'); setAvailability(registrationAvailability(status)); }
     catch { setAvailability('unavailable'); }
   };
   useEffect(() => { check(); }, []);
@@ -43,7 +42,6 @@ export default function AyambilRegistration({ eventDate }) {
     <p className="ay-eyebrow">Free Evening Registration · સાંજના કાર્યક્રમ માટે ફ્રી રજિસ્ટ્રેશન</p><h2 id="ay-registration-title" ref={heading} tabIndex={-1}>તમારી વિગતો ભરો / Register for this evening</h2>
     <p className="ay-registration-intro">{session.label} · {session.time} · {session.performer} — <span lang="gu">{session.programme}</span>. This booking is for this evening only. / આ રજિસ્ટ્રેશન આ જ સાંજ માટે છે. સવારના કાર્યક્રમો અને ૪ નવેમ્બર માટે નથી.</p>
     <AyambilInstructions />
-    {messagingSetup && step !== 'success' && <p role="status">Registration will open after setup is verified. / જરૂરી તપાસ પૂરી થયા પછી રજિસ્ટ્રેશન શરૂ થશે.</p>}
     {step !== 'success' && availability !== 'open' && <div className="ay-availability" role="status"><p>{availability === 'loading' ? 'Checking availability… / રજિસ્ટ્રેશન ચાલુ છે કે નહીં તે તપાસીએ છીએ…' : availability === 'closed' ? 'Registration is not open yet. / રજિસ્ટ્રેશન હજી શરૂ થયું નથી.' : 'Registration is unavailable. No booking is confirmed. / અત્યારે રજિસ્ટ્રેશન થઈ શકતું નથી. કોઈ રજિસ્ટ્રેશન કન્ફર્મ થયું નથી.'}</p>{availability !== 'loading' && <button type="button" onClick={check}>Check again / ફરી તપાસો</button>}</div>}
     {step === 'details' && <form onSubmit={review}>
       <fieldset disabled={busy || availability !== 'open'}><legend>Booking contact / રજિસ્ટ્રેશન કરનારની વિગતો</legend><div className="ay-form-grid">
