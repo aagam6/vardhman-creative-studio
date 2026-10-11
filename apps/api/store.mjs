@@ -1,13 +1,14 @@
 import {randomUUID} from 'node:crypto';
 import {ApiError,bookingInput,programme} from './config.mjs';
 import {capability,hash,passwordMatches} from './security.mjs';
+import {attendeeContext} from './notification-context.mjs';
 const json=value=>typeof value==='string'?JSON.parse(value):value;
 export async function transaction(pool,action) {
   const db=await pool.getConnection();
   try {await db.beginTransaction();const result=await action(db);await db.commit();return result;}
   catch(error){await db.rollback();throw error;}finally{db.release();}
 }
-export function createStore(pool,config) {
+export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
   const rows=async(db,sql,args=[])=> (await db.execute(sql,args))[0];
   const one=async(db,sql,args=[])=> (await rows(db,sql,args))[0];
   const issued=async(db,attendee,session)=>{
@@ -25,11 +26,18 @@ export function createStore(pool,config) {
       const passes=(await rows(db,'SELECT snapshot,status FROM ayambil_passes WHERE attendee_id=? ORDER BY revision',[a.id])).map(p=>({...json(p.snapshot),status:p.status}));
       attendees.push({...(privileged?{id:a.id}:{}),fullName:a.full_name,status:a.status,dates:[b.event_date],passes});
     }
-    return {...(privileged?{id:b.id,contactName:b.contact_name,mobile:b.mobile}:{}),number:b.number,status:b.status,eventDate:b.event_date,created:b.created_at,attendees,whatsapp:{status:'disabled',attempts:0,history:[]}};
+    return {...(privileged?{id:b.id,contactName:b.contact_name,mobile:b.mobile}:{}),number:b.number,status:b.status,eventDate:b.event_date,created:b.created_at,attendees,whatsapp:queue?{status:'see message queue',attempts:0,history:[]}:{status:'disabled',attempts:0,history:[]}};
   };
   return {
     async ready(){const version=await one(pool,'SELECT version FROM ayambil_schema_version WHERE version=1');const events=await rows(pool,'SELECT event_date FROM ayambil_events');return !!version&&programme.sessions.every(s=>events.some(e=>e.event_date===s.date));},
-    async status(){const setting=await one(pool,'SELECT registration_open FROM ayambil_settings WHERE id=1');return {ready:true,open:config.registrationOpen&&!!setting?.registration_open,whatsapp:'disabled'};},
+    async enqueueReminder(queue,bookingId){return transaction(pool,async db=>{
+      const record=await one(db,'SELECT * FROM ayambil_bookings WHERE id=? FOR UPDATE',[bookingId]);if(!record||record.status!=='active'||!record.whatsapp_consent)throw new ApiError(409,'Active consented booking required');
+      const attendees=await rows(db,"SELECT a.id,a.full_name,p.snapshot FROM ayambil_attendees a JOIN ayambil_passes p ON p.attendee_id=a.id WHERE a.booking_id=? AND a.status='active' AND p.status='active'",[bookingId]);if(!attendees.length)throw new ApiError(409,'Active saved pass required');
+      const saved=json(attendees[0].snapshot),session=saved.sessions[0];if(Date.parse(session.date+'T20:00:00+05:30')<=Date.now())throw new ApiError(409,'Evening has already started');
+      for(const attendee of attendees){const event=json(attendee.snapshot).sessions[0];await queue.enqueue(db,{bookingId,type:'reminder',dedupe:bookingId+':'+attendee.id+':'+event.date,context:attendeeContext(event,attendee.full_name,record.mobile)});}
+    });},
+    async enqueueTest(queue,item){return transaction(pool,db=>queue.enqueue(db,item));},
+    async status(){const setting=await one(pool,'SELECT registration_open FROM ayambil_settings WHERE id=1');return {ready:true,open:config.registrationOpen&&!!setting?.registration_open,whatsapp:queue?'configured':'disabled'};},
     async limit(bucket,max){return transaction(pool,async db=>{const window=Math.floor(Date.now()/60000);await rows(db,'INSERT INTO ayambil_rate_limits(bucket,window_start,attempts) VALUES(?,?,1) ON DUPLICATE KEY UPDATE attempts=IF(window_start=VALUES(window_start),attempts+1,1),window_start=VALUES(window_start)',[bucket,window]);const result=await one(db,'SELECT attempts FROM ayambil_rate_limits WHERE bucket=? FOR UPDATE',[bucket]);return result.attempts<=max;});},
     async login(email,password){
       const a=await one(pool,'SELECT id,password_hash,enabled FROM ayambil_admins WHERE email=?',[email]);
@@ -71,7 +79,17 @@ export function createStore(pool,config) {
         await rows(db,'INSERT INTO ayambil_whatsapp_attempts(id,booking_id,created_at) VALUES(?,?,UTC_TIMESTAMP(3))',[randomUUID(),id]);
         // Raw links are returned only once, never stored. Same-key retries return
         // saved PDFs without rotating capabilities or issuing duplicate passes.
-        return {...await booking(db,id),downloadKeys:links};
+        const receipt={...await booking(db,id),downloadKeys:links};
+        if(queue){
+          const session=json(event.snapshot),context={eventName:programme.eventName,eventDate:session.date,time:session.time,performer:session.performer,programme:session.programme,venue:session.venue,contactName:body.contactName,attendeeCount:String(body.attendees.length),attendeeNames:body.attendees.map(a=>a.fullName).join(', ')};
+          for(const [index,key] of links.entries()){
+            const individual=attendeeContext(session,body.attendees[index].fullName,body.mobile);
+            await queue.enqueue(db,{bookingId:id,type:'confirmation',dedupe:id+':'+index,context:individual});
+            await queue.enqueue(db,{bookingId:id,type:'pass',dedupe:id+':'+index,context:{...individual,passLink:config.origin+'/500-akhand-ayambil-vijayollas/passes#'+key}});
+          }
+          for(const to of adminRecipients)await queue.enqueue(db,{bookingId:id,type:'admin',dedupe:id+':'+to,context:{...context,to}});
+        }
+        return receipt;
       });
     },
     async download(key){

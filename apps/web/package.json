@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite --host :: --port 3000",
     "build": "node tools/build.mjs",
+    "build:ayambil-staging": "vite build --config vite.staging.config.js",
     "start": "vite preview --outDir ../../dist/apps/web --host :: --port 3000",
     "lint": "eslint . --quiet",
     "lint:warn": "eslint .",

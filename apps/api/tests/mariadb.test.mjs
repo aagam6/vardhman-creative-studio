@@ -1,3 +1,4 @@
+import {checkQueue} from './queue-check.mjs';
 import {checkBootstrap} from './bootstrap-check.mjs';
 // Independently opted-in REAL MariaDB integration, never production.
 // EMPTY disposable local schema ayambil_test_* and an explicit approval flag.
@@ -78,6 +79,7 @@ test('REAL MariaDB: schema, concurrent idempotency, rollback, auth, filters and 
   await assert.rejects(store.register(body(1)));const [after]=await pool.query('SELECT COUNT(*) AS n FROM ayambil_bookings');assert.equal(after[0].n,1);
   await pool.query('DROP TRIGGER ayambil_test_fail');
   await store.logout(session.token);await assert.rejects(store.session(session.token),e=>e.status===401);
+  await checkQueue(pool);
  }finally{try{await pool.query('UPDATE ayambil_settings SET registration_open=FALSE WHERE id=1');}catch{}await pool.end();}
  // Preserve schema for inspection. Operator removes ONLY this disposable schema.
 });

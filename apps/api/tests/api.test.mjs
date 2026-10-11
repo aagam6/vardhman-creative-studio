@@ -111,3 +111,10 @@ test('mock rate store: spoofed forwarding headers cannot rotate the socket-based
   assert.equal(buckets.size,1);assert.equal([...buckets.values()][0],6);
  }finally{await new Promise(r=>server.close(r));}
 });
+test('Message queue administration is denied before provider or queue access',async()=>{
+ const directory=await mkdtemp(join(tmpdir(),'ayambil-queue-auth-'));await writeFile(join(directory,'index.html'),'synthetic');
+ const config=configuration(env);let touched=false;
+ const app=createApp({config,staticDirectory:directory,store:{session:async()=>{throw new ApiError(401,'Sign in required');}},queue:{list:async()=>{touched=true;},runOne:async()=>{touched=true;}}});
+ const server=app.listen(0,'127.0.0.1');await new Promise(resolve=>server.once('listening',resolve));
+ try{for(const [path,method] of [['messages','GET'],['messages/process','POST'],['messages/test','POST'],['messages/status','POST'],['messages/reminder','POST']]){const response=await fetch('http://127.0.0.1:'+server.address().port+'/api/ayambil/admin/'+path,{method,headers:{Origin:config.origin,'Content-Type':'application/json'},...(method==='POST'?{body:'{}'}:{})});assert.equal(response.status,401);assert.equal(response.headers.get('cache-control'),'no-store');}assert.equal(touched,false);}finally{await new Promise(resolve=>server.close(resolve));}
+});

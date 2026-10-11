@@ -1,9 +1,9 @@
 import express from 'express';
 import {resolve} from 'node:path';
-import {ApiError} from './config.mjs';
+import {ApiError,programme} from './config.mjs';
 import {hash,rateHash} from './security.mjs';
 const cookieName='__Host-ayambil';
-export function createApp({store,config,staticDirectory}) {
+export function createApp({store,config,staticDirectory,flow,queue,testRecipient}) {
   const app=express();app.disable('x-powered-by');app.set('trust proxy',false);
   const api=express.Router();
   api.use((req,res,next)=>{res.set({'Cache-Control':'no-store','Referrer-Policy':'no-referrer','X-Content-Type-Options':'nosniff'});next();});
@@ -30,6 +30,18 @@ export function createApp({store,config,staticDirectory}) {
   api.get('/admin/bookings',admin,route(async(req,res)=>res.json(await store.list(req.query))));
   api.post('/admin/change',admin,route(async(req,res)=>res.json(await store.change(req.actor,req.body))));
   api.post('/admin/whatsapp-retry',admin,(req,res)=>res.status(403).json({error:'WhatsApp sending and retries disabled'}));
+  api.get('/admin/whatsapp',admin,route(async(req,res)=>res.json(flow?flow.configuration():{ready:false,configured:false,sending:false,missing:['VARDHMAN_FLOW_API_KEY','VARDHMAN_FLOW_API_SECRET']})));
+  api.get('/admin/messages',admin,route(async(req,res)=>res.json({items:queue?await queue.list():[]})));
+  api.post('/admin/messages/reminder',admin,limited('flow-reminder',5),route(async(req,res)=>{if(!queue||typeof req.body?.bookingId!=='string'||req.body.bookingId.length!==36)throw new ApiError(400,'Messaging configuration and booking required');await store.enqueueReminder(queue,req.body.bookingId);res.json({queued:true,delivered:false});}));
+  api.post('/admin/messages/process',admin,limited('flow-process',5),route(async(req,res)=>{if(!queue)throw new ApiError(503,'Messaging configuration required');res.json(await queue.runOne());}));
+  api.post('/admin/messages/status',admin,route(async(req,res)=>{if(!queue||typeof req.body?.id!=='string'||req.body.id.length>36)throw new ApiError(400,'Message identifier required');res.json(await queue.reconcile(req.body.id));}));
+  api.post('/admin/messages/test',admin,limited('flow-test',2),route(async(req,res)=>{
+    if(!queue||!testRecipient||typeof req.body?.requestKey!=='string'||!/^[a-f0-9]{64}$/.test(req.body.requestKey))throw new ApiError(503,'Configured authorized test recipient and request identifier required');
+    const session=programme.sessions.find(s=>s.date===req.body.eventDate);if(!session)throw new ApiError(400,'Approved evening required');
+    await store.enqueueTest(queue,{type:'test',dedupe:req.body.requestKey,context:{to:testRecipient,eventName:programme.eventName,eventDate:session.date,time:session.time,performer:session.performer,programme:session.programme,venue:session.venue,contactName:'Authorized operator test',attendeeNames:'Authorized operator test',attendeeCount:'1'}});
+    res.json({queued:true,delivered:false});
+  }));
+  api.post('/admin/whatsapp/inspect',admin,limited('flow-inspect',5),route(async(req,res)=>{if(!flow)throw new ApiError(503,'Provider configuration required');res.json(await flow.inspect());}));
   api.use((req,res)=>res.status(404).json({error:'API operation unavailable'}));
   api.use((error,req,res,next)=>{void next;const status=error instanceof ApiError?error.status:error.type==='entity.parse.failed'?400:error.type==='entity.too.large'?413:503;res.status(status).json({error:error instanceof ApiError?error.message:status===400?'Invalid JSON':'API unavailable'});});
   app.use('/api/ayambil',api);
