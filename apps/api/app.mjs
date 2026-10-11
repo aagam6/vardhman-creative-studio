@@ -1,4 +1,5 @@
 import express from 'express';
+import {randomUUID} from 'node:crypto';
 import {resolve} from 'node:path';
 import {ApiError,programme} from './config.mjs';
 import {hash,rateHash} from './security.mjs';
@@ -28,7 +29,15 @@ export function createApp({store,config,staticDirectory,flow,queue,testRecipient
   api.get('/admin/session',admin,route(async(req,res)=>res.json({authenticated:true})));
   api.post('/admin/session',route(async(req,res)=>res.json(await store.restoreSession(token(req)))));
   api.post('/admin/logout',admin,route(async(req,res)=>{await store.logout(token(req));res.clearCookie(cookieName,{secure:true,httpOnly:true,sameSite:'strict',path:'/'});res.json({authenticated:false});}));
-  api.get('/admin/bookings',admin,route(async(req,res)=>res.json(await store.list(req.query))));
+  api.get('/admin/bookings',admin,route(async(req,res)=>{
+    const requestId=randomUUID();res.set('X-Request-Id',requestId);
+    try {res.json(await store.list(req.query));}
+    catch(error){
+      const stage=['bookings.filters','bookings.select','bookings.hydrate'].includes(error.ayambilStage)?error.ayambilStage:'bookings.response';
+      const code=['ER_BAD_FIELD_ERROR','ER_NO_SUCH_TABLE','ER_WRONG_ARGUMENTS','ER_PARSE_ERROR','ER_TABLEACCESS_DENIED_ERROR','ECONNREFUSED','ETIMEDOUT'].includes(error.code)?error.code:'unclassified';
+      console.error(JSON.stringify({operation:'admin.bookings',requestId,stage,code}));throw error;
+    }
+  }));
   api.post('/admin/change',admin,route(async(req,res)=>res.json(await store.change(req.actor,req.body))));
   api.post('/admin/whatsapp-retry',admin,(req,res)=>res.status(403).json({error:'WhatsApp sending and retries disabled'}));
   api.get('/admin/whatsapp',admin,route(async(req,res)=>res.json(flow?flow.configuration():{ready:false,configured:false,sending:false,missing:['VARDHMAN_FLOW_API_KEY','VARDHMAN_FLOW_API_SECRET']})));
