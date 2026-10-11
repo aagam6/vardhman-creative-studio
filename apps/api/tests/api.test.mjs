@@ -66,6 +66,32 @@ test('saved pass validator accepts reusable PDF contract and rejects absent sess
  const pass={number:'SYNTHETIC',attendeeName:'Synthetic Attendee',sessions:[{date:'2026-11-02',performer:'Manan Sanghvi',programme:'એક શામ દાદા ઋષભ કે નામ',label:'2 November',time:'8:00 PM IST',venue:'Synthetic venue',address:'Synthetic address'}]};assert.equal(validatePassDownload({passes:[pass]}).length,1);assert.throws(()=>validatePassDownload({passes:[{...pass,sessions:[]}]}));
 });
 
+test('mock-store routing gates: unavailable readiness and legacy leads remain JSON/no-store before SPA',async()=>{
+ const directory=await mkdtemp(join(tmpdir(),'ayambil-routing-'));
+ await writeFile(join(directory,'index.html'),'<html>synthetic SPA</html>');
+ const app=createApp({config:configuration(env),staticDirectory:directory,store:{
+  ready:async()=>false,
+  status:async()=>{throw Error('synthetic database unavailable');},
+  session:async()=>{throw new ApiError(401,'Administrator sign-in required');}
+ }});
+ const server=app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));
+ const base='http://127.0.0.1:'+server.address().port;
+ try {
+  for(const [path,status,method] of [
+   ['/api/ayambil/health',503,'GET'],['/api/ayambil/status',503,'GET'],
+   ['/api/ayambil/admin/bookings',401,'GET'],['/api/ayambil/unknown',404,'GET'],
+   ['/api/unknown',404,'GET'],['/hcgi/platform/api/collections/leads/records',503,'POST']
+  ]){
+   const response=await fetch(base+path,{method});
+   assert.equal(response.status,status);assert.match(response.headers.get('content-type'),/application\/json/);
+   assert.equal(response.headers.get('cache-control'),'no-store');
+   const data=await response.json();assert.ok(data.error||data.ready===false);
+   assert.equal(response.headers.get('x-powered-by'),null);
+  }
+  assert.match(await (await fetch(base+'/event')).text(),/synthetic SPA/);
+ }finally{await new Promise(r=>server.close(r));}
+});
+
 test('mock rate store: spoofed forwarding headers cannot rotate the socket-based login bucket',async()=>{
  const buckets=new Map();
  const app=createApp({config:configuration(env),staticDirectory:tmpdir(),store:{

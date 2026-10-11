@@ -471,3 +471,100 @@ Production decisions:
 Operator instructions in Desktop IMPORT-README: hPanel website Databases Management → phpMyAdmin → select intended DB → Import/ChooseFile/Go only after separate schema approval and existing-table check. Verify14tables/closedsetting/version1 and other tablesempty. Do not delete database, retry partial import blindly or expect bootstrap/events in SQL. User considers old test records disposable, but no deletion authorised/performed by this task. Rollback preserves new MySQL data, closes gates, restores reviewed frontend/runtime/routing/environment together; old PocketBase route not proven working, so source retention alone is not full recovery.
 
 Conclusion: **schema artifact locally import-validated; production release blocked**. No code committed/pushed/merged, no Hostinger build/deployment initiated or live SQL applied. Single next action: obtain verified Hostinger lead-preservation and runtime/proxy/cache/secure-bootstrap procedure, then review staged rollout configuration before publication or live import. Registration/WhatsApp remain disabled. No production database/settings/secrets touched.
+
+## Explicitly authorised main source publication — 11 October 2026
+
+User explicitly authorised complete reviewed project publication to main despite documented hosting limitations; this supersedes prior no-publication scope, not permission to change hosting/database or activate gates. Local source checkpoint bce8d20; reconciled tested implementation commit c30291a51447203f46d1d54b7ce2e452f9153d17. Fetched main83d9c3f427a2f61a0b41572b2e420ae53d01d265 merged as ancestor. Three conflicts reviewed: retained Express client (which retains JSON rejection), updated private-hash handling and remote remediation report history. External recoverable file checkpoint C:/Users/aagam/AppData/Local/VardhmanReleaseCheckpoint_20261011_160734 includes all changed files. No reset/clean/force or lost work.
+
+Fresh Node24.19.0 commands after merge: npm run test --prefix apps/api 8pass/0fail/2intentional engine skips; npm run test --prefix apps/web28pass/0fail/0skip; npm run lint --prefix apps/web exit0; npm run build --prefix apps/web exit0/2327modules/dist/apps/web. Independently guarded external run-mariadb.cjs invokes npm API suite on realMariaDB11.8.9 fresh ayambil_test_mariadb_1791715124866/127.0.0.1:51942:9pass/0fail/1MySQLskip. run-mysql-regression.cjs invokes npm API suite on realMySQL8.0.46 fresh ayambil_test_1791715127848/127.0.0.1:51960:9pass/0fail/1MariaDBskip. Each real-engine run has1realDBpass,2mockHTTP,1mocktransaction,1staticSQL,4otherpass. All owned servers exited0/gatesclosed. No new browser/PDF/hosted acceptance performed.
+
+Review: complete intended files enumerated below; credential-pattern scan found no secrets, synthetic literal in api.test.mjs verified test-only. No env/runtime/DB/PDF/Desktop-import artifact committed. Three root Updhan preview screenshots deliberately remain untracked/preserved. Artwork and Updhan routes/source included. Nonfunctional existing EOF/whitespace warnings in checkpoint diff were noted; no tests weakened. Secret scan, conflict-marker scan and tracked-artifact exclusions checked. Root build/start scripts unchanged; main publication does NOT switch Hostinger to Express.
+
+Known limits remain: Express /hcgi/platform returns503; lead preservation is not established. Hostinger currentother/nullentry/Node22 major, exactpatch/PORT/dependencies/runtime/proxy/CDN unverified. Frontend now targets /api/ayambil exclusively and availability depends on a verified Express route; current static configuration is not proof of working registration/admin/passes. No silent backend fallback. Registration/WhatsApp remainclosed. Desktop schema import and secure admin bootstrap NOT performed; no live data/env/DNS/cache/hPanel changes. User-reported backup not restore-tested. Source publication is explicitly authorised, not a production readiness claim.
+
+Publication is pending normal fast-forward push of HEAD to origin main after this documentation commit and final ref/ancestor verification. This report records the immutable tested implementation SHA above; the publication/documentation commit SHA is obtained from git rev-parse HEAD/remote refs (a commit cannot embed its own hash). Any later confirmed push/deployment outcome will be recorded separately; do not infer deployment success from these checks.
+
+Exact release paths relative to fetched main:
+apps/api/app.mjs
+apps/api/config.mjs
+apps/api/migrations/001_ayambil.sql
+apps/api/package.json
+apps/api/security.mjs
+apps/api/server.mjs
+apps/api/store.mjs
+apps/api/tests/api.test.mjs
+apps/api/tests/mariadb.test.mjs
+apps/api/tests/mysql.test.mjs
+apps/api/tests/schema.test.mjs
+apps/api/tools/bootstrap.mjs
+apps/web/public/.htaccess
+apps/web/public/assets/achalgarh-heritage.jpg
+apps/web/public/assets/ayambil/book-page-8.jpeg
+apps/web/public/assets/ayambil/book-page-9.jpeg
+apps/web/public/assets/ayambil/sairam-dave-portrait.webp
+apps/web/public/sitemap.xml
+apps/web/src/App.jsx
+apps/web/src/components/AyambilDigitalPass.css
+apps/web/src/components/AyambilDigitalPass.jsx
+apps/web/src/components/AyambilRegistration.css
+apps/web/src/components/AyambilRegistration.jsx
+apps/web/src/components/UpdhanParticipation.jsx
+apps/web/src/lib/ayambilExpressClient.js
+apps/web/src/lib/ayambilPassLayout.js
+apps/web/src/lib/ayambilPassPresentation.js
+apps/web/src/lib/ayambilRegistration.js
+apps/web/src/lib/updhanConfig.js
+apps/web/src/pages/AyambilAdminPage.jsx
+apps/web/src/pages/AyambilPassDownloadPage.jsx
+apps/web/src/pages/UpdhanPage.css
+apps/web/src/pages/UpdhanPage.jsx
+apps/web/tests/ayambilExpressClient.test.js
+docs/AYAMBIL-HANDOFF.md
+docs/ayambil-api-routing-investigation.md
+docs/ayambil-blank-screen-fix.md
+docs/ayambil-mysql-backend-preparation.md
+docs/ayambil-mysql-hosting-blocker.md
+package-lock.json
+tools/ayambil-audit-dependencies-final.json
+tools/ayambil-audit-dependencies-remediation.json
+tools/ayambil-audit-dependencies.json
+tools/ayambil-long-pass-check.mjs
+tools/ayambil-ui-preview.config.mjs
+
+Publication outcome: BLOCKED by automatic approval review before the documentation-commit/fetch/push command executed. Review reason: main push may trigger production deployment with legacy lead503 and unresolved runtime/routing/cache gates. No workaround/retry/alternate publication attempted. Checkpoint/merge commits remain local; release reports updated but unstaged. No successful upload or new deployment claimed. Next operator step is resolve/clear the approval-review block before normal git add of these two reports, documentation commit, fresh fetch/ancestor check, git push origin HEAD:main and git ls-remote verification. Existing reviewed code commits and external backup are recoverable. The user explicitly authorised source publication; automatic review nevertheless blocked that production-triggering action. Final main SHA has not changed by this task.
+
+## Local deployment-blocker investigation after rejected publication — 11 October 2026
+
+Scope explicitly excludes publication, deployment, approval bypass, live DB/hosting changes. Starting HEAD c30291a51447203f46d1d54b7ce2e452f9153d17 on codex/ayambil-hostinger-deploy; bce8d20 and merge checkpoint preserved. Starting staged diff empty; two release reports modified and three previewPNGs untracked. Existing report changes retained in this new local checkpoint. No fetch/push or hosting calls in this task; earlier connected settings remain historical evidence, not freshly verified deployment facts.
+
+Lead trace: LeadCaptureSection.jsx:50 and ComingSoonPage.jsx:41 use pocketbaseClient.js base /hcgi/platform and PocketBase collection('leads').create => POST /hcgi/platform/api/collections/leads/records. Standard apps/web/vite.config.js has NO proxy mapping. Its pocketbase auth plugin applies only in serve mode and accepts preview auth messages; it is not an upstream or production routing implementation. Root dev/start scripts start PocketBase; apps/pocketbase/package.json declares port8090 and /data for start, but this establishes only an intended executable launch, not an existing Hostinger service/origin. New apps/api/server.mjs starts Express only; app.mjs rejects /hcgi/platform with503 before SPA. Existing static .htaccess rewrites nonfiles to index.html and uses blanket public shared caching. These layers cannot be treated as a verified proxy.
+
+Lead gate remains FAIL: no supported/verified destination or hosting path arrangement available. Exact missing evidence: service existence/status, loaded leads collection/access rules, verified backend origin/listener, supported managed path routing preserving /hcgi/platform, auth/header forwarding requirements and safe staging test credentials/configuration (never paste credentials into reports). Support/operator must confirm whether legacy platform namespace is provided by their platform or an independently hosted PocketBase service. A verified split route or separately approved tested adapter/migration is needed; do not invent port8090 as a live upstream. No production route was implemented. Therefore no supported-configuration non503 test can honestly be run; only configuration-absent safe rejection was verified. This is not a resolution of lead preservation.
+
+New focused test apps/api/tests/api.test.mjs: unavailable health/readiness503, unknown API404, unauthorized admin401 and exact legacy lead POST503 all return JSON/no-store and no X-Powered-By; normal /event returns syntheticSPA. Loopback HTTP test uses mock store, explicit distinction from real SQL tests. It guards routing/cache/error boundaries without weakening auth or hiding missing upstream. Production application behavior unchanged.
+
+| Gate | Result | Evidence and outstanding requirement |
+| --- | --- | --- |
+| Existing lead preservation | FAIL | Intentional503 remains; verified upstream/support arrangement unavailable |
+| Express origin API before SPA / private no-store | PASS locally | New HTTP regression plus existing auth/private contracts; not Apache/CDN proof |
+| Readiness failures and unknown-route JSON | PASS locally | Health/status503, admin401, unknown404 tested without HTML fallback |
+| Same-origin secure cookie/CSRF behavior | PASS local baseline; NOT VERIFIED hosted | Existing tests pass; historical HTTPS acceptance not rerun |
+| Node22>=22.22 compatibility | NOT VERIFIED | Installed22.17.0 below requirement; tests used bundled24.19.0. Do not bypass engines; need actual supported Hostinger patch |
+| Entry/root/workspace/dependencies/PORT supervision | NOT VERIFIED hosted | Source uses apps/api/server.mjs, numericPORT1..65535 and default0.0.0.0, static path relative entry resolvesdist/apps/web; rootstart remainsPocketBase. Need complete repository source/dependencies retained and platform entry/PORT contract |
+| Apache/SPA cache boundary | FAIL for existing static-only routing; NOT VERIFIED managed interaction | .htaccess fallback/blanketpublic header can serve/cache API HTML if it handles paths. No speculative rewrite changed; confirm platform-generated routing precedence and namespace exclusions |
+| CDN/proxy/client-IP | NOT VERIFIED | trustproxyfalse/socket buckets safe locally; shared-proxy behavior and effective edge headers need staging/support evidence |
+| Real SQL regression | PASS | Both fresh isolated engines ran; no production access |
+| Publication approval | NOT VERIFIED / blocked | Prior automatic rejection remains; no retry/bypass |
+
+Fresh exact commands under process-only bundled Node24.19.0:
+- npm run test --prefix apps/api:9pass/0fail/2intentional DBskips,11tests.
+- external node.exe run-mariadb.cjs => npm run test --prefix apps/api with independent local opt-in: actualSQL11.8.9-MariaDB, schemaayambil_test_mariadb_1791715463333/127.0.0.1:49780;10pass/0fail/1MySQLskip. Breakdown realMariaDB1, mockHTTP3, mocktransaction1, staticSQL1, other4.
+- external node.exe run-mysql-regression.cjs => same npm command with independent MySQL opt-in: actualSQL8.0.46, schemaayambil_test_1791715466589/127.0.0.1:49799;10pass/0fail/1MariaDBskip; same breakdown with realMySQL1.
+- npm run test --prefix apps/web:28pass/0fail/0skip; npm run lint --prefix apps/web exit0; npm run build --prefix apps/web exit0,2327modules/dist/apps/web.
+- git status/branch/HEAD/log/diff summaries; rg lead/proxy config; Get-Content source/reports; direct node --version22.17.0 and24.19.0. Windows wildcard rg path failed initially; corrected to exact config path. No production requests/browser/edge checks, SQL import, administrator creation or messages.
+
+Owned MariaDBPID7000 and MySQLprovisioningPID12452/TCPPID9628 exited0. Local regression gates restoredclosed; no global PATH/services/firewall changes. External data/logs retained. Frontend build artifacts ignored; previewPNGs preserved untracked.
+
+Changed in this task: apps/api/tests/api.test.mjs and both authoritative reports (including preserved prior unstaged release notes). New local checkpoint is the commit immediately following c30291a; obtain its immutable hash with git rev-parse HEAD (self-hash cannot be embedded in its own content). Review before local commit only; no force/reset/clean and no publication. Current report state before checkpoint: these3files modified, staged empty; after checkpoint only3previewPNGs should remain untracked.
+
+Next action: obtain written verified legacy upstream/path-preservation and Hostinger entry/Nodepatch/PORT/workspace/proxy/CDN contract, then test a separately approved isolated staging arrangement. Fresh publication approval review still required; known failures remain, so do not request a push retry as a workaround. This task improves regression evidence; it does NOT resolve production activation blockers.
