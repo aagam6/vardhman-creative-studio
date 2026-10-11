@@ -2,6 +2,7 @@ import {randomUUID} from 'node:crypto';
 import {ApiError,bookingInput,programme} from './config.mjs';
 import {capability,hash,passwordMatches} from './security.mjs';
 import {attendeeContext} from './notification-context.mjs';
+import {isDeepStrictEqual} from 'node:util';
 const json=value=>typeof value==='string'?JSON.parse(value):value;
 export async function transaction(pool,action) {
   const db=await pool.getConnection();
@@ -29,7 +30,7 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
     return {...(privileged?{id:b.id,contactName:b.contact_name,mobile:b.mobile}:{}),number:b.number,status:b.status,eventDate:b.event_date,created:b.created_at,attendees,whatsapp:queue?{status:'see message queue',attempts:0,history:[]}:{status:'disabled',attempts:0,history:[]}};
   };
   return {
-    async ready(){const version=await one(pool,'SELECT version FROM ayambil_schema_version WHERE version=1');const events=await rows(pool,'SELECT event_date FROM ayambil_events');return !!version&&programme.sessions.every(s=>events.some(e=>e.event_date===s.date));},
+    async ready(){const versions=await rows(pool,'SELECT version FROM ayambil_schema_version ORDER BY version');const events=await rows(pool,'SELECT event_date,snapshot FROM ayambil_events ORDER BY event_date');return JSON.stringify(versions.map(v=>Number(v.version)))==='[1,2]'&&events.length===2&&programme.sessions.every((s,index)=>events[index].event_date===s.date&&isDeepStrictEqual(json(events[index].snapshot),s));},
     async enqueueReminder(queue,bookingId){return transaction(pool,async db=>{
       const record=await one(db,'SELECT * FROM ayambil_bookings WHERE id=? FOR UPDATE',[bookingId]);if(!record||record.status!=='active'||!record.whatsapp_consent)throw new ApiError(409,'Active consented booking required');
       const attendees=await rows(db,"SELECT a.id,a.full_name,p.snapshot FROM ayambil_attendees a JOIN ayambil_passes p ON p.attendee_id=a.id WHERE a.booking_id=? AND a.status='active' AND p.status='active'",[bookingId]);if(!attendees.length)throw new ApiError(409,'Active saved pass required');
