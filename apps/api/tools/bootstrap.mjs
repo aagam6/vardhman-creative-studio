@@ -1,22 +1,22 @@
-// Explicit operator-only procedure. Never run against live DB without approval.
-// Reads admin password through stdin (use a secure local prompt/provider).
+// Operator-only runner; never invoke at startup/build.
 import mysql from 'mysql2/promise';
-import {randomUUID} from 'node:crypto';
 import {configuration,programme} from '../config.mjs';
-import {passwordHash} from '../security.mjs';
-if(process.env.AYAMBIL_BOOTSTRAP_APPROVED!=='true')throw new Error('Explicit bootstrap approval required');
-const config=configuration(process.env);
-const email=process.env.AYAMBIL_INITIAL_ADMIN_EMAIL;
-if(!email||!/^\S+@\S+\.\S+$/.test(email))throw new Error('Admin email required');
-let password='';for await(const chunk of process.stdin){password+=chunk;if(password.length>300)throw new Error('Input too large');}
-const encoded=await passwordHash(password.replace(/\r?\n$/,''));password='';
-const {connectionLimit,waitForConnections,queueLimit,...connection}=config.database;
-const db=await mysql.createConnection(connection);
+import {provisionInitialAdmin,validateInitialProgramme} from '../bootstrap.mjs';
+let db,password='';
 try {
- await db.beginTransaction();
- const [existing]=await db.execute('SELECT id FROM ayambil_admins LIMIT 1');if(existing.length)throw new Error('First administrator already exists');
- for(const session of programme.sessions)await db.execute('INSERT INTO ayambil_events(event_date,snapshot) VALUES(?,?)',[session.date,JSON.stringify(session)]);
- await db.execute('INSERT INTO ayambil_admins(id,email,password_hash,enabled) VALUES(?,?,?,TRUE)',[randomUUID(),email.trim().toLowerCase(),encoded]);
- await db.commit();console.log('Reviewed event snapshots and first administrator provisioned. Registration remains closed.');
-}catch{await db.rollback();console.error('Bootstrap failed; no changes committed.');process.exitCode=1;}finally{await db.end();}
-
+ if(process.argv.length!==2||process.env.AYAMBIL_BOOTSTRAP_APPROVED!=='true')throw Error('Explicit approval and no arguments required');
+ if(process.stdin.isTTY)throw Error('Approved non-echoing password provider must supply stdin');
+ const config=configuration(process.env);
+ if(config.registrationOpen)throw Error('Registration must remain closed');
+ validateInitialProgramme(programme);
+ for await(const chunk of process.stdin){password+=chunk;if(Buffer.byteLength(password,'utf8')>1024)throw Error('Input too large');}
+ password=password.replace(/\r?\n$/,'');
+ if(/[\r\n]/.test(password))throw Error('Single password required');
+ const {connectionLimit,waitForConnections,queueLimit,...connection}=config.database;
+ db=await mysql.createConnection(connection);
+ await provisionInitialAdmin(db,{approved:true,email:process.env.AYAMBIL_INITIAL_ADMIN_EMAIL,password,initialProgramme:programme});
+ console.log('First administrator and reviewed snapshots provisioned; registration remains closed.');
+}catch{
+ console.error('Bootstrap refused or failed. Verify approval, closed gates, schema and initial configuration securely.');
+ process.exitCode=1;
+}finally{password='';if(db)await db.end();}

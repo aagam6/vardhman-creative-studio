@@ -1,3 +1,4 @@
+import {checkBootstrap} from './bootstrap-check.mjs';
 // Independently opted-in REAL MariaDB integration, never production.
 // EMPTY disposable local schema ayambil_test_* and an explicit approval flag.
 import test from 'node:test';
@@ -22,6 +23,7 @@ test('REAL MariaDB: schema, concurrent idempotency, rollback, auth, filters and 
   console.log('MariaDB engine',version[0].version,'SQL mode',mode[0].mode,'schema',process.env.DB_NAME);
   const migration=readFileSync(new URL('../migrations/001_ayambil.sql',import.meta.url),'utf8').replace(/^--.*$/gm,'');
   for(const statement of migration.split(';').map(s=>s.trim()).filter(Boolean))await pool.query(statement);
+  await checkBootstrap(pool,config);
   for(const s of programme.sessions)await pool.execute('INSERT INTO ayambil_events VALUES(?,?)',[s.date,JSON.stringify(s)]);
   const store=createStore(pool,config);assert.equal(await store.ready(),true);
   const body=n=>({contactName:'Synthetic Contact',mobile:'+12025550123',eventDate:'2026-11-02',termsAccepted:true,whatsappConsent:true,requestKey:randomUUID().replaceAll('-','').repeat(2),attendees:Array.from({length:n},(_,i)=>({fullName:'Synthetic Attendee '+i,dates:['2026-11-02']}))});
