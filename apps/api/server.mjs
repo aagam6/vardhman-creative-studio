@@ -5,6 +5,7 @@ import {configuration} from './config.mjs';
 import {createStore} from './store.mjs';
 import {createApp} from './app.mjs';
 import {createFlow} from './vardhmanflow.mjs';
+import {hostingerBootstrap} from './hostinger-bootstrap.mjs';
 // Canonical entry point: apps/api/server.mjs. No automatic schema changes.
 try {
   const config=configuration(process.env);
@@ -13,13 +14,20 @@ try {
   const pool=mysql.createPool(config.database);
   const flow=createFlow(process.env);
   const queue=process.env.AYAMBIL_WHATSAPP_ENABLED==='true'?createMessageQueue(pool,flow,process.env):null;
-  if(queue){const [versions]=await pool.query('SELECT version FROM ayambil_schema_version WHERE version=2');if(!versions.length)throw Error('Queue migration required');}
   const store=createStore(pool,config,{queue,adminRecipients:(process.env.AYAMBIL_WHATSAPP_ADMIN_RECIPIENTS||'').split(',').map(s=>s.trim()).filter(Boolean)});
-  if(!await store.ready())throw new Error('Database schema or event configuration is not ready');
-  const app=createApp({store,config,flow,queue,testRecipient:process.env.AYAMBIL_WHATSAPP_TEST_RECIPIENT,staticDirectory:fileURLToPath(new URL('../../dist/apps/web',import.meta.url))});
+  let initialized=false;
+  const app=createApp({store,config,flow,queue,isInitialized:()=>initialized,testRecipient:process.env.AYAMBIL_WHATSAPP_TEST_RECIPIENT,staticDirectory:fileURLToPath(new URL('../../dist/apps/web',import.meta.url))});
   const host=process.env.AYAMBIL_LISTEN_HOST || '0.0.0.0';
   if(!['0.0.0.0','127.0.0.1'].includes(host))throw new Error('Unsupported listen host');
   const server=app.listen(port,host);
+  // Listen synchronously before any database or password-hashing work. Fail closed.
+  void (async()=>{try{
+    const bootstrap=await hostingerBootstrap(pool,process.env);
+    if(queue){const [versions]=await pool.query('SELECT version FROM ayambil_schema_version WHERE version=2');if(!versions.length)throw Error();}
+    if(!await store.ready())throw Error();
+    initialized=true;
+    console.log(bootstrap.requested?'Ayambil initialization verified; remove stored bootstrap approval and password variables.':'Ayambil API readiness verified.');
+  }catch{console.error('Ayambil initialization failed; API remains unavailable. Verify closed gates, schema, snapshots and approved private bootstrap configuration.');}})();
   for(const signal of ['SIGTERM','SIGINT'])process.on(signal,()=>server.close(()=>pool.end().finally(()=>process.exit(0))));
 } catch {
   // Driver errors can contain connection/user details; never print them.

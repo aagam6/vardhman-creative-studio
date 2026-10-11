@@ -3,10 +3,11 @@ import {resolve} from 'node:path';
 import {ApiError,programme} from './config.mjs';
 import {hash,rateHash} from './security.mjs';
 const cookieName='__Host-ayambil';
-export function createApp({store,config,staticDirectory,flow,queue,testRecipient}) {
+export function createApp({store,config,staticDirectory,flow,queue,testRecipient,isInitialized=()=>true}) {
   const app=express();app.disable('x-powered-by');app.set('trust proxy',false);
   const api=express.Router();
   api.use((req,res,next)=>{res.set({'Cache-Control':'no-store','Referrer-Policy':'no-referrer','X-Content-Type-Options':'nosniff'});next();});
+  api.use((req,res,next)=>{if(!isInitialized())return res.status(503).json({ready:false,open:false,whatsapp:'disabled',error:'API initialization unavailable'});next();});
   api.use(express.json({limit:'32kb'}));
   // No CORS wildcard. Mutating browser requests require the exact configured
   // origin; admin mutations additionally require session-bound CSRF proof.

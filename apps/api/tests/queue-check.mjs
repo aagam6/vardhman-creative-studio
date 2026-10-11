@@ -4,8 +4,13 @@ import {createMessageQueue,queueCrypto} from '../message-queue.mjs';
 import {transaction,createStore} from '../store.mjs';
 import {configuration} from '../config.mjs';
 import {randomUUID} from 'node:crypto';
+import {provisionInitialAdmin} from '../bootstrap.mjs';
+import {programme} from '../config.mjs';
 export async function checkQueue(pool){
  const migration=readFileSync(new URL('../migrations/002_whatsapp_queue.sql',import.meta.url),'utf8').replace(/^--.*$/gm,'');for(const statement of migration.split(';').map(s=>s.trim()).filter(Boolean))await pool.query(statement);
+ // Existing lifecycle data deliberately refuses the environment bootstrap.
+ const bootstrapDb=await pool.getConnection();
+ try{await assert.rejects(provisionInitialAdmin(bootstrapDb,{approved:true,email:'synthetic@example.invalid',password:'Synthetic-local-password-123!',initialProgramme:programme,hostingerOneTime:true}));}finally{bootstrapDb.release();}
  let sends=0,fail=false,prepareFailure=false;const flow={prepare:async()=>{if(prepareFailure)throw Error('synthetic template missing');return {};},sendPrepared:async()=>{sends++;if(fail)throw Error('timeout');return {id:'synthetic-provider-'+sends,status:'sent'};},messageStatus:async()=>({status:'delivered'})};
  const env={AYAMBIL_WHATSAPP_ENABLED:'true',AYAMBIL_QUEUE_ENCRYPTION_KEY:'a'.repeat(64)};const queue=createMessageQueue(pool,flow,env);
  const item={type:'test',dedupe:'synthetic-only',context:{to:'12025550123',eventDate:'2026-11-02'}};
