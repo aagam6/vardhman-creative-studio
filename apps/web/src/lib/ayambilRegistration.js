@@ -2,6 +2,7 @@ import { validateBooking as validateBookingFields } from './ayambilBookingValida
 import PocketBase, { BaseAuthStore } from 'pocketbase';
 import config from '../../../pocketbase/pb_hooks/ayambil/config.json';
 import { csvCell } from './ayambilPassUtils';
+import { fetchAyambilJson } from './ayambilApiResponse';
 
 // URL only; never put administrator credentials in VITE_* environment variables.
 const endpoint = import.meta.env.VITE_AYAMBIL_POCKETBASE_URL || '/hcgi/platform';
@@ -10,7 +11,7 @@ export const ayambilClient = new PocketBase(endpoint, new BaseAuthStore());
 export const eveningConfig = config;
 export async function registrationApi(path, options = {}) {
   const controller = new AbortController(); const timeout = setTimeout(() => controller.abort(), 15000);
-  try { return await ayambilClient.send(`/api/ayambil/${path}`, { ...options, signal: controller.signal, requestKey: null }); }
+  try { return await ayambilClient.send(`/api/ayambil/${path}`, { ...options, fetch: fetchAyambilJson, signal: controller.signal, requestKey: null }); }
   finally { clearTimeout(timeout); }
 }
 export function requestKey() {
