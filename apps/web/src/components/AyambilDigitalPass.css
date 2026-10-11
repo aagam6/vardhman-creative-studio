@@ -1,4 +1,4 @@
-/* Pass-only styling. PDF remains one portrait A4 page, captured at 720px. */
+/* Pass-only styling. PDF is one 90 × 200 mm portrait page, captured at 340px. */
 .ay-digital-pass{position:relative;padding:30px;background:#faf7ef;color:#342c29;border:1px solid #aa8853;outline-offset:-7px;font-family:Inter,'Nirmala UI',sans-serif;line-height:1.5}
 .ay-digital-pass .ay-pass-brand{margin-bottom:20px;gap:12px;font-size:10px;letter-spacing:.07em}
 .ay-pass-heading{text-align:center}.ay-digital-pass .ay-pass-english{font-family:Georgia,'Nirmala UI',serif;font-size:26px;color:#682b35;margin:0}
@@ -13,3 +13,24 @@
 @media print{.ay-print-selected .ay-pass-credits,.ay-print-selected .ay-pass-rules ol{grid-template-columns:1fr 1fr!important}.ay-print-selected{font-size:11px;line-height:1.5!important}.ay-print-selected .ay-pass-rules li{font-size:11px!important}.ay-print-selected .ay-pass-rules{break-inside:avoid}}
 .ay-credit-name{display:block;margin-bottom:5px}.ay-digital-pass .ay-pass-credits{grid-template-columns:1fr 1fr 1.25fr;font-size:12px}.ay-pass-registration{font-size:10px;letter-spacing:.06em;text-align:center;margin:12px 0;color:#682b35}.ay-pass-programme{margin-top:14px}.ay-pdf-render .ay-pass-credits{grid-template-columns:1fr 1fr 1.25fr!important}.ay-pass-credits dd{line-height:1.65}@media(max-width:600px){.ay-digital-pass .ay-pass-credits{grid-template-columns:1fr}}@media print{.ay-print-selected .ay-pass-credits{grid-template-columns:1fr 1fr 1.25fr!important}}
 .ay-pass-programme p[lang=gu]{font-size:24px;line-height:1.55}.ay-pdf-render .ay-pass-programme p[lang=gu]{font-size:24px!important}@media(max-width:600px){.ay-pass-programme p[lang=gu]{font-size:23px}}
+
+/* Long portrait print layout. Screen preview uses the same narrow hierarchy. */
+.ay-pass-wrapper{max-width:430px}.ay-digital-pass{padding:16px;outline:1px solid #d8c6a7;outline-offset:-5px}
+.ay-digital-pass .ay-pass-brand{font-size:8px;margin-bottom:10px;gap:8px}.ay-pass-brand img{width:28px;height:28px}.ay-digital-pass .ay-pass-brand small{font-size:8px;margin-top:2px}
+.ay-digital-pass .ay-pass-english{font-size:21px}.ay-digital-pass h3[lang=gu]{font-size:29px;margin:2px 0;line-height:1.5}
+.ay-digital-pass .ay-pass-registration{margin:6px 0;font-size:9px;letter-spacing:0}
+.ay-digital-pass .ay-pass-attendee{padding:8px 0}.ay-digital-pass .ay-pass-attendee>strong{font-size:21px;margin:4px 0 8px}.ay-digital-pass .ay-pass-attendee>b{font-size:10px;letter-spacing:0}
+.ay-digital-pass .ay-pass-programme{margin:8px 0}.ay-digital-pass .ay-pass-programme p{font-size:14px;margin:2px 0}.ay-digital-pass .ay-pass-programme p[lang=gu]{font-size:18px;line-height:1.5}.ay-digital-pass .ay-pass-programme small{font-size:9px}
+.ay-digital-pass section.ay-pass-visit{font-size:11px;margin:8px 0;padding-bottom:8px}.ay-digital-pass .ay-pass-visit h4{font-size:13px;margin:0 0 4px}
+.ay-digital-pass .ay-pass-credits{grid-template-columns:1fr;gap:6px;margin:8px 0}.ay-digital-pass .ay-pass-credits dt{font-size:11px}.ay-digital-pass .ay-pass-credits dt small{font-size:8px}.ay-digital-pass .ay-pass-credits dd{font-size:10px;line-height:1.5;margin-top:2px}.ay-digital-pass .ay-credit-name{margin-bottom:2px}
+.ay-digital-pass .ay-pass-status{font-size:9px;margin:6px 0}.ay-digital-pass section.ay-pass-rules{margin-top:8px;padding:8px}.ay-digital-pass .ay-pass-rules h4{font-size:13px}.ay-digital-pass .ay-pass-rules h4 span{font-size:11px;margin-top:2px}
+.ay-digital-pass .ay-pass-rules ol{grid-template-columns:1fr 1fr;gap:6px 16px;margin:8px 0;padding-left:14px}.ay-digital-pass .ay-pass-rules li{font-size:10px;line-height:1.4;padding:0}.ay-digital-pass .ay-pass-rules li span[lang=gu]{margin-top:2px}.ay-digital-pass .ay-pass-rules>p,.ay-digital-pass>small{font-size:9px;line-height:1.4;margin-top:6px;padding-top:6px}
+.ay-digital-pass.ay-pdf-render{width:340px!important;max-width:none!important;padding:14px!important;line-height:1.4!important;box-sizing:border-box!important}
+.ay-pdf-render .ay-pass-credits{grid-template-columns:1fr!important;gap:4px!important}.ay-pdf-render .ay-pass-rules ol{grid-template-columns:1fr 1fr!important}.ay-pdf-render .ay-pass-rules li{font-size:9px!important;line-height:1.4!important}
+.ay-pdf-render .ay-pass-english{font-size:19px!important}.ay-pdf-render h3[lang=gu]{font-size:26px!important;line-height:1.5!important}.ay-pdf-render .ay-pass-brand{margin-bottom:8px!important}.ay-pdf-render .ay-pass-programme p[lang=gu]{font-size:17px!important}.ay-pdf-render .ay-pass-attendee>strong{font-size:19px!important}
+@media print{@page{size:90mm 200mm;margin:4mm}.ay-print-selected{width:82mm!important;max-width:82mm!important;padding:3mm!important}.ay-print-selected .ay-pass-credits{grid-template-columns:1fr!important}.ay-print-selected .ay-pass-rules li{font-size:7pt!important}}
+.ay-digital-pass.ay-pdf-render{font-size:9px!important;font-family:Arial,'Nirmala UI',sans-serif!important}
+.ay-pdf-render .ay-pass-attendee>span{font-size:9px!important;line-height:1.3!important;margin:0!important}.ay-pdf-render .ay-pass-attendee>strong{line-height:1.25!important;margin:4px 0 6px!important}.ay-pdf-render .ay-pass-attendee>b{font-size:9px!important;line-height:1.3!important;margin:2px 0 0!important}
+.ay-pdf-render .ay-pass-credits dd{font-size:9px!important;line-height:1.35!important}.ay-pdf-render .ay-pass-credits dt{font-size:10px!important;line-height:1.3!important}.ay-pdf-render .ay-pass-rules li,.ay-pdf-render .ay-pass-rules li span{font-size:9px!important;line-height:1.3!important;margin:0!important}.ay-pdf-render .ay-pass-rules>p,.ay-pdf-render>small{font-size:8px!important;line-height:1.3!important}.ay-pdf-render .ay-pass-rules ol{gap:5px 14px!important}
+.ay-pdf-render .ay-pass-credits{gap:2px!important;margin:6px 0!important}.ay-pdf-render .ay-pass-programme{margin:6px 0!important}.ay-pdf-render section.ay-pass-rules{margin-top:6px!important;padding:6px!important}
+.ay-digital-pass .ay-pass-rules ol{list-style:decimal}

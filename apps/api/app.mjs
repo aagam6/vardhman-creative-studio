@@ -1,0 +1,43 @@
+import express from 'express';
+import {resolve} from 'node:path';
+import {ApiError} from './config.mjs';
+import {hash,rateHash} from './security.mjs';
+const cookieName='__Host-ayambil';
+export function createApp({store,config,staticDirectory}) {
+  const app=express();app.disable('x-powered-by');app.set('trust proxy',false);
+  const api=express.Router();
+  api.use((req,res,next)=>{res.set({'Cache-Control':'no-store','Referrer-Policy':'no-referrer','X-Content-Type-Options':'nosniff'});next();});
+  api.use(express.json({limit:'32kb'}));
+  // No CORS wildcard. Mutating browser requests require the exact configured
+  // origin; admin mutations additionally require session-bound CSRF proof.
+  api.use((req,res,next)=>{if(req.headers.origin&&req.headers.origin!==config.origin)return next(new ApiError(403,'Origin not allowed'));if(req.method==='POST'&&req.headers.origin!==config.origin)return next(new ApiError(403,'Exact site origin required'));next();});
+  const route=fn=>async(req,res,next)=>{try{await fn(req,res);}catch(error){next(error);}};
+  const token=req=>{const match=(req.headers.cookie||'').split(';').map(s=>s.trim()).find(s=>s.startsWith(cookieName+'='));return match?match.slice(cookieName.length+1):'';};
+  const admin=async(req,res,next)=>{try{req.actor=await store.session(token(req));if(req.method==='POST'&&hash(String(req.headers['x-csrf-token']||''))!==req.actor.csrf_hash)throw new ApiError(403,'Session confirmation required');next();}catch(error){next(error);}};
+  const limited=(operation,max)=>async(req,res,next)=>{try{const bucket=rateHash(config.rateSecret,operation+':'+req.socket.remoteAddress);if(!await store.limit(bucket,max))throw new ApiError(429,'Too many requests');next();}catch(error){next(error);}};
+  api.get('/health',route(async(req,res)=>{try{if(!await store.ready())throw new Error();res.json({ready:true});}catch{res.status(503).json({ready:false});}}));
+  api.get('/status',route(async(req,res)=>{try{res.json(await store.status());}catch{res.status(503).json({ready:false,open:false,whatsapp:'disabled'});}}));
+  api.post('/register',limited('register',10),route(async(req,res)=>res.json(await store.register(req.body))));
+  api.post('/pass-download',limited('download',30),route(async(req,res)=>res.json(await store.download(req.body?.key))));
+  api.post('/admin/login',limited('login',5),route(async(req,res)=>{
+    if(typeof req.body?.email!=='string'||req.body.email.length>254||typeof req.body.password!=='string'||req.body.password.length>256)throw new ApiError(400,'Invalid sign-in');
+    const session=await store.login(req.body.email.trim().toLowerCase(),req.body.password);
+    res.cookie(cookieName,session.token,{secure:true,httpOnly:true,sameSite:'strict',path:'/',maxAge:8*3600000});res.json({authenticated:true,csrfToken:session.csrf});
+  }));
+  api.get('/admin/session',admin,route(async(req,res)=>res.json({authenticated:true})));
+  api.post('/admin/session',route(async(req,res)=>res.json(await store.restoreSession(token(req)))));
+  api.post('/admin/logout',admin,route(async(req,res)=>{await store.logout(token(req));res.clearCookie(cookieName,{secure:true,httpOnly:true,sameSite:'strict',path:'/'});res.json({authenticated:false});}));
+  api.get('/admin/bookings',admin,route(async(req,res)=>res.json(await store.list(req.query))));
+  api.post('/admin/change',admin,route(async(req,res)=>res.json(await store.change(req.actor,req.body))));
+  api.post('/admin/whatsapp-retry',admin,(req,res)=>res.status(403).json({error:'WhatsApp sending and retries disabled'}));
+  api.use((req,res)=>res.status(404).json({error:'API operation unavailable'}));
+  api.use((error,req,res,next)=>{void next;const status=error instanceof ApiError?error.status:error.type==='entity.parse.failed'?400:error.type==='entity.too.large'?413:503;res.status(status).json({error:error instanceof ApiError?error.message:status===400?'Invalid JSON':'API unavailable'});});
+  app.use('/api/ayambil',api);
+  // Other API namespaces must never serve index.html or accidentally proxy the
+  // unrelated existing /hcgi/platform lead backend.
+  app.use('/api',(req,res)=>res.set('Cache-Control','no-store').status(404).json({error:'API unavailable'}));
+  app.use('/hcgi/platform',(req,res)=>res.set('Cache-Control','no-store').status(503).json({error:'Legacy backend routing requires separate configuration'}));
+  app.use(express.static(staticDirectory,{index:false}));
+  app.get('/{*path}',(req,res)=>res.sendFile(resolve(staticDirectory,'index.html')));
+  return app;
+}

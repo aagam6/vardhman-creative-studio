@@ -1,0 +1,15 @@
+import React from 'react';
+import { ArrowUpRight, Play, Clock } from 'lucide-react';
+import { updhanConfig, getYoutubeEmbedUrl, getRegistrationUrl } from '@/lib/updhanConfig';
+
+export default function UpdhanParticipation() {
+  const videoUrl = getYoutubeEmbedUrl(updhanConfig.youtubeUrl);
+  const formUrl = getRegistrationUrl(updhanConfig.registrationFormUrl);
+  return <>
+    <section id="video" className="vp-section vp-video-section">
+      <div className="vp-video-heading"><div><p className="vp-kicker">महोत्सव की एक झलक</p><h2>कार्यक्रम का वीडियो<br /><em>यहाँ देखें।</em></h2></div><p>विजयपताका – उपधान – महोत्सव<br />अचलगढ़ · 27 अप्रैल — 14 जून 2027</p></div>
+      <div className="vp-video-player">{videoUrl ? <iframe src={videoUrl} title="विजयपताका उपधान महोत्सव का आधिकारिक YouTube वीडियो" loading="lazy" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" /> : <div className="vp-video-placeholder"><span className="vp-video-symbol" aria-hidden="true"><Play size={27} strokeWidth={1} /></span><span>विजयपताका</span><h3>उपधान महोत्सव</h3><p>कार्यक्रम का वीडियो यहाँ आएगा।</p><small>YouTube</small></div>}</div>
+    </section>
+    <section id="registration" className="vp-registration"><div className="vp-section vp-registration-inner"><div><p className="vp-kicker">पंजीकरण</p><h2>उपधान की इस यात्रा में<br /><em>आपका स्वागत है।</em></h2><p className="vp-registration-copy">27 अप्रैल से 14 जून 2027<br />अचलगढ़, राजस्थान</p><p className="vp-registration-help">पंजीकरण का फॉर्म यहाँ मिलेगा। कौन भाग ले सकता है और साधना के क्या नियम हैं, यह जानकारी आयोजक से मिलने पर यहाँ जोड़ेंगे।</p><span className="vp-registration-status"><Clock size={15} />{formUrl ? 'पंजीकरण फॉर्म तैयार है' : 'पंजीकरण लिंक अभी नहीं आया है'}</span></div><div className="vp-form-panel">{formUrl ? <><h3>महोत्सव पंजीकरण</h3><p>फॉर्म में अपनी जानकारी भरें।</p><a href={formUrl} target="_blank" rel="noopener noreferrer" className="vp-btn">पंजीकरण फॉर्म खोलें <ArrowUpRight size={17} /></a></> : <><div className="vp-form-heading"><h3>पंजीकरण फॉर्म</h3><span>जल्द उपलब्ध</span></div><p id="vp-form-note">अभी यह फॉर्म का नमूना है। इसमें जानकारी भरना और भेजना शुरू नहीं हुआ है।</p><form aria-describedby="vp-form-note"><fieldset disabled><div className="vp-form-fields"><label>पूरा नाम<input type="text" name="name" autoComplete="name" placeholder="आपका पूरा नाम" /></label><label>उम्र<input type="number" name="age" placeholder="वर्ष में" /></label><label>मोबाइल नंबर<input type="tel" name="phone" autoComplete="tel" placeholder="मोबाइल नंबर" /></label><label>शहर<input type="text" name="city" autoComplete="address-level2" placeholder="आपका शहर" /></label><label className="vp-form-wide">ईमेल <small>(ज़रूरी नहीं)</small><input type="email" name="email" autoComplete="email" placeholder="name@example.com" /></label></div><button className="vp-btn" type="button">पंजीकरण जल्द खुलेगा <ArrowUpRight size={17} /></button></fieldset></form></>}</div></div></section>
+  </>;
+}

@@ -1,0 +1,54 @@
+# Ayambil production API routing investigation — 11 October 2026
+
+## Evidence and conclusion
+
+User-confirmed production GET `/hcgi/platform/api/ayambil/admin/bookings?search=&date=&status=cancelled&page=1` returns HTTP 200, `Content-Type: text/html`, `X-Powered-By: Hostinger Horizons`, `Server: hcdn`, and `Cache-Control: public, s-maxage=604800, max-age=0`. This is not the expected PocketBase API response. The admin UI's failure state is correct; do not weaken JSON validation.
+
+Repository branch inspected: `codex/ayambil-hostinger-deploy`. Existing blank-screen fix and unrelated App/sitemap/Updhan work remain unchanged. The separately pushed fix branch is not this working directory's active branch.
+
+`apps/web/src/lib/ayambilRegistration.js` constructs a PocketBase client using build-time `VITE_AYAMBIL_POCKETBASE_URL`, falling back to `/hcgi/platform`. `registrationApi('admin/bookings', {query: ...})` appends `/api/ayambil/admin/bookings`, retaining filter query parameters. The observed production path matches this fallback or an equivalent explicitly configured base; the build-time environment value itself has not been inspected.
+
+`apps/pocketbase/pb_hooks/ayambil-registration.pb.js` defines that exact GET route and returns JSON `{page, items, hasMore, integration}` after event-admin authorization. Unauthorized requests must return denial, not a successful HTML page. `ayambil-messaging.pb.js` defines attendee-specific POST private download. Supabase is a separate POST-operation test API, not a compatible replacement at this URL. The existing lead client independently uses the same PocketBase prefix; changing its routing could affect unrelated site functionality.
+
+`apps/web/public/.htaccess` rewrites missing files/directories to index.html and sets the exact Horizons and public-cache headers observed. It contains no PocketBase proxy. The header alone does not prove the request executed inside a Horizons backend: this repository itself sets it. `Server: hcdn` confirms a CDN response layer, not the location of the intended database process.
+
+**Confirmed failure:** the public API namespace is returning cacheable frontend HTML rather than the expected authorized PocketBase JSON. **Strong repository-supported explanation:** an API path reaches the SPA fallback because a working API mapping is missing or ineffective before that fallback. The actual live vhost/platform route and response body were not inspected, so missing mapping versus wrong configured base versus stale CDN fallback cannot be distinguished conclusively. A backend-only absent hook would normally be a JSON route error if PocketBase were reached; current HTML does not establish whether deployed hooks exist.
+
+`apps/pocketbase/package.json` declares a local listen argument `0.0.0.0:8090`, /data persistence and hooks/migration directories. It does not prove a production process exists, that Apache can reach it, or that this managed plan allows a standalone executable. Never proxy to 0.0.0.0 or guess localhost/8090 as a production upstream. `deployment/apache/pocketbase-proxy.conf.template` remains an uninstalled placeholder requiring a verified upstream and server-level Apache access; ProxyPass is not an .htaccess fix. Existing plan/runtime limitations remain unverified.
+
+## Authentication investigated separately
+
+Admin login calls `ayambilClient.collection('ayambil_admins').authWithPassword`, which constructs POST `/hcgi/platform/api/collections/ayambil_admins/auth-with-password`. It bypasses `registrationApi`'s custom JSON transport. A synthetic local SDK test with HTTP 200 HTML resolved without an exception, but left `authStore.isValid` false; the SDK normalized the response token to an empty string. The current UI marks authenticated after promise resolution, so a false apparent sign-in is possible under routing failure. This grants no backend authorization; subsequent admin requests fail. Treat it as an additional client hardening follow-up: validate login JSON, a nonempty token/record and valid auth store before marking signed in. No authentication code was changed in this routing-only preparation.
+
+No real credentials or production authentication POST were sent. Production authentication content type, JSON schema and invalid-credential denial remain unverified; HTTP 200 alone is inadequate.
+
+## Smallest correct fix — conditional on verified hosting facts
+
+Prefer restoring the existing `/hcgi/platform/api/*` mapping to the already authorized PocketBase instance if one exists and the platform supports it. Preserve the prefix contract for Ayambil and the lead client; strip only `/hcgi/platform` when forwarding to PocketBase root `/api/*`, preserving query parameters, methods, request bodies and Authorization. Place API routing before SPA fallback. Do not map to a generic Horizons route without evidence of matching hooks, collections and authorization.
+
+If the platform cannot proxy but an existing approved HTTPS PocketBase endpoint is verified, a separately approved frontend build may set `VITE_AYAMBIL_POCKETBASE_URL` to that backend root. This is a public URL only, configured before Vite build. Verify exact CORS origins, HTTPS, authorization and no-store on that backend; it does not fix the separately configured lead client. Do not invent `api.` DNS, create hosting or choose Supabase as an implicit fallback. If no running supported PocketBase exists, neither .htaccess nor a URL edit can supply it: backend availability/platform support is a blocker requiring a separate architecture decision.
+
+No source routing edit is justified without those facts. Merely excluding the prefix from SPA rewrites would turn HTML into a static 404, not provide a working backend. Keep the existing non-JSON rejection and pass regression tests intact.
+
+## Exact operator/dashboard/support handoff (read first; changes need approval)
+
+1. In hPanel, select **Websites → vardhmancreativestudio.com → Dashboard** (the displayed management action may be labelled Manage). Identify whether the published site is a Horizons project, a static deployment or a managed Node application. Record active build/deployment source and sanitized public API base configuration. Do not reveal other environment values.
+2. For Horizons, open the owning project and its published deployment/settings. Ask Hostinger support to identify the routing owner for `/hcgi/platform/api/*` and whether that deployment supports connecting this prefix to an existing PocketBase process. Do not assume a custom-proxy control exists in hPanel/Horizons. If absent, support must confirm the supported integration mechanism and its plan availability.
+3. Request the existing backend's actual process/runtime status, listening address, public/private URL, persistent data location, and whether the intended Ayambil hooks are loaded. Provide sanitized vhost/proxy/platform routing configuration and Apache module inventory only if Apache server configuration is actually available. For managed hosting, obtain the equivalent platform mapping from support. Do not send credentials or certificate keys.
+4. From the routing owner's network, verify the actual backend root `/api/health` returns PocketBase JSON before proposing an upstream. Verify closed `/api/ayambil/status`; no registration or messaging gate should be opened. Compare direct and public routes to distinguish backend absence from proxy failure.
+5. Request CDN/cache-rule inspection for the full `/hcgi/platform/api/*` namespace, including authentication, errors, admin, registration and private downloads. Preserve existing static assets and SPA routing. After separately approved routing repair, purge only the incorrectly cached API entries using the supported operator process; do not purge/change cache in this task.
+6. Once a supported mapping and real backend are verified, adapt the existing proxy template only on an environment that actually supports its directives. Otherwise document the platform-supported configuration or separately approved public build URL. Do not install the Apache template on managed hosting without verified server-level capability.
+
+Suggested support request: “Our published vardhmancreativestudio.com returns a SPA HTML page for `/hcgi/platform/api/ayambil/admin/bookings`, with hcdn and public s-maxage=604800. Repository expects PocketBase JSON, including `/api/collections/ayambil_admins/auth-with-password`. Please identify the active routing/cache configuration, whether a running PocketBase origin exists for this project, and the supported method to forward this API namespace before SPA fallback while preserving auth and disabling shared API caching. Do not modify settings yet.”
+
+## Cache and acceptance requirements
+
+The observed public policy may cache HTML at the CDN for seven days. There is no evidence that private attendee JSON was cached, but the same policy must never apply to authenticated JSON or pass capabilities. Require `Cache-Control: no-store` at both origin and edge for every API response, including authentication/denials/errors and private downloads; explicitly bypass CDN caching regardless of Authorization, cookies, query strings or status. Do not rely on Vary alone or origin headers if CDN rules override them. Preserve hashed-static-asset caching outside the namespace.
+
+After authorized repair, with synthetic records only: public JSON health; closed status; invalid-credential auth denial with JSON and no-store; anonymous admin denial (never attendee data); authorized test-admin JSON list; malformed/missing/expired/cancelled/superseded private-key denial; valid synthetic attendee-only response; no Age/cache-hit reuse of private API responses; SPA/static/SSL regression. Avoid logging Authorization/cookies/pass keys or request bodies. Registration and WhatsApp gates stay disabled.
+
+## Verification and changes in this task
+
+Read-only Git/source/configuration review and synthetic SDK authentication reproduction executed. No browser or production network retry bypassed the saved access denial. Production evidence in this report is supplied by the user, not a new live observation. Only this documentation file was added; no app source, .htaccess, proxy template, package, lockfile or backend configuration changed, so no new build/test run was required for this documentation-only task. Previous blank-screen results (23 frontend tests, lint/build, 59 PocketBase checks, 49 local Supabase assertions) remain historical, not newly executed here.
+
+No deployment, merge, commit/push, hPanel change, DNS change, remote migration, production-data access, secret disclosure, registration activation or message send. Remaining blockers: actual origin/platform support, deployed hook inventory, auth JSON validation follow-up, edge-cache repair and live acceptance tests. Classification remains ready for isolated testing; production routing is unresolved.
