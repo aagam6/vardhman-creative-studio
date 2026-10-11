@@ -1,5 +1,14 @@
 import { fetchAyambilJson, validatePassDownload } from './ayambilApiResponse.js';
 
+export const supportedOperations = Object.freeze({
+  health: ['GET'], status: ['GET'], register: ['POST'], 'pass-download': ['POST'],
+  'admin/login': ['POST'], 'admin/session': ['GET', 'POST'], 'admin/logout': ['POST'],
+  'admin/bookings': ['GET'], 'admin/change': ['POST'], 'admin/whatsapp-retry': ['POST'],
+  'admin/whatsapp': ['GET'], 'admin/whatsapp/inspect': ['POST'], 'admin/messages': ['GET'],
+  'admin/messages/test': ['POST'], 'admin/messages/process': ['POST'],
+  'admin/messages/status': ['POST'], 'admin/messages/reminder': ['POST'],
+});
+
 export function createAyambilApi(transport = fetchAyambilJson) {
   let csrf = '';
   const authenticated = data => {
@@ -7,10 +16,10 @@ export function createAyambilApi(transport = fetchAyambilJson) {
     return data;
   };
   async function request(path, options = {}) {
-    if (!/^[a-z-]+(?:\/[a-z-]+)?$/.test(path)) throw new Error('Invalid API operation');
+    const method = options.method || 'GET';
+    if (!Object.hasOwn(supportedOperations, path) || !supportedOperations[path].includes(method)) throw new Error('Invalid API operation');
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 15000);
-    const method = options.method || 'GET';
     const query = new URLSearchParams(options.query || {}).toString();
     const headers = { Accept: 'application/json' };
     if (method !== 'GET') headers['Content-Type'] = 'application/json';
@@ -21,12 +30,14 @@ export function createAyambilApi(transport = fetchAyambilJson) {
         ...(method !== 'GET' ? { body: JSON.stringify(options.body || {}) } : {}),
       });
       if (!response.ok) {
-        const error = new Error(response.status === 401 ? 'Administrator sign-in required' : 'Ayambil API unavailable. Please retry.');
+        const error = new Error([401, 403].includes(response.status) ? 'Administrator authentication or session confirmation required' : `Ayambil API request failed (HTTP ${response.status}). Please retry.`);
         error.status = response.status;
-        if (response.status === 401) csrf = '';
+        if ([401, 403].includes(response.status)) csrf = '';
         throw error;
       }
-      const data = await response.json();
+      if (!/^application\/(?:json|[\w.+-]+\+json)(?:\s*;|$)/i.test(response.headers.get('content-type') || '')) throw new Error('Ayambil API did not return JSON');
+      let data;
+      try { data = await response.json(); } catch { throw new Error('Ayambil API returned invalid JSON'); }
       validateResponse(path, data);
       if (path === 'register' && data.attendees.some(attendee => attendee.dates[0] !== options.body?.eventDate)) throw new Error('Incorrect registered evening');
       return data;

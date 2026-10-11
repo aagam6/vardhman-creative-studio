@@ -27,8 +27,13 @@ export default function AyambilAdminPage() {
   };
   const load = async targetPage => {
     setBusy(true); setError('');
-    try { const result = await registrationApi('admin/bookings', { query: { ...filters, page: targetPage } }); setIntegration(await registrationApi('admin/whatsapp')); setItems(result.items); setPage(result.page); setHasMore(result.hasMore); }
-    catch (failure) { if (failure.status === 401 || failure.status === 403) clearAdmin(); setError('Unable to load registrations. Check your access and try again.'); }
+    try {
+      const result = await registrationApi('admin/bookings', { query: { ...filters, page: targetPage } });
+      setItems(result.items); setPage(result.page); setHasMore(result.hasMore);
+      try { setIntegration(await registrationApi('admin/whatsapp')); }
+      catch (failure) { if (failure.status === 401 || failure.status === 403) clearAdmin(); setError(`WhatsApp configuration could not be loaded: ${failure.message}`); }
+    }
+    catch (failure) { if (failure.status === 401 || failure.status === 403) clearAdmin(); setError(`Unable to load registrations: ${failure.message}`); }
     finally { setBusy(false); }
   };
   useEffect(() => { if (authenticated) load(1); }, [authenticated]); // Filters are applied with Search, not on every keystroke.
