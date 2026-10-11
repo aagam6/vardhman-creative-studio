@@ -1,3 +1,5 @@
+> Historical audit (10 October 2026, PocketBase/Supabase phase). For the current Express staging implementation, see docs/ayambil-master-audit.md and the latest sections of both handoff reports. Earlier instructions/results below are retained as history, not current deployment authorization.
+
 # Ayambil complete implementation Continue from the existing Ayambil complete audit report at `docs/ayambil-complete-audit-results.md`.
 
 Execute a remediation phase for the confirmed blockers. Inspect the current working tree and existing changes before editing anything.

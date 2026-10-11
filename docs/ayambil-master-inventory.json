@@ -1,0 +1,6408 @@
+{
+  "scope": "Tracked file inventory; literal references are candidate evidence, NOT proof of dead code. No secret values collected.",
+  "head": "dbf62c634f135d8b279b4b87710f1a49d96dbd13",
+  "files": [
+    {
+      "path": ".gitignore",
+      "bytes": 805
+    },
+    {
+      "path": ".nvmrc",
+      "bytes": 3
+    },
+    {
+      "path": ".version",
+      "bytes": 3
+    },
+    {
+      "path": ".vscode/launch.json",
+      "bytes": 498
+    },
+    {
+      "path": "README.md",
+      "bytes": 1789
+    },
+    {
+      "path": "apps/api/app.mjs",
+      "bytes": 7453
+    },
+    {
+      "path": "apps/api/bootstrap.mjs",
+      "bytes": 4850
+    },
+    {
+      "path": "apps/api/config.mjs",
+      "bytes": 2403
+    },
+    {
+      "path": "apps/api/hostinger-bootstrap.mjs",
+      "bytes": 939
+    },
+    {
+      "path": "apps/api/message-queue.mjs",
+      "bytes": 5287
+    },
+    {
+      "path": "apps/api/migrations/001_ayambil.sql",
+      "bytes": 4716
+    },
+    {
+      "path": "apps/api/migrations/002_whatsapp_queue.sql",
+      "bytes": 805
+    },
+    {
+      "path": "apps/api/notification-context.mjs",
+      "bytes": 1340
+    },
+    {
+      "path": "apps/api/package.json",
+      "bytes": 254
+    },
+    {
+      "path": "apps/api/security.mjs",
+      "bytes": 1264
+    },
+    {
+      "path": "apps/api/server.mjs",
+      "bytes": 2805
+    },
+    {
+      "path": "apps/api/startup-diagnostics.mjs",
+      "bytes": 1007
+    },
+    {
+      "path": "apps/api/store.mjs",
+      "bytes": 13706
+    },
+    {
+      "path": "apps/api/tests/admin-list.test.mjs",
+      "bytes": 2615
+    },
+    {
+      "path": "apps/api/tests/api.test.mjs",
+      "bytes": 10835
+    },
+    {
+      "path": "apps/api/tests/bootstrap-check.mjs",
+      "bytes": 2713
+    },
+    {
+      "path": "apps/api/tests/bootstrap.test.mjs",
+      "bytes": 553
+    },
+    {
+      "path": "apps/api/tests/empty-admin-check.mjs",
+      "bytes": 1141
+    },
+    {
+      "path": "apps/api/tests/frontend-routes.test.mjs",
+      "bytes": 1800
+    },
+    {
+      "path": "apps/api/tests/hostinger-bootstrap.test.mjs",
+      "bytes": 3108
+    },
+    {
+      "path": "apps/api/tests/mariadb.test.mjs",
+      "bytes": 9185
+    },
+    {
+      "path": "apps/api/tests/mysql.test.mjs",
+      "bytes": 5268
+    },
+    {
+      "path": "apps/api/tests/notification-context.test.mjs",
+      "bytes": 3478
+    },
+    {
+      "path": "apps/api/tests/queue-check.mjs",
+      "bytes": 4754
+    },
+    {
+      "path": "apps/api/tests/queue.test.mjs",
+      "bytes": 584
+    },
+    {
+      "path": "apps/api/tests/registration-gates.test.mjs",
+      "bytes": 1273
+    },
+    {
+      "path": "apps/api/tests/schema.test.mjs",
+      "bytes": 682
+    },
+    {
+      "path": "apps/api/tests/startup-diagnostics.test.mjs",
+      "bytes": 825
+    },
+    {
+      "path": "apps/api/tests/startup.test.mjs",
+      "bytes": 1354
+    },
+    {
+      "path": "apps/api/tests/vardhmanflow.test.mjs",
+      "bytes": 4510
+    },
+    {
+      "path": "apps/api/tools/bootstrap.mjs",
+      "bytes": 1449
+    },
+    {
+      "path": "apps/api/tools/verify-flow.mjs",
+      "bytes": 1074
+    },
+    {
+      "path": "apps/api/vardhmanflow.mjs",
+      "bytes": 6536
+    },
+    {
+      "path": "apps/pocketbase/.pocketbase-version",
+      "bytes": 7
+    },
+    {
+      "path": "apps/pocketbase/database-types.d.ts",
+      "bytes": 24491
+    },
+    {
+      "path": "apps/pocketbase/package.json",
+      "bytes": 1041
+    },
+    {
+      "path": "apps/pocketbase/pb_hooks/ayambil-messaging.pb.js",
+      "bytes": 968
+    },
+    {
+      "path": "apps/pocketbase/pb_hooks/ayambil-registration.pb.js",
+      "bytes": 2962
+    },
+    {
+      "path": "apps/pocketbase/pb_hooks/ayambil/config.json",
+      "bytes": 861
+    },
+    {
+      "path": "apps/pocketbase/pb_hooks/ayambil/messaging.cjs",
+      "bytes": 9838
+    },
+    {
+      "path": "apps/pocketbase/pb_hooks/ayambil/service.cjs",
+      "bytes": 8838
+    },
+    {
+      "path": "apps/pocketbase/pb_hooks/ayambil/vardhmanflow.cjs",
+      "bytes": 5345
+    },
+    {
+      "path": "apps/pocketbase/pb_hooks/builder-mailer.pb.js",
+      "bytes": 1180
+    },
+    {
+      "path": "apps/pocketbase/pb_hooks/custom-migrations-cmd.pb.js",
+      "bytes": 5709
+    },
+    {
+      "path": "apps/pocketbase/pb_hooks/external-dashboard.pb.js",
+      "bytes": 941
+    },
+    {
+      "path": "apps/pocketbase/pb_migrations/1791590400_ayambil_registration.js",
+      "bytes": 3175
+    },
+    {
+      "path": "apps/pocketbase/pb_migrations/1791621000_ayambil_single_evening.js",
+      "bytes": 1763
+    },
+    {
+      "path": "apps/pocketbase/pb_migrations/1791622000_ayambil_vardhmanflow.js",
+      "bytes": 368
+    },
+    {
+      "path": "apps/pocketbase/pb_migrations/1791636000_ayambil_pass_terms.js",
+      "bytes": 404
+    },
+    {
+      "path": "apps/pocketbase/pb_migrations/1791640000_ayambil_attendee_downloads.js",
+      "bytes": 1162
+    },
+    {
+      "path": "apps/pocketbase/pocketbase",
+      "bytes": 31457442
+    },
+    {
+      "path": "apps/web/components.json",
+      "bytes": 480
+    },
+    {
+      "path": "apps/web/eslint.config.mjs",
+      "bytes": 2379
+    },
+    {
+      "path": "apps/web/index.html",
+      "bytes": 3300
+    },
+    {
+      "path": "apps/web/jsconfig.json",
+      "bytes": 107
+    },
+    {
+      "path": "apps/web/package.json",
+      "bytes": 3456
+    },
+    {
+      "path": "apps/web/plugins/selection-mode/selection-mode-script.js",
+      "bytes": 10154
+    },
+    {
+      "path": "apps/web/plugins/selection-mode/vite-plugin-selection-mode.js",
+      "bytes": 628
+    },
+    {
+      "path": "apps/web/plugins/utils/ast-utils.js",
+      "bytes": 8028
+    },
+    {
+      "path": "apps/web/plugins/visual-editor/edit-mode-script.js",
+      "bytes": 9512
+    },
+    {
+      "path": "apps/web/plugins/visual-editor/visual-editor-config.js",
+      "bytes": 2572
+    },
+    {
+      "path": "apps/web/plugins/visual-editor/vite-plugin-edit-mode.js",
+      "bytes": 751
+    },
+    {
+      "path": "apps/web/plugins/visual-editor/vite-plugin-react-inline-editor.js",
+      "bytes": 12747
+    },
+    {
+      "path": "apps/web/plugins/vite-plugin-iframe-route-restoration.js",
+      "bytes": 3329
+    },
+    {
+      "path": "apps/web/plugins/vite-plugin-pocketbase-auth.js",
+      "bytes": 1697
+    },
+    {
+      "path": "apps/web/postcss.config.js",
+      "bytes": 74
+    },
+    {
+      "path": "apps/web/public/.htaccess",
+      "bytes": 723
+    },
+    {
+      "path": "apps/web/public/assets/PVC.png",
+      "bytes": 33363
+    },
+    {
+      "path": "apps/web/public/assets/achalgarh-heritage.jpg",
+      "bytes": 103937
+    },
+    {
+      "path": "apps/web/public/assets/ayambil/blessings.jpeg",
+      "bytes": 637700
+    },
+    {
+      "path": "apps/web/public/assets/ayambil/book-page-8.jpeg",
+      "bytes": 83908
+    },
+    {
+      "path": "apps/web/public/assets/ayambil/book-page-9.jpeg",
+      "bytes": 94413
+    },
+    {
+      "path": "apps/web/public/assets/ayambil/day-1.jpeg",
+      "bytes": 571811
+    },
+    {
+      "path": "apps/web/public/assets/ayambil/day-2.jpeg",
+      "bytes": 511611
+    },
+    {
+      "path": "apps/web/public/assets/ayambil/day-3.jpeg",
+      "bytes": 625931
+    },
+    {
+      "path": "apps/web/public/assets/ayambil/invitation.jpeg",
+      "bytes": 572950
+    },
+    {
+      "path": "apps/web/public/assets/ayambil/manan-sanghvi-portrait.png",
+      "bytes": 108413
+    },
+    {
+      "path": "apps/web/public/assets/ayambil/sairam-dave-portrait.png",
+      "bytes": 388408
+    },
+    {
+      "path": "apps/web/public/assets/ayambil/sairam-dave-portrait.webp",
+      "bytes": 30496
+    },
+    {
+      "path": "apps/web/public/assets/ayambil/written-invitation.jpeg",
+      "bytes": 671934
+    },
+    {
+      "path": "apps/web/public/assets/emblem.png",
+      "bytes": 559699
+    },
+    {
+      "path": "apps/web/public/assets/logo.png",
+      "bytes": 35719
+    },
+    {
+      "path": "apps/web/public/assets/param-vir-chakra-back.jpg",
+      "bytes": 846934
+    },
+    {
+      "path": "apps/web/public/assets/param-vir-chakra-hero.jpg",
+      "bytes": 849005
+    },
+    {
+      "path": "apps/web/public/assets/param-vir-chakra-hero.png",
+      "bytes": 9199299
+    },
+    {
+      "path": "apps/web/public/assets/param-vir-chakra-live.jpg",
+      "bytes": 340948
+    },
+    {
+      "path": "apps/web/public/assets/param-vir-chakra-live.png",
+      "bytes": 340948
+    },
+    {
+      "path": "apps/web/public/assets/param-vir-chakra-og.jpg",
+      "bytes": 110237
+    },
+    {
+      "path": "apps/web/public/llms.txt",
+      "bytes": 1204
+    },
+    {
+      "path": "apps/web/public/pvclive/index.html",
+      "bytes": 11892
+    },
+    {
+      "path": "apps/web/public/robots.txt",
+      "bytes": 82
+    },
+    {
+      "path": "apps/web/public/site.webmanifest",
+      "bytes": 419
+    },
+    {
+      "path": "apps/web/public/sitemap.xml",
+      "bytes": 1983
+    },
+    {
+      "path": "apps/web/src/App.jsx",
+      "bytes": 3980
+    },
+    {
+      "path": "apps/web/src/components/AboutSection.jsx",
+      "bytes": 851
+    },
+    {
+      "path": "apps/web/src/components/AgencyHero.jsx",
+      "bytes": 4991
+    },
+    {
+      "path": "apps/web/src/components/AgencyNavbar.jsx",
+      "bytes": 5726
+    },
+    {
+      "path": "apps/web/src/components/AnimatedHeading.jsx",
+      "bytes": 1371
+    },
+    {
+      "path": "apps/web/src/components/AnimatedSection.jsx",
+      "bytes": 1134
+    },
+    {
+      "path": "apps/web/src/components/AyambilBookProgramme.jsx",
+      "bytes": 3236
+    },
+    {
+      "path": "apps/web/src/components/AyambilDigitalPass.css",
+      "bytes": 9109
+    },
+    {
+      "path": "apps/web/src/components/AyambilDigitalPass.jsx",
+      "bytes": 9932
+    },
+    {
+      "path": "apps/web/src/components/AyambilEventDetails.jsx",
+      "bytes": 6494
+    },
+    {
+      "path": "apps/web/src/components/AyambilInstructions.jsx",
+      "bytes": 1990
+    },
+    {
+      "path": "apps/web/src/components/AyambilRegistration.css",
+      "bytes": 8692
+    },
+    {
+      "path": "apps/web/src/components/AyambilRegistration.jsx",
+      "bytes": 12441
+    },
+    {
+      "path": "apps/web/src/components/ContactFormSection.jsx",
+      "bytes": 13394
+    },
+    {
+      "path": "apps/web/src/components/EventFooter.jsx",
+      "bytes": 11396
+    },
+    {
+      "path": "apps/web/src/components/FAQSection.jsx",
+      "bytes": 3760
+    },
+    {
+      "path": "apps/web/src/components/FooterSection.jsx",
+      "bytes": 5024
+    },
+    {
+      "path": "apps/web/src/components/HeroSection.jsx",
+      "bytes": 4714
+    },
+    {
+      "path": "apps/web/src/components/HomeLiveBanner.jsx",
+      "bytes": 6905
+    },
+    {
+      "path": "apps/web/src/components/HoverCard.jsx",
+      "bytes": 568
+    },
+    {
+      "path": "apps/web/src/components/LeadCaptureSection.jsx",
+      "bytes": 7706
+    },
+    {
+      "path": "apps/web/src/components/PageTransition.jsx",
+      "bytes": 480
+    },
+    {
+      "path": "apps/web/src/components/PassCard.jsx",
+      "bytes": 26014
+    },
+    {
+      "path": "apps/web/src/components/PortfolioSection.jsx",
+      "bytes": 15115
+    },
+    {
+      "path": "apps/web/src/components/PvcMedalSvg.jsx",
+      "bytes": 7525
+    },
+    {
+      "path": "apps/web/src/components/ScrollToTop.jsx",
+      "bytes": 491
+    },
+    {
+      "path": "apps/web/src/components/ServiceCard.jsx",
+      "bytes": 1197
+    },
+    {
+      "path": "apps/web/src/components/ServicesSection.jsx",
+      "bytes": 2364
+    },
+    {
+      "path": "apps/web/src/components/UpdhanParticipation.jsx",
+      "bytes": 4237
+    },
+    {
+      "path": "apps/web/src/components/ui/accordion.jsx",
+      "bytes": 1614
+    },
+    {
+      "path": "apps/web/src/components/ui/alert-dialog.jsx",
+      "bytes": 3460
+    },
+    {
+      "path": "apps/web/src/components/ui/alert.jsx",
+      "bytes": 1334
+    },
+    {
+      "path": "apps/web/src/components/ui/aspect-ratio.jsx",
+      "bytes": 139
+    },
+    {
+      "path": "apps/web/src/components/ui/avatar.jsx",
+      "bytes": 1028
+    },
+    {
+      "path": "apps/web/src/components/ui/badge.jsx",
+      "bytes": 989
+    },
+    {
+      "path": "apps/web/src/components/ui/breadcrumb.jsx",
+      "bytes": 2268
+    },
+    {
+      "path": "apps/web/src/components/ui/button-group.jsx",
+      "bytes": 2014
+    },
+    {
+      "path": "apps/web/src/components/ui/button.jsx",
+      "bytes": 1675
+    },
+    {
+      "path": "apps/web/src/components/ui/calendar.jsx",
+      "bytes": 6991
+    },
+    {
+      "path": "apps/web/src/components/ui/card.jsx",
+      "bytes": 1439
+    },
+    {
+      "path": "apps/web/src/components/ui/carousel.jsx",
+      "bytes": 4824
+    },
+    {
+      "path": "apps/web/src/components/ui/chart.jsx",
+      "bytes": 8884
+    },
+    {
+      "path": "apps/web/src/components/ui/checkbox.jsx",
+      "bytes": 898
+    },
+    {
+      "path": "apps/web/src/components/ui/collapsible.jsx",
+      "bytes": 328
+    },
+    {
+      "path": "apps/web/src/components/ui/command.jsx",
+      "bytes": 3999
+    },
+    {
+      "path": "apps/web/src/components/ui/context-menu.jsx",
+      "bytes": 6174
+    },
+    {
+      "path": "apps/web/src/components/ui/dialog.jsx",
+      "bytes": 3213
+    },
+    {
+      "path": "apps/web/src/components/ui/drawer.jsx",
+      "bytes": 2344
+    },
+    {
+      "path": "apps/web/src/components/ui/dropdown-menu.jsx",
+      "bytes": 6358
+    },
+    {
+      "path": "apps/web/src/components/ui/empty.jsx",
+      "bytes": 2141
+    },
+    {
+      "path": "apps/web/src/components/ui/field.jsx",
+      "bytes": 5434
+    },
+    {
+      "path": "apps/web/src/components/ui/form.jsx",
+      "bytes": 3234
+    },
+    {
+      "path": "apps/web/src/components/ui/hover-card.jsx",
+      "bytes": 1122
+    },
+    {
+      "path": "apps/web/src/components/ui/input-group.jsx",
+      "bytes": 4590
+    },
+    {
+      "path": "apps/web/src/components/ui/input-otp.jsx",
+      "bytes": 1808
+    },
+    {
+      "path": "apps/web/src/components/ui/input.jsx",
+      "bytes": 687
+    },
+    {
+      "path": "apps/web/src/components/ui/item.jsx",
+      "bytes": 4023
+    },
+    {
+      "path": "apps/web/src/components/ui/kbd.jsx",
+      "bytes": 805
+    },
+    {
+      "path": "apps/web/src/components/ui/label.jsx",
+      "bytes": 538
+    },
+    {
+      "path": "apps/web/src/components/ui/menubar.jsx",
+      "bytes": 6873
+    },
+    {
+      "path": "apps/web/src/components/ui/navigation-menu.jsx",
+      "bytes": 4298
+    },
+    {
+      "path": "apps/web/src/components/ui/pagination.jsx",
+      "bytes": 2321
+    },
+    {
+      "path": "apps/web/src/components/ui/popover.jsx",
+      "bytes": 1229
+    },
+    {
+      "path": "apps/web/src/components/ui/progress.jsx",
+      "bytes": 666
+    },
+    {
+      "path": "apps/web/src/components/ui/radio-group.jsx",
+      "bytes": 1146
+    },
+    {
+      "path": "apps/web/src/components/ui/resizable.jsx",
+      "bytes": 1990
+    },
+    {
+      "path": "apps/web/src/components/ui/scroll-area.jsx",
+      "bytes": 1361
+    },
+    {
+      "path": "apps/web/src/components/ui/select.jsx",
+      "bytes": 4768
+    },
+    {
+      "path": "apps/web/src/components/ui/separator.jsx",
+      "bytes": 613
+    },
+    {
+      "path": "apps/web/src/components/ui/sheet.jsx",
+      "bytes": 3548
+    },
+    {
+      "path": "apps/web/src/components/ui/sidebar.jsx",
+      "bytes": 20645
+    },
+    {
+      "path": "apps/web/src/components/ui/skeleton.jsx",
+      "bytes": 224
+    },
+    {
+      "path": "apps/web/src/components/ui/slider.jsx",
+      "bytes": 913
+    },
+    {
+      "path": "apps/web/src/components/ui/sonner.jsx",
+      "bytes": 782
+    },
+    {
+      "path": "apps/web/src/components/ui/spinner.jsx",
+      "bytes": 302
+    },
+    {
+      "path": "apps/web/src/components/ui/switch.jsx",
+      "bytes": 1038
+    },
+    {
+      "path": "apps/web/src/components/ui/table.jsx",
+      "bytes": 2230
+    },
+    {
+      "path": "apps/web/src/components/ui/tabs.jsx",
+      "bytes": 1528
+    },
+    {
+      "path": "apps/web/src/components/ui/textarea.jsx",
+      "bytes": 584
+    },
+    {
+      "path": "apps/web/src/components/ui/toast.jsx",
+      "bytes": 3828
+    },
+    {
+      "path": "apps/web/src/components/ui/toaster.jsx",
+      "bytes": 773
+    },
+    {
+      "path": "apps/web/src/components/ui/toggle-group.jsx",
+      "bytes": 1281
+    },
+    {
+      "path": "apps/web/src/components/ui/toggle.jsx",
+      "bytes": 1309
+    },
+    {
+      "path": "apps/web/src/components/ui/tooltip.jsx",
+      "bytes": 1126
+    },
+    {
+      "path": "apps/web/src/hooks/use-mobile.jsx",
+      "bytes": 544
+    },
+    {
+      "path": "apps/web/src/hooks/use-toast.js",
+      "bytes": 3084
+    },
+    {
+      "path": "apps/web/src/hooks/useScrollAnimation.js",
+      "bytes": 906
+    },
+    {
+      "path": "apps/web/src/index.css",
+      "bytes": 5295
+    },
+    {
+      "path": "apps/web/src/lib/ayambilApiResponse.js",
+      "bytes": 1312
+    },
+    {
+      "path": "apps/web/src/lib/ayambilBookingValidation.js",
+      "bytes": 2084
+    },
+    {
+      "path": "apps/web/src/lib/ayambilExpressClient.js",
+      "bytes": 5840
+    },
+    {
+      "path": "apps/web/src/lib/ayambilOfficialCredits.js",
+      "bytes": 1582
+    },
+    {
+      "path": "apps/web/src/lib/ayambilPassLayout.js",
+      "bytes": 776
+    },
+    {
+      "path": "apps/web/src/lib/ayambilPassPresentation.js",
+      "bytes": 2209
+    },
+    {
+      "path": "apps/web/src/lib/ayambilPassUtils.js",
+      "bytes": 991
+    },
+    {
+      "path": "apps/web/src/lib/ayambilProgramme.js",
+      "bytes": 6577
+    },
+    {
+      "path": "apps/web/src/lib/ayambilRegistration.js",
+      "bytes": 1076
+    },
+    {
+      "path": "apps/web/src/lib/ayambilTerms.js",
+      "bytes": 2696
+    },
+    {
+      "path": "apps/web/src/lib/ayambilWhatsAppContact.js",
+      "bytes": 323
+    },
+    {
+      "path": "apps/web/src/lib/contactConfig.js",
+      "bytes": 893
+    },
+    {
+      "path": "apps/web/src/lib/pocketbaseClient.js",
+      "bytes": 209
+    },
+    {
+      "path": "apps/web/src/lib/updhanConfig.js",
+      "bytes": 1061
+    },
+    {
+      "path": "apps/web/src/lib/urlNormalizer.js",
+      "bytes": 3954
+    },
+    {
+      "path": "apps/web/src/lib/utils.js",
+      "bytes": 136
+    },
+    {
+      "path": "apps/web/src/main.jsx",
+      "bytes": 339
+    },
+    {
+      "path": "apps/web/src/pages/AboutPage.jsx",
+      "bytes": 6320
+    },
+    {
+      "path": "apps/web/src/pages/AdminPassGeneratorPage.jsx",
+      "bytes": 49613
+    },
+    {
+      "path": "apps/web/src/pages/AgencyPrivacyPolicyPage.jsx",
+      "bytes": 5945
+    },
+    {
+      "path": "apps/web/src/pages/AgencyTermsOfServicePage.jsx",
+      "bytes": 5357
+    },
+    {
+      "path": "apps/web/src/pages/AyambilAdminPage.jsx",
+      "bytes": 12942
+    },
+    {
+      "path": "apps/web/src/pages/AyambilEveningPage.jsx",
+      "bytes": 4377
+    },
+    {
+      "path": "apps/web/src/pages/AyambilPage.css",
+      "bytes": 23673
+    },
+    {
+      "path": "apps/web/src/pages/AyambilPage.jsx",
+      "bytes": 13940
+    },
+    {
+      "path": "apps/web/src/pages/AyambilPassDownloadPage.jsx",
+      "bytes": 2938
+    },
+    {
+      "path": "apps/web/src/pages/ComingSoonPage.jsx",
+      "bytes": 15928
+    },
+    {
+      "path": "apps/web/src/pages/HomePage.jsx",
+      "bytes": 3726
+    },
+    {
+      "path": "apps/web/src/pages/PVCLiveRedirect.jsx",
+      "bytes": 10686
+    },
+    {
+      "path": "apps/web/src/pages/ParamVirChakraPage.jsx",
+      "bytes": 163993
+    },
+    {
+      "path": "apps/web/src/pages/PassCollectionPage.jsx",
+      "bytes": 14066
+    },
+    {
+      "path": "apps/web/src/pages/PrivacyPolicyPage.jsx",
+      "bytes": 9143
+    },
+    {
+      "path": "apps/web/src/pages/ServicesPage.jsx",
+      "bytes": 7189
+    },
+    {
+      "path": "apps/web/src/pages/UpdhanPage.css",
+      "bytes": 27710
+    },
+    {
+      "path": "apps/web/src/pages/UpdhanPage.jsx",
+      "bytes": 25105
+    },
+    {
+      "path": "apps/web/src/pages/VardhmanComingSoonPage.jsx",
+      "bytes": 1027
+    },
+    {
+      "path": "apps/web/staging/index.html",
+      "bytes": 310
+    },
+    {
+      "path": "apps/web/staging/main.jsx",
+      "bytes": 1520
+    },
+    {
+      "path": "apps/web/tailwind.config.js",
+      "bytes": 2820
+    },
+    {
+      "path": "apps/web/tests/ayambilApiResponse.test.js",
+      "bytes": 2145
+    },
+    {
+      "path": "apps/web/tests/ayambilAvailability.test.js",
+      "bytes": 859
+    },
+    {
+      "path": "apps/web/tests/ayambilBookingValidation.test.js",
+      "bytes": 1306
+    },
+    {
+      "path": "apps/web/tests/ayambilExpressClient.test.js",
+      "bytes": 4034
+    },
+    {
+      "path": "apps/web/tests/ayambilInstallBuild.test.js",
+      "bytes": 843
+    },
+    {
+      "path": "apps/web/tests/ayambilMessaging.test.js",
+      "bytes": 9732
+    },
+    {
+      "path": "apps/web/tests/ayambilOperations.test.js",
+      "bytes": 2142
+    },
+    {
+      "path": "apps/web/tests/ayambilPassPresentation.test.js",
+      "bytes": 1855
+    },
+    {
+      "path": "apps/web/tests/ayambilPassUtils.test.js",
+      "bytes": 2050
+    },
+    {
+      "path": "apps/web/tests/ayambilStaging.test.js",
+      "bytes": 860
+    },
+    {
+      "path": "apps/web/tests/ayambilWhatsAppContact.test.js",
+      "bytes": 475
+    },
+    {
+      "path": "apps/web/tools/build.mjs",
+      "bytes": 778
+    },
+    {
+      "path": "apps/web/tools/generate-llms.js",
+      "bytes": 4809
+    },
+    {
+      "path": "apps/web/tools/install-missing-components.js",
+      "bytes": 5990
+    },
+    {
+      "path": "apps/web/vite.config.js",
+      "bytes": 8436
+    },
+    {
+      "path": "apps/web/vite.staging.config.js",
+      "bytes": 763
+    },
+    {
+      "path": "apps/whatsapp_sender/README.md",
+      "bytes": 5253
+    },
+    {
+      "path": "apps/whatsapp_sender/app.py",
+      "bytes": 56721
+    },
+    {
+      "path": "apps/whatsapp_sender/build/whatsapp_sender/Analysis-00.toc",
+      "bytes": 505384
+    },
+    {
+      "path": "apps/whatsapp_sender/build/whatsapp_sender/EXE-00.toc",
+      "bytes": 282258
+    },
+    {
+      "path": "apps/whatsapp_sender/build/whatsapp_sender/PKG-00.toc",
+      "bytes": 280484
+    },
+    {
+      "path": "apps/whatsapp_sender/build/whatsapp_sender/PYZ-00.pyz",
+      "bytes": 10759319
+    },
+    {
+      "path": "apps/whatsapp_sender/build/whatsapp_sender/PYZ-00.toc",
+      "bytes": 212926
+    },
+    {
+      "path": "apps/whatsapp_sender/build/whatsapp_sender/WhatsApp_PDF_Sender.pkg",
+      "bytes": 84000199
+    },
+    {
+      "path": "apps/whatsapp_sender/build/whatsapp_sender/base_library.zip",
+      "bytes": 1401781
+    },
+    {
+      "path": "apps/whatsapp_sender/build/whatsapp_sender/localpycs/pyimod01_archive.pyc",
+      "bytes": 4930
+    },
+    {
+      "path": "apps/whatsapp_sender/build/whatsapp_sender/localpycs/pyimod02_importers.pyc",
+      "bytes": 31802
+    },
+    {
+      "path": "apps/whatsapp_sender/build/whatsapp_sender/localpycs/pyimod03_ctypes.pyc",
+      "bytes": 6450
+    },
+    {
+      "path": "apps/whatsapp_sender/build/whatsapp_sender/localpycs/pyimod04_pywin32.pyc",
+      "bytes": 1679
+    },
+    {
+      "path": "apps/whatsapp_sender/build/whatsapp_sender/localpycs/struct.pyc",
+      "bytes": 305
+    },
+    {
+      "path": "apps/whatsapp_sender/build/whatsapp_sender/warn-whatsapp_sender.txt",
+      "bytes": 49837
+    },
+    {
+      "path": "apps/whatsapp_sender/build/whatsapp_sender/xref-whatsapp_sender.html",
+      "bytes": 2471108
+    },
+    {
+      "path": "apps/whatsapp_sender/build_exe.bat",
+      "bytes": 1505
+    },
+    {
+      "path": "apps/whatsapp_sender/requirements.txt",
+      "bytes": 171
+    },
+    {
+      "path": "apps/whatsapp_sender/run.bat",
+      "bytes": 1264
+    },
+    {
+      "path": "apps/whatsapp_sender/test_chrome.py",
+      "bytes": 1591
+    },
+    {
+      "path": "apps/whatsapp_sender/whatsapp_sender.spec",
+      "bytes": 1048
+    },
+    {
+      "path": "deployment/apache/pocketbase-proxy.conf.template",
+      "bytes": 1592
+    },
+    {
+      "path": "docs/AYAMBIL-HANDOFF.md",
+      "bytes": 35519
+    },
+    {
+      "path": "docs/ayambil-api-routing-investigation.md",
+      "bytes": 10915
+    },
+    {
+      "path": "docs/ayambil-blank-screen-fix.md",
+      "bytes": 6012
+    },
+    {
+      "path": "docs/ayambil-book-and-official-names-results.md",
+      "bytes": 5482
+    },
+    {
+      "path": "docs/ayambil-complete-audit-results.md",
+      "bytes": 42742
+    },
+    {
+      "path": "docs/ayambil-final-redesign-results.md",
+      "bytes": 3637
+    },
+    {
+      "path": "docs/ayambil-github-deployment-review.md",
+      "bytes": 10278
+    },
+    {
+      "path": "docs/ayambil-mysql-backend-preparation.md",
+      "bytes": 185768
+    },
+    {
+      "path": "docs/ayambil-mysql-hosting-blocker.md",
+      "bytes": 6131
+    },
+    {
+      "path": "docs/ayambil-pass-redesign-results.md",
+      "bytes": 4387
+    },
+    {
+      "path": "docs/ayambil-performer-fix-results.md",
+      "bytes": 3988
+    },
+    {
+      "path": "docs/ayambil-phase3-deployment.md",
+      "bytes": 9469
+    },
+    {
+      "path": "docs/ayambil-phase5a-results.md",
+      "bytes": 10575
+    },
+    {
+      "path": "docs/ayambil-registration-deployment.md",
+      "bytes": 7893
+    },
+    {
+      "path": "docs/ayambil-supabase-phase4-results.md",
+      "bytes": 9427
+    },
+    {
+      "path": "docs/ayambil-supabase-phase4b-results.md",
+      "bytes": 6917
+    },
+    {
+      "path": "docs/ayambil-supabase-test-deployment.md",
+      "bytes": 12912
+    },
+    {
+      "path": "docs/pocketbase-apache-proxy.md",
+      "bytes": 8010
+    },
+    {
+      "path": "package-lock.json",
+      "bytes": 348893
+    },
+    {
+      "path": "package.json",
+      "bytes": 1147
+    },
+    {
+      "path": "supabase/config.toml",
+      "bytes": 246
+    },
+    {
+      "path": "supabase/functions/_shared/contracts.mjs",
+      "bytes": 3357
+    },
+    {
+      "path": "supabase/functions/_shared/handler.mjs",
+      "bytes": 6474
+    },
+    {
+      "path": "supabase/functions/_shared/programme.json",
+      "bytes": 759
+    },
+    {
+      "path": "supabase/functions/_shared/vardhmanflow.mjs",
+      "bytes": 5436
+    },
+    {
+      "path": "supabase/functions/ayambil-test/index.ts",
+      "bytes": 1700
+    },
+    {
+      "path": "supabase/migrations/202610100001_ayambil_test_schema.sql",
+      "bytes": 6019
+    },
+    {
+      "path": "supabase/migrations/202610100002_ayambil_test_rpc.sql",
+      "bytes": 14970
+    },
+    {
+      "path": "supabase/migrations/202610100003_ayambil_staff_fixture.sql",
+      "bytes": 1806
+    },
+    {
+      "path": "supabase/migrations/202610100004_ayambil_disable_staff_fixture.sql",
+      "bytes": 293
+    },
+    {
+      "path": "supabase/migrations/202610100005_ayambil_booking_terms.sql",
+      "bytes": 12861
+    },
+    {
+      "path": "supabase/tests/hosted-inventory.sql",
+      "bytes": 433
+    },
+    {
+      "path": "supabase/tests/hosted-transactions.sql",
+      "bytes": 6114
+    },
+    {
+      "path": "supabase/tests/security.sql",
+      "bytes": 1312
+    },
+    {
+      "path": "tools/ayambil-audit-dependencies-final.json",
+      "bytes": 5613
+    },
+    {
+      "path": "tools/ayambil-audit-dependencies-remediation.json",
+      "bytes": 5613
+    },
+    {
+      "path": "tools/ayambil-audit-dependencies.json",
+      "bytes": 12093
+    },
+    {
+      "path": "tools/ayambil-flow-inspect.mjs",
+      "bytes": 2543
+    },
+    {
+      "path": "tools/ayambil-long-pass-check.mjs",
+      "bytes": 3541
+    },
+    {
+      "path": "tools/ayambil-staging-postinstall.mjs",
+      "bytes": 1059
+    },
+    {
+      "path": "tools/ayambil-ui-preview.config.mjs",
+      "bytes": 2130
+    },
+    {
+      "path": "tools/ayambil.browser-preview.mjs",
+      "bytes": 1604
+    },
+    {
+      "path": "tools/ayambil.integration.test.mjs",
+      "bytes": 24263
+    },
+    {
+      "path": "tools/ayambil.supabase.hosted.test.mjs",
+      "bytes": 10545
+    },
+    {
+      "path": "tools/ayambil.supabase.phase4b.test.mjs",
+      "bytes": 8200
+    },
+    {
+      "path": "tools/ayambil.supabase.test.mjs",
+      "bytes": 21629
+    },
+    {
+      "path": "tools/supabase-pass-preview/index.html",
+      "bytes": 353
+    },
+    {
+      "path": "tools/supabase-pass-preview/main.jsx",
+      "bytes": 953
+    },
+    {
+      "path": "tools/supabase-pass-preview/vite.config.mjs",
+      "bytes": 954
+    }
+  ],
+  "routes": [
+    {
+      "file": "apps/api/app.mjs",
+      "path": "/health"
+    },
+    {
+      "file": "apps/api/app.mjs",
+      "path": "/status"
+    },
+    {
+      "file": "apps/api/app.mjs",
+      "path": "/register"
+    },
+    {
+      "file": "apps/api/app.mjs",
+      "path": "/pass-download"
+    },
+    {
+      "file": "apps/api/app.mjs",
+      "path": "/admin/login"
+    },
+    {
+      "file": "apps/api/app.mjs",
+      "path": "/admin/session"
+    },
+    {
+      "file": "apps/api/app.mjs",
+      "path": "/admin/session"
+    },
+    {
+      "file": "apps/api/app.mjs",
+      "path": "/admin/logout"
+    },
+    {
+      "file": "apps/api/app.mjs",
+      "path": "/admin/bookings"
+    },
+    {
+      "file": "apps/api/app.mjs",
+      "path": "/admin/change"
+    },
+    {
+      "file": "apps/api/app.mjs",
+      "path": "/admin/whatsapp-retry"
+    },
+    {
+      "file": "apps/api/app.mjs",
+      "path": "/admin/whatsapp"
+    },
+    {
+      "file": "apps/api/app.mjs",
+      "path": "/admin/messages"
+    },
+    {
+      "file": "apps/api/app.mjs",
+      "path": "/admin/messages/reminder"
+    },
+    {
+      "file": "apps/api/app.mjs",
+      "path": "/admin/messages/process"
+    },
+    {
+      "file": "apps/api/app.mjs",
+      "path": "/admin/messages/status"
+    },
+    {
+      "file": "apps/api/app.mjs",
+      "path": "/admin/messages/test"
+    },
+    {
+      "file": "apps/api/app.mjs",
+      "path": "/admin/whatsapp/inspect"
+    },
+    {
+      "file": "apps/pocketbase/pb_hooks/builder-mailer.pb.js",
+      "path": "../pb_data/types.d.ts"
+    },
+    {
+      "file": "apps/pocketbase/pb_hooks/custom-migrations-cmd.pb.js",
+      "path": "../pb_data/types.d.ts"
+    },
+    {
+      "file": "apps/pocketbase/pb_hooks/external-dashboard.pb.js",
+      "path": "../pb_data/types.d.ts"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "path": "/"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "path": "/about"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "path": "/services"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "path": "/param-vir-chakra"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "path": "/vijaypataka-updhan-mahotsav"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "path": "/500-akhand-ayambil-vijayollas"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "path": "/admin/ayambil"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "path": "/500-akhand-ayambil-vijayollas/manan-sanghvi"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "path": "/500-akhand-ayambil-vijayollas/sairam-dave"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "path": "/500-akhand-ayambil-vijayollas/passes"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "path": "/विजयपताका-उपधान-महोत्सव"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "path": "/updhan"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "path": "/privacy-policy"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "path": "/privacy"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "path": "/terms"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "path": "/pass-collection"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "path": "/admin/pass-generator"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "path": "/pvclive"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "path": "*"
+    },
+    {
+      "file": "apps/web/staging/main.jsx",
+      "path": "/"
+    },
+    {
+      "file": "apps/web/staging/main.jsx",
+      "path": "/500-akhand-ayambil-vijayollas"
+    },
+    {
+      "file": "apps/web/staging/main.jsx",
+      "path": "/500-akhand-ayambil-vijayollas/manan-sanghvi"
+    },
+    {
+      "file": "apps/web/staging/main.jsx",
+      "path": "/500-akhand-ayambil-vijayollas/sairam-dave"
+    },
+    {
+      "file": "apps/web/staging/main.jsx",
+      "path": "/500-akhand-ayambil-vijayollas/passes"
+    },
+    {
+      "file": "apps/web/staging/main.jsx",
+      "path": "/admin/ayambil"
+    },
+    {
+      "file": "apps/web/staging/main.jsx",
+      "path": "*"
+    },
+    {
+      "file": "apps/web/tests/ayambilStaging.test.js",
+      "path": "\\*"
+    },
+    {
+      "file": "apps/web/tests/ayambilStaging.test.js",
+      "path": "\\/admin\\/ayambil"
+    }
+  ],
+  "environmentNames": {
+    "VARDHMAN_FLOW_API_KEY": [
+      "apps/api/app.mjs",
+      "apps/api/config.mjs",
+      "apps/api/tests/notification-context.test.mjs",
+      "apps/api/tests/vardhmanflow.test.mjs",
+      "apps/api/tools/verify-flow.mjs",
+      "apps/api/vardhmanflow.mjs",
+      "docs/ayambil-mysql-backend-preparation.md"
+    ],
+    "VARDHMAN_FLOW_API_SECRET": [
+      "apps/api/app.mjs",
+      "apps/api/config.mjs",
+      "apps/api/tests/notification-context.test.mjs",
+      "apps/api/tests/vardhmanflow.test.mjs",
+      "apps/api/tools/verify-flow.mjs",
+      "apps/api/vardhmanflow.mjs",
+      "docs/ayambil-mysql-backend-preparation.md"
+    ],
+    "DB_PORT": [
+      "apps/api/config.mjs",
+      "apps/api/startup-diagnostics.mjs",
+      "apps/api/tests/api.test.mjs",
+      "apps/api/tests/hostinger-bootstrap.test.mjs",
+      "apps/api/tests/mariadb.test.mjs",
+      "docs/ayambil-mysql-backend-preparation.md",
+      "docs/ayambil-mysql-hosting-blocker.md"
+    ],
+    "AYAMBIL_SITE_ORIGIN": [
+      "apps/api/config.mjs",
+      "apps/api/startup-diagnostics.mjs",
+      "apps/api/tests/api.test.mjs",
+      "apps/api/tests/hostinger-bootstrap.test.mjs",
+      "apps/api/tests/mariadb.test.mjs",
+      "apps/api/tests/mysql.test.mjs",
+      "apps/api/tests/queue-check.mjs",
+      "docs/ayambil-mysql-backend-preparation.md"
+    ],
+    "AYAMBIL_RATE_LIMIT_SECRET": [
+      "apps/api/config.mjs",
+      "apps/api/startup-diagnostics.mjs",
+      "apps/api/tests/api.test.mjs",
+      "apps/api/tests/hostinger-bootstrap.test.mjs",
+      "apps/api/tests/mariadb.test.mjs",
+      "apps/api/tests/mysql.test.mjs",
+      "apps/api/tests/queue-check.mjs",
+      "docs/ayambil-mysql-backend-preparation.md"
+    ],
+    "AYAMBIL_WHATSAPP_ENABLED": [
+      "apps/api/config.mjs",
+      "apps/api/hostinger-bootstrap.mjs",
+      "apps/api/message-queue.mjs",
+      "apps/api/server.mjs",
+      "apps/api/tests/api.test.mjs",
+      "apps/api/tests/hostinger-bootstrap.test.mjs",
+      "apps/api/tests/queue-check.mjs",
+      "apps/api/tests/vardhmanflow.test.mjs",
+      "apps/api/tools/verify-flow.mjs",
+      "apps/api/vardhmanflow.mjs",
+      "docs/AYAMBIL-HANDOFF.md",
+      "docs/ayambil-mysql-backend-preparation.md"
+    ],
+    "AYAMBIL_QUEUE_ENCRYPTION_KEY": [
+      "apps/api/config.mjs",
+      "apps/api/message-queue.mjs",
+      "apps/api/tests/queue-check.mjs",
+      "docs/ayambil-mysql-backend-preparation.md"
+    ],
+    "AYAMBIL_FLOW_TEMPLATE_MAPPINGS": [
+      "apps/api/config.mjs",
+      "apps/api/tests/notification-context.test.mjs",
+      "apps/api/tests/vardhmanflow.test.mjs",
+      "apps/api/vardhmanflow.mjs",
+      "docs/ayambil-mysql-backend-preparation.md"
+    ],
+    "DB_HOST": [
+      "apps/api/config.mjs",
+      "apps/api/startup-diagnostics.mjs",
+      "apps/api/tests/api.test.mjs",
+      "apps/api/tests/hostinger-bootstrap.test.mjs",
+      "apps/api/tests/mariadb.test.mjs",
+      "apps/api/tests/mysql.test.mjs",
+      "docs/ayambil-mysql-backend-preparation.md",
+      "docs/ayambil-mysql-hosting-blocker.md"
+    ],
+    "DB_NAME": [
+      "apps/api/config.mjs",
+      "apps/api/startup-diagnostics.mjs",
+      "apps/api/tests/api.test.mjs",
+      "apps/api/tests/hostinger-bootstrap.test.mjs",
+      "apps/api/tests/mariadb.test.mjs",
+      "apps/api/tests/mysql.test.mjs",
+      "docs/ayambil-mysql-backend-preparation.md",
+      "docs/ayambil-mysql-hosting-blocker.md"
+    ],
+    "DB_USER": [
+      "apps/api/config.mjs",
+      "apps/api/startup-diagnostics.mjs",
+      "apps/api/tests/api.test.mjs",
+      "apps/api/tests/hostinger-bootstrap.test.mjs",
+      "docs/ayambil-mysql-backend-preparation.md",
+      "docs/ayambil-mysql-hosting-blocker.md"
+    ],
+    "DB_PASSWORD": [
+      "apps/api/config.mjs",
+      "apps/api/startup-diagnostics.mjs",
+      "apps/api/tests/api.test.mjs",
+      "apps/api/tests/hostinger-bootstrap.test.mjs",
+      "apps/api/tests/startup-diagnostics.test.mjs",
+      "docs/ayambil-mysql-backend-preparation.md",
+      "docs/ayambil-mysql-hosting-blocker.md"
+    ],
+    "AYAMBIL_REGISTRATION_OPEN": [
+      "apps/api/config.mjs",
+      "apps/api/hostinger-bootstrap.mjs",
+      "apps/api/tests/hostinger-bootstrap.test.mjs",
+      "apps/api/tests/mariadb.test.mjs",
+      "apps/api/tests/mysql.test.mjs",
+      "apps/api/tests/queue-check.mjs",
+      "apps/pocketbase/pb_hooks/ayambil-registration.pb.js",
+      "apps/pocketbase/pb_hooks/ayambil/service.cjs",
+      "docs/AYAMBIL-HANDOFF.md",
+      "docs/ayambil-mysql-backend-preparation.md",
+      "docs/ayambil-phase3-deployment.md",
+      "docs/ayambil-registration-deployment.md",
+      "docs/pocketbase-apache-proxy.md",
+      "tools/ayambil.browser-preview.mjs",
+      "tools/ayambil.integration.test.mjs"
+    ],
+    "AYAMBIL_BOOTSTRAP_APPROVED": [
+      "apps/api/hostinger-bootstrap.mjs",
+      "apps/api/tests/hostinger-bootstrap.test.mjs",
+      "apps/api/tools/bootstrap.mjs",
+      "docs/ayambil-mysql-backend-preparation.md"
+    ],
+    "AYAMBIL_INITIAL_ADMIN_EMAIL": [
+      "apps/api/hostinger-bootstrap.mjs",
+      "apps/api/tools/bootstrap.mjs",
+      "docs/ayambil-mysql-backend-preparation.md"
+    ],
+    "AYAMBIL_INITIAL_ADMIN_PASSWORD": [
+      "apps/api/hostinger-bootstrap.mjs",
+      "apps/api/tests/hostinger-bootstrap.test.mjs",
+      "docs/ayambil-mysql-backend-preparation.md"
+    ],
+    "PORT": [
+      "apps/api/server.mjs"
+    ],
+    "AYAMBIL_WHATSAPP_ADMIN_RECIPIENTS": [
+      "apps/api/server.mjs",
+      "docs/ayambil-mysql-backend-preparation.md"
+    ],
+    "AYAMBIL_WHATSAPP_TEST_RECIPIENT": [
+      "apps/api/server.mjs",
+      "docs/ayambil-mysql-backend-preparation.md"
+    ],
+    "AYAMBIL_LISTEN_HOST": [
+      "apps/api/server.mjs",
+      "docs/ayambil-mysql-backend-preparation.md"
+    ],
+    "AYAMBIL_DISPOSABLE_MARIADB_TEST": [
+      "apps/api/tests/mariadb.test.mjs",
+      "docs/ayambil-mysql-backend-preparation.md"
+    ],
+    "AYAMBIL_DISPOSABLE_MYSQL_TEST": [
+      "apps/api/tests/mariadb.test.mjs",
+      "apps/api/tests/mysql.test.mjs",
+      "docs/ayambil-mysql-backend-preparation.md"
+    ],
+    "AYAMBIL_MARIADB_VERIFIED_PORT": [
+      "apps/api/tests/mariadb.test.mjs",
+      "docs/ayambil-mysql-backend-preparation.md"
+    ],
+    "VARDHMAN_FLOW_CHANNEL_ID": [
+      "apps/api/tests/vardhmanflow.test.mjs",
+      "apps/api/tools/verify-flow.mjs",
+      "apps/api/vardhmanflow.mjs",
+      "docs/ayambil-mysql-backend-preparation.md"
+    ],
+    "VARDHMAN_FLOW_BASE_URL": [
+      "apps/api/tests/vardhmanflow.test.mjs",
+      "apps/api/vardhmanflow.mjs",
+      "docs/ayambil-mysql-backend-preparation.md"
+    ],
+    "PB_ENCRYPTION_KEY": [
+      "apps/pocketbase/package.json"
+    ],
+    "AYAMBIL_FLOW_API_KEY": [
+      "apps/pocketbase/pb_hooks/ayambil/messaging.cjs",
+      "apps/pocketbase/pb_hooks/ayambil/vardhmanflow.cjs",
+      "apps/web/tests/ayambilMessaging.test.js",
+      "docs/ayambil-phase3-deployment.md",
+      "docs/ayambil-supabase-test-deployment.md",
+      "supabase/functions/_shared/vardhmanflow.mjs",
+      "tools/ayambil-flow-inspect.mjs",
+      "tools/ayambil.integration.test.mjs",
+      "tools/ayambil.supabase.test.mjs"
+    ],
+    "AYAMBIL_FLOW_API_SECRET": [
+      "apps/pocketbase/pb_hooks/ayambil/messaging.cjs",
+      "apps/pocketbase/pb_hooks/ayambil/vardhmanflow.cjs",
+      "apps/web/tests/ayambilMessaging.test.js",
+      "docs/ayambil-phase3-deployment.md",
+      "docs/ayambil-supabase-test-deployment.md",
+      "supabase/functions/_shared/vardhmanflow.mjs",
+      "tools/ayambil-flow-inspect.mjs",
+      "tools/ayambil.integration.test.mjs",
+      "tools/ayambil.supabase.test.mjs"
+    ],
+    "AYAMBIL_FLOW_API_PREFIX": [
+      "apps/pocketbase/pb_hooks/ayambil/messaging.cjs",
+      "apps/pocketbase/pb_hooks/ayambil/vardhmanflow.cjs",
+      "apps/web/tests/ayambilMessaging.test.js",
+      "docs/ayambil-phase3-deployment.md",
+      "docs/ayambil-supabase-test-deployment.md",
+      "supabase/functions/_shared/handler.mjs",
+      "supabase/functions/_shared/vardhmanflow.mjs",
+      "tools/ayambil-flow-inspect.mjs",
+      "tools/ayambil.integration.test.mjs",
+      "tools/ayambil.supabase.test.mjs"
+    ],
+    "AYAMBIL_FLOW_TEMPLATE_02": [
+      "apps/pocketbase/pb_hooks/ayambil/messaging.cjs",
+      "apps/web/tests/ayambilMessaging.test.js",
+      "docs/ayambil-phase3-deployment.md",
+      "docs/ayambil-supabase-test-deployment.md",
+      "tools/ayambil.integration.test.mjs",
+      "tools/ayambil.supabase.test.mjs"
+    ],
+    "AYAMBIL_FLOW_TEMPLATE_03": [
+      "apps/pocketbase/pb_hooks/ayambil/messaging.cjs",
+      "apps/web/tests/ayambilMessaging.test.js",
+      "tools/ayambil.integration.test.mjs",
+      "tools/ayambil.supabase.test.mjs"
+    ],
+    "AYAMBIL_FLOW_LANGUAGE_02": [
+      "apps/pocketbase/pb_hooks/ayambil/messaging.cjs",
+      "apps/web/tests/ayambilMessaging.test.js",
+      "docs/ayambil-phase3-deployment.md",
+      "docs/ayambil-supabase-test-deployment.md",
+      "tools/ayambil.integration.test.mjs",
+      "tools/ayambil.supabase.test.mjs"
+    ],
+    "AYAMBIL_FLOW_LANGUAGE_03": [
+      "apps/pocketbase/pb_hooks/ayambil/messaging.cjs",
+      "apps/web/tests/ayambilMessaging.test.js",
+      "tools/ayambil.integration.test.mjs",
+      "tools/ayambil.supabase.test.mjs"
+    ],
+    "AYAMBIL_FLOW_PARAMETERS_02": [
+      "apps/pocketbase/pb_hooks/ayambil/messaging.cjs",
+      "apps/web/tests/ayambilMessaging.test.js",
+      "docs/ayambil-phase3-deployment.md",
+      "docs/ayambil-supabase-test-deployment.md",
+      "tools/ayambil.integration.test.mjs",
+      "tools/ayambil.supabase.test.mjs"
+    ],
+    "AYAMBIL_FLOW_PARAMETERS_03": [
+      "apps/pocketbase/pb_hooks/ayambil/messaging.cjs",
+      "apps/web/tests/ayambilMessaging.test.js",
+      "tools/ayambil.integration.test.mjs",
+      "tools/ayambil.supabase.test.mjs"
+    ],
+    "AYAMBIL_PUBLIC_SITE_URL": [
+      "apps/pocketbase/pb_hooks/ayambil/messaging.cjs",
+      "apps/web/tests/ayambilMessaging.test.js",
+      "docs/ayambil-phase3-deployment.md",
+      "docs/ayambil-supabase-test-deployment.md",
+      "supabase/functions/_shared/contracts.mjs",
+      "tools/ayambil.integration.test.mjs",
+      "tools/ayambil.supabase.test.mjs"
+    ],
+    "AYAMBIL_FLOW_PARAMETERS_": [
+      "apps/pocketbase/pb_hooks/ayambil/messaging.cjs",
+      "apps/pocketbase/pb_hooks/ayambil/vardhmanflow.cjs",
+      "supabase/functions/_shared/vardhmanflow.mjs"
+    ],
+    "AYAMBIL_DEPLOYMENT_VERIFIED": [
+      "apps/pocketbase/pb_hooks/ayambil/messaging.cjs",
+      "apps/web/tests/ayambilMessaging.test.js",
+      "docs/ayambil-phase3-deployment.md",
+      "tools/ayambil.integration.test.mjs"
+    ],
+    "AYAMBIL_FLOW_TEMPLATES_VERIFIED": [
+      "apps/pocketbase/pb_hooks/ayambil/messaging.cjs",
+      "apps/web/tests/ayambilMessaging.test.js",
+      "docs/ayambil-phase3-deployment.md",
+      "tools/ayambil.integration.test.mjs"
+    ],
+    "AYAMBIL_FLOW_TEMPLATE_": [
+      "apps/pocketbase/pb_hooks/ayambil/messaging.cjs",
+      "apps/pocketbase/pb_hooks/ayambil/vardhmanflow.cjs",
+      "supabase/functions/_shared/contracts.mjs",
+      "supabase/functions/_shared/vardhmanflow.mjs",
+      "tools/ayambil-flow-inspect.mjs"
+    ],
+    "AYAMBIL_FLOW_LANGUAGE_": [
+      "apps/pocketbase/pb_hooks/ayambil/messaging.cjs",
+      "apps/pocketbase/pb_hooks/ayambil/vardhmanflow.cjs",
+      "supabase/functions/_shared/contracts.mjs",
+      "supabase/functions/_shared/vardhmanflow.mjs",
+      "tools/ayambil-flow-inspect.mjs"
+    ],
+    "AYAMBIL_FLOW_CHANNEL_ID": [
+      "apps/pocketbase/pb_hooks/ayambil/vardhmanflow.cjs",
+      "apps/web/tests/ayambilMessaging.test.js",
+      "docs/ayambil-phase3-deployment.md",
+      "docs/ayambil-supabase-test-deployment.md",
+      "supabase/functions/_shared/vardhmanflow.mjs",
+      "tools/ayambil-flow-inspect.mjs",
+      "tools/ayambil.integration.test.mjs"
+    ],
+    "VITE_PROJECT_ROOT": [
+      "apps/web/plugins/utils/ast-utils.js",
+      "apps/web/plugins/visual-editor/vite-plugin-react-inline-editor.js"
+    ],
+    "AYAMBIL_STAGING_BUILD": [
+      "apps/web/tests/ayambilInstallBuild.test.js",
+      "docs/AYAMBIL-HANDOFF.md",
+      "docs/ayambil-mysql-backend-preparation.md",
+      "tools/ayambil-staging-postinstall.mjs"
+    ],
+    "NODE_ENV": [
+      "apps/web/vite.config.js"
+    ],
+    "TEMPLATE_BANNER_SCRIPT_URL": [
+      "apps/web/vite.config.js"
+    ],
+    "TEMPLATE_REDIRECT_URL": [
+      "apps/web/vite.config.js"
+    ],
+    "VITE_AYAMBIL_POCKETBASE_URL": [
+      "docs/ayambil-api-routing-investigation.md",
+      "docs/ayambil-complete-audit-results.md",
+      "docs/ayambil-github-deployment-review.md",
+      "docs/ayambil-mysql-hosting-blocker.md",
+      "docs/ayambil-registration-deployment.md",
+      "docs/pocketbase-apache-proxy.md",
+      "tools/ayambil.browser-preview.mjs"
+    ],
+    "AYAMBIL_PLAYWRIGHT_MODULE": [
+      "docs/ayambil-mysql-backend-preparation.md",
+      "tools/ayambil-long-pass-check.mjs"
+    ],
+    "AYAMBIL_CHROME_PATH": [
+      "docs/ayambil-mysql-backend-preparation.md",
+      "tools/ayambil-long-pass-check.mjs"
+    ],
+    "AYAMBIL_PREVIEW_ORIGIN": [
+      "docs/ayambil-mysql-backend-preparation.md",
+      "tools/ayambil-long-pass-check.mjs"
+    ],
+    "AYAMBIL_ARTIFACT_DIRECTORY": [
+      "docs/ayambil-mysql-backend-preparation.md",
+      "tools/ayambil-long-pass-check.mjs"
+    ],
+    "AYAMBIL_TARGET": [
+      "docs/ayambil-supabase-phase4-results.md",
+      "docs/ayambil-supabase-test-deployment.md",
+      "supabase/functions/_shared/contracts.mjs",
+      "tools/ayambil.supabase.test.mjs"
+    ],
+    "AYAMBIL_EXPECTED_PROJECT_REF": [
+      "docs/ayambil-supabase-phase4-results.md",
+      "docs/ayambil-supabase-test-deployment.md",
+      "supabase/functions/_shared/contracts.mjs",
+      "tools/ayambil.supabase.test.mjs"
+    ],
+    "AYAMBIL_ALLOWED_ORIGINS": [
+      "docs/ayambil-supabase-phase4-results.md",
+      "docs/ayambil-supabase-test-deployment.md",
+      "supabase/functions/_shared/contracts.mjs",
+      "tools/ayambil.supabase.test.mjs"
+    ],
+    "AYAMBIL_TEST_REGISTRATION_OPEN": [
+      "docs/ayambil-supabase-phase4-results.md",
+      "docs/ayambil-supabase-test-deployment.md",
+      "supabase/functions/_shared/handler.mjs",
+      "tools/ayambil.supabase.test.mjs"
+    ],
+    "AYAMBIL_TEST_WHATSAPP_SEND_ENABLED": [
+      "docs/ayambil-supabase-phase4-results.md",
+      "docs/ayambil-supabase-test-deployment.md",
+      "supabase/functions/_shared/handler.mjs",
+      "tools/ayambil.supabase.test.mjs"
+    ],
+    "AYAMBIL_SUPABASE_PUBLISHABLE_KEY": [
+      "docs/ayambil-supabase-phase4-results.md",
+      "docs/ayambil-supabase-test-deployment.md",
+      "supabase/functions/ayambil-test/index.ts"
+    ],
+    "AYAMBIL_RATE_LIMIT_SALT": [
+      "docs/ayambil-supabase-phase4-results.md",
+      "docs/ayambil-supabase-test-deployment.md",
+      "supabase/functions/_shared/handler.mjs",
+      "tools/ayambil.supabase.test.mjs"
+    ],
+    "AYAMBIL_RUN_HOSTED_TESTS": [
+      "docs/ayambil-supabase-phase4-results.md",
+      "docs/ayambil-supabase-phase4b-results.md",
+      "tools/ayambil.supabase.hosted.test.mjs",
+      "tools/ayambil.supabase.phase4b.test.mjs"
+    ],
+    "SUPABASE_URL": [
+      "docs/ayambil-supabase-test-deployment.md",
+      "supabase/functions/_shared/contracts.mjs",
+      "supabase/functions/ayambil-test/index.ts",
+      "tools/ayambil.supabase.test.mjs"
+    ],
+    "SUPABASE_SERVICE_ROLE_KEY": [
+      "docs/ayambil-supabase-test-deployment.md",
+      "supabase/functions/ayambil-test/index.ts"
+    ],
+    "AYAMBIL_WORKER_SECRET": [
+      "docs/ayambil-supabase-test-deployment.md",
+      "supabase/functions/_shared/handler.mjs",
+      "tools/ayambil.supabase.test.mjs"
+    ],
+    "AYAMBIL_TEST_RECIPIENTS_JSON": [
+      "docs/ayambil-supabase-test-deployment.md",
+      "supabase/functions/_shared/handler.mjs",
+      "tools/ayambil.supabase.test.mjs"
+    ],
+    "AYAMBIL_TEST_BINARY": [
+      "tools/ayambil.integration.test.mjs"
+    ]
+  },
+  "dependencies": [
+    {
+      "workspace": "apps/api/package.json",
+      "name": "express",
+      "version": "^5.1.0",
+      "importers": [
+        "apps/api/app.mjs"
+      ],
+      "otherReferences": [
+        "apps/api/app.mjs",
+        "apps/web/plugins/visual-editor/vite-plugin-react-inline-editor.js",
+        "apps/web/src/pages/AboutPage.jsx",
+        "apps/whatsapp_sender/build/whatsapp_sender/warn-whatsapp_sender.txt",
+        "apps/whatsapp_sender/build/whatsapp_sender/xref-whatsapp_sender.html",
+        "docs/AYAMBIL-HANDOFF.md",
+        "docs/ayambil-github-deployment-review.md",
+        "docs/ayambil-mysql-backend-preparation.md"
+      ]
+    },
+    {
+      "workspace": "apps/api/package.json",
+      "name": "mysql2",
+      "version": "^3.15.0",
+      "importers": [
+        "apps/api/server.mjs",
+        "apps/api/tests/mariadb.test.mjs",
+        "apps/api/tests/mysql.test.mjs",
+        "apps/api/tools/bootstrap.mjs"
+      ],
+      "otherReferences": [
+        "apps/api/server.mjs",
+        "apps/api/tests/mariadb.test.mjs",
+        "apps/api/tests/mysql.test.mjs",
+        "apps/api/tools/bootstrap.mjs",
+        "docs/AYAMBIL-HANDOFF.md",
+        "docs/ayambil-mysql-backend-preparation.md",
+        "docs/ayambil-mysql-hosting-blocker.md"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@hookform/resolvers",
+      "version": "^5.2.2",
+      "importers": [],
+      "otherReferences": []
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@radix-ui/react-accordion",
+      "version": "^1.2.12",
+      "importers": [
+        "apps/web/src/components/ui/accordion.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/accordion.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@radix-ui/react-alert-dialog",
+      "version": "^1.1.15",
+      "importers": [
+        "apps/web/src/components/ui/alert-dialog.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/alert-dialog.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@radix-ui/react-aspect-ratio",
+      "version": "^1.1.8",
+      "importers": [
+        "apps/web/src/components/ui/aspect-ratio.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/aspect-ratio.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@radix-ui/react-avatar",
+      "version": "^1.1.11",
+      "importers": [
+        "apps/web/src/components/ui/avatar.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/avatar.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@radix-ui/react-checkbox",
+      "version": "^1.3.3",
+      "importers": [
+        "apps/web/src/components/ui/checkbox.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/checkbox.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@radix-ui/react-collapsible",
+      "version": "^1.1.12",
+      "importers": [
+        "apps/web/src/components/ui/collapsible.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/collapsible.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@radix-ui/react-context-menu",
+      "version": "^2.2.16",
+      "importers": [
+        "apps/web/src/components/ui/context-menu.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/context-menu.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@radix-ui/react-dialog",
+      "version": "^1.1.15",
+      "importers": [
+        "apps/web/src/components/ui/dialog.jsx",
+        "apps/web/src/components/ui/sheet.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/dialog.jsx",
+        "apps/web/src/components/ui/sheet.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@radix-ui/react-dropdown-menu",
+      "version": "^2.1.16",
+      "importers": [
+        "apps/web/src/components/ui/dropdown-menu.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/dropdown-menu.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@radix-ui/react-hover-card",
+      "version": "^1.1.15",
+      "importers": [
+        "apps/web/src/components/ui/hover-card.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/hover-card.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@radix-ui/react-label",
+      "version": "^2.1.8",
+      "importers": [
+        "apps/web/src/components/ui/label.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/label.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@radix-ui/react-menubar",
+      "version": "^1.1.16",
+      "importers": [
+        "apps/web/src/components/ui/menubar.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/menubar.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@radix-ui/react-navigation-menu",
+      "version": "^1.2.14",
+      "importers": [
+        "apps/web/src/components/ui/navigation-menu.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/navigation-menu.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@radix-ui/react-popover",
+      "version": "^1.1.15",
+      "importers": [
+        "apps/web/src/components/ui/popover.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/popover.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@radix-ui/react-progress",
+      "version": "^1.1.8",
+      "importers": [
+        "apps/web/src/components/ui/progress.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/progress.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@radix-ui/react-radio-group",
+      "version": "^1.3.8",
+      "importers": [
+        "apps/web/src/components/ui/radio-group.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/radio-group.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@radix-ui/react-scroll-area",
+      "version": "^1.2.10",
+      "importers": [
+        "apps/web/src/components/ui/scroll-area.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/scroll-area.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@radix-ui/react-select",
+      "version": "^2.2.6",
+      "importers": [
+        "apps/web/src/components/ui/select.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/select.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@radix-ui/react-separator",
+      "version": "^1.1.8",
+      "importers": [
+        "apps/web/src/components/ui/separator.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/separator.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@radix-ui/react-slider",
+      "version": "^1.3.6",
+      "importers": [
+        "apps/web/src/components/ui/slider.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/slider.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@radix-ui/react-slot",
+      "version": "^1.2.4",
+      "importers": [
+        "apps/web/src/components/ui/breadcrumb.jsx",
+        "apps/web/src/components/ui/button-group.jsx",
+        "apps/web/src/components/ui/button.jsx",
+        "apps/web/src/components/ui/form.jsx",
+        "apps/web/src/components/ui/item.jsx",
+        "apps/web/src/components/ui/sidebar.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/breadcrumb.jsx",
+        "apps/web/src/components/ui/button-group.jsx",
+        "apps/web/src/components/ui/button.jsx",
+        "apps/web/src/components/ui/form.jsx",
+        "apps/web/src/components/ui/item.jsx",
+        "apps/web/src/components/ui/sidebar.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@radix-ui/react-switch",
+      "version": "^1.2.6",
+      "importers": [
+        "apps/web/src/components/ui/switch.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/switch.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@radix-ui/react-tabs",
+      "version": "^1.1.13",
+      "importers": [
+        "apps/web/src/components/ui/tabs.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/tabs.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@radix-ui/react-toast",
+      "version": "^1.2.15",
+      "importers": [
+        "apps/web/src/components/ui/toast.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/toast.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@radix-ui/react-toggle",
+      "version": "^1.1.10",
+      "importers": [
+        "apps/web/src/components/ui/toggle.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/toggle-group.jsx",
+        "apps/web/src/components/ui/toggle.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@radix-ui/react-toggle-group",
+      "version": "^1.1.11",
+      "importers": [
+        "apps/web/src/components/ui/toggle-group.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/toggle-group.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@radix-ui/react-tooltip",
+      "version": "^1.2.8",
+      "importers": [
+        "apps/web/src/components/ui/tooltip.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/tooltip.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "class-variance-authority",
+      "version": "^0.7.1",
+      "importers": [
+        "apps/web/src/components/ui/alert.jsx",
+        "apps/web/src/components/ui/badge.jsx",
+        "apps/web/src/components/ui/button-group.jsx",
+        "apps/web/src/components/ui/button.jsx",
+        "apps/web/src/components/ui/empty.jsx",
+        "apps/web/src/components/ui/field.jsx",
+        "apps/web/src/components/ui/input-group.jsx",
+        "apps/web/src/components/ui/item.jsx",
+        "apps/web/src/components/ui/label.jsx",
+        "apps/web/src/components/ui/navigation-menu.jsx",
+        "apps/web/src/components/ui/sheet.jsx",
+        "apps/web/src/components/ui/sidebar.jsx",
+        "apps/web/src/components/ui/toast.jsx",
+        "apps/web/src/components/ui/toggle.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/alert.jsx",
+        "apps/web/src/components/ui/badge.jsx",
+        "apps/web/src/components/ui/button-group.jsx",
+        "apps/web/src/components/ui/button.jsx",
+        "apps/web/src/components/ui/empty.jsx",
+        "apps/web/src/components/ui/field.jsx",
+        "apps/web/src/components/ui/input-group.jsx",
+        "apps/web/src/components/ui/item.jsx",
+        "apps/web/src/components/ui/label.jsx",
+        "apps/web/src/components/ui/navigation-menu.jsx",
+        "apps/web/src/components/ui/sheet.jsx",
+        "apps/web/src/components/ui/sidebar.jsx",
+        "apps/web/src/components/ui/toast.jsx",
+        "apps/web/src/components/ui/toggle.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "clsx",
+      "version": "^2.1.1",
+      "importers": [
+        "apps/web/src/lib/utils.js"
+      ],
+      "otherReferences": [
+        "apps/web/src/lib/utils.js"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "cmdk",
+      "version": "^1.1.1",
+      "importers": [
+        "apps/web/src/components/ui/command.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/command.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "date-fns",
+      "version": "^4.1.0",
+      "importers": [],
+      "otherReferences": []
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "embla-carousel-react",
+      "version": "^8.6.0",
+      "importers": [
+        "apps/web/src/components/ui/carousel.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/carousel.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "framer-motion",
+      "version": "^11.15.0",
+      "importers": [
+        "apps/web/src/components/AboutSection.jsx",
+        "apps/web/src/components/AgencyHero.jsx",
+        "apps/web/src/components/AnimatedHeading.jsx",
+        "apps/web/src/components/AnimatedSection.jsx",
+        "apps/web/src/components/ContactFormSection.jsx",
+        "apps/web/src/components/FAQSection.jsx",
+        "apps/web/src/components/HeroSection.jsx",
+        "apps/web/src/components/HomeLiveBanner.jsx",
+        "apps/web/src/components/HoverCard.jsx",
+        "apps/web/src/components/LeadCaptureSection.jsx",
+        "apps/web/src/components/PageTransition.jsx",
+        "apps/web/src/components/PortfolioSection.jsx",
+        "apps/web/src/components/ServiceCard.jsx",
+        "apps/web/src/pages/AboutPage.jsx",
+        "apps/web/src/pages/AdminPassGeneratorPage.jsx",
+        "apps/web/src/pages/ComingSoonPage.jsx",
+        "apps/web/src/pages/ParamVirChakraPage.jsx",
+        "apps/web/src/pages/PassCollectionPage.jsx",
+        "apps/web/src/pages/ServicesPage.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/AboutSection.jsx",
+        "apps/web/src/components/AgencyHero.jsx",
+        "apps/web/src/components/AnimatedHeading.jsx",
+        "apps/web/src/components/AnimatedSection.jsx",
+        "apps/web/src/components/ContactFormSection.jsx",
+        "apps/web/src/components/FAQSection.jsx",
+        "apps/web/src/components/HeroSection.jsx",
+        "apps/web/src/components/HomeLiveBanner.jsx",
+        "apps/web/src/components/HoverCard.jsx",
+        "apps/web/src/components/LeadCaptureSection.jsx",
+        "apps/web/src/components/PageTransition.jsx",
+        "apps/web/src/components/PortfolioSection.jsx",
+        "apps/web/src/components/ServiceCard.jsx",
+        "apps/web/src/pages/AboutPage.jsx",
+        "apps/web/src/pages/AdminPassGeneratorPage.jsx",
+        "apps/web/src/pages/ComingSoonPage.jsx",
+        "apps/web/src/pages/ParamVirChakraPage.jsx",
+        "apps/web/src/pages/PassCollectionPage.jsx",
+        "apps/web/src/pages/ServicesPage.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "html-to-image",
+      "version": "^1.11.13",
+      "importers": [
+        "apps/web/src/components/AyambilDigitalPass.jsx",
+        "apps/web/src/pages/AdminPassGeneratorPage.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/AyambilDigitalPass.jsx",
+        "apps/web/src/pages/AdminPassGeneratorPage.jsx",
+        "docs/ayambil-mysql-backend-preparation.md",
+        "docs/ayambil-pass-redesign-results.md",
+        "docs/ayambil-registration-deployment.md"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "input-otp",
+      "version": "^1.4.2",
+      "importers": [
+        "apps/web/src/components/ui/input-otp.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/input-otp.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "jspdf",
+      "version": "^4.2.1",
+      "importers": [
+        "apps/web/src/components/AyambilDigitalPass.jsx",
+        "apps/web/src/pages/AdminPassGeneratorPage.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/AyambilDigitalPass.jsx",
+        "apps/web/src/pages/AdminPassGeneratorPage.jsx",
+        "docs/ayambil-complete-audit-results.md"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "lucide-react",
+      "version": "^0.469.0",
+      "importers": [
+        "apps/web/src/components/AgencyHero.jsx",
+        "apps/web/src/components/AgencyNavbar.jsx",
+        "apps/web/src/components/AyambilEventDetails.jsx",
+        "apps/web/src/components/ContactFormSection.jsx",
+        "apps/web/src/components/EventFooter.jsx",
+        "apps/web/src/components/FAQSection.jsx",
+        "apps/web/src/components/FooterSection.jsx",
+        "apps/web/src/components/HeroSection.jsx",
+        "apps/web/src/components/HomeLiveBanner.jsx",
+        "apps/web/src/components/LeadCaptureSection.jsx",
+        "apps/web/src/components/PortfolioSection.jsx",
+        "apps/web/src/components/ServicesSection.jsx",
+        "apps/web/src/components/UpdhanParticipation.jsx",
+        "apps/web/src/components/ui/accordion.jsx",
+        "apps/web/src/components/ui/breadcrumb.jsx",
+        "apps/web/src/components/ui/calendar.jsx",
+        "apps/web/src/components/ui/carousel.jsx",
+        "apps/web/src/components/ui/checkbox.jsx",
+        "apps/web/src/components/ui/command.jsx",
+        "apps/web/src/components/ui/context-menu.jsx",
+        "apps/web/src/components/ui/dialog.jsx",
+        "apps/web/src/components/ui/dropdown-menu.jsx",
+        "apps/web/src/components/ui/input-otp.jsx",
+        "apps/web/src/components/ui/menubar.jsx",
+        "apps/web/src/components/ui/navigation-menu.jsx",
+        "apps/web/src/components/ui/pagination.jsx",
+        "apps/web/src/components/ui/radio-group.jsx",
+        "apps/web/src/components/ui/resizable.jsx",
+        "apps/web/src/components/ui/select.jsx",
+        "apps/web/src/components/ui/sheet.jsx",
+        "apps/web/src/components/ui/sidebar.jsx",
+        "apps/web/src/components/ui/spinner.jsx",
+        "apps/web/src/components/ui/toast.jsx",
+        "apps/web/src/pages/AboutPage.jsx",
+        "apps/web/src/pages/AdminPassGeneratorPage.jsx",
+        "apps/web/src/pages/AgencyPrivacyPolicyPage.jsx",
+        "apps/web/src/pages/AgencyTermsOfServicePage.jsx",
+        "apps/web/src/pages/AyambilEveningPage.jsx",
+        "apps/web/src/pages/AyambilPage.jsx",
+        "apps/web/src/pages/ComingSoonPage.jsx",
+        "apps/web/src/pages/ParamVirChakraPage.jsx",
+        "apps/web/src/pages/PassCollectionPage.jsx",
+        "apps/web/src/pages/PrivacyPolicyPage.jsx",
+        "apps/web/src/pages/ServicesPage.jsx",
+        "apps/web/src/pages/UpdhanPage.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/AgencyHero.jsx",
+        "apps/web/src/components/AgencyNavbar.jsx",
+        "apps/web/src/components/AyambilEventDetails.jsx",
+        "apps/web/src/components/ContactFormSection.jsx",
+        "apps/web/src/components/EventFooter.jsx",
+        "apps/web/src/components/FAQSection.jsx",
+        "apps/web/src/components/FooterSection.jsx",
+        "apps/web/src/components/HeroSection.jsx",
+        "apps/web/src/components/HomeLiveBanner.jsx",
+        "apps/web/src/components/LeadCaptureSection.jsx",
+        "apps/web/src/components/PortfolioSection.jsx",
+        "apps/web/src/components/ServicesSection.jsx",
+        "apps/web/src/components/UpdhanParticipation.jsx",
+        "apps/web/src/components/ui/accordion.jsx",
+        "apps/web/src/components/ui/breadcrumb.jsx",
+        "apps/web/src/components/ui/calendar.jsx",
+        "apps/web/src/components/ui/carousel.jsx",
+        "apps/web/src/components/ui/checkbox.jsx",
+        "apps/web/src/components/ui/command.jsx",
+        "apps/web/src/components/ui/context-menu.jsx",
+        "apps/web/src/components/ui/dialog.jsx",
+        "apps/web/src/components/ui/dropdown-menu.jsx",
+        "apps/web/src/components/ui/input-otp.jsx",
+        "apps/web/src/components/ui/menubar.jsx",
+        "apps/web/src/components/ui/navigation-menu.jsx",
+        "apps/web/src/components/ui/pagination.jsx",
+        "apps/web/src/components/ui/radio-group.jsx",
+        "apps/web/src/components/ui/resizable.jsx",
+        "apps/web/src/components/ui/select.jsx",
+        "apps/web/src/components/ui/sheet.jsx",
+        "apps/web/src/components/ui/sidebar.jsx",
+        "apps/web/src/components/ui/spinner.jsx",
+        "apps/web/src/components/ui/toast.jsx",
+        "apps/web/src/pages/AboutPage.jsx",
+        "apps/web/src/pages/AdminPassGeneratorPage.jsx",
+        "apps/web/src/pages/AgencyPrivacyPolicyPage.jsx",
+        "apps/web/src/pages/AgencyTermsOfServicePage.jsx",
+        "apps/web/src/pages/AyambilEveningPage.jsx",
+        "apps/web/src/pages/AyambilPage.jsx",
+        "apps/web/src/pages/ComingSoonPage.jsx",
+        "apps/web/src/pages/ParamVirChakraPage.jsx",
+        "apps/web/src/pages/PassCollectionPage.jsx",
+        "apps/web/src/pages/PrivacyPolicyPage.jsx",
+        "apps/web/src/pages/ServicesPage.jsx",
+        "apps/web/src/pages/UpdhanPage.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "next-themes",
+      "version": "^0.4.6",
+      "importers": [
+        "apps/web/src/components/ui/sonner.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/sonner.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "pocketbase",
+      "version": "^0.25.0",
+      "importers": [
+        "apps/web/src/lib/pocketbaseClient.js",
+        "apps/web/tests/ayambilApiResponse.test.js"
+      ],
+      "otherReferences": [
+        "apps/api/config.mjs",
+        "apps/pocketbase/pb_hooks/custom-migrations-cmd.pb.js",
+        "apps/pocketbase/pb_hooks/external-dashboard.pb.js",
+        "apps/web/plugins/vite-plugin-pocketbase-auth.js",
+        "apps/web/src/components/LeadCaptureSection.jsx",
+        "apps/web/src/lib/ayambilRegistration.js",
+        "apps/web/src/lib/pocketbaseClient.js",
+        "apps/web/src/pages/ComingSoonPage.jsx",
+        "apps/web/tests/ayambilApiResponse.test.js",
+        "apps/web/tests/ayambilExpressClient.test.js",
+        "apps/web/tests/ayambilMessaging.test.js",
+        "apps/web/tests/ayambilStaging.test.js",
+        "apps/web/vite.config.js",
+        "apps/web/vite.staging.config.js",
+        "docs/ayambil-api-routing-investigation.md",
+        "docs/ayambil-complete-audit-results.md",
+        "docs/ayambil-mysql-backend-preparation.md",
+        "docs/ayambil-phase5a-results.md",
+        "docs/ayambil-registration-deployment.md",
+        "docs/pocketbase-apache-proxy.md",
+        "tools/ayambil-flow-inspect.mjs",
+        "tools/ayambil-ui-preview.config.mjs",
+        "tools/ayambil.browser-preview.mjs",
+        "tools/ayambil.integration.test.mjs",
+        "tools/ayambil.supabase.test.mjs"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "react",
+      "version": "^18.3.1",
+      "importers": [
+        "apps/web/src/App.jsx",
+        "apps/web/src/components/AboutSection.jsx",
+        "apps/web/src/components/AgencyHero.jsx",
+        "apps/web/src/components/AgencyNavbar.jsx",
+        "apps/web/src/components/AnimatedHeading.jsx",
+        "apps/web/src/components/AnimatedSection.jsx",
+        "apps/web/src/components/AyambilBookProgramme.jsx",
+        "apps/web/src/components/AyambilDigitalPass.jsx",
+        "apps/web/src/components/AyambilEventDetails.jsx",
+        "apps/web/src/components/AyambilInstructions.jsx",
+        "apps/web/src/components/AyambilRegistration.jsx",
+        "apps/web/src/components/ContactFormSection.jsx",
+        "apps/web/src/components/EventFooter.jsx",
+        "apps/web/src/components/FAQSection.jsx",
+        "apps/web/src/components/FooterSection.jsx",
+        "apps/web/src/components/HeroSection.jsx",
+        "apps/web/src/components/HomeLiveBanner.jsx",
+        "apps/web/src/components/HoverCard.jsx",
+        "apps/web/src/components/LeadCaptureSection.jsx",
+        "apps/web/src/components/PageTransition.jsx",
+        "apps/web/src/components/PassCard.jsx",
+        "apps/web/src/components/PortfolioSection.jsx",
+        "apps/web/src/components/PvcMedalSvg.jsx",
+        "apps/web/src/components/ScrollToTop.jsx",
+        "apps/web/src/components/ServiceCard.jsx",
+        "apps/web/src/components/ServicesSection.jsx",
+        "apps/web/src/components/UpdhanParticipation.jsx",
+        "apps/web/src/components/ui/accordion.jsx",
+        "apps/web/src/components/ui/alert-dialog.jsx",
+        "apps/web/src/components/ui/alert.jsx",
+        "apps/web/src/components/ui/avatar.jsx",
+        "apps/web/src/components/ui/badge.jsx",
+        "apps/web/src/components/ui/breadcrumb.jsx",
+        "apps/web/src/components/ui/button.jsx",
+        "apps/web/src/components/ui/calendar.jsx",
+        "apps/web/src/components/ui/card.jsx",
+        "apps/web/src/components/ui/carousel.jsx",
+        "apps/web/src/components/ui/chart.jsx",
+        "apps/web/src/components/ui/checkbox.jsx",
+        "apps/web/src/components/ui/command.jsx",
+        "apps/web/src/components/ui/context-menu.jsx",
+        "apps/web/src/components/ui/dialog.jsx",
+        "apps/web/src/components/ui/drawer.jsx",
+        "apps/web/src/components/ui/dropdown-menu.jsx",
+        "apps/web/src/components/ui/field.jsx",
+        "apps/web/src/components/ui/form.jsx",
+        "apps/web/src/components/ui/hover-card.jsx",
+        "apps/web/src/components/ui/input-group.jsx",
+        "apps/web/src/components/ui/input-otp.jsx",
+        "apps/web/src/components/ui/input.jsx",
+        "apps/web/src/components/ui/item.jsx",
+        "apps/web/src/components/ui/label.jsx",
+        "apps/web/src/components/ui/menubar.jsx",
+        "apps/web/src/components/ui/navigation-menu.jsx",
+        "apps/web/src/components/ui/pagination.jsx",
+        "apps/web/src/components/ui/popover.jsx",
+        "apps/web/src/components/ui/progress.jsx",
+        "apps/web/src/components/ui/radio-group.jsx",
+        "apps/web/src/components/ui/resizable.jsx",
+        "apps/web/src/components/ui/scroll-area.jsx",
+        "apps/web/src/components/ui/select.jsx",
+        "apps/web/src/components/ui/separator.jsx",
+        "apps/web/src/components/ui/sheet.jsx",
+        "apps/web/src/components/ui/sidebar.jsx",
+        "apps/web/src/components/ui/slider.jsx",
+        "apps/web/src/components/ui/switch.jsx",
+        "apps/web/src/components/ui/table.jsx",
+        "apps/web/src/components/ui/tabs.jsx",
+        "apps/web/src/components/ui/textarea.jsx",
+        "apps/web/src/components/ui/toast.jsx",
+        "apps/web/src/components/ui/toggle-group.jsx",
+        "apps/web/src/components/ui/toggle.jsx",
+        "apps/web/src/components/ui/tooltip.jsx",
+        "apps/web/src/hooks/use-mobile.jsx",
+        "apps/web/src/hooks/use-toast.js",
+        "apps/web/src/hooks/useScrollAnimation.js",
+        "apps/web/src/main.jsx",
+        "apps/web/src/pages/AboutPage.jsx",
+        "apps/web/src/pages/AdminPassGeneratorPage.jsx",
+        "apps/web/src/pages/AgencyPrivacyPolicyPage.jsx",
+        "apps/web/src/pages/AgencyTermsOfServicePage.jsx",
+        "apps/web/src/pages/AyambilAdminPage.jsx",
+        "apps/web/src/pages/AyambilEveningPage.jsx",
+        "apps/web/src/pages/AyambilPage.jsx",
+        "apps/web/src/pages/AyambilPassDownloadPage.jsx",
+        "apps/web/src/pages/ComingSoonPage.jsx",
+        "apps/web/src/pages/HomePage.jsx",
+        "apps/web/src/pages/PVCLiveRedirect.jsx",
+        "apps/web/src/pages/ParamVirChakraPage.jsx",
+        "apps/web/src/pages/PassCollectionPage.jsx",
+        "apps/web/src/pages/PrivacyPolicyPage.jsx",
+        "apps/web/src/pages/ServicesPage.jsx",
+        "apps/web/src/pages/UpdhanPage.jsx",
+        "apps/web/src/pages/VardhmanComingSoonPage.jsx",
+        "apps/web/staging/main.jsx",
+        "tools/supabase-pass-preview/main.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/eslint.config.mjs",
+        "apps/web/plugins/selection-mode/selection-mode-script.js",
+        "apps/web/src/App.jsx",
+        "apps/web/src/components/AboutSection.jsx",
+        "apps/web/src/components/AgencyHero.jsx",
+        "apps/web/src/components/AgencyNavbar.jsx",
+        "apps/web/src/components/AnimatedHeading.jsx",
+        "apps/web/src/components/AnimatedSection.jsx",
+        "apps/web/src/components/AyambilBookProgramme.jsx",
+        "apps/web/src/components/AyambilDigitalPass.jsx",
+        "apps/web/src/components/AyambilEventDetails.jsx",
+        "apps/web/src/components/AyambilInstructions.jsx",
+        "apps/web/src/components/AyambilRegistration.jsx",
+        "apps/web/src/components/ContactFormSection.jsx",
+        "apps/web/src/components/EventFooter.jsx",
+        "apps/web/src/components/FAQSection.jsx",
+        "apps/web/src/components/FooterSection.jsx",
+        "apps/web/src/components/HeroSection.jsx",
+        "apps/web/src/components/HomeLiveBanner.jsx",
+        "apps/web/src/components/HoverCard.jsx",
+        "apps/web/src/components/LeadCaptureSection.jsx",
+        "apps/web/src/components/PageTransition.jsx",
+        "apps/web/src/components/PassCard.jsx",
+        "apps/web/src/components/PortfolioSection.jsx",
+        "apps/web/src/components/PvcMedalSvg.jsx",
+        "apps/web/src/components/ScrollToTop.jsx",
+        "apps/web/src/components/ServiceCard.jsx",
+        "apps/web/src/components/ServicesSection.jsx",
+        "apps/web/src/components/UpdhanParticipation.jsx",
+        "apps/web/src/components/ui/accordion.jsx",
+        "apps/web/src/components/ui/alert-dialog.jsx",
+        "apps/web/src/components/ui/alert.jsx",
+        "apps/web/src/components/ui/aspect-ratio.jsx",
+        "apps/web/src/components/ui/avatar.jsx",
+        "apps/web/src/components/ui/badge.jsx",
+        "apps/web/src/components/ui/breadcrumb.jsx",
+        "apps/web/src/components/ui/button-group.jsx",
+        "apps/web/src/components/ui/button.jsx",
+        "apps/web/src/components/ui/calendar.jsx",
+        "apps/web/src/components/ui/card.jsx",
+        "apps/web/src/components/ui/carousel.jsx",
+        "apps/web/src/components/ui/chart.jsx",
+        "apps/web/src/components/ui/checkbox.jsx",
+        "apps/web/src/components/ui/collapsible.jsx",
+        "apps/web/src/components/ui/command.jsx",
+        "apps/web/src/components/ui/context-menu.jsx",
+        "apps/web/src/components/ui/dialog.jsx",
+        "apps/web/src/components/ui/drawer.jsx",
+        "apps/web/src/components/ui/dropdown-menu.jsx",
+        "apps/web/src/components/ui/field.jsx",
+        "apps/web/src/components/ui/form.jsx",
+        "apps/web/src/components/ui/hover-card.jsx",
+        "apps/web/src/components/ui/input-group.jsx",
+        "apps/web/src/components/ui/input-otp.jsx",
+        "apps/web/src/components/ui/input.jsx",
+        "apps/web/src/components/ui/item.jsx",
+        "apps/web/src/components/ui/label.jsx",
+        "apps/web/src/components/ui/menubar.jsx",
+        "apps/web/src/components/ui/navigation-menu.jsx",
+        "apps/web/src/components/ui/pagination.jsx",
+        "apps/web/src/components/ui/popover.jsx",
+        "apps/web/src/components/ui/progress.jsx",
+        "apps/web/src/components/ui/radio-group.jsx",
+        "apps/web/src/components/ui/resizable.jsx",
+        "apps/web/src/components/ui/scroll-area.jsx",
+        "apps/web/src/components/ui/select.jsx",
+        "apps/web/src/components/ui/separator.jsx",
+        "apps/web/src/components/ui/sheet.jsx",
+        "apps/web/src/components/ui/sidebar.jsx",
+        "apps/web/src/components/ui/slider.jsx",
+        "apps/web/src/components/ui/spinner.jsx",
+        "apps/web/src/components/ui/switch.jsx",
+        "apps/web/src/components/ui/table.jsx",
+        "apps/web/src/components/ui/tabs.jsx",
+        "apps/web/src/components/ui/textarea.jsx",
+        "apps/web/src/components/ui/toast.jsx",
+        "apps/web/src/components/ui/toggle-group.jsx",
+        "apps/web/src/components/ui/toggle.jsx",
+        "apps/web/src/components/ui/tooltip.jsx",
+        "apps/web/src/hooks/use-mobile.jsx",
+        "apps/web/src/hooks/use-toast.js",
+        "apps/web/src/hooks/useScrollAnimation.js",
+        "apps/web/src/main.jsx",
+        "apps/web/src/pages/AboutPage.jsx",
+        "apps/web/src/pages/AdminPassGeneratorPage.jsx",
+        "apps/web/src/pages/AgencyPrivacyPolicyPage.jsx",
+        "apps/web/src/pages/AgencyTermsOfServicePage.jsx",
+        "apps/web/src/pages/AyambilAdminPage.jsx",
+        "apps/web/src/pages/AyambilEveningPage.jsx",
+        "apps/web/src/pages/AyambilPage.jsx",
+        "apps/web/src/pages/AyambilPassDownloadPage.jsx",
+        "apps/web/src/pages/ComingSoonPage.jsx",
+        "apps/web/src/pages/HomePage.jsx",
+        "apps/web/src/pages/PVCLiveRedirect.jsx",
+        "apps/web/src/pages/ParamVirChakraPage.jsx",
+        "apps/web/src/pages/PassCollectionPage.jsx",
+        "apps/web/src/pages/PrivacyPolicyPage.jsx",
+        "apps/web/src/pages/ServicesPage.jsx",
+        "apps/web/src/pages/UpdhanPage.jsx",
+        "apps/web/src/pages/VardhmanComingSoonPage.jsx",
+        "apps/web/staging/main.jsx",
+        "apps/web/tools/generate-llms.js",
+        "apps/web/vite.config.js",
+        "apps/web/vite.staging.config.js",
+        "docs/AYAMBIL-HANDOFF.md",
+        "docs/ayambil-complete-audit-results.md",
+        "docs/ayambil-mysql-backend-preparation.md",
+        "tools/ayambil-ui-preview.config.mjs",
+        "tools/ayambil.integration.test.mjs",
+        "tools/supabase-pass-preview/main.jsx",
+        "tools/supabase-pass-preview/vite.config.mjs"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "react-day-picker",
+      "version": "^9.14.0",
+      "importers": [
+        "apps/web/src/components/ui/calendar.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/calendar.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "react-dom",
+      "version": "^18.3.1",
+      "importers": [
+        "apps/web/src/main.jsx",
+        "apps/web/staging/main.jsx",
+        "tools/supabase-pass-preview/main.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/main.jsx",
+        "apps/web/staging/main.jsx",
+        "tools/supabase-pass-preview/main.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "react-helmet",
+      "version": "^6.1.0",
+      "importers": [
+        "apps/web/src/pages/AboutPage.jsx",
+        "apps/web/src/pages/AdminPassGeneratorPage.jsx",
+        "apps/web/src/pages/AgencyPrivacyPolicyPage.jsx",
+        "apps/web/src/pages/AgencyTermsOfServicePage.jsx",
+        "apps/web/src/pages/AyambilAdminPage.jsx",
+        "apps/web/src/pages/AyambilEveningPage.jsx",
+        "apps/web/src/pages/AyambilPage.jsx",
+        "apps/web/src/pages/AyambilPassDownloadPage.jsx",
+        "apps/web/src/pages/ComingSoonPage.jsx",
+        "apps/web/src/pages/HomePage.jsx",
+        "apps/web/src/pages/PVCLiveRedirect.jsx",
+        "apps/web/src/pages/ParamVirChakraPage.jsx",
+        "apps/web/src/pages/PassCollectionPage.jsx",
+        "apps/web/src/pages/PrivacyPolicyPage.jsx",
+        "apps/web/src/pages/ServicesPage.jsx",
+        "apps/web/src/pages/UpdhanPage.jsx",
+        "apps/web/src/pages/VardhmanComingSoonPage.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/pages/AboutPage.jsx",
+        "apps/web/src/pages/AdminPassGeneratorPage.jsx",
+        "apps/web/src/pages/AgencyPrivacyPolicyPage.jsx",
+        "apps/web/src/pages/AgencyTermsOfServicePage.jsx",
+        "apps/web/src/pages/AyambilAdminPage.jsx",
+        "apps/web/src/pages/AyambilEveningPage.jsx",
+        "apps/web/src/pages/AyambilPage.jsx",
+        "apps/web/src/pages/AyambilPassDownloadPage.jsx",
+        "apps/web/src/pages/ComingSoonPage.jsx",
+        "apps/web/src/pages/HomePage.jsx",
+        "apps/web/src/pages/PVCLiveRedirect.jsx",
+        "apps/web/src/pages/ParamVirChakraPage.jsx",
+        "apps/web/src/pages/PassCollectionPage.jsx",
+        "apps/web/src/pages/PrivacyPolicyPage.jsx",
+        "apps/web/src/pages/ServicesPage.jsx",
+        "apps/web/src/pages/UpdhanPage.jsx",
+        "apps/web/src/pages/VardhmanComingSoonPage.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "react-hook-form",
+      "version": "^7.71.2",
+      "importers": [
+        "apps/web/src/components/ui/form.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/form.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "react-resizable-panels",
+      "version": "^4.7.2",
+      "importers": [
+        "apps/web/src/components/ui/resizable.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/resizable.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "react-router-dom",
+      "version": "^7.18.2",
+      "importers": [
+        "apps/web/src/App.jsx",
+        "apps/web/src/components/AgencyNavbar.jsx",
+        "apps/web/src/components/AyambilEventDetails.jsx",
+        "apps/web/src/components/AyambilRegistration.jsx",
+        "apps/web/src/components/ContactFormSection.jsx",
+        "apps/web/src/components/EventFooter.jsx",
+        "apps/web/src/components/FooterSection.jsx",
+        "apps/web/src/components/HomeLiveBanner.jsx",
+        "apps/web/src/components/ScrollToTop.jsx",
+        "apps/web/src/pages/AdminPassGeneratorPage.jsx",
+        "apps/web/src/pages/AyambilAdminPage.jsx",
+        "apps/web/src/pages/AyambilEveningPage.jsx",
+        "apps/web/src/pages/AyambilPage.jsx",
+        "apps/web/src/pages/AyambilPassDownloadPage.jsx",
+        "apps/web/src/pages/PassCollectionPage.jsx",
+        "apps/web/src/pages/PrivacyPolicyPage.jsx",
+        "apps/web/src/pages/ServicesPage.jsx",
+        "apps/web/staging/main.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/App.jsx",
+        "apps/web/src/components/AgencyNavbar.jsx",
+        "apps/web/src/components/AyambilEventDetails.jsx",
+        "apps/web/src/components/AyambilRegistration.jsx",
+        "apps/web/src/components/ContactFormSection.jsx",
+        "apps/web/src/components/EventFooter.jsx",
+        "apps/web/src/components/FooterSection.jsx",
+        "apps/web/src/components/HomeLiveBanner.jsx",
+        "apps/web/src/components/ScrollToTop.jsx",
+        "apps/web/src/pages/AdminPassGeneratorPage.jsx",
+        "apps/web/src/pages/AyambilAdminPage.jsx",
+        "apps/web/src/pages/AyambilEveningPage.jsx",
+        "apps/web/src/pages/AyambilPage.jsx",
+        "apps/web/src/pages/AyambilPassDownloadPage.jsx",
+        "apps/web/src/pages/PassCollectionPage.jsx",
+        "apps/web/src/pages/PrivacyPolicyPage.jsx",
+        "apps/web/src/pages/ServicesPage.jsx",
+        "apps/web/staging/main.jsx",
+        "docs/ayambil-complete-audit-results.md"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "recharts",
+      "version": "^2.15.4",
+      "importers": [
+        "apps/web/src/components/ui/chart.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/chart.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "sonner",
+      "version": "^2.0.7",
+      "importers": [
+        "apps/web/src/App.jsx",
+        "apps/web/src/components/ContactFormSection.jsx",
+        "apps/web/src/components/LeadCaptureSection.jsx",
+        "apps/web/src/components/ui/sonner.jsx",
+        "apps/web/src/pages/AdminPassGeneratorPage.jsx",
+        "apps/web/src/pages/ComingSoonPage.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/App.jsx",
+        "apps/web/src/components/ContactFormSection.jsx",
+        "apps/web/src/components/LeadCaptureSection.jsx",
+        "apps/web/src/components/ui/sonner.jsx",
+        "apps/web/src/pages/AdminPassGeneratorPage.jsx",
+        "apps/web/src/pages/ComingSoonPage.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "tailwind-merge",
+      "version": "^2.6.0",
+      "importers": [
+        "apps/web/src/lib/utils.js"
+      ],
+      "otherReferences": [
+        "apps/web/src/lib/utils.js"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "tailwindcss-animate",
+      "version": "^1.0.7",
+      "importers": [
+        "apps/web/tailwind.config.js"
+      ],
+      "otherReferences": [
+        "apps/web/tailwind.config.js",
+        "docs/ayambil-complete-audit-results.md"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "vaul",
+      "version": "^1.1.2",
+      "importers": [
+        "apps/web/src/components/ui/drawer.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/components/ui/drawer.jsx"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "xlsx",
+      "version": "^0.18.5",
+      "importers": [
+        "apps/web/src/pages/AdminPassGeneratorPage.jsx"
+      ],
+      "otherReferences": [
+        "apps/web/src/pages/AdminPassGeneratorPage.jsx",
+        "apps/whatsapp_sender/README.md",
+        "apps/whatsapp_sender/build/whatsapp_sender/warn-whatsapp_sender.txt",
+        "apps/whatsapp_sender/build/whatsapp_sender/xref-whatsapp_sender.html",
+        "docs/ayambil-complete-audit-results.md"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "zod",
+      "version": "^4.3.6",
+      "importers": [],
+      "otherReferences": []
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@babel/generator",
+      "version": "^7.26.3",
+      "importers": [
+        "apps/web/plugins/utils/ast-utils.js"
+      ],
+      "otherReferences": [
+        "apps/web/plugins/utils/ast-utils.js",
+        "apps/web/vite.config.js"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@babel/parser",
+      "version": "^7.26.3",
+      "importers": [
+        "apps/web/plugins/utils/ast-utils.js",
+        "apps/web/plugins/visual-editor/vite-plugin-react-inline-editor.js"
+      ],
+      "otherReferences": [
+        "apps/web/plugins/utils/ast-utils.js",
+        "apps/web/plugins/visual-editor/vite-plugin-react-inline-editor.js",
+        "apps/web/vite.config.js"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@babel/traverse",
+      "version": "^7.26.4",
+      "importers": [
+        "apps/web/plugins/utils/ast-utils.js",
+        "apps/web/plugins/visual-editor/vite-plugin-react-inline-editor.js"
+      ],
+      "otherReferences": [
+        "apps/web/plugins/utils/ast-utils.js",
+        "apps/web/plugins/visual-editor/vite-plugin-react-inline-editor.js",
+        "apps/web/vite.config.js"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@babel/types",
+      "version": "^7.26.3",
+      "importers": [
+        "apps/web/plugins/utils/ast-utils.js",
+        "apps/web/plugins/visual-editor/vite-plugin-react-inline-editor.js"
+      ],
+      "otherReferences": [
+        "apps/web/plugins/utils/ast-utils.js",
+        "apps/web/plugins/visual-editor/vite-plugin-react-inline-editor.js",
+        "apps/web/vite.config.js"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@types/node",
+      "version": "^20.17.10",
+      "importers": [],
+      "otherReferences": []
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@types/react",
+      "version": "^18.3.18",
+      "importers": [],
+      "otherReferences": []
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@types/react-dom",
+      "version": "^18.3.5",
+      "importers": [],
+      "otherReferences": []
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "@vitejs/plugin-react",
+      "version": "^4.3.4",
+      "importers": [
+        "apps/web/vite.config.js",
+        "apps/web/vite.staging.config.js",
+        "tools/ayambil-ui-preview.config.mjs",
+        "tools/supabase-pass-preview/vite.config.mjs"
+      ],
+      "otherReferences": [
+        "apps/web/vite.config.js",
+        "apps/web/vite.staging.config.js",
+        "tools/ayambil-ui-preview.config.mjs",
+        "tools/supabase-pass-preview/vite.config.mjs"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "autoprefixer",
+      "version": "^10.4.20",
+      "importers": [
+        "tools/ayambil-ui-preview.config.mjs"
+      ],
+      "otherReferences": [
+        "apps/web/postcss.config.js",
+        "tools/ayambil-ui-preview.config.mjs"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "eslint",
+      "version": "^9.39.4",
+      "importers": [],
+      "otherReferences": [
+        "apps/web/eslint.config.mjs",
+        "apps/web/plugins/visual-editor/edit-mode-script.js",
+        "docs/ayambil-complete-audit-results.md",
+        "docs/ayambil-registration-deployment.md"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "eslint-import-resolver-alias",
+      "version": "^1.1.2",
+      "importers": [],
+      "otherReferences": []
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "eslint-plugin-import",
+      "version": "^2.32.0",
+      "importers": [
+        "apps/web/eslint.config.mjs"
+      ],
+      "otherReferences": [
+        "apps/web/eslint.config.mjs",
+        "docs/ayambil-complete-audit-results.md"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "eslint-plugin-react",
+      "version": "^7.37.5",
+      "importers": [
+        "apps/web/eslint.config.mjs"
+      ],
+      "otherReferences": [
+        "apps/web/eslint.config.mjs"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "eslint-plugin-react-hooks",
+      "version": "^5.1.0",
+      "importers": [
+        "apps/web/eslint.config.mjs"
+      ],
+      "otherReferences": [
+        "apps/web/eslint.config.mjs"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "globals",
+      "version": "^15.14.0",
+      "importers": [
+        "apps/web/eslint.config.mjs"
+      ],
+      "otherReferences": [
+        "apps/web/eslint.config.mjs",
+        "apps/whatsapp_sender/build/whatsapp_sender/xref-whatsapp_sender.html"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "postcss",
+      "version": "^8.5.18",
+      "importers": [],
+      "otherReferences": [
+        "apps/web/vite.config.js",
+        "docs/ayambil-complete-audit-results.md",
+        "docs/ayambil-mysql-backend-preparation.md",
+        "tools/ayambil-ui-preview.config.mjs"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "tailwindcss",
+      "version": "^3.4.17",
+      "importers": [
+        "apps/web/tailwind.config.js",
+        "tools/ayambil-ui-preview.config.mjs"
+      ],
+      "otherReferences": [
+        "apps/web/postcss.config.js",
+        "apps/web/tailwind.config.js",
+        "docs/ayambil-complete-audit-results.md",
+        "tools/ayambil-ui-preview.config.mjs"
+      ]
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "terser",
+      "version": "^5.37.0",
+      "importers": [],
+      "otherReferences": []
+    },
+    {
+      "workspace": "apps/web/package.json",
+      "name": "vite",
+      "version": "^6.4.3",
+      "importers": [
+        "apps/web/vite.config.js",
+        "apps/web/vite.staging.config.js",
+        "tools/ayambil-ui-preview.config.mjs",
+        "tools/supabase-pass-preview/vite.config.mjs"
+      ],
+      "otherReferences": [
+        "apps/web/eslint.config.mjs",
+        "apps/web/plugins/selection-mode/vite-plugin-selection-mode.js",
+        "apps/web/plugins/visual-editor/edit-mode-script.js",
+        "apps/web/plugins/visual-editor/vite-plugin-edit-mode.js",
+        "apps/web/plugins/visual-editor/vite-plugin-react-inline-editor.js",
+        "apps/web/plugins/vite-plugin-iframe-route-restoration.js",
+        "apps/web/plugins/vite-plugin-pocketbase-auth.js",
+        "apps/web/src/components/AyambilBookProgramme.jsx",
+        "apps/web/src/pages/ParamVirChakraPage.jsx",
+        "apps/web/tests/ayambilStaging.test.js",
+        "apps/web/tools/build.mjs",
+        "apps/web/vite.config.js",
+        "apps/web/vite.staging.config.js",
+        "docs/ayambil-book-and-official-names-results.md",
+        "docs/ayambil-complete-audit-results.md",
+        "docs/ayambil-mysql-backend-preparation.md",
+        "docs/ayambil-phase5a-results.md",
+        "docs/ayambil-registration-deployment.md",
+        "docs/ayambil-supabase-phase4-results.md",
+        "docs/ayambil-supabase-phase4b-results.md",
+        "tools/ayambil-ui-preview.config.mjs",
+        "tools/ayambil.browser-preview.mjs",
+        "tools/supabase-pass-preview/vite.config.mjs"
+      ]
+    },
+    {
+      "workspace": "package.json",
+      "name": "@electric-sql/pglite",
+      "version": "^0.5.8",
+      "importers": [
+        "tools/ayambil.supabase.test.mjs"
+      ],
+      "otherReferences": [
+        "docs/ayambil-supabase-test-deployment.md",
+        "tools/ayambil.supabase.test.mjs"
+      ]
+    },
+    {
+      "workspace": "package.json",
+      "name": "@vitejs/plugin-react",
+      "version": "^4.3.4",
+      "importers": [
+        "apps/web/vite.config.js",
+        "apps/web/vite.staging.config.js",
+        "tools/ayambil-ui-preview.config.mjs",
+        "tools/supabase-pass-preview/vite.config.mjs"
+      ],
+      "otherReferences": [
+        "apps/web/vite.config.js",
+        "apps/web/vite.staging.config.js",
+        "tools/ayambil-ui-preview.config.mjs",
+        "tools/supabase-pass-preview/vite.config.mjs"
+      ]
+    },
+    {
+      "workspace": "package.json",
+      "name": "concurrently",
+      "version": "^10.0.4",
+      "importers": [],
+      "otherReferences": [
+        "docs/ayambil-complete-audit-results.md"
+      ]
+    },
+    {
+      "workspace": "package.json",
+      "name": "vite",
+      "version": "^6.4.3",
+      "importers": [
+        "apps/web/vite.config.js",
+        "apps/web/vite.staging.config.js",
+        "tools/ayambil-ui-preview.config.mjs",
+        "tools/supabase-pass-preview/vite.config.mjs"
+      ],
+      "otherReferences": [
+        "apps/web/eslint.config.mjs",
+        "apps/web/plugins/selection-mode/vite-plugin-selection-mode.js",
+        "apps/web/plugins/visual-editor/edit-mode-script.js",
+        "apps/web/plugins/visual-editor/vite-plugin-edit-mode.js",
+        "apps/web/plugins/visual-editor/vite-plugin-react-inline-editor.js",
+        "apps/web/plugins/vite-plugin-iframe-route-restoration.js",
+        "apps/web/plugins/vite-plugin-pocketbase-auth.js",
+        "apps/web/src/components/AyambilBookProgramme.jsx",
+        "apps/web/src/pages/ParamVirChakraPage.jsx",
+        "apps/web/tests/ayambilStaging.test.js",
+        "apps/web/tools/build.mjs",
+        "apps/web/vite.config.js",
+        "apps/web/vite.staging.config.js",
+        "docs/ayambil-book-and-official-names-results.md",
+        "docs/ayambil-complete-audit-results.md",
+        "docs/ayambil-mysql-backend-preparation.md",
+        "docs/ayambil-phase5a-results.md",
+        "docs/ayambil-registration-deployment.md",
+        "docs/ayambil-supabase-phase4-results.md",
+        "docs/ayambil-supabase-phase4b-results.md",
+        "tools/ayambil-ui-preview.config.mjs",
+        "tools/ayambil.browser-preview.mjs",
+        "tools/supabase-pass-preview/vite.config.mjs"
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "path": "apps/web/public/assets/PVC.png",
+      "bytes": 33363,
+      "sha256": "dc48c1d2b8236977000197f6dc94fd36ed02f904b6a196bee6d0666f760cbf5a"
+    },
+    {
+      "path": "apps/web/public/assets/achalgarh-heritage.jpg",
+      "bytes": 103937,
+      "sha256": "1b137897a10fb4f2cb9fb39e9b9cfde9bd135128a63f1224231d1dc635417e5a"
+    },
+    {
+      "path": "apps/web/public/assets/ayambil/blessings.jpeg",
+      "bytes": 637700,
+      "sha256": "e96e84a5d454d1fc0c7b98ddbc16f1101adb1336c80e00f207d509e793adb8ee"
+    },
+    {
+      "path": "apps/web/public/assets/ayambil/book-page-8.jpeg",
+      "bytes": 83908,
+      "sha256": "2eada72f184efdd6e84fdd860a591dba983132b6dd75b95d99813280ea523a59"
+    },
+    {
+      "path": "apps/web/public/assets/ayambil/book-page-9.jpeg",
+      "bytes": 94413,
+      "sha256": "b10cc660d282fa346e5d091581fe4c96ba425fd5d3d831894a11f67bae1b2c26"
+    },
+    {
+      "path": "apps/web/public/assets/ayambil/day-1.jpeg",
+      "bytes": 571811,
+      "sha256": "20feb9b4f3241d6d75992ceb728f7284d943b63854b8b23d36e09dbe1474a4ba"
+    },
+    {
+      "path": "apps/web/public/assets/ayambil/day-2.jpeg",
+      "bytes": 511611,
+      "sha256": "87ea7f1a4f26d9b8f18f3204714c0217528dde8a7d3600573881345314fa2f91"
+    },
+    {
+      "path": "apps/web/public/assets/ayambil/day-3.jpeg",
+      "bytes": 625931,
+      "sha256": "a39bd4217e8da06b8f9ebe1f9e259bdc4e17c45470b6f0481eeececea9bb3de8"
+    },
+    {
+      "path": "apps/web/public/assets/ayambil/invitation.jpeg",
+      "bytes": 572950,
+      "sha256": "02a6d95034283f17a743f2e23199178fb9487352ec5412a8cb52bf4fd40d93a8"
+    },
+    {
+      "path": "apps/web/public/assets/ayambil/manan-sanghvi-portrait.png",
+      "bytes": 108413,
+      "sha256": "3695c8145e6df20f24c83eb14884619c2105edf1030a6d532621be105e018ea3"
+    },
+    {
+      "path": "apps/web/public/assets/ayambil/sairam-dave-portrait.png",
+      "bytes": 388408,
+      "sha256": "37ab94b826dadbaa52c812a715f089b87fb6b9fae500b4ae41137c49b54a64d6"
+    },
+    {
+      "path": "apps/web/public/assets/ayambil/sairam-dave-portrait.webp",
+      "bytes": 30496,
+      "sha256": "c00c3e2205d9566c105068b9368d21e40c19068dd176a10a6e5f05ea54ae005f"
+    },
+    {
+      "path": "apps/web/public/assets/ayambil/written-invitation.jpeg",
+      "bytes": 671934,
+      "sha256": "bc4d94056b5bbeff5e3db99a03f2515c6ec42a2154b7f834466ebb3d8c35da6d"
+    },
+    {
+      "path": "apps/web/public/assets/emblem.png",
+      "bytes": 559699,
+      "sha256": "b892722279c91698f3ea1ddcd43d5091b404150d33ecf572d1bd3957993705cf"
+    },
+    {
+      "path": "apps/web/public/assets/logo.png",
+      "bytes": 35719,
+      "sha256": "6c299e133e72ad005a01b99642a3db263380f01fbc248cd451cdaffaaf6547f1"
+    },
+    {
+      "path": "apps/web/public/assets/param-vir-chakra-back.jpg",
+      "bytes": 846934,
+      "sha256": "3dfec900dc112a06b4ff3e46ca5fe5babf3455bf0eaaa410d1b031ce82e630eb"
+    },
+    {
+      "path": "apps/web/public/assets/param-vir-chakra-hero.jpg",
+      "bytes": 849005,
+      "sha256": "d513a00192e887a26ebe5786786721e24e2d99e443364789e884e2b1eb07f161"
+    },
+    {
+      "path": "apps/web/public/assets/param-vir-chakra-hero.png",
+      "bytes": 9199299,
+      "sha256": "3178633383d67d4ac0361db09234488022b277278abc96376e501511e2e75043"
+    },
+    {
+      "path": "apps/web/public/assets/param-vir-chakra-live.jpg",
+      "bytes": 340948,
+      "sha256": "2df0f659b4241a0a96a7d13a49190f9a5009142dcea109d0179071336edb6288"
+    },
+    {
+      "path": "apps/web/public/assets/param-vir-chakra-live.png",
+      "bytes": 340948,
+      "sha256": "2df0f659b4241a0a96a7d13a49190f9a5009142dcea109d0179071336edb6288"
+    },
+    {
+      "path": "apps/web/public/assets/param-vir-chakra-og.jpg",
+      "bytes": 110237,
+      "sha256": "01070492ae4f959a6d32d41fb5681def8dcddfdd9a29ad894612ae55ff4b0ce5"
+    }
+  ],
+  "duplicateAssetGroups": [
+    [
+      "apps/web/public/assets/param-vir-chakra-live.jpg",
+      "apps/web/public/assets/param-vir-chakra-live.png"
+    ]
+  ],
+  "imports": [
+    {
+      "file": "apps/api/app.mjs",
+      "specifier": "express"
+    },
+    {
+      "file": "apps/api/app.mjs",
+      "specifier": "node:crypto"
+    },
+    {
+      "file": "apps/api/app.mjs",
+      "specifier": "node:path"
+    },
+    {
+      "file": "apps/api/app.mjs",
+      "specifier": "./config.mjs"
+    },
+    {
+      "file": "apps/api/app.mjs",
+      "specifier": "./security.mjs"
+    },
+    {
+      "file": "apps/api/bootstrap.mjs",
+      "specifier": "node:crypto"
+    },
+    {
+      "file": "apps/api/bootstrap.mjs",
+      "specifier": "node:util"
+    },
+    {
+      "file": "apps/api/bootstrap.mjs",
+      "specifier": "./config.mjs"
+    },
+    {
+      "file": "apps/api/bootstrap.mjs",
+      "specifier": "./security.mjs"
+    },
+    {
+      "file": "apps/api/config.mjs",
+      "specifier": "node:fs"
+    },
+    {
+      "file": "apps/api/config.mjs",
+      "specifier": "../web/src/lib/ayambilBookingValidation.js"
+    },
+    {
+      "file": "apps/api/hostinger-bootstrap.mjs",
+      "specifier": "./config.mjs"
+    },
+    {
+      "file": "apps/api/hostinger-bootstrap.mjs",
+      "specifier": "./bootstrap.mjs"
+    },
+    {
+      "file": "apps/api/message-queue.mjs",
+      "specifier": "node:crypto"
+    },
+    {
+      "file": "apps/api/message-queue.mjs",
+      "specifier": "./security.mjs"
+    },
+    {
+      "file": "apps/api/message-queue.mjs",
+      "specifier": "./config.mjs"
+    },
+    {
+      "file": "apps/api/message-queue.mjs",
+      "specifier": "./store.mjs"
+    },
+    {
+      "file": "apps/api/notification-context.mjs",
+      "specifier": "./config.mjs"
+    },
+    {
+      "file": "apps/api/security.mjs",
+      "specifier": "node:crypto"
+    },
+    {
+      "file": "apps/api/security.mjs",
+      "specifier": "node:util"
+    },
+    {
+      "file": "apps/api/server.mjs",
+      "specifier": "./message-queue.mjs"
+    },
+    {
+      "file": "apps/api/server.mjs",
+      "specifier": "node:url"
+    },
+    {
+      "file": "apps/api/server.mjs",
+      "specifier": "mysql2/promise"
+    },
+    {
+      "file": "apps/api/server.mjs",
+      "specifier": "./config.mjs"
+    },
+    {
+      "file": "apps/api/server.mjs",
+      "specifier": "./store.mjs"
+    },
+    {
+      "file": "apps/api/server.mjs",
+      "specifier": "./app.mjs"
+    },
+    {
+      "file": "apps/api/server.mjs",
+      "specifier": "./vardhmanflow.mjs"
+    },
+    {
+      "file": "apps/api/server.mjs",
+      "specifier": "./hostinger-bootstrap.mjs"
+    },
+    {
+      "file": "apps/api/server.mjs",
+      "specifier": "./startup-diagnostics.mjs"
+    },
+    {
+      "file": "apps/api/store.mjs",
+      "specifier": "node:crypto"
+    },
+    {
+      "file": "apps/api/store.mjs",
+      "specifier": "./config.mjs"
+    },
+    {
+      "file": "apps/api/store.mjs",
+      "specifier": "./security.mjs"
+    },
+    {
+      "file": "apps/api/store.mjs",
+      "specifier": "./notification-context.mjs"
+    },
+    {
+      "file": "apps/api/store.mjs",
+      "specifier": "node:util"
+    },
+    {
+      "file": "apps/api/tests/admin-list.test.mjs",
+      "specifier": "node:test"
+    },
+    {
+      "file": "apps/api/tests/admin-list.test.mjs",
+      "specifier": "node:assert/strict"
+    },
+    {
+      "file": "apps/api/tests/admin-list.test.mjs",
+      "specifier": "../app.mjs"
+    },
+    {
+      "file": "apps/api/tests/admin-list.test.mjs",
+      "specifier": "../store.mjs"
+    },
+    {
+      "file": "apps/api/tests/admin-list.test.mjs",
+      "specifier": "../config.mjs"
+    },
+    {
+      "file": "apps/api/tests/api.test.mjs",
+      "specifier": "node:test"
+    },
+    {
+      "file": "apps/api/tests/api.test.mjs",
+      "specifier": "node:assert/strict"
+    },
+    {
+      "file": "apps/api/tests/api.test.mjs",
+      "specifier": "node:fs/promises"
+    },
+    {
+      "file": "apps/api/tests/api.test.mjs",
+      "specifier": "node:os"
+    },
+    {
+      "file": "apps/api/tests/api.test.mjs",
+      "specifier": "node:path"
+    },
+    {
+      "file": "apps/api/tests/api.test.mjs",
+      "specifier": "../app.mjs"
+    },
+    {
+      "file": "apps/api/tests/api.test.mjs",
+      "specifier": "../config.mjs"
+    },
+    {
+      "file": "apps/api/tests/api.test.mjs",
+      "specifier": "../security.mjs"
+    },
+    {
+      "file": "apps/api/tests/api.test.mjs",
+      "specifier": "../store.mjs"
+    },
+    {
+      "file": "apps/api/tests/api.test.mjs",
+      "specifier": "../../web/src/lib/ayambilApiResponse.js"
+    },
+    {
+      "file": "apps/api/tests/bootstrap-check.mjs",
+      "specifier": "node:assert/strict"
+    },
+    {
+      "file": "apps/api/tests/bootstrap-check.mjs",
+      "specifier": "../config.mjs"
+    },
+    {
+      "file": "apps/api/tests/bootstrap-check.mjs",
+      "specifier": "../bootstrap.mjs"
+    },
+    {
+      "file": "apps/api/tests/bootstrap-check.mjs",
+      "specifier": "../security.mjs"
+    },
+    {
+      "file": "apps/api/tests/bootstrap-check.mjs",
+      "specifier": "../store.mjs"
+    },
+    {
+      "file": "apps/api/tests/bootstrap.test.mjs",
+      "specifier": "node:test"
+    },
+    {
+      "file": "apps/api/tests/bootstrap.test.mjs",
+      "specifier": "node:assert/strict"
+    },
+    {
+      "file": "apps/api/tests/bootstrap.test.mjs",
+      "specifier": "../config.mjs"
+    },
+    {
+      "file": "apps/api/tests/bootstrap.test.mjs",
+      "specifier": "../bootstrap.mjs"
+    },
+    {
+      "file": "apps/api/tests/empty-admin-check.mjs",
+      "specifier": "node:assert/strict"
+    },
+    {
+      "file": "apps/api/tests/empty-admin-check.mjs",
+      "specifier": "node:crypto"
+    },
+    {
+      "file": "apps/api/tests/empty-admin-check.mjs",
+      "specifier": "../security.mjs"
+    },
+    {
+      "file": "apps/api/tests/empty-admin-check.mjs",
+      "specifier": "../app.mjs"
+    },
+    {
+      "file": "apps/api/tests/frontend-routes.test.mjs",
+      "specifier": "node:test"
+    },
+    {
+      "file": "apps/api/tests/frontend-routes.test.mjs",
+      "specifier": "node:assert/strict"
+    },
+    {
+      "file": "apps/api/tests/frontend-routes.test.mjs",
+      "specifier": "node:fs"
+    },
+    {
+      "file": "apps/api/tests/frontend-routes.test.mjs",
+      "specifier": "node:url"
+    },
+    {
+      "file": "apps/api/tests/frontend-routes.test.mjs",
+      "specifier": "../app.mjs"
+    },
+    {
+      "file": "apps/api/tests/frontend-routes.test.mjs",
+      "specifier": "../config.mjs"
+    },
+    {
+      "file": "apps/api/tests/hostinger-bootstrap.test.mjs",
+      "specifier": "node:test"
+    },
+    {
+      "file": "apps/api/tests/hostinger-bootstrap.test.mjs",
+      "specifier": "node:assert/strict"
+    },
+    {
+      "file": "apps/api/tests/hostinger-bootstrap.test.mjs",
+      "specifier": "../hostinger-bootstrap.mjs"
+    },
+    {
+      "file": "apps/api/tests/hostinger-bootstrap.test.mjs",
+      "specifier": "../store.mjs"
+    },
+    {
+      "file": "apps/api/tests/hostinger-bootstrap.test.mjs",
+      "specifier": "../config.mjs"
+    },
+    {
+      "file": "apps/api/tests/hostinger-bootstrap.test.mjs",
+      "specifier": "../config.mjs"
+    },
+    {
+      "file": "apps/api/tests/hostinger-bootstrap.test.mjs",
+      "specifier": "../bootstrap.mjs"
+    },
+    {
+      "file": "apps/api/tests/mariadb.test.mjs",
+      "specifier": "./empty-admin-check.mjs"
+    },
+    {
+      "file": "apps/api/tests/mariadb.test.mjs",
+      "specifier": "./queue-check.mjs"
+    },
+    {
+      "file": "apps/api/tests/mariadb.test.mjs",
+      "specifier": "./bootstrap-check.mjs"
+    },
+    {
+      "file": "apps/api/tests/mariadb.test.mjs",
+      "specifier": "node:test"
+    },
+    {
+      "file": "apps/api/tests/mariadb.test.mjs",
+      "specifier": "node:assert/strict"
+    },
+    {
+      "file": "apps/api/tests/mariadb.test.mjs",
+      "specifier": "node:fs"
+    },
+    {
+      "file": "apps/api/tests/mariadb.test.mjs",
+      "specifier": "mysql2/promise"
+    },
+    {
+      "file": "apps/api/tests/mariadb.test.mjs",
+      "specifier": "node:crypto"
+    },
+    {
+      "file": "apps/api/tests/mariadb.test.mjs",
+      "specifier": "../config.mjs"
+    },
+    {
+      "file": "apps/api/tests/mariadb.test.mjs",
+      "specifier": "../store.mjs"
+    },
+    {
+      "file": "apps/api/tests/mariadb.test.mjs",
+      "specifier": "../security.mjs"
+    },
+    {
+      "file": "apps/api/tests/mysql.test.mjs",
+      "specifier": "./queue-check.mjs"
+    },
+    {
+      "file": "apps/api/tests/mysql.test.mjs",
+      "specifier": "./bootstrap-check.mjs"
+    },
+    {
+      "file": "apps/api/tests/mysql.test.mjs",
+      "specifier": "node:test"
+    },
+    {
+      "file": "apps/api/tests/mysql.test.mjs",
+      "specifier": "node:assert/strict"
+    },
+    {
+      "file": "apps/api/tests/mysql.test.mjs",
+      "specifier": "node:fs"
+    },
+    {
+      "file": "apps/api/tests/mysql.test.mjs",
+      "specifier": "mysql2/promise"
+    },
+    {
+      "file": "apps/api/tests/mysql.test.mjs",
+      "specifier": "node:crypto"
+    },
+    {
+      "file": "apps/api/tests/mysql.test.mjs",
+      "specifier": "../config.mjs"
+    },
+    {
+      "file": "apps/api/tests/mysql.test.mjs",
+      "specifier": "../store.mjs"
+    },
+    {
+      "file": "apps/api/tests/mysql.test.mjs",
+      "specifier": "../security.mjs"
+    },
+    {
+      "file": "apps/api/tests/notification-context.test.mjs",
+      "specifier": "node:test"
+    },
+    {
+      "file": "apps/api/tests/notification-context.test.mjs",
+      "specifier": "node:assert/strict"
+    },
+    {
+      "file": "apps/api/tests/notification-context.test.mjs",
+      "specifier": "../notification-context.mjs"
+    },
+    {
+      "file": "apps/api/tests/notification-context.test.mjs",
+      "specifier": "../config.mjs"
+    },
+    {
+      "file": "apps/api/tests/notification-context.test.mjs",
+      "specifier": "../vardhmanflow.mjs"
+    },
+    {
+      "file": "apps/api/tests/notification-context.test.mjs",
+      "specifier": "../store.mjs"
+    },
+    {
+      "file": "apps/api/tests/queue-check.mjs",
+      "specifier": "node:assert/strict"
+    },
+    {
+      "file": "apps/api/tests/queue-check.mjs",
+      "specifier": "node:fs"
+    },
+    {
+      "file": "apps/api/tests/queue-check.mjs",
+      "specifier": "../message-queue.mjs"
+    },
+    {
+      "file": "apps/api/tests/queue-check.mjs",
+      "specifier": "../store.mjs"
+    },
+    {
+      "file": "apps/api/tests/queue-check.mjs",
+      "specifier": "../config.mjs"
+    },
+    {
+      "file": "apps/api/tests/queue-check.mjs",
+      "specifier": "node:crypto"
+    },
+    {
+      "file": "apps/api/tests/queue-check.mjs",
+      "specifier": "../bootstrap.mjs"
+    },
+    {
+      "file": "apps/api/tests/queue-check.mjs",
+      "specifier": "../config.mjs"
+    },
+    {
+      "file": "apps/api/tests/queue.test.mjs",
+      "specifier": "node:test"
+    },
+    {
+      "file": "apps/api/tests/queue.test.mjs",
+      "specifier": "node:assert/strict"
+    },
+    {
+      "file": "apps/api/tests/queue.test.mjs",
+      "specifier": "../message-queue.mjs"
+    },
+    {
+      "file": "apps/api/tests/registration-gates.test.mjs",
+      "specifier": "node:test"
+    },
+    {
+      "file": "apps/api/tests/registration-gates.test.mjs",
+      "specifier": "node:assert/strict"
+    },
+    {
+      "file": "apps/api/tests/registration-gates.test.mjs",
+      "specifier": "../store.mjs"
+    },
+    {
+      "file": "apps/api/tests/registration-gates.test.mjs",
+      "specifier": "../config.mjs"
+    },
+    {
+      "file": "apps/api/tests/registration-gates.test.mjs",
+      "specifier": "../security.mjs"
+    },
+    {
+      "file": "apps/api/tests/schema.test.mjs",
+      "specifier": "node:test"
+    },
+    {
+      "file": "apps/api/tests/schema.test.mjs",
+      "specifier": "node:assert/strict"
+    },
+    {
+      "file": "apps/api/tests/schema.test.mjs",
+      "specifier": "node:fs"
+    },
+    {
+      "file": "apps/api/tests/startup-diagnostics.test.mjs",
+      "specifier": "node:test"
+    },
+    {
+      "file": "apps/api/tests/startup-diagnostics.test.mjs",
+      "specifier": "node:assert/strict"
+    },
+    {
+      "file": "apps/api/tests/startup-diagnostics.test.mjs",
+      "specifier": "../startup-diagnostics.mjs"
+    },
+    {
+      "file": "apps/api/tests/startup.test.mjs",
+      "specifier": "node:test"
+    },
+    {
+      "file": "apps/api/tests/startup.test.mjs",
+      "specifier": "node:assert/strict"
+    },
+    {
+      "file": "apps/api/tests/startup.test.mjs",
+      "specifier": "node:fs"
+    },
+    {
+      "file": "apps/api/tests/startup.test.mjs",
+      "specifier": "../app.mjs"
+    },
+    {
+      "file": "apps/api/tests/vardhmanflow.test.mjs",
+      "specifier": "node:test"
+    },
+    {
+      "file": "apps/api/tests/vardhmanflow.test.mjs",
+      "specifier": "node:assert/strict"
+    },
+    {
+      "file": "apps/api/tests/vardhmanflow.test.mjs",
+      "specifier": "../vardhmanflow.mjs"
+    },
+    {
+      "file": "apps/api/tools/bootstrap.mjs",
+      "specifier": "mysql2/promise"
+    },
+    {
+      "file": "apps/api/tools/bootstrap.mjs",
+      "specifier": "../config.mjs"
+    },
+    {
+      "file": "apps/api/tools/bootstrap.mjs",
+      "specifier": "../bootstrap.mjs"
+    },
+    {
+      "file": "apps/api/tools/verify-flow.mjs",
+      "specifier": "../vardhmanflow.mjs"
+    },
+    {
+      "file": "apps/api/vardhmanflow.mjs",
+      "specifier": "./config.mjs"
+    },
+    {
+      "file": "apps/api/vardhmanflow.mjs",
+      "specifier": "./notification-context.mjs"
+    },
+    {
+      "file": "apps/pocketbase/pb_hooks/ayambil/messaging.cjs",
+      "specifier": "./config.json"
+    },
+    {
+      "file": "apps/pocketbase/pb_hooks/ayambil/messaging.cjs",
+      "specifier": "./vardhmanflow.cjs"
+    },
+    {
+      "file": "apps/pocketbase/pb_hooks/ayambil/messaging.cjs",
+      "specifier": "./service.cjs"
+    },
+    {
+      "file": "apps/pocketbase/pb_hooks/ayambil/messaging.cjs",
+      "specifier": "./service.cjs"
+    },
+    {
+      "file": "apps/pocketbase/pb_hooks/ayambil/messaging.cjs",
+      "specifier": "./service.cjs"
+    },
+    {
+      "file": "apps/pocketbase/pb_hooks/ayambil/service.cjs",
+      "specifier": "./config.json"
+    },
+    {
+      "file": "apps/pocketbase/pb_hooks/ayambil/service.cjs",
+      "specifier": "./messaging.cjs"
+    },
+    {
+      "file": "apps/pocketbase/pb_hooks/builder-mailer.pb.js",
+      "specifier": ": senderAddress,\n        "
+    },
+    {
+      "file": "apps/web/eslint.config.mjs",
+      "specifier": "eslint-plugin-react"
+    },
+    {
+      "file": "apps/web/eslint.config.mjs",
+      "specifier": "eslint-plugin-react-hooks"
+    },
+    {
+      "file": "apps/web/eslint.config.mjs",
+      "specifier": "eslint-plugin-import"
+    },
+    {
+      "file": "apps/web/eslint.config.mjs",
+      "specifier": "globals"
+    },
+    {
+      "file": "apps/web/plugins/selection-mode/vite-plugin-selection-mode.js",
+      "specifier": "node:fs"
+    },
+    {
+      "file": "apps/web/plugins/selection-mode/vite-plugin-selection-mode.js",
+      "specifier": "node:path"
+    },
+    {
+      "file": "apps/web/plugins/selection-mode/vite-plugin-selection-mode.js",
+      "specifier": "node:url"
+    },
+    {
+      "file": "apps/web/plugins/utils/ast-utils.js",
+      "specifier": "node:fs"
+    },
+    {
+      "file": "apps/web/plugins/utils/ast-utils.js",
+      "specifier": "node:path"
+    },
+    {
+      "file": "apps/web/plugins/utils/ast-utils.js",
+      "specifier": "node:url"
+    },
+    {
+      "file": "apps/web/plugins/utils/ast-utils.js",
+      "specifier": "@babel/generator"
+    },
+    {
+      "file": "apps/web/plugins/utils/ast-utils.js",
+      "specifier": "@babel/parser"
+    },
+    {
+      "file": "apps/web/plugins/utils/ast-utils.js",
+      "specifier": "@babel/traverse"
+    },
+    {
+      "file": "apps/web/plugins/utils/ast-utils.js",
+      "specifier": "@babel/types"
+    },
+    {
+      "file": "apps/web/plugins/visual-editor/edit-mode-script.js",
+      "specifier": "./plugins/visual-editor/visual-editor-config.js"
+    },
+    {
+      "file": "apps/web/plugins/visual-editor/vite-plugin-edit-mode.js",
+      "specifier": "fs"
+    },
+    {
+      "file": "apps/web/plugins/visual-editor/vite-plugin-edit-mode.js",
+      "specifier": "path"
+    },
+    {
+      "file": "apps/web/plugins/visual-editor/vite-plugin-edit-mode.js",
+      "specifier": "url"
+    },
+    {
+      "file": "apps/web/plugins/visual-editor/vite-plugin-edit-mode.js",
+      "specifier": "./visual-editor-config"
+    },
+    {
+      "file": "apps/web/plugins/visual-editor/vite-plugin-react-inline-editor.js",
+      "specifier": "path"
+    },
+    {
+      "file": "apps/web/plugins/visual-editor/vite-plugin-react-inline-editor.js",
+      "specifier": "@babel/parser"
+    },
+    {
+      "file": "apps/web/plugins/visual-editor/vite-plugin-react-inline-editor.js",
+      "specifier": "@babel/traverse"
+    },
+    {
+      "file": "apps/web/plugins/visual-editor/vite-plugin-react-inline-editor.js",
+      "specifier": "@babel/types"
+    },
+    {
+      "file": "apps/web/plugins/visual-editor/vite-plugin-react-inline-editor.js",
+      "specifier": "fs"
+    },
+    {
+      "file": "apps/web/plugins/visual-editor/vite-plugin-react-inline-editor.js",
+      "specifier": "../utils/ast-utils.js"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "specifier": "react-router-dom"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "specifier": "sonner"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "specifier": "@/components/ScrollToTop.jsx"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "specifier": "@/pages/HomePage.jsx"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "specifier": "@/pages/AboutPage.jsx"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "specifier": "@/pages/ServicesPage.jsx"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "specifier": "@/pages/ParamVirChakraPage.jsx"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "specifier": "@/pages/UpdhanPage.jsx"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "specifier": "@/pages/AyambilPage.jsx"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "specifier": "@/pages/AyambilAdminPage.jsx"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "specifier": "@/pages/AyambilEveningPage.jsx"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "specifier": "@/pages/AyambilPassDownloadPage.jsx"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "specifier": "@/pages/PrivacyPolicyPage.jsx"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "specifier": "@/pages/AgencyPrivacyPolicyPage.jsx"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "specifier": "@/pages/AgencyTermsOfServicePage.jsx"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "specifier": "@/pages/AdminPassGeneratorPage.jsx"
+    },
+    {
+      "file": "apps/web/src/App.jsx",
+      "specifier": "@/pages/PVCLiveRedirect.jsx"
+    },
+    {
+      "file": "apps/web/src/components/AboutSection.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/AboutSection.jsx",
+      "specifier": "framer-motion"
+    },
+    {
+      "file": "apps/web/src/components/AgencyHero.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/AgencyHero.jsx",
+      "specifier": "framer-motion"
+    },
+    {
+      "file": "apps/web/src/components/AgencyHero.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/components/AgencyHero.jsx",
+      "specifier": "@/components/ui/button"
+    },
+    {
+      "file": "apps/web/src/components/AgencyNavbar.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/AgencyNavbar.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/components/AgencyNavbar.jsx",
+      "specifier": "react-router-dom"
+    },
+    {
+      "file": "apps/web/src/components/AgencyNavbar.jsx",
+      "specifier": "@/components/ui/button"
+    },
+    {
+      "file": "apps/web/src/components/AnimatedHeading.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/AnimatedHeading.jsx",
+      "specifier": "framer-motion"
+    },
+    {
+      "file": "apps/web/src/components/AnimatedHeading.jsx",
+      "specifier": "@/hooks/useScrollAnimation.js"
+    },
+    {
+      "file": "apps/web/src/components/AnimatedSection.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/AnimatedSection.jsx",
+      "specifier": "framer-motion"
+    },
+    {
+      "file": "apps/web/src/components/AnimatedSection.jsx",
+      "specifier": "@/hooks/useScrollAnimation.js"
+    },
+    {
+      "file": "apps/web/src/components/AyambilBookProgramme.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/AyambilBookProgramme.jsx",
+      "specifier": "@/lib/ayambilOfficialCredits"
+    },
+    {
+      "file": "apps/web/src/components/AyambilDigitalPass.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/AyambilDigitalPass.jsx",
+      "specifier": "html-to-image"
+    },
+    {
+      "file": "apps/web/src/components/AyambilDigitalPass.jsx",
+      "specifier": "@/lib/ayambilPassUtils"
+    },
+    {
+      "file": "apps/web/src/components/AyambilDigitalPass.jsx",
+      "specifier": "@/lib/ayambilPassPresentation"
+    },
+    {
+      "file": "apps/web/src/components/AyambilDigitalPass.jsx",
+      "specifier": "@/lib/ayambilPassLayout"
+    },
+    {
+      "file": "apps/web/src/components/AyambilDigitalPass.jsx",
+      "specifier": "jspdf"
+    },
+    {
+      "file": "apps/web/src/components/AyambilEventDetails.jsx",
+      "specifier": "@/lib/ayambilWhatsAppContact"
+    },
+    {
+      "file": "apps/web/src/components/AyambilEventDetails.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/AyambilEventDetails.jsx",
+      "specifier": "react-router-dom"
+    },
+    {
+      "file": "apps/web/src/components/AyambilEventDetails.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/components/AyambilEventDetails.jsx",
+      "specifier": "@/lib/ayambilOfficialCredits"
+    },
+    {
+      "file": "apps/web/src/components/AyambilEventDetails.jsx",
+      "specifier": "@/lib/ayambilProgramme"
+    },
+    {
+      "file": "apps/web/src/components/AyambilEventDetails.jsx",
+      "specifier": "@/lib/contactConfig"
+    },
+    {
+      "file": "apps/web/src/components/AyambilEventDetails.jsx",
+      "specifier": "./AyambilInstructions.jsx"
+    },
+    {
+      "file": "apps/web/src/components/AyambilInstructions.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/AyambilRegistration.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/AyambilRegistration.jsx",
+      "specifier": "@/lib/ayambilExpressClient.js"
+    },
+    {
+      "file": "apps/web/src/components/AyambilRegistration.jsx",
+      "specifier": "@/lib/ayambilRegistration"
+    },
+    {
+      "file": "apps/web/src/components/AyambilRegistration.jsx",
+      "specifier": "react-router-dom"
+    },
+    {
+      "file": "apps/web/src/components/AyambilRegistration.jsx",
+      "specifier": "@/lib/ayambilTerms"
+    },
+    {
+      "file": "apps/web/src/components/AyambilRegistration.jsx",
+      "specifier": "./AyambilDigitalPass.jsx"
+    },
+    {
+      "file": "apps/web/src/components/AyambilRegistration.jsx",
+      "specifier": "./AyambilInstructions.jsx"
+    },
+    {
+      "file": "apps/web/src/components/ContactFormSection.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ContactFormSection.jsx",
+      "specifier": "framer-motion"
+    },
+    {
+      "file": "apps/web/src/components/ContactFormSection.jsx",
+      "specifier": "react-router-dom"
+    },
+    {
+      "file": "apps/web/src/components/ContactFormSection.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/components/ContactFormSection.jsx",
+      "specifier": "sonner"
+    },
+    {
+      "file": "apps/web/src/components/EventFooter.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/EventFooter.jsx",
+      "specifier": "react-router-dom"
+    },
+    {
+      "file": "apps/web/src/components/EventFooter.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/components/EventFooter.jsx",
+      "specifier": "@/lib/contactConfig"
+    },
+    {
+      "file": "apps/web/src/components/FAQSection.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/FAQSection.jsx",
+      "specifier": "framer-motion"
+    },
+    {
+      "file": "apps/web/src/components/FAQSection.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/components/FooterSection.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/FooterSection.jsx",
+      "specifier": "react-router-dom"
+    },
+    {
+      "file": "apps/web/src/components/FooterSection.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/components/FooterSection.jsx",
+      "specifier": "./AnimatedSection.jsx"
+    },
+    {
+      "file": "apps/web/src/components/HeroSection.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/HeroSection.jsx",
+      "specifier": "framer-motion"
+    },
+    {
+      "file": "apps/web/src/components/HeroSection.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/components/HeroSection.jsx",
+      "specifier": "@/components/ui/button"
+    },
+    {
+      "file": "apps/web/src/components/HomeLiveBanner.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/HomeLiveBanner.jsx",
+      "specifier": "framer-motion"
+    },
+    {
+      "file": "apps/web/src/components/HomeLiveBanner.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/components/HomeLiveBanner.jsx",
+      "specifier": "react-router-dom"
+    },
+    {
+      "file": "apps/web/src/components/HoverCard.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/HoverCard.jsx",
+      "specifier": "framer-motion"
+    },
+    {
+      "file": "apps/web/src/components/LeadCaptureSection.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/LeadCaptureSection.jsx",
+      "specifier": "framer-motion"
+    },
+    {
+      "file": "apps/web/src/components/LeadCaptureSection.jsx",
+      "specifier": "sonner"
+    },
+    {
+      "file": "apps/web/src/components/LeadCaptureSection.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/components/LeadCaptureSection.jsx",
+      "specifier": "@/components/ui/input"
+    },
+    {
+      "file": "apps/web/src/components/LeadCaptureSection.jsx",
+      "specifier": "@/components/ui/label"
+    },
+    {
+      "file": "apps/web/src/components/LeadCaptureSection.jsx",
+      "specifier": "@/components/ui/textarea"
+    },
+    {
+      "file": "apps/web/src/components/LeadCaptureSection.jsx",
+      "specifier": "@/components/ui/button"
+    },
+    {
+      "file": "apps/web/src/components/LeadCaptureSection.jsx",
+      "specifier": "@/lib/pocketbaseClient"
+    },
+    {
+      "file": "apps/web/src/components/LeadCaptureSection.jsx",
+      "specifier": "./AnimatedSection.jsx"
+    },
+    {
+      "file": "apps/web/src/components/LeadCaptureSection.jsx",
+      "specifier": "./AnimatedHeading.jsx"
+    },
+    {
+      "file": "apps/web/src/components/PageTransition.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/PageTransition.jsx",
+      "specifier": "framer-motion"
+    },
+    {
+      "file": "apps/web/src/components/PassCard.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/PortfolioSection.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/PortfolioSection.jsx",
+      "specifier": "framer-motion"
+    },
+    {
+      "file": "apps/web/src/components/PortfolioSection.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/components/PvcMedalSvg.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ScrollToTop.jsx",
+      "specifier": "react-router-dom"
+    },
+    {
+      "file": "apps/web/src/components/ScrollToTop.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ServiceCard.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ServiceCard.jsx",
+      "specifier": "framer-motion"
+    },
+    {
+      "file": "apps/web/src/components/ServicesSection.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ServicesSection.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/components/ServicesSection.jsx",
+      "specifier": "./ServiceCard.jsx"
+    },
+    {
+      "file": "apps/web/src/components/ServicesSection.jsx",
+      "specifier": "./AnimatedSection.jsx"
+    },
+    {
+      "file": "apps/web/src/components/ServicesSection.jsx",
+      "specifier": "./AnimatedHeading.jsx"
+    },
+    {
+      "file": "apps/web/src/components/UpdhanParticipation.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/UpdhanParticipation.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/components/UpdhanParticipation.jsx",
+      "specifier": "@/lib/updhanConfig"
+    },
+    {
+      "file": "apps/web/src/components/ui/accordion.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/accordion.jsx",
+      "specifier": "@radix-ui/react-accordion"
+    },
+    {
+      "file": "apps/web/src/components/ui/accordion.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/components/ui/accordion.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/alert-dialog.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/alert-dialog.jsx",
+      "specifier": "@radix-ui/react-alert-dialog"
+    },
+    {
+      "file": "apps/web/src/components/ui/alert-dialog.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/alert-dialog.jsx",
+      "specifier": "@/components/ui/button"
+    },
+    {
+      "file": "apps/web/src/components/ui/alert.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/alert.jsx",
+      "specifier": "class-variance-authority"
+    },
+    {
+      "file": "apps/web/src/components/ui/alert.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/aspect-ratio.jsx",
+      "specifier": "@radix-ui/react-aspect-ratio"
+    },
+    {
+      "file": "apps/web/src/components/ui/avatar.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/avatar.jsx",
+      "specifier": "@radix-ui/react-avatar"
+    },
+    {
+      "file": "apps/web/src/components/ui/avatar.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/badge.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/badge.jsx",
+      "specifier": "class-variance-authority"
+    },
+    {
+      "file": "apps/web/src/components/ui/badge.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/breadcrumb.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/breadcrumb.jsx",
+      "specifier": "@radix-ui/react-slot"
+    },
+    {
+      "file": "apps/web/src/components/ui/breadcrumb.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/components/ui/breadcrumb.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/button-group.jsx",
+      "specifier": "@radix-ui/react-slot"
+    },
+    {
+      "file": "apps/web/src/components/ui/button-group.jsx",
+      "specifier": "class-variance-authority"
+    },
+    {
+      "file": "apps/web/src/components/ui/button-group.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/button-group.jsx",
+      "specifier": "@/components/ui/separator"
+    },
+    {
+      "file": "apps/web/src/components/ui/button.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/button.jsx",
+      "specifier": "@radix-ui/react-slot"
+    },
+    {
+      "file": "apps/web/src/components/ui/button.jsx",
+      "specifier": "class-variance-authority"
+    },
+    {
+      "file": "apps/web/src/components/ui/button.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/calendar.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/calendar.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/components/ui/calendar.jsx",
+      "specifier": "react-day-picker"
+    },
+    {
+      "file": "apps/web/src/components/ui/calendar.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/calendar.jsx",
+      "specifier": "@/components/ui/button"
+    },
+    {
+      "file": "apps/web/src/components/ui/card.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/card.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/carousel.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/carousel.jsx",
+      "specifier": "embla-carousel-react"
+    },
+    {
+      "file": "apps/web/src/components/ui/carousel.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/components/ui/carousel.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/carousel.jsx",
+      "specifier": "@/components/ui/button"
+    },
+    {
+      "file": "apps/web/src/components/ui/chart.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/chart.jsx",
+      "specifier": "recharts"
+    },
+    {
+      "file": "apps/web/src/components/ui/chart.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/checkbox.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/checkbox.jsx",
+      "specifier": "@radix-ui/react-checkbox"
+    },
+    {
+      "file": "apps/web/src/components/ui/checkbox.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/components/ui/checkbox.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/collapsible.jsx",
+      "specifier": "@radix-ui/react-collapsible"
+    },
+    {
+      "file": "apps/web/src/components/ui/command.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/command.jsx",
+      "specifier": "cmdk"
+    },
+    {
+      "file": "apps/web/src/components/ui/command.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/components/ui/command.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/command.jsx",
+      "specifier": "@/components/ui/dialog"
+    },
+    {
+      "file": "apps/web/src/components/ui/context-menu.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/context-menu.jsx",
+      "specifier": "@radix-ui/react-context-menu"
+    },
+    {
+      "file": "apps/web/src/components/ui/context-menu.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/components/ui/context-menu.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/dialog.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/dialog.jsx",
+      "specifier": "@radix-ui/react-dialog"
+    },
+    {
+      "file": "apps/web/src/components/ui/dialog.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/components/ui/dialog.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/drawer.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/drawer.jsx",
+      "specifier": "vaul"
+    },
+    {
+      "file": "apps/web/src/components/ui/drawer.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/dropdown-menu.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/dropdown-menu.jsx",
+      "specifier": "@radix-ui/react-dropdown-menu"
+    },
+    {
+      "file": "apps/web/src/components/ui/dropdown-menu.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/components/ui/dropdown-menu.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/empty.jsx",
+      "specifier": "class-variance-authority"
+    },
+    {
+      "file": "apps/web/src/components/ui/empty.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/field.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/field.jsx",
+      "specifier": "class-variance-authority"
+    },
+    {
+      "file": "apps/web/src/components/ui/field.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/field.jsx",
+      "specifier": "@/components/ui/label"
+    },
+    {
+      "file": "apps/web/src/components/ui/field.jsx",
+      "specifier": "@/components/ui/separator"
+    },
+    {
+      "file": "apps/web/src/components/ui/form.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/form.jsx",
+      "specifier": "@radix-ui/react-slot"
+    },
+    {
+      "file": "apps/web/src/components/ui/form.jsx",
+      "specifier": "react-hook-form"
+    },
+    {
+      "file": "apps/web/src/components/ui/form.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/form.jsx",
+      "specifier": "@/components/ui/label"
+    },
+    {
+      "file": "apps/web/src/components/ui/hover-card.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/hover-card.jsx",
+      "specifier": "@radix-ui/react-hover-card"
+    },
+    {
+      "file": "apps/web/src/components/ui/hover-card.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/input-group.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/input-group.jsx",
+      "specifier": "class-variance-authority"
+    },
+    {
+      "file": "apps/web/src/components/ui/input-group.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/input-group.jsx",
+      "specifier": "@/components/ui/button"
+    },
+    {
+      "file": "apps/web/src/components/ui/input-group.jsx",
+      "specifier": "@/components/ui/input"
+    },
+    {
+      "file": "apps/web/src/components/ui/input-group.jsx",
+      "specifier": "@/components/ui/textarea"
+    },
+    {
+      "file": "apps/web/src/components/ui/input-otp.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/input-otp.jsx",
+      "specifier": "input-otp"
+    },
+    {
+      "file": "apps/web/src/components/ui/input-otp.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/components/ui/input-otp.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/input.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/input.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/item.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/item.jsx",
+      "specifier": "@radix-ui/react-slot"
+    },
+    {
+      "file": "apps/web/src/components/ui/item.jsx",
+      "specifier": "class-variance-authority"
+    },
+    {
+      "file": "apps/web/src/components/ui/item.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/item.jsx",
+      "specifier": "@/components/ui/separator"
+    },
+    {
+      "file": "apps/web/src/components/ui/kbd.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/label.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/label.jsx",
+      "specifier": "@radix-ui/react-label"
+    },
+    {
+      "file": "apps/web/src/components/ui/label.jsx",
+      "specifier": "class-variance-authority"
+    },
+    {
+      "file": "apps/web/src/components/ui/label.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/menubar.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/menubar.jsx",
+      "specifier": "@radix-ui/react-menubar"
+    },
+    {
+      "file": "apps/web/src/components/ui/menubar.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/components/ui/menubar.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/navigation-menu.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/navigation-menu.jsx",
+      "specifier": "@radix-ui/react-navigation-menu"
+    },
+    {
+      "file": "apps/web/src/components/ui/navigation-menu.jsx",
+      "specifier": "class-variance-authority"
+    },
+    {
+      "file": "apps/web/src/components/ui/navigation-menu.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/components/ui/navigation-menu.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/pagination.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/pagination.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/components/ui/pagination.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/pagination.jsx",
+      "specifier": "@/components/ui/button"
+    },
+    {
+      "file": "apps/web/src/components/ui/popover.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/popover.jsx",
+      "specifier": "@radix-ui/react-popover"
+    },
+    {
+      "file": "apps/web/src/components/ui/popover.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/progress.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/progress.jsx",
+      "specifier": "@radix-ui/react-progress"
+    },
+    {
+      "file": "apps/web/src/components/ui/progress.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/radio-group.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/radio-group.jsx",
+      "specifier": "@radix-ui/react-radio-group"
+    },
+    {
+      "file": "apps/web/src/components/ui/radio-group.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/components/ui/radio-group.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/resizable.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/resizable.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/components/ui/resizable.jsx",
+      "specifier": "react-resizable-panels"
+    },
+    {
+      "file": "apps/web/src/components/ui/resizable.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/scroll-area.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/scroll-area.jsx",
+      "specifier": "@radix-ui/react-scroll-area"
+    },
+    {
+      "file": "apps/web/src/components/ui/scroll-area.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/select.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/select.jsx",
+      "specifier": "@radix-ui/react-select"
+    },
+    {
+      "file": "apps/web/src/components/ui/select.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/components/ui/select.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/separator.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/separator.jsx",
+      "specifier": "@radix-ui/react-separator"
+    },
+    {
+      "file": "apps/web/src/components/ui/separator.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/sheet.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/sheet.jsx",
+      "specifier": "@radix-ui/react-dialog"
+    },
+    {
+      "file": "apps/web/src/components/ui/sheet.jsx",
+      "specifier": "class-variance-authority"
+    },
+    {
+      "file": "apps/web/src/components/ui/sheet.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/components/ui/sheet.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/sidebar.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/sidebar.jsx",
+      "specifier": "@radix-ui/react-slot"
+    },
+    {
+      "file": "apps/web/src/components/ui/sidebar.jsx",
+      "specifier": "class-variance-authority"
+    },
+    {
+      "file": "apps/web/src/components/ui/sidebar.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/components/ui/sidebar.jsx",
+      "specifier": "@/hooks/use-mobile"
+    },
+    {
+      "file": "apps/web/src/components/ui/sidebar.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/sidebar.jsx",
+      "specifier": "@/components/ui/button"
+    },
+    {
+      "file": "apps/web/src/components/ui/sidebar.jsx",
+      "specifier": "@/components/ui/input"
+    },
+    {
+      "file": "apps/web/src/components/ui/sidebar.jsx",
+      "specifier": "@/components/ui/separator"
+    },
+    {
+      "file": "apps/web/src/components/ui/sidebar.jsx",
+      "specifier": "@/components/ui/sheet"
+    },
+    {
+      "file": "apps/web/src/components/ui/sidebar.jsx",
+      "specifier": "@/components/ui/skeleton"
+    },
+    {
+      "file": "apps/web/src/components/ui/sidebar.jsx",
+      "specifier": "@/components/ui/tooltip"
+    },
+    {
+      "file": "apps/web/src/components/ui/skeleton.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/slider.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/slider.jsx",
+      "specifier": "@radix-ui/react-slider"
+    },
+    {
+      "file": "apps/web/src/components/ui/slider.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/sonner.jsx",
+      "specifier": "next-themes"
+    },
+    {
+      "file": "apps/web/src/components/ui/sonner.jsx",
+      "specifier": "sonner"
+    },
+    {
+      "file": "apps/web/src/components/ui/spinner.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/components/ui/spinner.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/switch.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/switch.jsx",
+      "specifier": "@radix-ui/react-switch"
+    },
+    {
+      "file": "apps/web/src/components/ui/switch.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/table.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/table.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/tabs.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/tabs.jsx",
+      "specifier": "@radix-ui/react-tabs"
+    },
+    {
+      "file": "apps/web/src/components/ui/tabs.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/textarea.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/textarea.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/toast.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/toast.jsx",
+      "specifier": "@radix-ui/react-toast"
+    },
+    {
+      "file": "apps/web/src/components/ui/toast.jsx",
+      "specifier": "class-variance-authority"
+    },
+    {
+      "file": "apps/web/src/components/ui/toast.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/components/ui/toast.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/toaster.jsx",
+      "specifier": "@/hooks/use-toast"
+    },
+    {
+      "file": "apps/web/src/components/ui/toaster.jsx",
+      "specifier": "@/components/ui/toast"
+    },
+    {
+      "file": "apps/web/src/components/ui/toggle-group.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/toggle-group.jsx",
+      "specifier": "@radix-ui/react-toggle-group"
+    },
+    {
+      "file": "apps/web/src/components/ui/toggle-group.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/toggle-group.jsx",
+      "specifier": "@/components/ui/toggle"
+    },
+    {
+      "file": "apps/web/src/components/ui/toggle.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/toggle.jsx",
+      "specifier": "@radix-ui/react-toggle"
+    },
+    {
+      "file": "apps/web/src/components/ui/toggle.jsx",
+      "specifier": "class-variance-authority"
+    },
+    {
+      "file": "apps/web/src/components/ui/toggle.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/components/ui/tooltip.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/components/ui/tooltip.jsx",
+      "specifier": "@radix-ui/react-tooltip"
+    },
+    {
+      "file": "apps/web/src/components/ui/tooltip.jsx",
+      "specifier": "@/lib/utils"
+    },
+    {
+      "file": "apps/web/src/hooks/use-mobile.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/hooks/use-toast.js",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/hooks/useScrollAnimation.js",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/lib/ayambilExpressClient.js",
+      "specifier": "./ayambilApiResponse.js"
+    },
+    {
+      "file": "apps/web/src/lib/ayambilPassPresentation.js",
+      "specifier": "./ayambilOfficialCredits.js"
+    },
+    {
+      "file": "apps/web/src/lib/ayambilRegistration.js",
+      "specifier": "./ayambilBookingValidation"
+    },
+    {
+      "file": "apps/web/src/lib/ayambilRegistration.js",
+      "specifier": "./ayambilExpressClient.js"
+    },
+    {
+      "file": "apps/web/src/lib/ayambilRegistration.js",
+      "specifier": "../../../pocketbase/pb_hooks/ayambil/config.json"
+    },
+    {
+      "file": "apps/web/src/lib/ayambilRegistration.js",
+      "specifier": "./ayambilPassUtils"
+    },
+    {
+      "file": "apps/web/src/lib/pocketbaseClient.js",
+      "specifier": "pocketbase"
+    },
+    {
+      "file": "apps/web/src/lib/utils.js",
+      "specifier": "clsx"
+    },
+    {
+      "file": "apps/web/src/lib/utils.js",
+      "specifier": "tailwind-merge"
+    },
+    {
+      "file": "apps/web/src/main.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/main.jsx",
+      "specifier": "react-dom/client"
+    },
+    {
+      "file": "apps/web/src/main.jsx",
+      "specifier": "@/App"
+    },
+    {
+      "file": "apps/web/src/main.jsx",
+      "specifier": "@/lib/urlNormalizer"
+    },
+    {
+      "file": "apps/web/src/pages/AboutPage.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/pages/AboutPage.jsx",
+      "specifier": "react-helmet"
+    },
+    {
+      "file": "apps/web/src/pages/AboutPage.jsx",
+      "specifier": "framer-motion"
+    },
+    {
+      "file": "apps/web/src/pages/AboutPage.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/pages/AboutPage.jsx",
+      "specifier": "@/components/PageTransition.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/AboutPage.jsx",
+      "specifier": "@/components/AgencyNavbar.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/AboutPage.jsx",
+      "specifier": "@/components/FooterSection.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/AdminPassGeneratorPage.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/pages/AdminPassGeneratorPage.jsx",
+      "specifier": "react-helmet"
+    },
+    {
+      "file": "apps/web/src/pages/AdminPassGeneratorPage.jsx",
+      "specifier": "framer-motion"
+    },
+    {
+      "file": "apps/web/src/pages/AdminPassGeneratorPage.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/pages/AdminPassGeneratorPage.jsx",
+      "specifier": "react-router-dom"
+    },
+    {
+      "file": "apps/web/src/pages/AdminPassGeneratorPage.jsx",
+      "specifier": "xlsx"
+    },
+    {
+      "file": "apps/web/src/pages/AdminPassGeneratorPage.jsx",
+      "specifier": "html-to-image"
+    },
+    {
+      "file": "apps/web/src/pages/AdminPassGeneratorPage.jsx",
+      "specifier": "jspdf"
+    },
+    {
+      "file": "apps/web/src/pages/AdminPassGeneratorPage.jsx",
+      "specifier": "sonner"
+    },
+    {
+      "file": "apps/web/src/pages/AdminPassGeneratorPage.jsx",
+      "specifier": "../components/PassCard.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/AdminPassGeneratorPage.jsx",
+      "specifier": "../components/EventFooter.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/AgencyPrivacyPolicyPage.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/pages/AgencyPrivacyPolicyPage.jsx",
+      "specifier": "react-helmet"
+    },
+    {
+      "file": "apps/web/src/pages/AgencyPrivacyPolicyPage.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/pages/AgencyPrivacyPolicyPage.jsx",
+      "specifier": "@/components/PageTransition.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/AgencyPrivacyPolicyPage.jsx",
+      "specifier": "@/components/AgencyNavbar.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/AgencyPrivacyPolicyPage.jsx",
+      "specifier": "@/components/FooterSection.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/AgencyTermsOfServicePage.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/pages/AgencyTermsOfServicePage.jsx",
+      "specifier": "react-helmet"
+    },
+    {
+      "file": "apps/web/src/pages/AgencyTermsOfServicePage.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/pages/AgencyTermsOfServicePage.jsx",
+      "specifier": "@/components/PageTransition.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/AgencyTermsOfServicePage.jsx",
+      "specifier": "@/components/AgencyNavbar.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/AgencyTermsOfServicePage.jsx",
+      "specifier": "@/components/FooterSection.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/AyambilAdminPage.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/pages/AyambilAdminPage.jsx",
+      "specifier": "react-helmet"
+    },
+    {
+      "file": "apps/web/src/pages/AyambilAdminPage.jsx",
+      "specifier": "react-router-dom"
+    },
+    {
+      "file": "apps/web/src/pages/AyambilAdminPage.jsx",
+      "specifier": "@/lib/ayambilRegistration"
+    },
+    {
+      "file": "apps/web/src/pages/AyambilAdminPage.jsx",
+      "specifier": "@/components/AyambilDigitalPass.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/AyambilEveningPage.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/pages/AyambilEveningPage.jsx",
+      "specifier": "@/components/AyambilBookProgramme.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/AyambilEveningPage.jsx",
+      "specifier": "react-helmet"
+    },
+    {
+      "file": "apps/web/src/pages/AyambilEveningPage.jsx",
+      "specifier": "react-router-dom"
+    },
+    {
+      "file": "apps/web/src/pages/AyambilEveningPage.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/pages/AyambilEveningPage.jsx",
+      "specifier": "@/lib/ayambilProgramme"
+    },
+    {
+      "file": "apps/web/src/pages/AyambilEveningPage.jsx",
+      "specifier": "@/lib/contactConfig"
+    },
+    {
+      "file": "apps/web/src/pages/AyambilEveningPage.jsx",
+      "specifier": "@/components/AyambilRegistration.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/AyambilEveningPage.jsx",
+      "specifier": "@/components/AyambilEventDetails.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/AyambilPage.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/pages/AyambilPage.jsx",
+      "specifier": "@/components/AyambilBookProgramme.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/AyambilPage.jsx",
+      "specifier": "react-helmet"
+    },
+    {
+      "file": "apps/web/src/pages/AyambilPage.jsx",
+      "specifier": "react-router-dom"
+    },
+    {
+      "file": "apps/web/src/pages/AyambilPage.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/pages/AyambilPage.jsx",
+      "specifier": "@/components/AyambilEventDetails.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/AyambilPage.jsx",
+      "specifier": "@/lib/contactConfig"
+    },
+    {
+      "file": "apps/web/src/pages/AyambilPage.jsx",
+      "specifier": "@/lib/ayambilProgramme"
+    },
+    {
+      "file": "apps/web/src/pages/AyambilPassDownloadPage.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/pages/AyambilPassDownloadPage.jsx",
+      "specifier": "react-helmet"
+    },
+    {
+      "file": "apps/web/src/pages/AyambilPassDownloadPage.jsx",
+      "specifier": "react-router-dom"
+    },
+    {
+      "file": "apps/web/src/pages/AyambilPassDownloadPage.jsx",
+      "specifier": "@/lib/ayambilRegistration"
+    },
+    {
+      "file": "apps/web/src/pages/AyambilPassDownloadPage.jsx",
+      "specifier": "@/lib/ayambilApiResponse"
+    },
+    {
+      "file": "apps/web/src/pages/AyambilPassDownloadPage.jsx",
+      "specifier": "@/components/AyambilDigitalPass.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/AyambilPassDownloadPage.jsx",
+      "specifier": "@/components/AyambilEventDetails.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/ComingSoonPage.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/pages/ComingSoonPage.jsx",
+      "specifier": "react-helmet"
+    },
+    {
+      "file": "apps/web/src/pages/ComingSoonPage.jsx",
+      "specifier": "framer-motion"
+    },
+    {
+      "file": "apps/web/src/pages/ComingSoonPage.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/pages/ComingSoonPage.jsx",
+      "specifier": "@/components/ui/button"
+    },
+    {
+      "file": "apps/web/src/pages/ComingSoonPage.jsx",
+      "specifier": "@/components/ui/input"
+    },
+    {
+      "file": "apps/web/src/pages/ComingSoonPage.jsx",
+      "specifier": "@/components/ui/textarea"
+    },
+    {
+      "file": "apps/web/src/pages/ComingSoonPage.jsx",
+      "specifier": "sonner"
+    },
+    {
+      "file": "apps/web/src/pages/ComingSoonPage.jsx",
+      "specifier": "@/lib/pocketbaseClient"
+    },
+    {
+      "file": "apps/web/src/pages/ComingSoonPage.jsx",
+      "specifier": "@/components/AnimatedHeading.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/ComingSoonPage.jsx",
+      "specifier": "@/components/AnimatedSection.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/ComingSoonPage.jsx",
+      "specifier": "@/components/HoverCard.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/HomePage.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/pages/HomePage.jsx",
+      "specifier": "react-helmet"
+    },
+    {
+      "file": "apps/web/src/pages/HomePage.jsx",
+      "specifier": "@/components/PageTransition.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/HomePage.jsx",
+      "specifier": "@/components/AgencyNavbar.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/HomePage.jsx",
+      "specifier": "@/components/AgencyHero.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/HomePage.jsx",
+      "specifier": "@/components/AboutSection.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/HomePage.jsx",
+      "specifier": "@/components/ServicesSection.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/HomePage.jsx",
+      "specifier": "@/components/PortfolioSection.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/HomePage.jsx",
+      "specifier": "@/components/FAQSection.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/HomePage.jsx",
+      "specifier": "@/components/ContactFormSection.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/HomePage.jsx",
+      "specifier": "@/components/FooterSection.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/PVCLiveRedirect.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/pages/PVCLiveRedirect.jsx",
+      "specifier": "react-helmet"
+    },
+    {
+      "file": "apps/web/src/pages/PVCLiveRedirect.jsx",
+      "specifier": "@/lib/contactConfig"
+    },
+    {
+      "file": "apps/web/src/pages/ParamVirChakraPage.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/pages/ParamVirChakraPage.jsx",
+      "specifier": "react-helmet"
+    },
+    {
+      "file": "apps/web/src/pages/ParamVirChakraPage.jsx",
+      "specifier": "framer-motion"
+    },
+    {
+      "file": "apps/web/src/pages/ParamVirChakraPage.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/pages/ParamVirChakraPage.jsx",
+      "specifier": "@/lib/contactConfig"
+    },
+    {
+      "file": "apps/web/src/pages/ParamVirChakraPage.jsx",
+      "specifier": "@/components/EventFooter.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/ParamVirChakraPage.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/pages/PassCollectionPage.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/pages/PassCollectionPage.jsx",
+      "specifier": "react-helmet"
+    },
+    {
+      "file": "apps/web/src/pages/PassCollectionPage.jsx",
+      "specifier": "framer-motion"
+    },
+    {
+      "file": "apps/web/src/pages/PassCollectionPage.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/pages/PassCollectionPage.jsx",
+      "specifier": "react-router-dom"
+    },
+    {
+      "file": "apps/web/src/pages/PassCollectionPage.jsx",
+      "specifier": "@/lib/contactConfig"
+    },
+    {
+      "file": "apps/web/src/pages/PassCollectionPage.jsx",
+      "specifier": "@/components/EventFooter.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/PrivacyPolicyPage.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/pages/PrivacyPolicyPage.jsx",
+      "specifier": "react-helmet"
+    },
+    {
+      "file": "apps/web/src/pages/PrivacyPolicyPage.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/pages/PrivacyPolicyPage.jsx",
+      "specifier": "react-router-dom"
+    },
+    {
+      "file": "apps/web/src/pages/PrivacyPolicyPage.jsx",
+      "specifier": "@/lib/contactConfig"
+    },
+    {
+      "file": "apps/web/src/pages/PrivacyPolicyPage.jsx",
+      "specifier": "@/components/EventFooter.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/ServicesPage.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/pages/ServicesPage.jsx",
+      "specifier": "react-helmet"
+    },
+    {
+      "file": "apps/web/src/pages/ServicesPage.jsx",
+      "specifier": "framer-motion"
+    },
+    {
+      "file": "apps/web/src/pages/ServicesPage.jsx",
+      "specifier": "react-router-dom"
+    },
+    {
+      "file": "apps/web/src/pages/ServicesPage.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/pages/ServicesPage.jsx",
+      "specifier": "@/components/PageTransition.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/ServicesPage.jsx",
+      "specifier": "@/components/AgencyNavbar.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/ServicesPage.jsx",
+      "specifier": "@/components/FooterSection.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/UpdhanPage.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/pages/UpdhanPage.jsx",
+      "specifier": "react-helmet"
+    },
+    {
+      "file": "apps/web/src/pages/UpdhanPage.jsx",
+      "specifier": "lucide-react"
+    },
+    {
+      "file": "apps/web/src/pages/UpdhanPage.jsx",
+      "specifier": "@/components/UpdhanParticipation"
+    },
+    {
+      "file": "apps/web/src/pages/VardhmanComingSoonPage.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/src/pages/VardhmanComingSoonPage.jsx",
+      "specifier": "react-helmet"
+    },
+    {
+      "file": "apps/web/src/pages/VardhmanComingSoonPage.jsx",
+      "specifier": "@/components/HeroSection.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/VardhmanComingSoonPage.jsx",
+      "specifier": "@/components/AboutSection.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/VardhmanComingSoonPage.jsx",
+      "specifier": "@/components/ServicesSection.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/VardhmanComingSoonPage.jsx",
+      "specifier": "@/components/LeadCaptureSection.jsx"
+    },
+    {
+      "file": "apps/web/src/pages/VardhmanComingSoonPage.jsx",
+      "specifier": "@/components/FooterSection.jsx"
+    },
+    {
+      "file": "apps/web/staging/main.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "apps/web/staging/main.jsx",
+      "specifier": "react-dom/client"
+    },
+    {
+      "file": "apps/web/staging/main.jsx",
+      "specifier": "react-router-dom"
+    },
+    {
+      "file": "apps/web/staging/main.jsx",
+      "specifier": "../src/pages/AyambilEveningPage.jsx"
+    },
+    {
+      "file": "apps/web/staging/main.jsx",
+      "specifier": "../src/pages/AyambilPassDownloadPage.jsx"
+    },
+    {
+      "file": "apps/web/staging/main.jsx",
+      "specifier": "../src/pages/AyambilAdminPage.jsx"
+    },
+    {
+      "file": "apps/web/tailwind.config.js",
+      "specifier": "tailwindcss"
+    },
+    {
+      "file": "apps/web/tailwind.config.js",
+      "specifier": "tailwindcss-animate"
+    },
+    {
+      "file": "apps/web/tests/ayambilApiResponse.test.js",
+      "specifier": "node:test"
+    },
+    {
+      "file": "apps/web/tests/ayambilApiResponse.test.js",
+      "specifier": "node:assert/strict"
+    },
+    {
+      "file": "apps/web/tests/ayambilApiResponse.test.js",
+      "specifier": "pocketbase"
+    },
+    {
+      "file": "apps/web/tests/ayambilApiResponse.test.js",
+      "specifier": "../src/lib/ayambilApiResponse.js"
+    },
+    {
+      "file": "apps/web/tests/ayambilAvailability.test.js",
+      "specifier": "node:test"
+    },
+    {
+      "file": "apps/web/tests/ayambilAvailability.test.js",
+      "specifier": "node:assert/strict"
+    },
+    {
+      "file": "apps/web/tests/ayambilAvailability.test.js",
+      "specifier": "../src/lib/ayambilExpressClient.js"
+    },
+    {
+      "file": "apps/web/tests/ayambilBookingValidation.test.js",
+      "specifier": "node:test"
+    },
+    {
+      "file": "apps/web/tests/ayambilBookingValidation.test.js",
+      "specifier": "node:assert/strict"
+    },
+    {
+      "file": "apps/web/tests/ayambilBookingValidation.test.js",
+      "specifier": "../src/lib/ayambilBookingValidation.js"
+    },
+    {
+      "file": "apps/web/tests/ayambilExpressClient.test.js",
+      "specifier": "node:test"
+    },
+    {
+      "file": "apps/web/tests/ayambilExpressClient.test.js",
+      "specifier": "node:assert/strict"
+    },
+    {
+      "file": "apps/web/tests/ayambilExpressClient.test.js",
+      "specifier": "../src/lib/ayambilExpressClient.js"
+    },
+    {
+      "file": "apps/web/tests/ayambilExpressClient.test.js",
+      "specifier": "../src/lib/ayambilPassLayout.js"
+    },
+    {
+      "file": "apps/web/tests/ayambilExpressClient.test.js",
+      "specifier": "node:fs"
+    },
+    {
+      "file": "apps/web/tests/ayambilInstallBuild.test.js",
+      "specifier": "node:test"
+    },
+    {
+      "file": "apps/web/tests/ayambilInstallBuild.test.js",
+      "specifier": "node:assert/strict"
+    },
+    {
+      "file": "apps/web/tests/ayambilInstallBuild.test.js",
+      "specifier": "../../../tools/ayambil-staging-postinstall.mjs"
+    },
+    {
+      "file": "apps/web/tests/ayambilMessaging.test.js",
+      "specifier": "node:test"
+    },
+    {
+      "file": "apps/web/tests/ayambilMessaging.test.js",
+      "specifier": "node:assert/strict"
+    },
+    {
+      "file": "apps/web/tests/ayambilMessaging.test.js",
+      "specifier": "node:module"
+    },
+    {
+      "file": "apps/web/tests/ayambilMessaging.test.js",
+      "specifier": "node:crypto"
+    },
+    {
+      "file": "apps/web/tests/ayambilMessaging.test.js",
+      "specifier": "../../pocketbase/pb_hooks/ayambil/messaging.cjs"
+    },
+    {
+      "file": "apps/web/tests/ayambilMessaging.test.js",
+      "specifier": "../../pocketbase/pb_hooks/ayambil/vardhmanflow.cjs"
+    },
+    {
+      "file": "apps/web/tests/ayambilMessaging.test.js",
+      "specifier": "../../pocketbase/pb_hooks/ayambil/config.json"
+    },
+    {
+      "file": "apps/web/tests/ayambilOperations.test.js",
+      "specifier": "node:test"
+    },
+    {
+      "file": "apps/web/tests/ayambilOperations.test.js",
+      "specifier": "node:assert/strict"
+    },
+    {
+      "file": "apps/web/tests/ayambilOperations.test.js",
+      "specifier": "../src/lib/ayambilExpressClient.js"
+    },
+    {
+      "file": "apps/web/tests/ayambilPassPresentation.test.js",
+      "specifier": "node:test"
+    },
+    {
+      "file": "apps/web/tests/ayambilPassPresentation.test.js",
+      "specifier": "node:assert/strict"
+    },
+    {
+      "file": "apps/web/tests/ayambilPassPresentation.test.js",
+      "specifier": "../src/lib/ayambilPassPresentation.js"
+    },
+    {
+      "file": "apps/web/tests/ayambilPassUtils.test.js",
+      "specifier": "node:test"
+    },
+    {
+      "file": "apps/web/tests/ayambilPassUtils.test.js",
+      "specifier": "node:assert/strict"
+    },
+    {
+      "file": "apps/web/tests/ayambilPassUtils.test.js",
+      "specifier": "../src/lib/ayambilPassUtils.js"
+    },
+    {
+      "file": "apps/web/tests/ayambilStaging.test.js",
+      "specifier": "node:test"
+    },
+    {
+      "file": "apps/web/tests/ayambilStaging.test.js",
+      "specifier": "node:assert/strict"
+    },
+    {
+      "file": "apps/web/tests/ayambilStaging.test.js",
+      "specifier": "node:fs"
+    },
+    {
+      "file": "apps/web/tests/ayambilWhatsAppContact.test.js",
+      "specifier": "node:test"
+    },
+    {
+      "file": "apps/web/tests/ayambilWhatsAppContact.test.js",
+      "specifier": "node:assert/strict"
+    },
+    {
+      "file": "apps/web/tests/ayambilWhatsAppContact.test.js",
+      "specifier": "../src/lib/ayambilWhatsAppContact.js"
+    },
+    {
+      "file": "apps/web/tools/build.mjs",
+      "specifier": "node:child_process"
+    },
+    {
+      "file": "apps/web/tools/build.mjs",
+      "specifier": "node:module"
+    },
+    {
+      "file": "apps/web/tools/build.mjs",
+      "specifier": "node:path"
+    },
+    {
+      "file": "apps/web/tools/generate-llms.js",
+      "specifier": "fs"
+    },
+    {
+      "file": "apps/web/tools/generate-llms.js",
+      "specifier": "path"
+    },
+    {
+      "file": "apps/web/tools/install-missing-components.js",
+      "specifier": "fs"
+    },
+    {
+      "file": "apps/web/tools/install-missing-components.js",
+      "specifier": "path"
+    },
+    {
+      "file": "apps/web/tools/install-missing-components.js",
+      "specifier": "child_process"
+    },
+    {
+      "file": "apps/web/tools/install-missing-components.js",
+      "specifier": "util"
+    },
+    {
+      "file": "apps/web/tools/install-missing-components.js",
+      "specifier": "url"
+    },
+    {
+      "file": "apps/web/vite.config.js",
+      "specifier": "node:path"
+    },
+    {
+      "file": "apps/web/vite.config.js",
+      "specifier": "@vitejs/plugin-react"
+    },
+    {
+      "file": "apps/web/vite.config.js",
+      "specifier": "vite"
+    },
+    {
+      "file": "apps/web/vite.config.js",
+      "specifier": "./plugins/visual-editor/vite-plugin-react-inline-editor.js"
+    },
+    {
+      "file": "apps/web/vite.config.js",
+      "specifier": "./plugins/visual-editor/vite-plugin-edit-mode.js"
+    },
+    {
+      "file": "apps/web/vite.config.js",
+      "specifier": "./plugins/selection-mode/vite-plugin-selection-mode.js"
+    },
+    {
+      "file": "apps/web/vite.config.js",
+      "specifier": "./plugins/vite-plugin-iframe-route-restoration.js"
+    },
+    {
+      "file": "apps/web/vite.config.js",
+      "specifier": "./plugins/vite-plugin-pocketbase-auth.js"
+    },
+    {
+      "file": "apps/web/vite.config.js",
+      "specifier": "node:fs"
+    },
+    {
+      "file": "apps/web/vite.staging.config.js",
+      "specifier": "vite"
+    },
+    {
+      "file": "apps/web/vite.staging.config.js",
+      "specifier": "@vitejs/plugin-react"
+    },
+    {
+      "file": "apps/web/vite.staging.config.js",
+      "specifier": "node:path"
+    },
+    {
+      "file": "apps/web/vite.staging.config.js",
+      "specifier": "node:url"
+    },
+    {
+      "file": "supabase/functions/_shared/handler.mjs",
+      "specifier": "./contracts.mjs"
+    },
+    {
+      "file": "supabase/functions/_shared/handler.mjs",
+      "specifier": "./vardhmanflow.mjs"
+    },
+    {
+      "file": "supabase/functions/ayambil-test/index.ts",
+      "specifier": "../_shared/programme.json"
+    },
+    {
+      "file": "supabase/functions/ayambil-test/index.ts",
+      "specifier": "../_shared/handler.mjs"
+    },
+    {
+      "file": "supabase/migrations/202610100003_ayambil_staff_fixture.sql",
+      "specifier": "+12025550123"
+    },
+    {
+      "file": "supabase/migrations/202610100005_ayambil_booking_terms.sql",
+      "specifier": "true"
+    },
+    {
+      "file": "tools/ayambil-flow-inspect.mjs",
+      "specifier": "node:module"
+    },
+    {
+      "file": "tools/ayambil-long-pass-check.mjs",
+      "specifier": "node:module"
+    },
+    {
+      "file": "tools/ayambil-long-pass-check.mjs",
+      "specifier": "node:fs/promises"
+    },
+    {
+      "file": "tools/ayambil-long-pass-check.mjs",
+      "specifier": "/src/components/AyambilDigitalPass.jsx"
+    },
+    {
+      "file": "tools/ayambil-staging-postinstall.mjs",
+      "specifier": "node:child_process"
+    },
+    {
+      "file": "tools/ayambil-staging-postinstall.mjs",
+      "specifier": "node:url"
+    },
+    {
+      "file": "tools/ayambil-staging-postinstall.mjs",
+      "specifier": "node:path"
+    },
+    {
+      "file": "tools/ayambil-staging-postinstall.mjs",
+      "specifier": "esbuild"
+    },
+    {
+      "file": "tools/ayambil-ui-preview.config.mjs",
+      "specifier": "vite"
+    },
+    {
+      "file": "tools/ayambil-ui-preview.config.mjs",
+      "specifier": "@vitejs/plugin-react"
+    },
+    {
+      "file": "tools/ayambil-ui-preview.config.mjs",
+      "specifier": "node:path"
+    },
+    {
+      "file": "tools/ayambil-ui-preview.config.mjs",
+      "specifier": "node:module"
+    },
+    {
+      "file": "tools/ayambil-ui-preview.config.mjs",
+      "specifier": "tailwindcss"
+    },
+    {
+      "file": "tools/ayambil-ui-preview.config.mjs",
+      "specifier": "autoprefixer"
+    },
+    {
+      "file": "tools/ayambil-ui-preview.config.mjs",
+      "specifier": "../apps/pocketbase/pb_hooks/ayambil/config.json"
+    },
+    {
+      "file": "tools/ayambil.browser-preview.mjs",
+      "specifier": "node:child_process"
+    },
+    {
+      "file": "tools/ayambil.browser-preview.mjs",
+      "specifier": "node:path"
+    },
+    {
+      "file": "tools/ayambil.browser-preview.mjs",
+      "specifier": "node:url"
+    },
+    {
+      "file": "tools/ayambil.integration.test.mjs",
+      "specifier": "node:assert/strict"
+    },
+    {
+      "file": "tools/ayambil.integration.test.mjs",
+      "specifier": "node:child_process"
+    },
+    {
+      "file": "tools/ayambil.integration.test.mjs",
+      "specifier": "node:crypto"
+    },
+    {
+      "file": "tools/ayambil.integration.test.mjs",
+      "specifier": "node:fs"
+    },
+    {
+      "file": "tools/ayambil.integration.test.mjs",
+      "specifier": "node:path"
+    },
+    {
+      "file": "tools/ayambil.integration.test.mjs",
+      "specifier": "node:timers/promises"
+    },
+    {
+      "file": "tools/ayambil.integration.test.mjs",
+      "specifier": "node:url"
+    },
+    {
+      "file": "tools/ayambil.integration.test.mjs",
+      "specifier": "./messaging.cjs"
+    },
+    {
+      "file": "tools/ayambil.supabase.hosted.test.mjs",
+      "specifier": "node:assert/strict"
+    },
+    {
+      "file": "tools/ayambil.supabase.hosted.test.mjs",
+      "specifier": "node:child_process"
+    },
+    {
+      "file": "tools/ayambil.supabase.hosted.test.mjs",
+      "specifier": "node:util"
+    },
+    {
+      "file": "tools/ayambil.supabase.hosted.test.mjs",
+      "specifier": "node:fs"
+    },
+    {
+      "file": "tools/ayambil.supabase.hosted.test.mjs",
+      "specifier": "node:crypto"
+    },
+    {
+      "file": "tools/ayambil.supabase.phase4b.test.mjs",
+      "specifier": "node:assert/strict"
+    },
+    {
+      "file": "tools/ayambil.supabase.phase4b.test.mjs",
+      "specifier": "node:child_process"
+    },
+    {
+      "file": "tools/ayambil.supabase.phase4b.test.mjs",
+      "specifier": "node:fs"
+    },
+    {
+      "file": "tools/ayambil.supabase.phase4b.test.mjs",
+      "specifier": "node:crypto"
+    },
+    {
+      "file": "tools/ayambil.supabase.test.mjs",
+      "specifier": "node:test"
+    },
+    {
+      "file": "tools/ayambil.supabase.test.mjs",
+      "specifier": "node:assert/strict"
+    },
+    {
+      "file": "tools/ayambil.supabase.test.mjs",
+      "specifier": "node:fs"
+    },
+    {
+      "file": "tools/ayambil.supabase.test.mjs",
+      "specifier": "node:crypto"
+    },
+    {
+      "file": "tools/ayambil.supabase.test.mjs",
+      "specifier": "@electric-sql/pglite"
+    },
+    {
+      "file": "tools/ayambil.supabase.test.mjs",
+      "specifier": "../supabase/functions/_shared/handler.mjs"
+    },
+    {
+      "file": "tools/ayambil.supabase.test.mjs",
+      "specifier": "../supabase/functions/_shared/contracts.mjs"
+    },
+    {
+      "file": "tools/ayambil.supabase.test.mjs",
+      "specifier": "../supabase/functions/_shared/vardhmanflow.mjs"
+    },
+    {
+      "file": "tools/supabase-pass-preview/main.jsx",
+      "specifier": "react"
+    },
+    {
+      "file": "tools/supabase-pass-preview/main.jsx",
+      "specifier": "react-dom/client"
+    },
+    {
+      "file": "tools/supabase-pass-preview/main.jsx",
+      "specifier": "../../apps/web/src/components/AyambilDigitalPass.jsx"
+    },
+    {
+      "file": "tools/supabase-pass-preview/vite.config.mjs",
+      "specifier": "vite"
+    },
+    {
+      "file": "tools/supabase-pass-preview/vite.config.mjs",
+      "specifier": "@vitejs/plugin-react"
+    },
+    {
+      "file": "tools/supabase-pass-preview/vite.config.mjs",
+      "specifier": "node:fs"
+    },
+    {
+      "file": "tools/supabase-pass-preview/vite.config.mjs",
+      "specifier": "node:url"
+    }
+  ]
+}
