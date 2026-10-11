@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "postinstall": "node tools/ayambil-staging-postinstall.mjs",
     "dev": "concurrently --kill-others --raw \"npm run dev --prefix apps/web\" \"npm run dev --prefix apps/pocketbase\"",
     "build": "concurrently --raw \"npm run build --prefix apps/web\"",
     "start": "concurrently --kill-others --raw \"npm run start --prefix apps/pocketbase\"",
