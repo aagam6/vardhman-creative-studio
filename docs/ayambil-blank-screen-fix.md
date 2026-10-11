@@ -31,3 +31,10 @@ The manifest is an existing static JSON file linked once from apps/web/index.htm
 Changed: `apps/web/src/lib/ayambilRegistration.js`, `apps/web/src/pages/AyambilPassDownloadPage.jsx`. Added: `apps/web/src/lib/ayambilApiResponse.js`, `apps/web/tests/ayambilApiResponse.test.js`, this report. Unrelated App/sitemap/Updhan work preserved; no commits, push or deployment in this task.
 
 Review these files, then separately approve frontend deployment. Confirm public PocketBase API routing returns JSON, not a SPA fallback. After authorized deployment check missing/invalid private link, synthetic valid attendee link, expired/cancelled/superseded link, admin sign-in/error handling and PDF download. Resolve manifest 429 through server evidence separately. No remote migrations, secrets, live data, registration flags or WhatsApp flags changed; no real messages sent.
+
+## Dedicated GitHub review branch verification
+
+Review branch: codex/ayambil-blank-screen-deploy-review. Base: origin/main 9a2b741d1bfffd9f7d08805336c5ce9e305893b9. Created in an isolated worktree; original working tree and Updhan files untouched. Exactly five intended remediation files reviewed.
+
+Fresh exact-checkout results: npm run test --prefix apps/web (23 passed); npm run lint --prefix apps/web (passed); npm run build --prefix apps/web (passed, 2,322 modules, dist/apps/web); node tools/ayambil.integration.test.mjs (59 passed); node tools/ayambil.supabase.test.mjs (four suites / 49 reported local assertions passed). Build/integration ran with authorized execution; no production access, remote migrations, deployment or real messaging. Browser, live API/PDF/print checks remain unperformed. Main and manifest changes require separate deployment/operator review as described above.
+

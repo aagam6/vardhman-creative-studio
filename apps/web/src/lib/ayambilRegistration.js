@@ -4,6 +4,7 @@ import config from '../../../pocketbase/pb_hooks/ayambil/config.json';
 import { csvCell } from './ayambilPassUtils';
 
 
+
 export const eveningConfig = config;
 export const ayambilApi = createAyambilApi();
 export const registrationApi = (path, options) => ayambilApi.request(path, options);
@@ -16,3 +17,4 @@ export function downloadCsv(rows) {
   const url = URL.createObjectURL(blob); const a = document.createElement('a');
   a.href = url; a.download = 'ayambil-attendees.csv'; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+
