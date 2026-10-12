@@ -7,7 +7,8 @@
     "build": "concurrently --raw \"npm run build --prefix apps/web\"",
     "start": "npm run start --prefix apps/api",
     "lint": "concurrently --raw \"npm run lint --prefix apps/web\"",
-    "test": "npm run test --prefix apps/api && npm run test --prefix apps/web"
+    "test": "npm run test --prefix apps/api && npm run test --prefix apps/web",
+    "postinstall": "node tools/production-postinstall.mjs"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.8",
