@@ -1,6 +1,17 @@
 import {ApiError} from './config.mjs';
 import {notificationTemplates} from './notification-context.mjs';
 export function normalizePhone(value){const digits=String(value||'').replace(/[+\s()-]/g,'');const number=/^[6-9]\d{9}$/.test(digits)?'91'+digits:digits;if(!/^[1-9]\d{7,14}$/.test(number))throw new ApiError(400,'Valid international WhatsApp number required');return number;}
+export function templateMetadata(template,mapping){
+ const components=template.components;
+ const body=Array.isArray(components)?components.find(c=>String(c.type).toUpperCase()==='BODY'):null;
+ const bodyAvailable=typeof body?.text==='string'&&!!body.text.trim();
+ const indexes=bodyAvailable?[...new Set([...body.text.matchAll(/\{\{\s*(\d+)\s*\}\}/g)].map(m=>Number(m[1])))].sort((a,b)=>a-b):[];
+ const formatSupported=bodyAvailable&&components.length===1&&!/\{\{|\}\}/.test(body.text.replace(/\{\{\s*\d+\s*\}\}/g,''))&&indexes.every((n,i)=>n===i+1);
+ const expected=Object.values(notificationTemplates).find(v=>v.name===template.name);
+ const mappingVerified=!!expected&&mapping?.name===template.name&&mapping?.language===template.language&&JSON.stringify(mapping.fields)===JSON.stringify(expected.fields)&&indexes.length===expected.fields.length;
+ const verified=template.status==='APPROVED'&&formatSupported&&mappingVerified;
+ return {bodyAvailable,placeholderCount:bodyAvailable?indexes.length:null,placeholderIndexes:indexes,componentsVerified:verified,verified,verification:!bodyAvailable?'approved_body_unavailable':!formatSupported?'unsupported_body_definition':!mappingVerified?'mapping_mismatch':'approved_and_verified'};
+}
 export function createFlow(env,fetcher=fetch){
  const base=env.VARDHMAN_FLOW_BASE_URL||'https://vardhmanflow.com/api/v1';
  const missing=['VARDHMAN_FLOW_API_KEY','VARDHMAN_FLOW_API_SECRET'].filter(k=>!env[k]);
@@ -29,7 +40,7 @@ export function createFlow(env,fetcher=fetch){
    const expected=notificationTemplates[type];
    if(expected&&(mapping.name!==expected.name||JSON.stringify(mapping.fields)!==JSON.stringify(expected.fields)))throw new ApiError(503,'Reviewed notification variable mapping required');
    const templates=await request('templates?status=APPROVED');const template=templates.find(t=>t.status==='APPROVED'&&t.name===mapping.name&&t.language===mapping.language);
-   if(!template||!Array.isArray(template.components)||template.components.length!==1||String(template.components[0].type).toLowerCase()!=='body'||typeof template.components[0].text!=='string')throw new ApiError(503,'Verified text-body template required');
+   if(!template||!templateMetadata(template,mapping).verified)throw new ApiError(503,'Approved BODY definition and exact reviewed mapping required; provider template metadata must be available');
    const slots=[...new Set([...template.components[0].text.matchAll(/\{\{\s*(\d+)\s*\}\}/g)].map(m=>Number(m[1])))].sort((a,b)=>a-b);
    const allowed=['eventName','eventDate','time','performer','programme','venue','contactName','attendeeNames','attendeeCount','passLink','attendeeName','venueLocationUrl'];
    if(slots.length!==mapping.fields.length||slots.some((n,i)=>n!==i+1)||mapping.fields.some(f=>!allowed.includes(f)||typeof context[f]!=='string'||!context[f].trim()))throw new ApiError(503,'Template variables mismatch');
@@ -47,7 +58,14 @@ export function createFlow(env,fetcher=fetch){
    const templates=await request('templates?status=APPROVED');if(!Array.isArray(templates))throw new ApiError(503,'Approved template response unavailable');
    // Only non-secret, known fields; never forward raw account/usage/error payloads.
    const expected=['ayambil_registration_confirm','ayambil_pass_ready','ayambil_event_reminder'];
-   const approved=templates.filter(t=>t.status==='APPROVED'&&typeof t.name==='string'&&typeof t.language==='string'&&(!templateDefinitions||expected.includes(t.name))).map(t=>({name:t.name,language:t.language,componentsVerified:Array.isArray(t.components),...(templateDefinitions?{components:(Array.isArray(t.components)?t.components:[]).map(c=>({type:String(c.type||''),...(String(c.type).toUpperCase()==='BODY'&&typeof c.text==='string'?{text:c.text,placeholders:[...c.text.matchAll(/\{\{\s*(\d+)\s*\}\}/g)].map(m=>Number(m[1]))}:{})}))}:{})}));
+   let mappings={};try{mappings=JSON.parse(env.AYAMBIL_FLOW_TEMPLATE_MAPPINGS||'{}')||{};}catch{}
+   const approved=templates.filter(t=>t.status==='APPROVED'&&typeof t.name==='string'&&typeof t.language==='string'&&(!templateDefinitions||expected.includes(t.name))).map(t=>{
+    const type=Object.keys(notificationTemplates).find(k=>notificationTemplates[k].name===t.name);
+    const applicable=type?[mappings[type+'_02']||mappings[type],mappings[type+'_03']||mappings[type]]:[];
+    const metadata=templateMetadata(t,applicable[0]);
+    if(metadata.verified&&!applicable.every(m=>templateMetadata(t,m).verified))Object.assign(metadata,{verified:false,componentsVerified:false,verification:'mapping_mismatch'});
+    return {name:t.name,language:t.language,...metadata};
+   });
    return {...this.configuration(),accountVerified:true,channel:{active:true,health:'healthy',phone:normalizePhone(channel.phoneNumber)},templates:approved,usage:{requestCount:Number.isFinite(account.usage?.requestCount)?account.usage.requestCount:null,monthlyRequestCount:Number.isFinite(account.usage?.monthlyRequestCount)?account.usage.monthlyRequestCount:null}};
   }
  };

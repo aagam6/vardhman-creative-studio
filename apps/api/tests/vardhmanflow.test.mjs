@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createFlow,normalizePhone} from '../vardhmanflow.mjs';
+import {createFlow,normalizePhone,templateMetadata} from '../vardhmanflow.mjs';
+import {notificationTemplates} from '../notification-context.mjs';
 const env={VARDHMAN_FLOW_API_KEY:'synthetic-key',VARDHMAN_FLOW_API_SECRET:'synthetic-secret',VARDHMAN_FLOW_CHANNEL_ID:'synthetic-channel'};
 test('operator diagnostic returns only matching approved BODY definitions using GET',async()=>{
  const flow=createFlow(env,async(url,options)=>{
@@ -8,7 +9,25 @@ test('operator diagnostic returns only matching approved BODY definitions using 
   const data=url.endsWith('/account')?{channel:{id:'synthetic-channel',isActive:true,healthStatus:'healthy',phoneNumber:'12025550123'}}:[{name:'ayambil_pass_ready',language:'en',status:'APPROVED',components:[{type:'BODY',text:'{{1}} {{2}}',secret:'excluded'}],secret:'excluded'},{name:'unrelated',language:'en',status:'APPROVED'}];
   return new Response(JSON.stringify({success:true,data}),{headers:{'Content-Type':'application/json'}});
  });
- const result=await flow.inspect({templateDefinitions:true});assert.equal(result.templates.length,1);assert.deepEqual(result.templates[0].components,[{type:'BODY',text:'{{1}} {{2}}',placeholders:[1,2]}]);assert.doesNotMatch(JSON.stringify(result),/excluded|synthetic-secret/);
+ const result=await flow.inspect({templateDefinitions:true});assert.equal(result.templates.length,1);assert.equal(result.templates[0].bodyAvailable,true);assert.deepEqual(result.templates[0].placeholderIndexes,[1,2]);assert.equal(result.templates[0].verified,false);assert.equal(result.templates[0].verification,'mapping_mismatch');assert.doesNotMatch(JSON.stringify(result),/excluded|synthetic-secret|\{\{1\}\}/);
+});
+
+test('template metadata fails closed for absent BODY, malformed slots, wrong language and unsafe mappings',async()=>{
+ for(const [type,definition] of Object.entries(notificationTemplates)){
+  const mapping={...definition,language:'en'};
+  const template={name:definition.name,language:'en',status:'APPROVED',components:[{type:'BODY',text:definition.fields.map((_,i)=>`{{${i+1}}}`).join(' ')}]};
+  assert.equal(templateMetadata(template,mapping).verified,true);assert.equal(templateMetadata(template,mapping).placeholderCount,definition.fields.length);
+  assert.equal(templateMetadata({...template,components:undefined},mapping).verification,'approved_body_unavailable');
+  for(const text of ['{{0}} {{1}}','{{1}} {{3}}','{{name}}','{{1}} {{2}} {{3}} {{4}}','{{1}} {{2}} {{3}} {{4}} {{5}} {{6}} {{7}}'])assert.equal(templateMetadata({...template,components:[{type:'BODY',text}]},mapping).verified,false);
+  assert.equal(templateMetadata(template,{...mapping,language:'en_US'}).verified,false);
+  assert.equal(templateMetadata(template,{...mapping,fields:[...mapping.fields].reverse()}).verified,false);
+  assert.equal(templateMetadata({...template,components:[...template.components,{type:'BUTTONS'}]},mapping).verified,false);
+ }
+ let posts=0;const mapping={...notificationTemplates.confirmation,language:'en'};
+ const flow=createFlow({...env,AYAMBIL_FLOW_TEMPLATE_MAPPINGS:JSON.stringify({confirmation:mapping})},async(url,options)=>{if(options.method!=='GET')posts++;return new Response(JSON.stringify({success:true,data:url.endsWith('/account')?{channel:{id:'synthetic-channel',isActive:true,healthStatus:'healthy',phoneNumber:'12025550123'}}:[{name:mapping.name,language:'en',status:'APPROVED'}]}),{headers:{'Content-Type':'application/json'}});});
+ const inspected=await flow.inspect({templateDefinitions:true});assert.equal(inspected.templates[0].verified,false);assert.equal(inspected.templates[0].placeholderCount,null);
+ await assert.rejects(flow.prepare('test',{}),e=>e.status===503);
+ await assert.rejects(flow.sendPrepared({}),e=>e.status===403);assert.equal(posts,0);
 });
 test('Flow configuration, canonical prefix, server headers and sanitized channel/template inspection',async()=>{
  assert.equal(createFlow({}).configuration().configured,false);
