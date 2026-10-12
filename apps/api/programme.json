@@ -1,0 +1,10 @@
+{
+  "eventName": "500 Akhand Ayambil Tap — Vijayollas",
+  "capacity": null,
+  "closingDate": null,
+  "passExpiry": null,
+  "sessions": [
+    { "date": "2026-11-02", "label": "2 November 2026", "time": "8:00 PM IST", "performer": "Manan Sanghvi", "programme": "એક શામ દાદા ઋષભ કે નામ", "venue": "Shri Chandramauleshwar Hall", "mapsUrl": "https://maps.app.goo.gl/bXgLhbJ1cLfvdxqA6", "address": "Smruti Villa, Narayan Nagar, Ahmedabad, Gujarat." },
+    { "date": "2026-11-03", "label": "3 November 2026", "time": "8:00 PM IST", "performer": "Sairam Dave", "programme": "મારી મા... મારો પ્રાણ", "venue": "Tagore Hall", "mapsUrl": "https://maps.app.goo.gl/szzzN9cXE8dWJW7r7", "address": "Opposite Sanskar Kendra Museum, Pritam Rai Cross Road, Kocharab, Paldi, Ahmedabad, Gujarat – 380006." }
+  ]
+}

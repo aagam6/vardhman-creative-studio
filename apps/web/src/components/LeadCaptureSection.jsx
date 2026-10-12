@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import pb from '@/lib/pocketbaseClient';
+import {submitLead} from '@/lib/leadClient';
 import AnimatedSection, { AnimatedItem } from './AnimatedSection.jsx';
 import AnimatedHeading from './AnimatedHeading.jsx';
 
@@ -47,7 +47,7 @@ const LeadCaptureSection = () => {
 
     setIsSubmitting(true);
     try {
-      await pb.collection('leads').create(formData, { $autoCancel: false });
+      await submitLead(formData);
       setIsSuccess(true);
       toast.success('Successfully joined the waitlist!');
       setTimeout(() => {
@@ -55,7 +55,7 @@ const LeadCaptureSection = () => {
         setIsSuccess(false);
       }, 3000);
     } catch (error) {
-      console.error('Submission error:', error);
+      void error;
       toast.error('Failed to join waitlist. Please try again.');
     } finally {
       setIsSubmitting(false);
