@@ -2,6 +2,8 @@ import {randomUUID} from 'node:crypto';
 import {ApiError,bookingInput,programme} from './config.mjs';
 import {capability,hash,passwordMatches} from './security.mjs';
 import {attendeeContext} from './notification-context.mjs';
+import {passExpiresAt} from './pass-expiry.mjs';
+import {queueSummary} from './queue-summary.mjs';
 import {isDeepStrictEqual} from 'node:util';
 const json=value=>typeof value==='string'?JSON.parse(value):value;
 export async function transaction(pool,action) {
@@ -17,7 +19,7 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
     const revision=Number((await one(db,'SELECT COALESCE(MAX(revision),0)+1 AS revision FROM ayambil_passes WHERE attendee_id=?',[attendee.id])).revision);
     const snapshot={eventName:programme.eventName,attendeeName:attendee.full_name,number,sessions:[session],issuedAt:new Date().toISOString()};
     await rows(db,'INSERT INTO ayambil_passes(id,attendee_id,number,snapshot,revision) VALUES(?,?,?,?,?)',[id,attendee.id,number,JSON.stringify(snapshot),revision]);
-    await rows(db,'INSERT INTO ayambil_capabilities(key_hash,pass_id,expires_at) VALUES(?,?,DATE_ADD(UTC_TIMESTAMP(3),INTERVAL 7 DAY))',[hash(key),id]);
+    await rows(db,'INSERT INTO ayambil_capabilities(key_hash,pass_id,expires_at) VALUES(?,?,?)',[hash(key),id,passExpiresAt(session)]);
     return {key,pass:{...snapshot,status:'active'}};
   };
   const booking=async(db,id,privileged=false)=>{
@@ -27,7 +29,8 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
       const passes=(await rows(db,'SELECT snapshot,status FROM ayambil_passes WHERE attendee_id=? ORDER BY revision',[a.id])).map(p=>({...json(p.snapshot),status:p.status}));
       attendees.push({...(privileged?{id:a.id}:{}),fullName:a.full_name,status:a.status,dates:[b.event_date],passes});
     }
-    return {...(privileged?{id:b.id,contactName:b.contact_name,mobile:b.mobile}:{}),number:b.number,status:b.status,eventDate:b.event_date,created:b.created_at,attendees,whatsapp:queue?{status:'see message queue',attempts:0,history:[]}:{status:'disabled',attempts:0,history:[]}};
+    const whatsapp=privileged?(queue?queueSummary(await rows(db,'SELECT notification_type,status,attempts,updated_at FROM ayambil_message_queue WHERE booking_id=? ORDER BY updated_at',[id])):{status:'Queue not loaded (sending disabled)',attempts:null,history:[]}):undefined;
+    return {...(privileged?{id:b.id,contactName:b.contact_name,mobile:b.mobile}:{}),number:b.number,status:b.status,eventDate:b.event_date,created:b.created_at,attendees,...(privileged?{whatsapp}: {})};
   };
   return {
     async ready(){const versions=await rows(pool,'SELECT version FROM ayambil_schema_version ORDER BY version');const events=await rows(pool,'SELECT event_date,snapshot FROM ayambil_events ORDER BY event_date');return JSON.stringify(versions.map(v=>Number(v.version)))==='[1,2]'&&events.length===2&&programme.sessions.every((s,index)=>events[index].event_date===s.date&&isDeepStrictEqual(json(events[index].snapshot),s));},
@@ -119,7 +122,7 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
       // Bound each page to the pool's five connections. Concurrent dashboard
       // and export requests must not enqueue fifty hydration chains apiece.
       for(let offset=0;offset<Math.min(ids.length,50);offset+=5)items.push(...await Promise.all(ids.slice(offset,Math.min(offset+5,50)).map(b=>booking(pool,b.id,true))));
-      return {items,page,hasMore:ids.length>50,integration:{ready:false,missing:['WhatsApp sending disabled']}};
+      return {items,page,hasMore:ids.length>50,integration:{ready:false,missing:queue?['Provider channel and template validation required']:['WhatsApp sending disabled']}};
       }catch(error){error.ayambilStage=stage;throw error;}
     },
     async change(actor,body){

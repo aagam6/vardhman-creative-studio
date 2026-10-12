@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import {hash} from '../security.mjs';
+import {passExpiresAt} from '../pass-expiry.mjs';
 export async function checkCompatibility(pool,store,input,receipt){
+ const [expiry]=await pool.execute('SELECT expires_at FROM ayambil_capabilities WHERE key_hash=?',[hash(receipt.downloadKeys[0])]);
+ const actual=expiry[0].expires_at;
+ assert.equal((actual instanceof Date?actual:new Date(String(actual).replace(' ','T')+'Z')).toISOString(),passExpiresAt({date:input.eventDate}).toISOString());
  const key='AbZ9'.repeat(16);
  const [caps]=await pool.execute('SELECT pass_id FROM ayambil_capabilities WHERE key_hash=?',[hash(receipt.downloadKeys[0])]);
  await pool.execute('UPDATE ayambil_capabilities SET key_hash=? WHERE pass_id=?',[hash(key),caps[0].pass_id]);
