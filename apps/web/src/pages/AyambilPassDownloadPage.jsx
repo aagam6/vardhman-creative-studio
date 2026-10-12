@@ -9,10 +9,15 @@ import './AyambilPage.css';
 import '@/components/AyambilRegistration.css';
 export default function AyambilPassDownloadPage() {
   const [passes,setPasses]=useState([]); const [error,setError]=useState(''); const [busy,setBusy]=useState(true);
-  const [key]=useState(()=>window.location.hash.slice(1));
-  useEffect(()=>{ window.history.replaceState(null,'',window.location.pathname); },[]);
+  const [key,setKey]=useState(()=>window.location.hash.slice(1));
+  useEffect(()=>{
+    const receive=()=>{if(window.location.hash){setKey(window.location.hash.slice(1));window.history.replaceState(null,'',window.location.pathname);}};
+    receive();window.addEventListener('hashchange',receive);
+    return()=>window.removeEventListener('hashchange',receive);
+  },[]);
   useEffect(()=>{
     let mounted=true;
+    setBusy(true);setPasses([]);setError('');
     const unavailable='This private download link is unavailable or expired. Ask the organizer for help. / આ લિંક અત્યારે કામ કરતી નથી. મદદ માટે આયોજકને પૂછો.';
     if (!/^[a-zA-Z0-9]{64}$/.test(key)) { setError(unavailable); setBusy(false); return; }
     registrationApi('pass-download',{method:'POST',body:{key}})

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import pb from '@/lib/pocketbaseClient';
+import {submitLead} from '@/lib/leadClient';
 import AnimatedHeading from '@/components/AnimatedHeading.jsx';
 import AnimatedSection, { AnimatedItem } from '@/components/AnimatedSection.jsx';
 import HoverCard from '@/components/HoverCard.jsx';
@@ -38,7 +38,7 @@ const ComingSoonPage = () => {
     setIsSubmitting(true);
 
     try {
-      await pb.collection('leads').create(formData, { $autoCancel: false });
+      await submitLead(formData);
       toast.success('Thank you for your interest. We will be in touch soon.');
       setFormData({
         name: '',
@@ -47,7 +47,7 @@ const ComingSoonPage = () => {
         message: '',
       });
     } catch (error) {
-      console.error('Error submitting form:', error);
+      void error;
       toast.error('Something went wrong. Please try again.');
     } finally {
       setIsSubmitting(false);

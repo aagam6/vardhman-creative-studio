@@ -1,0 +1,4 @@
+export async function submitLead(body,transport=fetch){
+ const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),15000);
+ try{const response=await transport('/api/leads',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(body),signal:controller.signal});if(!response.ok||!response.headers.get('content-type')?.includes('application/json'))throw Error('Lead submission unavailable');const data=await response.json();if(data.created!==true||typeof data.id!=='string')throw Error('Lead submission unavailable');return {id:data.id};}catch{throw Error('Lead submission unavailable. Please try again.');}finally{clearTimeout(timeout);}
+}

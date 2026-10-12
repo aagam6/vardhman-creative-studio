@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { registrationAvailability } from '@/lib/ayambilExpressClient.js';
 import { eveningConfig, registrationApi, requestKey, validateBooking } from '@/lib/ayambilRegistration';
 import { Link } from 'react-router-dom';
 import { ayambilTerms } from '@/lib/ayambilTerms';
@@ -15,10 +16,9 @@ export default function AyambilRegistration({ eventDate }) {
   const [availability, setAvailability] = useState('loading'); const [step, setStep] = useState('details');
   const [error, setError] = useState(''); const [busy, setBusy] = useState(false); const [confirmed, setConfirmed] = useState(false);
   const [receipt, setReceipt] = useState(null); const submission = useRef(null); const locked = useRef(false); const heading = useRef(null);
-  const [messagingSetup,setMessagingSetup]=useState(false);
   const check = async () => {
     setAvailability('loading');
-    try { const status = await registrationApi('status'); setMessagingSetup(status?.whatsapp === 'setup_required'); setAvailability(status?.ready === true ? (status.open === true ? 'open' : 'closed') : 'unavailable'); }
+    try { const status = await registrationApi('status'); setAvailability(registrationAvailability(status)); }
     catch { setAvailability('unavailable'); }
   };
   useEffect(() => { check(); }, []);
@@ -42,7 +42,6 @@ export default function AyambilRegistration({ eventDate }) {
     <p className="ay-eyebrow">Free Evening Registration · સાંજના કાર્યક્રમ માટે ફ્રી રજિસ્ટ્રેશન</p><h2 id="ay-registration-title" ref={heading} tabIndex={-1}>તમારી વિગતો ભરો / Register for this evening</h2>
     <p className="ay-registration-intro">{session.label} · {session.time} · {session.performer} — <span lang="gu">{session.programme}</span>. This booking is for this evening only. / આ રજિસ્ટ્રેશન આ જ સાંજ માટે છે. સવારના કાર્યક્રમો અને ૪ નવેમ્બર માટે નથી.</p>
     <AyambilInstructions />
-    {messagingSetup && step !== 'success' && <p role="status">Registration will open after setup is verified. / જરૂરી તપાસ પૂરી થયા પછી રજિસ્ટ્રેશન શરૂ થશે.</p>}
     {step !== 'success' && availability !== 'open' && <div className="ay-availability" role="status"><p>{availability === 'loading' ? 'Checking availability… / રજિસ્ટ્રેશન ચાલુ છે કે નહીં તે તપાસીએ છીએ…' : availability === 'closed' ? 'Registration is not open yet. / રજિસ્ટ્રેશન હજી શરૂ થયું નથી.' : 'Registration is unavailable. No booking is confirmed. / અત્યારે રજિસ્ટ્રેશન થઈ શકતું નથી. કોઈ રજિસ્ટ્રેશન કન્ફર્મ થયું નથી.'}</p>{availability !== 'loading' && <button type="button" onClick={check}>Check again / ફરી તપાસો</button>}</div>}
     {step === 'details' && <form onSubmit={review}>
       <fieldset disabled={busy || availability !== 'open'}><legend>Booking contact / રજિસ્ટ્રેશન કરનારની વિગતો</legend><div className="ay-form-grid">
@@ -65,8 +64,7 @@ export default function AyambilRegistration({ eventDate }) {
       <label className="ay-confirm"><input type="checkbox" checked={confirmed} disabled={busy} onChange={e => setConfirmed(e.target.checked)} />I confirm the names and selected evening are correct. / નામ અને પસંદ કરેલો સાંજનો કાર્યક્રમ સાચાં છે.</label>
       <div className="ay-form-actions"><button type="button" disabled={busy} onClick={() => { setStep('details'); setConfirmed(false); }}>Edit details / વિગતો સુધારો</button><button type="button" className="ay-button" disabled={!confirmed || busy} onClick={submit}>{busy ? 'Saving… / રજિસ્ટ્રેશન થઈ રહ્યું છે…' : 'Confirm registration / રજિસ્ટ્રેશન કરો'}</button></div>
     </div>}
-    {step === 'success' && receipt && <div className="ay-confirmation"><h3>{receipt.status === 'active' ? 'Registration confirmed / તમારું રજિસ્ટ્રેશન થઈ ગયું છે' : 'Booking cancelled / રજિસ્ટ્રેશન રદ થયું છે'}</h3><p>Booking number / રજિસ્ટ્રેશન નંબર: <strong>{receipt.number}</strong></p><p>WhatsApp confirmation status: <strong>{receipt.whatsapp?.status || 'not queued'}</strong>. Queued means awaiting the provider; it does not mean delivered. Save your PDF while confirmation is pending. / WhatsApp પર મોકલાવાની રાહ હોય તો પણ તમારો પાસ ડાઉનલોડ કરી રાખો.</p><p>Download and save each pass below. / દરેક વ્યક્તિનો ડિજિટલ પાસ ડાઉનલોડ કરી લો.</p>{receipt.attendees.flatMap(a => a.passes.filter(p => p.status !== 'superseded').map(pass => <AyambilDigitalPass key={pass.number} pass={pass} />))}<button type="button" onClick={() => { setReceipt(null); submission.current = null; setBooking(initialBooking()); setStep('details'); setConfirmed(false); check(); }}>Another booking / બીજું રજિસ્ટ્રેશન</button></div>}
+    {step === 'success' && receipt && <div className="ay-confirmation"><h3>{receipt.status === 'active' ? 'Registration confirmed / તમારું રજિસ્ટ્રેશન થઈ ગયું છે' : 'Booking cancelled / રજિસ્ટ્રેશન રદ થયું છે'}</h3><p>Booking number / રજિસ્ટ્રેશન નંબર: <strong>{receipt.number}</strong></p><p>WhatsApp confirmation status: <strong>{receipt.whatsapp?.status || 'not queued'}</strong>. Queued means awaiting the provider; it does not mean delivered. Save your PDF while confirmation is pending. / WhatsApp પર મોકલાવાની રાહ હોય તો પણ તમારો પાસ ડાઉનલોડ કરી રાખો.</p><p>Download and save each pass below. / દરેક વ્યક્તિનો ડિજિટલ પાસ ડાઉનલોડ કરી લો.</p>{receipt.attendees.flatMap(a => a.passes.filter(p => p.status !== 'superseded').map(pass => <AyambilDigitalPass key={pass.number} pass={pass} />))}{receipt.downloadKeys && <ul>{receipt.downloadKeys.map((key,index) => <li key={key}><a href={`/500-akhand-ayambil-vijayollas/passes#${key}`} rel="noreferrer">Private pass link / ખાનગી પાસ લિંક — {receipt.attendees[index].fullName}</a></li>)}</ul>}<button type="button" onClick={() => { setReceipt(null); submission.current = null; setBooking(initialBooking()); setStep('details'); setConfirmed(false); check(); }}>Another booking / બીજું રજિસ્ટ્રેશન</button></div>}
     {error && <p className="ay-form-error" role="alert">{error}</p>}
   </section>;
 }
-
