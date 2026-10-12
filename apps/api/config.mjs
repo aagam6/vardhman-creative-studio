@@ -11,7 +11,7 @@ export function configuration(env) {
   if (origin.protocol !== 'https:' || origin.origin !== env.AYAMBIL_SITE_ORIGIN) throw new Error('Exact HTTPS site origin required');
   if (env.AYAMBIL_RATE_LIMIT_SECRET.length < 32) throw new Error('Rate-limit secret must contain at least 32 characters');
   if (env.AYAMBIL_WHATSAPP_ENABLED === 'true' && (!/^[a-f0-9]{64}$/.test(env.AYAMBIL_QUEUE_ENCRYPTION_KEY||'') || !env.AYAMBIL_FLOW_TEMPLATE_MAPPINGS || !env.VARDHMAN_FLOW_API_KEY || !env.VARDHMAN_FLOW_API_SECRET)) throw new Error('Verified messaging configuration required');
-  return {whatsappEnabled:env.AYAMBIL_WHATSAPP_ENABLED==='true',database:{host:env.DB_HOST,port,database:env.DB_NAME,user:env.DB_USER,password:env.DB_PASSWORD,connectionLimit:5,waitForConnections:true,queueLimit:50,connectTimeout:10000,charset:'utf8mb4',timezone:'Z',dateStrings:true,multipleStatements:false},origin:origin.origin,rateSecret:env.AYAMBIL_RATE_LIMIT_SECRET,registrationOpen:env.AYAMBIL_REGISTRATION_OPEN==='true'};
+  return {normalProcessingApproved:env.AYAMBIL_WHATSAPP_NORMAL_PROCESSING_APPROVED==='true',whatsappEnabled:env.AYAMBIL_WHATSAPP_ENABLED==='true',database:{host:env.DB_HOST,port,database:env.DB_NAME,user:env.DB_USER,password:env.DB_PASSWORD,connectionLimit:5,waitForConnections:true,queueLimit:50,connectTimeout:10000,charset:'utf8mb4',timezone:'Z',dateStrings:true,multipleStatements:false},origin:origin.origin,rateSecret:env.AYAMBIL_RATE_LIMIT_SECRET,registrationOpen:env.AYAMBIL_REGISTRATION_OPEN==='true'};
 }
 export class ApiError extends Error { constructor(status,message){super(message);this.status=status;} }
 export function bookingInput(body) {

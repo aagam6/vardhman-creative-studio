@@ -1,3 +1,4 @@
+import {collectAttendeeCsv} from '@/lib/ayambilAdminExport.js';
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
@@ -12,9 +13,10 @@ export default function AyambilAdminPage() {
   const [page, setPage] = useState(1); const [hasMore, setHasMore] = useState(false); const [busy, setBusy] = useState(false);
   const [error, setError] = useState(''); const [pending, setPending] = useState(null); const [notice, setNotice] = useState('');
   const [messages,setMessages]=useState([]);
+  const [testJob,setTestJob]=useState('');
   const [testDate,setTestDate]=useState('2026-11-02');
   const [testKey,setTestKey]=useState(requestKey);
-  const messageAction=async (path,body={})=>{setBusy(true);setError('');try{const result=await registrationApi(path,{method:'POST',body});setNotice(result.queued?'Test queued; not delivered. Process explicitly to send.':JSON.stringify(result));setMessages((await registrationApi('admin/messages')).items);}catch(failure){setError(failure.message);}finally{setBusy(false);}};
+  const messageAction=async (path,body={})=>{setBusy(true);setError('');if(path==='admin/messages/process-test')setTestJob('');try{const result=await registrationApi(path,{method:'POST',body});if(result.id)setTestJob(result.id);setNotice(result.queued?'Test queued; not delivered. Process explicitly to send.':JSON.stringify(result));setMessages((await registrationApi('admin/messages')).items);}catch(failure){setError(failure.message);}finally{setBusy(false);}};
   const [integration,setIntegration]=useState(null); const [reissuedLink,setReissuedLink]=useState("");
   const clearAdmin = () => { setAuthenticated(false); setItems([]); setPending(null); setReissuedLink(""); };
   const signOut = async () => { setBusy(true); try { await ayambilApi.logout(); clearAdmin(); } catch { setError("Sign-out could not be confirmed. Retry before leaving this device."); } finally { setBusy(false); } };
@@ -46,17 +48,9 @@ export default function AyambilAdminPage() {
   const exportList = async () => {
     setBusy(true); setError('');
     try {
-      const rows = [['Booking number', 'Contact name', 'Mobile', 'Attendee name', 'Evening dates', 'Registration status', 'Current pass number', 'Pass status', 'Registered at']];
-      let next = 1; let more = true;
-      while (more) {
-        const result = await registrationApi('admin/bookings', { query: { ...filters, page: next } });
-        result.items.forEach(b => b.attendees.filter(a => !filters.date || a.dates.includes(filters.date)).forEach(a => {
-          const pass = a.passes.find(p => p.status !== 'superseded');
-          rows.push([b.number, b.contactName, b.mobile, a.fullName, a.dates.join(' / '), a.status, pass?.number || '', pass?.status || '', b.created]);
-        })); more = result.hasMore; next++;
-      }
+      const rows = await collectAttendeeCsv(registrationApi,filters);
       downloadCsv(rows); setNotice('Filtered attendee list downloaded. It contains private contact details; store it securely.');
-    } catch { setError('Export failed. No complete attendee list was downloaded.'); }
+    } catch (failure) { if([401,403].includes(failure.status))clearAdmin(); setError(`Export failed: ${failure.message}. No complete attendee list was downloaded.`); }
     finally { setBusy(false); }
   };
   return <div className="ay-page ay-admin"><Helmet><title>Ayambil registration management | Vardhman Creative Studio</title><meta name="robots" content="noindex,nofollow" /></Helmet>
@@ -65,7 +59,7 @@ export default function AyambilAdminPage() {
       {!authenticated ? <form onSubmit={login}><fieldset disabled={busy}><legend>Administrator sign-in</legend><label>Email<input type="email" autoComplete="username" required value={credentials.email} onChange={e => setCredentials({ ...credentials, email: e.target.value })} /></label><label>Password<input type="password" autoComplete="current-password" required value={credentials.password} onChange={e => setCredentials({ ...credentials, password: e.target.value })} /></label><button type="submit">{busy ? 'Signing in…' : 'Sign in'}</button></fieldset><p className="ay-help">An enabled event administrator account must be provisioned securely in the MySQL backend. No default account is provided.</p></form> : <>
         <form className="ay-admin-filters" onSubmit={e => { e.preventDefault(); load(1); }}><label>Search contact, attendee or booking<input value={filters.search} maxLength={120} onChange={e => setFilters({ ...filters, search: e.target.value })} /></label><label>Evening date<select value={filters.date} onChange={e => setFilters({ ...filters, date: e.target.value })}><option value="">Both evenings</option>{eveningConfig.sessions.map(s => <option value={s.date} key={s.date}>{s.label}</option>)}</select></label><label>Status<select value={filters.status} onChange={e => setFilters({ ...filters, status: e.target.value })}><option value="">All statuses</option><option value="active">Active</option><option value="cancelled">Cancelled</option></select></label><button type="submit" disabled={busy}>Search</button><button type="button" onClick={exportList} disabled={busy}>Export filtered attendees</button></form>
         {integration && <section aria-label="WhatsApp integration"><p role="status">WhatsApp sending: {integration.sending ? 'enabled' : 'not enabled'}. Provider configuration: {integration.configured ? 'present; verify channel and templates' : 'required'}. {(integration.missing || []).join(', ')}</p><button type="button" disabled={busy} onClick={async () => { setBusy(true); setError(''); try { setIntegration(await registrationApi('admin/whatsapp/inspect', {method:'POST',body:{}})); } catch (failure) { setError(failure.message); } finally { setBusy(false); } }}>Verify channel and templates (no message)</button>{integration.accountVerified && <p>Channel healthy: {integration.channel.phone}. Approved templates: {integration.templates.map(t => `${t.name} (${t.language})${t.componentsVerified ? '' : ' — variable definition unavailable'}`).join('; ')}. Account check does not prove message delivery.</p>}</section>}
-        <section aria-label="WhatsApp message queue"><h2>Message queue</h2><button type="button" disabled={busy} onClick={async()=>{try{setMessages((await registrationApi('admin/messages')).items);}catch(failure){setError(failure.message);}}}>Refresh message status</button><select aria-label="Test evening" value={testDate} onChange={e=>{setTestDate(e.target.value);setTestKey(requestKey());}}>{eveningConfig.sessions.map(s=><option key={s.date} value={s.date}>{s.label}</option>)}</select><button type="button" disabled={busy} onClick={()=>messageAction('admin/messages/test',{eventDate:testDate,requestKey:testKey})}>Queue authorized test to server-configured recipient</button><button type="button" disabled={busy} onClick={()=>messageAction('admin/messages/process')}>Send next queued message (explicit action)</button>{messages.map(m=><p key={m.id}>{m.notification_type}: {m.status} · Attempts {m.attempts} <button type="button" disabled={busy} onClick={()=>messageAction('admin/messages/status',{id:m.id})}>Verify provider status</button></p>)}</section>
+        <section aria-label="WhatsApp message queue"><h2>Message queue</h2><button type="button" disabled={busy} onClick={async()=>{try{setMessages((await registrationApi('admin/messages')).items);}catch(failure){setError(failure.message);}}}>Refresh message status</button><select aria-label="Test evening" value={testDate} onChange={e=>{setTestDate(e.target.value);setTestJob('');setTestKey(requestKey());}}>{eveningConfig.sessions.map(s=><option key={s.date} value={s.date}>{s.label}</option>)}</select><button type="button" disabled={busy} onClick={()=>messageAction('admin/messages/test',{eventDate:testDate,requestKey:testKey})}>Queue authorized test to server-configured recipient</button><button type="button" disabled={busy||!testJob} onClick={()=>messageAction('admin/messages/process-test',{id:testJob})}>Send only this authorized test job</button>{messages.map(m=><p key={m.id}>{m.notification_type}: {m.status} · Attempts {m.attempts} {m.canVerifyProviderStatus ? <button type="button" disabled={busy} onClick={()=>messageAction('admin/messages/status',{id:m.id})}>Verify provider status</button> : <span>{m.status==='uncertain' ? 'Acceptance uncertain; manual reconciliation required. Do not retry.' : 'Not submitted to provider yet; no provider reference available.'}</span>}</p>)}</section>
         {reissuedLink && <p><a href={reissuedLink} rel="noreferrer">Open reissued attendee pass — keep this private link secure</a></p>}
         <p role="status">{busy ? 'Working…' : notice}</p>
         {!items.length && !busy && <p>No matching registrations loaded.</p>}

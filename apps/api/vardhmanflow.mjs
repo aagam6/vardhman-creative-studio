@@ -21,6 +21,7 @@ export function createFlow(env,fetcher=fetch){
  return {
   configuration(){return {ready:false,configured:missing.length===0,missing,sending:env.AYAMBIL_WHATSAPP_ENABLED==='true',reason:'Outbound workflow and approved template mappings require verification'};},
   async prepare(type,context){
+   if(type==='test')type='confirmation'; // Reuse the reviewed approved confirmation contract.
    await this.inspect();
    let mappings;try{mappings=JSON.parse(env.AYAMBIL_FLOW_TEMPLATE_MAPPINGS);}catch{throw new ApiError(503,'Template mappings required');}
    const mapping=mappings[type+'_'+String(context.eventDate||'').slice(-2)]||mappings[type];

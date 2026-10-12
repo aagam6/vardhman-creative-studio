@@ -1,4 +1,4 @@
-import {checkEmptyAdmin} from './empty-admin-check.mjs';
+import {checkEmptyAdmin,checkPopulatedExport} from './empty-admin-check.mjs';
 import {checkQueue} from './queue-check.mjs';
 import {checkBootstrap} from './bootstrap-check.mjs';
 // Independently opted-in REAL MariaDB integration, never production.
@@ -45,6 +45,7 @@ test('REAL MariaDB: schema, concurrent idempotency, rollback, auth, filters and 
   const session=await store.login('synthetic@example.invalid','Synthetic password long enough');const actor=await store.session(session.token);
   const list=await store.list({date:'2026-11-02',status:'active',search:'Synthetic',page:1});assert.equal(list.items.length,1);assert.equal(list.hasMore,false);
   assert.equal((await store.list({page:2})).items.length,0);await assert.rejects(store.list({date:'2026-11-04'}),e=>e.status===400);
+  await checkPopulatedExport(store,config,session.token);
   const booking=list.items[0];
   const [engines]=await pool.query('SELECT ENGINE FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE()');assert.ok(engines.every(t=>t.ENGINE==='InnoDB'));
   await assert.rejects(pool.execute('INSERT INTO ayambil_attendees(id,booking_id,full_name,ordinal) VALUES(?,?,?,3)',[randomUUID(),booking.id,'Synthetic invalid']));
@@ -86,9 +87,3 @@ test('REAL MariaDB: schema, concurrent idempotency, rollback, auth, filters and 
  }finally{try{await pool.query('UPDATE ayambil_settings SET registration_open=FALSE WHERE id=1');}catch{}await pool.end();}
  // Preserve schema for inspection. Operator removes ONLY this disposable schema.
 });
-
-
-
-
-
-

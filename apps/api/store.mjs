@@ -37,7 +37,7 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
       const saved=json(attendees[0].snapshot),session=saved.sessions[0];if(Date.parse(session.date+'T20:00:00+05:30')<=Date.now())throw new ApiError(409,'Evening has already started');
       for(const attendee of attendees){const event=json(attendee.snapshot).sessions[0];await queue.enqueue(db,{bookingId,type:'reminder',dedupe:bookingId+':'+attendee.id+':'+event.date,context:attendeeContext(event,attendee.full_name,record.mobile)});}
     });},
-    async enqueueTest(queue,item){return transaction(pool,db=>queue.enqueue(db,item));},
+    async enqueueTest(queue,item){return transaction(pool,async db=>{await queue.enqueue(db,item);return queue.testId(db,item.dedupe);});},
     async status(){const setting=await one(pool,'SELECT registration_open FROM ayambil_settings WHERE id=1');return {ready:true,open:config.registrationOpen&&!!setting?.registration_open,whatsapp:queue?'configured':'disabled'};},
     async limit(bucket,max){return transaction(pool,async db=>{const window=Math.floor(Date.now()/60000);await rows(db,'INSERT INTO ayambil_rate_limits(bucket,window_start,attempts) VALUES(?,?,1) ON DUPLICATE KEY UPDATE attempts=IF(window_start=VALUES(window_start),attempts+1,1),window_start=VALUES(window_start)',[bucket,window]);const result=await one(db,'SELECT attempts FROM ayambil_rate_limits WHERE bucket=? FOR UPDATE',[bucket]);return result.attempts<=max;});},
     async login(email,password){

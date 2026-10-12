@@ -12,7 +12,7 @@ export async function checkQueue(pool){
  const bootstrapDb=await pool.getConnection();
  try{await assert.rejects(provisionInitialAdmin(bootstrapDb,{approved:true,email:'synthetic@example.invalid',password:'Synthetic-local-password-123!',initialProgramme:programme,hostingerOneTime:true}));}finally{bootstrapDb.release();}
  let sends=0,fail=false,prepareFailure=false;const flow={prepare:async()=>{if(prepareFailure)throw Error('synthetic template missing');return {};},sendPrepared:async()=>{sends++;if(fail)throw Error('timeout');return {id:'synthetic-provider-'+sends,status:'sent'};},messageStatus:async()=>({status:'delivered'})};
- const env={AYAMBIL_WHATSAPP_ENABLED:'true',AYAMBIL_QUEUE_ENCRYPTION_KEY:'a'.repeat(64)};const queue=createMessageQueue(pool,flow,env);
+ const env={AYAMBIL_WHATSAPP_ENABLED:'true',AYAMBIL_QUEUE_ENCRYPTION_KEY:'a'.repeat(64),AYAMBIL_WHATSAPP_TEST_RECIPIENT:'12025550123'};const queue=createMessageQueue(pool,flow,env);
  const item={type:'test',dedupe:'synthetic-only',context:{to:'12025550123',eventDate:'2026-11-02'}};
  await transaction(pool,db=>queue.enqueue(db,item));await transaction(pool,db=>queue.enqueue(db,item));assert.equal((await queue.list()).length,1);
  const restarted=createMessageQueue(pool,flow,env);await Promise.all([restarted.runOne(),queue.runOne()]);assert.equal(sends,1);
@@ -24,6 +24,18 @@ export async function checkQueue(pool){
  for(let i=0;i<3;i++){await pool.query("UPDATE ayambil_message_queue SET next_attempt_at=UTC_TIMESTAMP(3) WHERE status='queued'");await queue.runOne();}
  assert.ok((await queue.list()).some(r=>r.status==='failed'&&r.attempts===3));prepareFailure=false;
  const config=configuration({...process.env,AYAMBIL_SITE_ORIGIN:'https://example.invalid',AYAMBIL_RATE_LIMIT_SECRET:'synthetic-local-only-secret-at-least-32',AYAMBIL_REGISTRATION_OPEN:'true',AYAMBIL_WHATSAPP_ENABLED:'false'});
+ await pool.query('DELETE FROM ayambil_message_queue');
+ fail=false;const normalIds=[];
+ for(const type of ['confirmation','pass','reminder','admin']){await transaction(pool,db=>queue.enqueue(db,{type,dedupe:'isolation-'+type,context:{to:'12025550123'}}));}
+ const beforeNormal=await queue.list();normalIds.push(...beforeNormal.map(r=>r.id));
+ const testItem={type:'test',dedupe:'exact-authorized',context:{to:'12025550123'}};
+ const testId=await transaction(pool,async db=>{await queue.enqueue(db,testItem);return queue.testId(db,testItem.dedupe);});
+ const countBefore=sends;assert.equal((await queue.runTest(testId)).status,'sent');assert.equal(sends,countBefore+1);
+ assert.equal((await queue.runTest(testId)).processed,false);
+ for(const id of normalIds)assert.equal((await queue.runTest(id)).processed,false);
+ const afterNormal=(await queue.list()).filter(r=>normalIds.includes(r.id));assert.deepEqual(afterNormal,beforeNormal);
+ const [testStored]=await pool.execute('SELECT provider_id FROM ayambil_message_queue WHERE id=?',[testId]);assert.ok(testStored[0].provider_id);
+ const queueMetadata=(await queue.list()).find(r=>r.id===testId);assert.equal(queueMetadata.canVerifyProviderStatus,true);assert.equal(queueMetadata.provider_id,undefined);
  await pool.query('DELETE FROM ayambil_message_queue');
  await pool.query('UPDATE ayambil_settings SET registration_open=TRUE WHERE id=1');
  const input={contactName:'Synthetic queue contact',mobile:'+12025550123',eventDate:'2026-11-02',termsAccepted:true,whatsappConsent:true,requestKey:randomUUID().replaceAll('-','').repeat(2),attendees:[{fullName:'Synthetic queued attendee',dates:['2026-11-02']},{fullName:'Synthetic second attendee',dates:['2026-11-02']}]};

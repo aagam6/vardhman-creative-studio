@@ -7,6 +7,7 @@ export const supportedOperations = Object.freeze({
   'admin/whatsapp': ['GET'], 'admin/whatsapp/inspect': ['POST'], 'admin/messages': ['GET'],
   'admin/messages/test': ['POST'], 'admin/messages/process': ['POST'],
   'admin/messages/status': ['POST'], 'admin/messages/reminder': ['POST'],
+  'admin/messages/process-test': ['POST'],
 });
 
 export function createAyambilApi(transport = fetchAyambilJson) {
@@ -32,6 +33,8 @@ export function createAyambilApi(transport = fetchAyambilJson) {
       if (!response.ok) {
         const error = new Error([401, 403].includes(response.status) ? 'Administrator authentication or session confirmation required' : `Ayambil API request failed (HTTP ${response.status}). Please retry.`);
         error.status = response.status;
+        const requestId=response.headers.get('x-request-id');
+        if (/^[a-f0-9-]{36}$/.test(requestId || '')) error.message += ` Reference: ${requestId}`;
         if ([401, 403].includes(response.status)) csrf = '';
         throw error;
       }
