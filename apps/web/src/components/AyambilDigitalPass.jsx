@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { toPng } from 'html-to-image';
 import { canSharePdf, copyPassDetails, passSummary } from '@/lib/ayambilPassUtils';
 import { digitalPassTerms, passCredits } from '@/lib/ayambilPassPresentation';
-import { passPage, passImagePlacement } from '@/lib/ayambilPassLayout';
+import { passPage, assemblePassPdf, assertPassContentFits } from '@/lib/ayambilPassLayout';
 import './AyambilDigitalPass.css';
 
 function Credits({ pass }) {
@@ -22,16 +22,21 @@ export async function createPassPdf(element, number) {
   const holder = document.createElement('div');
   holder.style.cssText = 'position:fixed;left:-10000px;top:0;pointer-events:none';
   holder.appendChild(capture); document.body.appendChild(holder);
-  let image, ratio;
+  const images = [];
+  capture.style.width = `${passPage.captureWidth}px`;
   try {
     await document.fonts.ready;
-    ratio = capture.scrollHeight / capture.scrollWidth;
-    image = await toPng(capture, { pixelRatio: 3, backgroundColor: '#faf7ef', cacheBust: false, width: passPage.captureWidth, style: { position: 'static', left: '0', top: '0', margin: '0' } });
+    for (const side of capture.querySelectorAll('.ay-pass-side')) {
+      assertPassContentFits(side);
+      const bounds = side.getBoundingClientRect();
+      const ratio = bounds.height / bounds.width;
+      const image = await toPng(side, { pixelRatio: 2, backgroundColor: '#faf7ef', cacheBust: false });
+      images.push({image, ratio});
+    }
   } finally { holder.remove(); }
+  if (images.length !== 2) throw new Error('Invalid pass layout');
   const { jsPDF } = await import('jspdf');
-  const pdf = new jsPDF({ unit: 'mm', orientation: 'portrait', format: [passPage.width, passPage.height] });
-  const placement = passImagePlacement(ratio);
-  pdf.addImage(image, 'PNG', placement.x, placement.y, placement.width, placement.height, undefined, "FAST");
+  const pdf = assemblePassPdf(jsPDF, images);
   return new File([pdf.output('blob')], `${number}.pdf`, { type: 'application/pdf' });
 }
 export function saveFile(file) {
@@ -62,7 +67,7 @@ export default function AyambilDigitalPass({ pass }) {
       const url = URL.createObjectURL(pdf); const frame = document.createElement('iframe');
       frame.style.cssText = 'position:fixed;width:1px;height:1px;bottom:0;left:0;border:0';
       frame.title = 'Print attendee pass'; frame.src = url;
-      frame.onload = () => { try { frame.contentWindow.focus(); frame.contentWindow.print(); } catch { setMessage('Open the prepared PDF and print at actual size, 90 × 200 mm.'); } };
+      frame.onload = () => { try { frame.contentWindow.focus(); frame.contentWindow.print(); } catch { setMessage('Open the prepared PDF and print at actual size, 205 × 105 mm.'); } };
       document.body.appendChild(frame);
       setTimeout(() => { frame.remove(); URL.revokeObjectURL(url); }, 60000);
     } catch (error) { setMessage(error.message === 'Pass content exceeds readable print size' ? 'Pass content is too long to print readably. Contact the organisers for an authorised correction. / વાંચી શકાય તેવી પ્રિન્ટ માટે પાસનું લખાણ ખૂબ લાંબું છે. અધિકૃત સુધારા માટે આયોજકોનો સંપર્ક કરો.' : 'Print could not be prepared. Retry downloading the PDF.'); }
@@ -79,17 +84,17 @@ export default function AyambilDigitalPass({ pass }) {
   const canShareFile = active && canSharePdf(navigator, file);
   return <article className="ay-pass-wrapper">
     <div className="ay-digital-pass" ref={ref}>
-      <div className="ay-pass-brand"><img src="/assets/logo.png" width="44" height="44" alt="" /><span>VARDHMAN CREATIVE STUDIO<small>DIGITAL PASS · ડિજિટલ પાસ</small></span></div>
+      <section className="ay-pass-side ay-pass-front" aria-label="Digital pass front"><div className="ay-pass-brand"><img src="/assets/logo.png" width="44" height="44" alt="" /><span>VARDHMAN CREATIVE STUDIO<small>DIGITAL PASS · ડિજિટલ પાસ</small></span><b className={`ay-pass-validity ${active ? '' : 'ay-pass-invalid'}`}>{active ? 'ACTIVE · EVENING PASS' : `${pass.status.toUpperCase()} · NOT VALID`}</b></div>
       <div className="ay-pass-heading"><p className="ay-pass-english">500 Akhand Ayambil Tap</p><h3 lang="gu">વિજયોત્સવ</h3></div>
       <p className="ay-pass-registration">FREE EVENING REGISTRATION / રજિસ્ટ્રેશન</p>
       <div className="ay-pass-attendee"><span lang="gu">લાભાર્થીનું નામ <small>/ Attendee Name</small></span><strong>{pass.attendeeName}</strong><span>પાસ નંબર / Pass number</span><b>{pass.number}</b></div>
       {pass.sessions.map(session => <div className="ay-pass-programme" key={session.date}><p>{session.performer}</p><p lang="gu">{session.programme}</p><small>{session.date === '2026-11-02' ? 'Bhakti Sandhya' : 'Special presentation'}</small></div>)}
       {pass.sessions.map(session => <section className="ay-pass-visit" key={session.date}><h4>{session.label} · {session.time}</h4><strong>{session.venue.replace('Chandramauleshwar', 'Chandramaulishwar')}</strong><p>{session.address}</p></section>)}
-      <Credits pass={pass} />
+      </section><section className="ay-pass-side ay-pass-back" aria-label="Digital pass reverse"><div className="ay-pass-back-title">500 Akhand Ayambil Tap · વિજયોત્સવ <span>PASS INFORMATION</span></div><Credits pass={pass} />
       <p className="ay-pass-status">{active ? 'For the evening shown above. / ઉપર લખેલા સાંજના કાર્યક્રમ માટે.' : `Pass ${pass.status} — not valid for attendance.`}</p>
       <section className="ay-pass-rules" aria-label="Pass terms and organiser information"><h4>Pass Terms & Conditions <span lang="gu">પાસ માટેના નિયમો</span></h4><ol>{digitalPassTerms.map(([en, gu]) => <li key={en}><span>{en}</span><span lang="gu">{gu}</span></li>)}</ol></section>
       <small>Morning programmes and 4 November are outside this registration. / સવારના કાર્યક્રમો અને ૪ નવેમ્બર માટે આ પાસ નથી. Issued {new Date(pass.issuedAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}.</small>
-    </div>
+    </section></div>
     <div className="ay-pass-actions">
       <button type="button" disabled={busy || !active} onClick={download}>{busy ? 'Preparing PDF… / PDF તૈયાર થઈ રહ્યો છે…' : 'Download PDF / પાસ ડાઉનલોડ કરો'}</button>
       {fileUrl && active && <a href={fileUrl} download={file.name}>Save prepared PDF</a>}

@@ -1,0 +1,22 @@
+.ay-admin {background:#f5f2ec;min-height:100vh}.ay-admin .ay-container{max-width:1320px}.ay-admin .ay-header{padding:22px 30px;border-bottom:1px solid #ddd2be}.ay-admin main.ay-registration{max-width:1260px;padding:36px;margin:24px auto;background:#fffdf9;border:1px solid #e4dac8;border-radius:18px;box-shadow:0 8px 32px #49351f08}.ay-admin-title>span{font-size:11px;letter-spacing:2px;color:#997746;font-weight:700}.ay-admin-title h1{font-size:36px;margin:8px 0;color:#642c32}.ay-admin .ay-admin-filters{display:grid;grid-template-columns:2fr 1fr 1fr;gap:16px;background:#f8f4ec;padding:22px;border-radius:12px;margin:26px 0}.ay-admin label{font-size:13px;font-weight:600}.ay-admin input,.ay-admin select{border-radius:7px;background:#fff;min-height:45px}.ay-admin button{border-radius:7px;min-height:40px;padding:10px 18px}.ay-admin .ay-admin-filters button[type=submit]{background:#672e34;color:#fff;border-color:#672e34}.ay-admin section[aria-label^=WhatsApp]{padding:20px;border:1px solid #e4dac8;border-radius:12px;margin:18px 0;background:#faf8f3}.ay-admin section[aria-label^=WhatsApp] p{font-size:13px;line-height:1.7}.ay-admin section[aria-label^=WhatsApp] h2{font-size:23px;margin-top:0}.ay-admin .ay-admin-booking{padding:24px;margin:24px 0;border:1px solid #dfd3bf;border-radius:12px;background:#fff;box-shadow:0 3px 12px #49351f06}.ay-admin .ay-admin-booking>h2{font-family:inherit;font-size:16px;overflow-wrap:anywhere;font-weight:700;margin:0 0 12px}.ay-admin .ay-admin-booking>p{font-size:13px;line-height:1.6}.ay-admin .ay-admin-attendee{padding:18px;background:#faf8f3;border-radius:9px;margin-top:18px;border:1px solid #e9dfcf}.ay-admin .ay-admin-attendee h3{font-size:22px;margin:0 0 8px}.ay-admin details{margin:12px 0}.ay-admin summary{cursor:pointer;font-size:13px;font-weight:600;padding:8px 0}.ay-admin .ay-form-actions{display:flex;align-items:center;justify-content:space-between;gap:15px}.ay-admin .ay-form-error{border-radius:8px;padding:16px}.ay-admin .ay-admin-confirm{border:2px solid #672e34;border-radius:12px;padding:24px}
+@media(max-width:700px){.ay-admin main.ay-registration{margin:12px;padding:20px}.ay-admin .ay-admin-filters{grid-template-columns:1fr;padding:16px}.ay-admin-title h1{font-size:28px}.ay-admin .ay-header{padding:16px;gap:12px;flex-wrap:wrap}.ay-admin .ay-admin-booking{padding:16px}.ay-admin section[aria-label^=WhatsApp] button{margin:5px 0;width:100%}}
+
+.ay-admin .ay-admin-title h1 { font-size:36px!important; margin:8px 0; }
+.ay-admin .ay-booking-heading { display:flex; gap:18px; justify-content:space-between; align-items:center; }
+.ay-admin .ay-card-label { font-size:10px; letter-spacing:1.5px; color:#92724a; }
+.ay-admin .ay-booking-heading h2 { font-family:inherit; font-size:16px!important; font-weight:600; letter-spacing:0; margin:5px 0; overflow-wrap:anywhere; }
+.ay-admin .ay-booking-status { font-size:12px; text-transform:capitalize; border:1px solid #bed0ba; background:#edf4eb; color:#345338; padding:4px 10px; border-radius:20px; white-space:nowrap; }
+.ay-admin .ay-status-cancelled { border-color:#dec2bd; color:#8b2331; background:#f9eeeb; }
+.ay-admin .ay-booking-meta { display:flex; flex-wrap:wrap; gap:8px 20px; margin:14px 0; font-size:12px; color:#6d6057; }
+.ay-admin .ay-booking-actions { display:flex; flex-wrap:wrap; gap:10px; margin:14px 0; }
+.ay-admin .ay-booking-attendees { border-top:1px solid #e8dfd0; margin-bottom:0; }
+.ay-admin .ay-admin-filters label input,.ay-admin .ay-admin-filters label select { max-width:none; border-radius:7px; }
+.ay-admin .ay-admin-booking .ay-pass-wrapper { max-width:1040px; }
+@media(max-width:700px) {
+ .ay-admin .ay-admin-title h1 { font-size:28px!important; }
+ .ay-admin .ay-booking-heading { align-items:flex-start; }
+ .ay-admin .ay-booking-heading>div { min-width:0; }
+ .ay-admin .ay-booking-meta { flex-direction:column; gap:5px; }
+ .ay-admin .ay-booking-actions button { width:100%; }
+ .ay-admin .ay-admin-pass-preview .ay-pass-side { padding:22px; }
+}

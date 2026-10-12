@@ -85,7 +85,7 @@ export function createFlow(env,fetcher=fetch){
     if(metadata.verified&&!applicable.every(m=>templateMetadata(t,m,metadataOptions).verified))Object.assign(metadata,{verified:false,componentsVerified:false,verification:'mapping_mismatch'});
     return {name:t.name,language:t.language,...metadata};
    });
-   return {...this.configuration(),accountVerified:true,channel:{active:true,health:'healthy',phone:normalizePhone(channel.phoneNumber)},templates:approved,usage:{requestCount:Number.isFinite(account.usage?.requestCount)?account.usage.requestCount:null,monthlyRequestCount:Number.isFinite(account.usage?.monthlyRequestCount)?account.usage.monthlyRequestCount:null}};
+   return {...this.configuration(),accountVerified:true,channel:{active:true,health:'healthy',phoneConfigured:!!normalizePhone(channel.phoneNumber)},templates:approved,usage:{requestCount:Number.isFinite(account.usage?.requestCount)?account.usage.requestCount:null,monthlyRequestCount:Number.isFinite(account.usage?.monthlyRequestCount)?account.usage.monthlyRequestCount:null}};
   }
  };
 }

@@ -1,3 +1,4 @@
+import express from 'express';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createApp} from '../app.mjs';
@@ -27,3 +28,11 @@ test('lead routes preserve known SDK create contract, no-store, validation, orig
  }finally{await new Promise(r=>server.close(r));}
 });
 test('lead validation is bounded and cannot accept browser-supplied private metadata',()=>{assert.deepEqual(validateLead(body),body);for(const extra of ['id','created','recipient','password'])assert.throws(()=>validateLead({...body,[extra]:'unexpected'}));});
+test('lead health is read-only, no-store, and missing schema fails closed without details',async()=>{
+ for(const missing of [false,true]){
+  const calls=[];const pool={execute:async(sql)=>{calls.push(sql);if(missing)throw Error('private database credentials');return [[]];}};
+  const app=express();app.use('/api/leads',createLeadRouter({pool,store:{},config:{origin:'https://example.invalid'}}));
+  const server=app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));
+  try{const response=await fetch(`http://127.0.0.1:${server.address().port}/api/leads/health`);assert.equal(response.status,missing?503:200);assert.equal(response.headers.get('cache-control'),'no-store');assert.deepEqual(await response.json(),{ready:!missing});assert.equal(calls.length,1);assert.match(calls[0],/^SELECT .* WHERE 1=0$/);}finally{await new Promise(r=>server.close(r));}
+ }
+});
