@@ -1,3 +1,5 @@
+import {checkEmptyAdmin,checkPopulatedExport} from './empty-admin-check.mjs';
+import {checkSearchCollations} from './collation-check.mjs';
 import {checkQueue} from './queue-check.mjs';
 import {checkBootstrap} from './bootstrap-check.mjs';
 // Opt-in REAL MySQL integration, never production. Requires a newly created,
@@ -21,7 +23,7 @@ test('REAL MySQL: schema, concurrent idempotency, rollback, auth, filters and pa
   for(const statement of migration.split(';').map(s=>s.trim()).filter(Boolean))await pool.query(statement);
   await checkBootstrap(pool,config);
   for(const s of programme.sessions)await pool.execute('INSERT INTO ayambil_events VALUES(?,?)',[s.date,JSON.stringify(s)]);
-  const store=createStore(pool,config);assert.equal(await store.ready(),false);
+  const store=createStore(pool,config);assert.equal(await store.ready(),false);await checkEmptyAdmin(pool,store,config);
   const body=n=>({contactName:'Synthetic Contact',mobile:'+12025550123',eventDate:'2026-11-02',termsAccepted:true,whatsappConsent:true,requestKey:randomUUID().replaceAll('-','').repeat(2),attendees:Array.from({length:n},(_,i)=>({fullName:'Synthetic Attendee '+i,dates:['2026-11-02']}))});
   await assert.rejects(store.register(body(1)),e=>e.status===403);
   await pool.query('UPDATE ayambil_settings SET registration_open=TRUE WHERE id=1');
@@ -35,9 +37,9 @@ test('REAL MySQL: schema, concurrent idempotency, rollback, auth, filters and pa
   const admin=randomUUID();await pool.execute('INSERT INTO ayambil_admins VALUES(?,?,?,TRUE)',[admin,'synthetic@example.invalid',await passwordHash('Synthetic password long enough')]);
   await assert.rejects(store.login('synthetic@example.invalid','wrong'),e=>e.status===401);
   const session=await store.login('synthetic@example.invalid','Synthetic password long enough');const actor=await store.session(session.token);
-  const list=await store.list({date:'2026-11-02',status:'active',search:'Synthetic',page:1});assert.equal(list.items.length,1);assert.equal(list.hasMore,false);
+  const list=await store.list({date:'2026-11-02',status:'active',search:'Synthetic',page:1});assert.equal(list.items.length,1);assert.equal(list.hasMore,false);await checkSearchCollations(pool,config,list.items[0]);
   assert.equal((await store.list({page:2})).items.length,0);await assert.rejects(store.list({date:'2026-11-04'}),e=>e.status===400);
-  const booking=list.items[0];await store.change(actor,{action:'cancel',bookingId:booking.id});await assert.rejects(store.download(receipt.downloadKeys[0]),e=>e.status===404);
+  await checkPopulatedExport(store,config,session.token);const booking=list.items[0];await store.change(actor,{action:'cancel',bookingId:booking.id});await assert.rejects(store.download(receipt.downloadKeys[0]),e=>e.status===404);
   await store.change(actor,{action:'restore',bookingId:booking.id});await store.download(receipt.downloadKeys[0]);
   const reissued=await store.change(actor,{action:'reissue',bookingId:booking.id,attendeeId:booking.attendees[0].id});await assert.rejects(store.download(receipt.downloadKeys[0]),e=>e.status===404);await store.download(reissued.downloadKey);
   await pool.query('UPDATE ayambil_capabilities SET expires_at=DATE_SUB(UTC_TIMESTAMP(3),INTERVAL 1 DAY)');await assert.rejects(store.download(reissued.downloadKey),e=>e.status===404);

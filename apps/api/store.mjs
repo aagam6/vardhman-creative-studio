@@ -102,7 +102,19 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
       let stage='bookings.filters';try {
       const date=String(query.date||''),status=String(query.status||''),search=String(query.search||'');const page=Number(query.page||1);
       if(!['','2026-11-02','2026-11-03'].includes(date)||!['','active','cancelled'].includes(status)||search.length>120||!Number.isInteger(page)||page<1||page>100000)throw new ApiError(400,'Invalid filters');
-      stage='bookings.select';const ids=await rows(pool,`SELECT b.id FROM ayambil_bookings b WHERE (?='' OR b.event_date=?) AND (?='' OR b.status=?) AND (?='' OR LOCATE(?,CONCAT(b.number,' ',b.contact_name,' ',b.mobile))>0 OR EXISTS(SELECT 1 FROM ayambil_attendees a WHERE a.booking_id=b.id AND LOCATE(?,a.full_name)>0)) ORDER BY b.created_at DESC,b.id LIMIT 51 OFFSET ?`,[date,date,status,status,search,search,search,(page-1)*50]);
+      // Normalize each operand before CONCAT, not just its result: imported
+      // column and connection collations can differ without a schema change.
+      stage='bookings.select';const ids=await rows(pool,`SELECT b.id FROM ayambil_bookings b
+        WHERE (CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci=_utf8mb4'' COLLATE utf8mb4_unicode_ci OR CONVERT(b.event_date USING utf8mb4) COLLATE utf8mb4_unicode_ci=CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci)
+        AND (CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci=_utf8mb4'' COLLATE utf8mb4_unicode_ci OR CONVERT(b.status USING utf8mb4) COLLATE utf8mb4_unicode_ci=CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci)
+        AND (CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci=_utf8mb4'' COLLATE utf8mb4_unicode_ci OR LOCATE(CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci,
+          CONCAT(CONVERT(b.number USING utf8mb4) COLLATE utf8mb4_unicode_ci,_utf8mb4' ' COLLATE utf8mb4_unicode_ci,
+            CONVERT(b.contact_name USING utf8mb4) COLLATE utf8mb4_unicode_ci,_utf8mb4' ' COLLATE utf8mb4_unicode_ci,
+            CONVERT(b.mobile USING utf8mb4) COLLATE utf8mb4_unicode_ci))>0
+          OR EXISTS(SELECT 1 FROM ayambil_attendees a WHERE a.booking_id=b.id
+            AND LOCATE(CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci,
+              CONVERT(a.full_name USING utf8mb4) COLLATE utf8mb4_unicode_ci)>0))
+        ORDER BY b.created_at DESC,b.id LIMIT 51 OFFSET ?`,[date,date,status,status,search,search,search,(page-1)*50]);
       stage='bookings.hydrate';return {items:await Promise.all(ids.slice(0,50).map(b=>booking(pool,b.id,true))),page,hasMore:ids.length>50,integration:{ready:false,missing:['WhatsApp sending disabled']}};
       }catch(error){error.ayambilStage=stage;throw error;}
     },

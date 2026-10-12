@@ -1,3 +1,4 @@
+import {checkSearchCollations} from './collation-check.mjs';
 import {checkEmptyAdmin,checkPopulatedExport} from './empty-admin-check.mjs';
 import {checkQueue} from './queue-check.mjs';
 import {checkBootstrap} from './bootstrap-check.mjs';
@@ -43,7 +44,7 @@ test('REAL MariaDB: schema, concurrent idempotency, rollback, auth, filters and 
   const admin=randomUUID();await pool.execute('INSERT INTO ayambil_admins VALUES(?,?,?,TRUE)',[admin,'synthetic@example.invalid',await passwordHash('Synthetic password long enough')]);
   await assert.rejects(store.login('synthetic@example.invalid','wrong'),e=>e.status===401);
   const session=await store.login('synthetic@example.invalid','Synthetic password long enough');const actor=await store.session(session.token);
-  const list=await store.list({date:'2026-11-02',status:'active',search:'Synthetic',page:1});assert.equal(list.items.length,1);assert.equal(list.hasMore,false);
+  const list=await store.list({date:'2026-11-02',status:'active',search:'Synthetic',page:1});assert.equal(list.items.length,1);assert.equal(list.hasMore,false);await checkSearchCollations(pool,config,list.items[0]);
   assert.equal((await store.list({page:2})).items.length,0);await assert.rejects(store.list({date:'2026-11-04'}),e=>e.status===400);
   await checkPopulatedExport(store,config,session.token);
   const booking=list.items[0];

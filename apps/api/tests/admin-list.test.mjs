@@ -15,11 +15,11 @@ test('empty store list contract and authenticated disabled WhatsApp config remai
  }}finally{await new Promise(r=>server.close(r));}
 });
 
-test('unclassified bookings error retains safe numeric diagnostics without raw error text',async()=>{
+test('collation bookings error is classified by errno without raw error text',async()=>{
  const logs=[],original=console.error;console.error=value=>logs.push(value);
- const store=createStore({execute:async()=>{const error=new TypeError('secret personal SQL details');error.code='private-unrecognized-value';error.errno=1105;error.sqlState='HY000';throw error;}},{});store.session=async()=>({});
+ const store=createStore({execute:async()=>{const error=new TypeError('secret personal SQL details');error.code='private-unrecognized-value';error.errno=1267;error.sqlState='HY000';throw error;}},{});store.session=async()=>({});
  const server=createApp({store,config:{origin:'https://example.invalid'},staticDirectory:'.'}).listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));
- try{const response=await fetch(`http://127.0.0.1:${server.address().port}/api/ayambil/admin/bookings`);assert.equal(response.status,503);assert.equal(response.headers.get('cache-control'),'no-store');const log=JSON.parse(logs[0]);assert.equal(log.code,'unclassified');assert.equal(log.errno,1105);assert.equal(log.sqlState,'HY000');assert.equal(log.category,'TypeError');assert.equal(log.stage,'bookings.select');assert.equal(log.requestId,response.headers.get('x-request-id'));assert.doesNotMatch(logs.join(''),/secret|personal|private-unrecognized|SQL details/);assert.doesNotMatch(await response.text(),/HY000|1105|secret|personal/);}
+ try{const response=await fetch(`http://127.0.0.1:${server.address().port}/api/ayambil/admin/bookings`);assert.equal(response.status,503);assert.equal(response.headers.get('cache-control'),'no-store');const log=JSON.parse(logs[0]);assert.equal(log.code,'ER_CANT_AGGREGATE_2COLLATIONS');assert.equal(log.errno,1267);assert.equal(log.sqlState,'HY000');assert.equal(log.category,'TypeError');assert.equal(log.stage,'bookings.select');assert.equal(log.requestId,response.headers.get('x-request-id'));assert.doesNotMatch(logs.join(''),/secret|personal|private-unrecognized|SQL details/);assert.doesNotMatch(await response.text(),/HY000|1267|secret|personal/);}
  finally{console.error=original;await new Promise(r=>server.close(r));}
 });
 test('bookings diagnostics contain only generated correlation and safe stage/code',async()=>{
@@ -27,4 +27,11 @@ test('bookings diagnostics contain only generated correlation and safe stage/cod
  const store=createStore({execute:async()=>{const error=new Error('private password cookie SQL parameter fixture');error.code='ER_BAD_FIELD_ERROR';throw error;}},{});store.session=async()=>({});
  const server=createApp({store,config:{origin:'https://example.invalid'},staticDirectory:'.'}).listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));
  try{const res=await fetch(`http://127.0.0.1:${server.address().port}/api/ayambil/admin/bookings`);assert.equal(res.status,503);const log=JSON.parse(logs[0]);assert.equal(log.requestId,res.headers.get('x-request-id'));assert.equal(log.stage,'bookings.select');assert.equal(log.code,'ER_BAD_FIELD_ERROR');assert.doesNotMatch(logs.join(''),/private|password|cookie|parameter/);assert.equal(res.headers.get('cache-control'),'no-store');}finally{console.error=original;await new Promise(r=>server.close(r));}
+});
+test('unclassified bookings error retains safe numeric diagnostics without raw error text',async()=>{
+ const logs=[],original=console.error;console.error=value=>logs.push(value);
+ const store=createStore({execute:async()=>{const error=new TypeError('secret personal SQL details');error.code='private-unrecognized-value';error.errno=1105;error.sqlState='HY000';throw error;}},{});store.session=async()=>({});
+ const server=createApp({store,config:{origin:'https://example.invalid'},staticDirectory:'.'}).listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));
+ try{const response=await fetch(`http://127.0.0.1:${server.address().port}/api/ayambil/admin/bookings`);assert.equal(response.status,503);assert.equal(response.headers.get('cache-control'),'no-store');const log=JSON.parse(logs[0]);assert.equal(log.code,'unclassified');assert.equal(log.errno,1105);assert.equal(log.sqlState,'HY000');assert.equal(log.category,'TypeError');assert.equal(log.stage,'bookings.select');assert.equal(log.requestId,response.headers.get('x-request-id'));assert.doesNotMatch(logs.join(''),/secret|personal|private-unrecognized|SQL details/);assert.doesNotMatch(await response.text(),/HY000|1105|secret|personal/);}
+ finally{console.error=original;await new Promise(r=>server.close(r));}
 });
