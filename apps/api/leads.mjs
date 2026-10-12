@@ -9,6 +9,11 @@ export function validateLead(body){
 export function createLeadRouter({pool,store,config,legacy=false,isInitialized=()=>true}){
  const router=express.Router();
  router.use((req,res,next)=>{res.set({'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});next();});
+ router.get('/health',async(req,res)=>{
+  if(!isInitialized())return res.status(503).json({ready:false});
+  try{await pool.execute('SELECT id,name,email,company,message,created_at FROM vcs_leads WHERE 1=0');res.json({ready:true});}
+  catch{res.status(503).json({ready:false});}
+ });
  router.use((req,res,next)=>{if(req.headers.origin!==config.origin)return res.status(403).json({error:'Exact site origin required'});if(!isInitialized())return res.status(503).json({error:'Lead service unavailable'});next();});
  router.use(express.json({limit:'16kb'}));
  router.post('/',async(req,res)=>{

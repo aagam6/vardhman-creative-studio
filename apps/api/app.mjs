@@ -71,6 +71,7 @@ export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirect
   if(legacyLeadRouter)app.use('/hcgi/platform/api/collections/leads/records',legacyLeadRouter);
   app.use('/api',(req,res)=>res.set('Cache-Control','no-store').status(404).json({error:'API unavailable'}));
   app.use('/hcgi/platform',(req,res)=>res.set('Cache-Control','no-store').status(503).json({error:'Legacy backend routing requires separate configuration'}));
+  app.use(['/admin/ayambil','/500-akhand-ayambil-vijayollas/passes'],(req,res,next)=>{res.set({'Cache-Control':'no-store','Referrer-Policy':'no-referrer'});next();});
   app.use(express.static(staticDirectory,{index:false}));
   app.get('/{*path}',(req,res)=>res.sendFile('index.html',{root:staticDirectory}));
   return app;

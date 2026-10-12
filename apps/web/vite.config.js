@@ -217,7 +217,7 @@ if (window.navigation && window.self !== window.top) {
 const addTransformIndexHtml = {
 	name: 'add-transform-index-html',
 	transformIndexHtml(html) {
-		const tags = [
+		const tags = isDev ? [
 			{
 				tag: 'script',
 				attrs: { type: 'module' },
@@ -248,7 +248,7 @@ const addTransformIndexHtml = {
 				children: configNavigationHandler,
 				injectTo: 'head',
 			},
-		];
+		] : [];
 
 		if (!isDev && process.env.TEMPLATE_BANNER_SCRIPT_URL && process.env.TEMPLATE_REDIRECT_URL) {
 			tags.push(
