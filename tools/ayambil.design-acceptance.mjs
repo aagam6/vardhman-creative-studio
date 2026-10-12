@@ -61,5 +61,3 @@ try{
  await page.goto(`${base}/__design`);await page.locator('.ay-pass-attendee strong').waitFor();await page.locator('.ay-pass-attendee strong').evaluate(e=>e.textContent='Synthetic overflow '.repeat(100));await page.getByRole('button',{name:/Download PDF/}).click();await page.getByRole('status').filter({hasText:'too long'}).waitFor();checks++;
  console.log(`PASS ${checks} local browser/PDF assertions; provider and API responses mocked; artifacts ${out}`);
 }finally{await browser?.close();await server.close();}
-
-
