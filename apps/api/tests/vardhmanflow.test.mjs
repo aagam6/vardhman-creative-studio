@@ -1,8 +1,20 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createFlow,normalizePhone,templateMetadata} from '../vardhmanflow.mjs';
+import {createFlow,normalizePhone,templateMetadata,testBodyOverrideApproved} from '../vardhmanflow.mjs';
 import {notificationTemplates} from '../notification-context.mjs';
 const env={VARDHMAN_FLOW_API_KEY:'synthetic-key',VARDHMAN_FLOW_API_SECRET:'synthetic-secret',VARDHMAN_FLOW_CHANNEL_ID:'synthetic-channel'};
+test('BODY compatibility override is staging-only, test-only and uses synthetic values and server recipient',async()=>{
+ const mapping={...notificationTemplates.confirmation,language:'en'};
+ const configured={...env,AYAMBIL_WHATSAPP_ENABLED:'true',AYAMBIL_WHATSAPP_TEST_BODY_OVERRIDE:'true',AYAMBIL_STAGING_BUILD:'true',AYAMBIL_SITE_ORIGIN:'https://white-reindeer-590806.hostingersite.com',AYAMBIL_WHATSAPP_TEST_RECIPIENT:'12025550123',AYAMBIL_FLOW_TEMPLATE_MAPPINGS:JSON.stringify({confirmation:mapping})};
+ for(const unsafe of [{AYAMBIL_STAGING_BUILD:'false'},{AYAMBIL_SITE_ORIGIN:'https://vardhmancreativestudio.com'},{AYAMBIL_WHATSAPP_NORMAL_PROCESSING_APPROVED:'true'}])assert.throws(()=>testBodyOverrideApproved({...configured,...unsafe}),e=>e.status===403);
+ assert.equal(testBodyOverrideApproved({...configured,AYAMBIL_WHATSAPP_TEST_BODY_OVERRIDE:'false'}),false);
+ let posts=0;const flow=createFlow(configured,async(url,options)=>{if(options.method==='POST')posts++;return new Response(JSON.stringify({success:true,data:url.endsWith('/account')?{channel:{id:'synthetic-channel',isActive:true,healthStatus:'healthy',phoneNumber:'12025550123'}}:url.includes('/templates')?[{name:mapping.name,language:'en',status:'APPROVED'}]:{messageId:'synthetic-reference',status:'sent'}}),{headers:{'Content-Type':'application/json'}});});
+ const context=flow.compatibilityContext('2026-11-02');assert.deepEqual(Object.keys(context).sort(),['compatibilityTest','testEventDate','to']);
+ const payload=await flow.prepare('test',context);assert.equal(payload.to,configured.AYAMBIL_WHATSAPP_TEST_RECIPIENT);assert.equal(payload.templateName,mapping.name);assert.equal(payload.language,'en');assert.deepEqual(payload.components[0].parameters,mapping.fields.map((_,i)=>({type:'text',text:`TEST VALUE ${i+1}`})));assert.equal(posts,0);
+ await assert.rejects(flow.prepare('confirmation',context),e=>e.status===403);await assert.rejects(flow.prepare('test',{...context,to:'19999999999'}),e=>e.status===403);
+ await assert.rejects(flow.prepare('confirmation',{to:context.to,eventDate:'2026-11-02'}),e=>e.status===503);
+ const denied=createFlow(configured,async()=>new Response('{}',{status:400}));await assert.rejects(denied.sendPrepared(payload),e=>e.providerRejected===400&&!e.message.includes('secret'));
+});
 test('operator diagnostic returns only matching approved BODY definitions using GET',async()=>{
  const flow=createFlow(env,async(url,options)=>{
   assert.equal(options.method,'GET');

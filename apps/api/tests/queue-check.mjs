@@ -32,6 +32,9 @@ export async function checkQueue(pool){
  const testId=await transaction(pool,async db=>{await queue.enqueue(db,testItem);return queue.testId(db,testItem.dedupe);});
  const countBefore=sends;assert.equal((await queue.runTest(testId)).status,'sent');assert.equal(sends,countBefore+1);
  assert.equal((await queue.runTest(testId)).processed,false);
+ fail=true;const uncertainItem={type:'test',dedupe:'exact-test-uncertain',context:{to:'12025550123',compatibilityTest:true}};
+ const uncertainId=await transaction(pool,async db=>{await queue.enqueue(db,uncertainItem);return queue.testId(db,uncertainItem.dedupe);});
+ const sendsBeforeTimeout=sends;assert.equal((await queue.runTest(uncertainId)).status,'uncertain');assert.equal(sends,sendsBeforeTimeout+1);assert.equal((await queue.runTest(uncertainId)).processed,false);assert.equal(sends,sendsBeforeTimeout+1);fail=false;
  for(const id of normalIds)assert.equal((await queue.runTest(id)).processed,false);
  const afterNormal=(await queue.list()).filter(r=>normalIds.includes(r.id));assert.deepEqual(afterNormal,beforeNormal);
  const [testStored]=await pool.execute('SELECT provider_id FROM ayambil_message_queue WHERE id=?',[testId]);assert.ok(testStored[0].provider_id);

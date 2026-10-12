@@ -55,9 +55,10 @@ export function createApp({store,config,staticDirectory,flow,queue,testRecipient
     if(!queue||!testRecipient||typeof req.body?.requestKey!=='string'||!/^[a-f0-9]{64}$/.test(req.body.requestKey))throw new ApiError(503,'Configured authorized test recipient and request identifier required');
     const session=programme.sessions.find(s=>s.date===req.body.eventDate);if(!session)throw new ApiError(400,'Approved evening required');
     if(!flow)throw new ApiError(503,'Provider configuration required');
-    const context=attendeeContext(session,'Authorized operator test',normalizePhone(testRecipient));
+    const context=flow.compatibilityContext?.(session.date)||attendeeContext(session,'Authorized operator test',normalizePhone(testRecipient));
     await flow.prepare('test',context);
-    const id=await store.enqueueTest(queue,{type:'test',dedupe:req.body.requestKey,context});
+    // Compatibility experiment is one durable job, even across page reloads.
+    const id=await store.enqueueTest(queue,{type:'test',dedupe:context.compatibilityTest===true?'staging-body-compatibility-v1':req.body.requestKey,context});
     res.json({queued:true,delivered:false,id});
   }));
   api.post('/admin/whatsapp/inspect',admin,limited('flow-inspect',5),route(async(req,res)=>{if(!flow)throw new ApiError(503,'Provider configuration required');res.json(await flow.inspect({templateDefinitions:true}));}));

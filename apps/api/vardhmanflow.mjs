@@ -1,6 +1,11 @@
 import {ApiError} from './config.mjs';
 import {notificationTemplates} from './notification-context.mjs';
 export function normalizePhone(value){const digits=String(value||'').replace(/[+\s()-]/g,'');const number=/^[6-9]\d{9}$/.test(digits)?'91'+digits:digits;if(!/^[1-9]\d{7,14}$/.test(number))throw new ApiError(400,'Valid international WhatsApp number required');return number;}
+export function testBodyOverrideApproved(env){
+ if(env.AYAMBIL_WHATSAPP_TEST_BODY_OVERRIDE!=='true')return false;
+ if(env.AYAMBIL_STAGING_BUILD!=='true'||env.AYAMBIL_SITE_ORIGIN!=='https://white-reindeer-590806.hostingersite.com'||env.AYAMBIL_WHATSAPP_NORMAL_PROCESSING_APPROVED==='true')throw new ApiError(403,'BODY compatibility test requires the isolated staging origin/build and normal processing disabled');
+ return true;
+}
 export function templateMetadata(template,mapping){
  const components=template.components;
  const body=Array.isArray(components)?components.find(c=>String(c.type).toUpperCase()==='BODY'):null;
@@ -24,27 +29,39 @@ export function createFlow(env,fetcher=fetch){
   try{
    if(body)headers['Content-Type']='application/json';
    const response=await fetcher(base+'/'+suffix,{method:body?'POST':'GET',body:body?JSON.stringify(body):undefined,headers,signal:AbortSignal.timeout(10000),redirect:'error'});
-   if(!response.ok)throw new ApiError(response.status===429?429:503,'Provider check failed; verify credentials, permissions and route');
+   if(!response.ok){
+    const messages={400:'Provider rejected parameters; verify template count and format',401:'Provider rejected authentication; verify private credentials',403:'Provider rejected permission or channel access',404:'Provider route or template unavailable',409:'Provider resource conflict; do not retry blindly',429:'Provider rate limit exceeded; no automatic send retry'};
+    const error=new ApiError(response.status===429?429:503,messages[response.status]||'Provider request failed; acceptance not confirmed');
+    if(body&&messages[response.status])error.providerRejected=response.status;
+    throw error;
+   }
    if(!/application\/json/i.test(response.headers.get('content-type')||''))throw new Error();
    const parsed=await response.json();if(parsed.success!==true||!parsed.data)throw new Error();return parsed.data;
   }catch(error){if(error instanceof ApiError)throw error;throw new ApiError(503,'Provider request unavailable; acceptance not confirmed');}
  };
  return {
-  configuration(){return {ready:false,configured:missing.length===0,missing,sending:env.AYAMBIL_WHATSAPP_ENABLED==='true',reason:'Outbound workflow and approved template mappings require verification'};},
+  configuration(){return {ready:false,configured:missing.length===0,missing,sending:env.AYAMBIL_WHATSAPP_ENABLED==='true',testBodyOverride:env.AYAMBIL_WHATSAPP_TEST_BODY_OVERRIDE==='true'&&env.AYAMBIL_STAGING_BUILD==='true'&&env.AYAMBIL_SITE_ORIGIN==='https://white-reindeer-590806.hostingersite.com'&&env.AYAMBIL_WHATSAPP_NORMAL_PROCESSING_APPROVED!=='true',reason:'Outbound workflow and approved template mappings require verification'};},
+  compatibilityContext(eventDate){return testBodyOverrideApproved(env)?{to:normalizePhone(env.AYAMBIL_WHATSAPP_TEST_RECIPIENT),compatibilityTest:true,testEventDate:eventDate}:null;},
   async prepare(type,context){
+   const compatibility=context.compatibilityTest===true;
+   if(compatibility&&(type!=='test'||!testBodyOverrideApproved(env)||context.to!==normalizePhone(env.AYAMBIL_WHATSAPP_TEST_RECIPIENT)))throw new ApiError(403,'Authorized isolated compatibility test required');
    if(type==='test')type='confirmation'; // Reuse the reviewed approved confirmation contract.
    await this.inspect();
    let mappings;try{mappings=JSON.parse(env.AYAMBIL_FLOW_TEMPLATE_MAPPINGS);}catch{throw new ApiError(503,'Template mappings required');}
-   const mapping=mappings[type+'_'+String(context.eventDate||'').slice(-2)]||mappings[type];
+   const mapping=mappings[type+'_'+String(compatibility?context.testEventDate:context.eventDate||'').slice(-2)]||mappings[type];
    if(!mapping||typeof mapping.name!=='string'||typeof mapping.language!=='string'||!Array.isArray(mapping.fields))throw new ApiError(503,'Notification template mapping missing');
    const expected=notificationTemplates[type];
    if(expected&&(mapping.name!==expected.name||JSON.stringify(mapping.fields)!==JSON.stringify(expected.fields)))throw new ApiError(503,'Reviewed notification variable mapping required');
    const templates=await request('templates?status=APPROVED');const template=templates.find(t=>t.status==='APPROVED'&&t.name===mapping.name&&t.language===mapping.language);
+   if(compatibility&&template&&!templateMetadata(template,mapping).bodyAvailable){
+    if(!['2026-11-02','2026-11-03'].includes(context.testEventDate))throw new ApiError(400,'Approved test evening required');
+    return {to:normalizePhone(env.AYAMBIL_WHATSAPP_TEST_RECIPIENT),templateName:template.name,language:template.language,components:[{type:'body',parameters:mapping.fields.map((_,i)=>({type:'text',text:`TEST VALUE ${i+1}`}))}]};
+   }
    if(!template||!templateMetadata(template,mapping).verified)throw new ApiError(503,'Approved BODY definition and exact reviewed mapping required; provider template metadata must be available');
    const slots=[...new Set([...template.components[0].text.matchAll(/\{\{\s*(\d+)\s*\}\}/g)].map(m=>Number(m[1])))].sort((a,b)=>a-b);
    const allowed=['eventName','eventDate','time','performer','programme','venue','contactName','attendeeNames','attendeeCount','passLink','attendeeName','venueLocationUrl'];
-   if(slots.length!==mapping.fields.length||slots.some((n,i)=>n!==i+1)||mapping.fields.some(f=>!allowed.includes(f)||typeof context[f]!=='string'||!context[f].trim()))throw new ApiError(503,'Template variables mismatch');
-   return {to:normalizePhone(context.to),templateName:mapping.name,language:mapping.language,components:[{type:'body',parameters:mapping.fields.map(f=>({type:'text',text:context[f]}))}]};
+   if(slots.length!==mapping.fields.length||slots.some((n,i)=>n!==i+1)||mapping.fields.some(f=>!allowed.includes(f)||(!compatibility&&(typeof context[f]!=='string'||!context[f].trim()))))throw new ApiError(503,'Template variables mismatch');
+   return {to:normalizePhone(context.to),templateName:mapping.name,language:mapping.language,components:[{type:'body',parameters:mapping.fields.map((f,i)=>({type:'text',text:compatibility?`TEST VALUE ${i+1}`:context[f]}))}]};
   },
   async sendPrepared(payload){
    if(env.AYAMBIL_WHATSAPP_ENABLED!=='true')throw new ApiError(403,'Sending not enabled');

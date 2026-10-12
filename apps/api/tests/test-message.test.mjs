@@ -26,5 +26,10 @@ test('test API preserves CSRF, server recipient, approved preflight and exact jo
   assert.equal((await request('process')).status,403);assert.equal(processed,0);
   assert.equal((await request('process-test',{id},'invalid')).status,403);assert.equal(processed,0);
   assert.equal((await request('process-test',{id})).status,200);assert.equal(processed,1);
+  flow.compatibilityContext=()=>({compatibilityTest:true,testEventDate:'2026-11-02',to:'12025550123'});
+  assert.equal((await request('test',body)).status,200);
+  assert.equal((await request('test',{...body,requestKey:'c'.repeat(64)})).status,200);
+  const compatibilityJobs=calls.filter(c=>c.context?.compatibilityTest&&c.dedupe);
+  assert.equal(compatibilityJobs.length,2);assert.equal(compatibilityJobs[0].dedupe,'staging-body-compatibility-v1');assert.equal(compatibilityJobs[1].dedupe,compatibilityJobs[0].dedupe);
  }finally{await new Promise(r=>server.close(r));}
 });
