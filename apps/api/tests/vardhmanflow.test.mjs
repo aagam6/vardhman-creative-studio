@@ -2,7 +2,28 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createFlow,normalizePhone,templateMetadata,testBodyOverrideApproved} from '../vardhmanflow.mjs';
 import {notificationTemplates} from '../notification-context.mjs';
+import {reviewedTemplateBodies} from '../reviewed-template-bodies.mjs';
 const env={VARDHMAN_FLOW_API_KEY:'synthetic-key',VARDHMAN_FLOW_API_SECRET:'synthetic-secret',VARDHMAN_FLOW_CHANNEL_ID:'synthetic-channel'};
+test('operator snapshot fallback preserves exact mapping, provenance and fails closed for explicit components',async()=>{
+ const options={operatorSnapshots:true},mappings={};
+ for(const [type,definition] of Object.entries(notificationTemplates)){
+  const mapping={...definition,language:'en'};mappings[type]=mapping;
+  const template={name:definition.name,language:'en',status:'APPROVED'};
+  const result=templateMetadata(template,mapping,options);assert.equal(result.verified,true);assert.equal(result.bodySource,'operator_reviewed_snapshot');assert.equal(result.componentsVerified,false);assert.deepEqual(result.placeholderIndexes,definition.fields.map((_,i)=>i+1));
+  assert.equal(templateMetadata(template,{...mapping,fields:[...mapping.fields].reverse()},options).verified,false);
+  for(const components of [undefined,null,[],[null],[{type:'HEADER',text:'text'}],[{type:'BODY'}],[{type:'BODY',text:'{{1}} {{1}} {{2}} {{3}} {{4}} {{5}}'}],[{type:'BODY',text:'{{2}} {{1}} {{3}} {{4}} {{5}}'}]])assert.equal(templateMetadata({...template,components},mapping,options).verified,false);
+  assert.equal(templateMetadata({...template,status:'PENDING'},mapping,options).verified,false);assert.equal(templateMetadata({...template,language:'en_US'},{...mapping,language:'en_US'},options).verified,false);
+  assert.equal(templateMetadata({...template,components:[{type:'BODY',text:reviewedTemplateBodies[template.name]}]},mapping,options).bodySource,'provider');
+ }
+ assert.equal(mappings.pass.fields[5],'passLink');assert.match(reviewedTemplateBodies.ayambil_pass_ready,/Download your digital pass:\n\{\{6\}\}/);
+ const staging={...env,AYAMBIL_STAGING_BUILD:'true',AYAMBIL_SITE_ORIGIN:'https://white-reindeer-590806.hostingersite.com',AYAMBIL_WHATSAPP_TEST_BODY_OVERRIDE:'false',AYAMBIL_WHATSAPP_NORMAL_PROCESSING_APPROVED:'false',AYAMBIL_FLOW_TEMPLATE_MAPPINGS:JSON.stringify(mappings)};
+ let posts=0;const fetcher=async(url,options)=>{if(options.method==='POST')posts++;return new Response(JSON.stringify({success:true,data:url.endsWith('/account')?{channel:{id:'synthetic-channel',isActive:true,healthStatus:'healthy',phoneNumber:'12025550123'}}:Object.values(mappings).map(m=>({name:m.name,language:'en',status:'APPROVED'}))}),{headers:{'Content-Type':'application/json'}});};
+ const context={to:'12025550123',attendeeName:'Synthetic',programme:'Synthetic',eventDate:'2026-11-02',venue:'Synthetic',venueLocationUrl:'https://example.invalid',passLink:'https://example.invalid/private-synthetic'};
+ const flow=createFlow(staging,fetcher);for(const type of Object.keys(mappings))assert.equal((await flow.prepare(type,context)).components[0].parameters.length,mappings[type].fields.length);
+ const bad=createFlow({...staging,AYAMBIL_FLOW_TEMPLATE_MAPPINGS:JSON.stringify({...mappings,confirmation_03:{...mappings.confirmation,fields:['invalid']}})},fetcher);assert.equal((await bad.inspect()).templates.find(t=>t.name===mappings.confirmation.name).verified,false);await assert.rejects(bad.prepare('confirmation',context));
+ await assert.rejects(createFlow({...staging,AYAMBIL_FLOW_TEMPLATE_MAPPINGS:'null'},fetcher).prepare('confirmation',context),e=>e.status===503);
+ await assert.rejects(createFlow({...staging,AYAMBIL_SITE_ORIGIN:'https://vardhmancreativestudio.com'},fetcher).prepare('confirmation',context),e=>e.status===503);assert.equal(posts,0);
+});
 test('BODY compatibility override is staging-only, test-only and uses synthetic values and server recipient',async()=>{
  const mapping={...notificationTemplates.confirmation,language:'en'};
  const configured={...env,AYAMBIL_WHATSAPP_ENABLED:'true',AYAMBIL_WHATSAPP_TEST_BODY_OVERRIDE:'true',AYAMBIL_STAGING_BUILD:'true',AYAMBIL_SITE_ORIGIN:'https://white-reindeer-590806.hostingersite.com',AYAMBIL_WHATSAPP_TEST_RECIPIENT:'12025550123',AYAMBIL_FLOW_TEMPLATE_MAPPINGS:JSON.stringify({confirmation:mapping})};

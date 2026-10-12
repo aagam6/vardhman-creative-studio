@@ -22,8 +22,8 @@ test('individual contexts preserve both canonical evening associations and rejec
 test('mock approved BODY contracts require exact five/six/five ordered variables for each evening',async()=>{
  for(const [type,expected] of Object.entries(notificationTemplates))for(const session of programme.sessions){
   let slots=expected.fields.length;
-  const env={VARDHMAN_FLOW_API_KEY:'synthetic',VARDHMAN_FLOW_API_SECRET:'synthetic',AYAMBIL_FLOW_TEMPLATE_MAPPINGS:JSON.stringify({[type]:{...expected,language:'synthetic-language'}})};
-  const flow=createFlow(env,async(url,options)=>{assert.equal(options.method,'GET');const data=url.endsWith('/account')?{channel:{id:'synthetic',isActive:true,healthStatus:'healthy',phoneNumber:'12025550123'}}:[{name:expected.name,status:'APPROVED',language:'synthetic-language',components:[{type:'BODY',text:Array.from({length:slots},(_,i)=>`{{${i+1}}}`).join(' ')}]}];return new Response(JSON.stringify({success:true,data}),{headers:{'Content-Type':'application/json'}});});
+  const env={VARDHMAN_FLOW_API_KEY:'synthetic',VARDHMAN_FLOW_API_SECRET:'synthetic',AYAMBIL_FLOW_TEMPLATE_MAPPINGS:JSON.stringify({[type]:{...expected,language:'en'}})};
+  const flow=createFlow(env,async(url,options)=>{assert.equal(options.method,'GET');const data=url.endsWith('/account')?{channel:{id:'synthetic',isActive:true,healthStatus:'healthy',phoneNumber:'12025550123'}}:[{name:expected.name,status:'APPROVED',language:'en',components:[{type:'BODY',text:Array.from({length:slots},(_,i)=>`{{${i+1}}}`).join(' ')}]}];return new Response(JSON.stringify({success:true,data}),{headers:{'Content-Type':'application/json'}});});
   const context={...attendeeContext(session,'Synthetic One','12025550123'),passLink:'https://example.invalid/private#synthetic'};
   const payload=await flow.prepare(type,context);assert.equal(payload.components[0].parameters.length,type==='pass'?6:5);assert.deepEqual(payload.components[0].parameters.map(p=>p.text),expected.fields.map(f=>context[f]));
   await assert.rejects(flow.prepare(type,{...context,venueLocationUrl:''}));slots++;await assert.rejects(flow.prepare(type,context));
