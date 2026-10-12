@@ -36,8 +36,11 @@ export function createApp({store,config,staticDirectory,flow,queue,testRecipient
     try {res.json(await store.list(req.query));}
     catch(error){
       const stage=['bookings.filters','bookings.select','bookings.hydrate'].includes(error.ayambilStage)?error.ayambilStage:'bookings.response';
-      const code=['ER_BAD_FIELD_ERROR','ER_NO_SUCH_TABLE','ER_WRONG_ARGUMENTS','ER_PARSE_ERROR','ER_TABLEACCESS_DENIED_ERROR','ECONNREFUSED','ETIMEDOUT'].includes(error.code)?error.code:'unclassified';
-      console.error(JSON.stringify({operation:'admin.bookings',requestId,stage,code}));throw error;
+      const code=['ER_BAD_FIELD_ERROR','ER_NO_SUCH_TABLE','ER_WRONG_ARGUMENTS','ER_PARSE_ERROR','ER_TABLEACCESS_DENIED_ERROR','ER_TRUNCATED_WRONG_VALUE','ER_UNKNOWN_ERROR','ER_TOO_MANY_USER_CONNECTIONS','ER_CON_COUNT_ERROR','ER_MAX_PREPARED_STMT_COUNT_REACHED','ER_QUERY_INTERRUPTED','ER_STATEMENT_TIMEOUT','ER_ACCESS_DENIED_ERROR','PROTOCOL_CONNECTION_LOST','ECONNREFUSED','ECONNRESET','ETIMEDOUT'].includes(error.code)?error.code:'unclassified';
+      const errno=Number.isInteger(error.errno)&&error.errno>=0&&error.errno<=65535?error.errno:null;
+      const sqlState=typeof error.sqlState==='string'&&/^[A-Z0-9]{5}$/.test(error.sqlState)?error.sqlState:null;
+      const category=['TypeError','RangeError','SyntaxError','Error'].includes(error.name)?error.name:'other';
+      console.error(JSON.stringify({operation:'admin.bookings',requestId,stage,code,errno,sqlState,category}));throw error;
     }
   }));
   api.post('/admin/change',admin,route(async(req,res)=>res.json(await store.change(req.actor,req.body))));
