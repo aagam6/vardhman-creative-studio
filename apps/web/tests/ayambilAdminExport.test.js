@@ -13,5 +13,5 @@ test('empty authenticated list exports headers; populated list validates saved a
  await assert.rejects(collectAttendeeCsv(async()=>{throw Error('HTTP 503');}),/HTTP 503/);
 });
 test('admin UI does not use generic processor and guards provider reconciliation',()=>{
- const source=readFileSync(new URL('../src/pages/AyambilAdminPage.jsx',import.meta.url),'utf8');assert.ok(source.includes('m.canVerifyProviderStatus'));assert.ok(source.includes("messageAction('admin/messages/process-test',{id:testJob})"));assert.ok(!source.includes("messageAction('admin/messages/process')"));
+ const source=readFileSync(new URL('../src/pages/AyambilAdminPage.jsx',import.meta.url),'utf8');const queue=readFileSync(new URL('../src/components/AyambilMessageQueue.jsx',import.meta.url),'utf8');assert.ok(queue.includes('m.canVerifyProviderStatus'));assert.ok(queue.includes('onVerify(m.id)'));assert.ok(source.includes("messageAction('admin/messages/status',{id})"));assert.ok(source.includes("messageAction('admin/messages/process-test',{id:testJob})"));assert.ok(!source.includes("messageAction('admin/messages/process')"));
 });
