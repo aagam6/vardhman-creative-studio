@@ -39,8 +39,10 @@ export default function AyambilRegistration({ eventDate }) {
     finally { locked.current = false; setBusy(false); }
   };
   return <section className="ay-registration ay-container" id="ay-registration" aria-labelledby="ay-registration-title">
-    <p className="ay-eyebrow">Free Evening Registration · સાંજના કાર્યક્રમ માટે ફ્રી રજિસ્ટ્રેશન</p><h2 id="ay-registration-title" ref={heading} tabIndex={-1}>તમારી વિગતો ભરો / Register for this evening</h2>
-    <p className="ay-registration-intro">{session.label} · {session.time} · {session.performer} — <span lang="gu">{session.programme}</span>. This booking is for this evening only. / આ રજિસ્ટ્રેશન આ જ સાંજ માટે છે. સવારના કાર્યક્રમો અને ૪ નવેમ્બર માટે નથી.</p>
+    <header className="ay-registration-heading"><p className="ay-eyebrow">FREE EVENING REGISTRATION</p><h2 id="ay-registration-title" ref={heading} tabIndex={-1}>Register for this evening<span lang="gu">સાંજના કાર્યક્રમ માટે રજિસ્ટ્રેશન</span></h2><p className="ay-registration-intro">Reserve your evening pass for up to two attendees. / વધુમાં વધુ બે વ્યક્તિ માટે સાંજનો પાસ મેળવો.</p></header>
+    <div className="ay-registration-event"><div><strong>{session.performer}</strong><span lang="gu">{session.programme}</span></div><div><strong>{session.label} · {session.time}</strong><span>{session.venue.replace('Chandramauleshwar', 'Chandramaulishwar')}</span></div></div>
+    <p className="ay-help">This booking is for this evening only. / આ રજિસ્ટ્રેશન આ જ સાંજ માટે છે. સવારના કાર્યક્રમો અને ૪ નવેમ્બર માટે નથી.</p>
+    <ol className="ay-registration-progress" aria-label="Registration steps">{[['details','Your details'],['review','Review booking'],['success','Save your pass']].map(([key,label],index) => <li key={key} aria-current={step===key ? 'step' : undefined}><span>{index+1}</span>{label}</li>)}</ol>
     <AyambilInstructions />
     {step !== 'success' && availability !== 'open' && <div className="ay-availability" role="status"><p>{availability === 'loading' ? 'Checking availability… / રજિસ્ટ્રેશન ચાલુ છે કે નહીં તે તપાસીએ છીએ…' : availability === 'closed' ? 'Registration is not open yet. / રજિસ્ટ્રેશન હજી શરૂ થયું નથી.' : 'Registration is unavailable. No booking is confirmed. / અત્યારે રજિસ્ટ્રેશન થઈ શકતું નથી. કોઈ રજિસ્ટ્રેશન કન્ફર્મ થયું નથી.'}</p>{availability !== 'loading' && <button type="button" onClick={check}>Check again / ફરી તપાસો</button>}</div>}
     {step === 'details' && <form onSubmit={review}>

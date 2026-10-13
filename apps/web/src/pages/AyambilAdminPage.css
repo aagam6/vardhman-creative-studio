@@ -2,6 +2,7 @@
 @media(max-width:700px){.ay-admin main.ay-registration{margin:12px;padding:20px}.ay-admin .ay-admin-filters{grid-template-columns:1fr;padding:16px}.ay-admin-title h1{font-size:28px}.ay-admin .ay-header{padding:16px;gap:12px;flex-wrap:wrap}.ay-admin .ay-admin-booking{padding:16px}.ay-admin section[aria-label^=WhatsApp] button{margin:5px 0;width:100%}}
 
 .ay-admin .ay-admin-title h1 { font-size:36px!important; margin:8px 0; }
+.ay-kpi-section{margin:26px 0}.ay-kpi-section>p{font-size:12px;color:#6d6057;margin-bottom:12px}.ay-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.ay-kpi-card{padding:22px;border:1px solid #e4dac8;border-radius:12px;background:linear-gradient(145deg,#fff,#faf4e8)}.ay-kpi-card span{display:block;font-size:12px;color:#6d6057}.ay-kpi-card strong{display:block;font-size:32px;line-height:1.2;color:#642c32;margin-top:10px;font-variant-numeric:tabular-nums}@media(max-width:700px){.ay-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ay-kpi-card{padding:16px}}
 .ay-admin .ay-booking-heading { display:flex; gap:18px; justify-content:space-between; align-items:center; }
 .ay-admin .ay-card-label { font-size:10px; letter-spacing:1.5px; color:#92724a; }
 .ay-admin .ay-booking-heading h2 { font-family:inherit; font-size:16px!important; font-weight:600; letter-spacing:0; margin:5px 0; overflow-wrap:anywhere; }
