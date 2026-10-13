@@ -12,20 +12,20 @@ export const ayambilProgramme = [
     morning: { titleEn: 'Tap Samvedna — Anumodna of both Bal Tapasvi Munivars', title: 'બંને બાળ તપસ્વી મુનિવરોની યશસ્વી અનુમોદના (તપસંવેદના)', time: '9:00 AM–12:00 PM', details: 'વિષય: શ્રી સમ્યક્ તપસે નમઃ · સંવેદનાકાર: શ્રી દિપકભાઈ બારડોલી', venue: 'Shri Chandramaulishwar Hall', address: 'Smruti Villa, Narayan Nagar, Ahmedabad, Gujarat.' },
     venue: 'Shri Chandramaulishwar Hall',
     address: 'Smruti Villa, Narayan Nagar, Ahmedabad, Gujarat.',
-    venueScope: 'Day 1 programme', brochure: '/assets/ayambil/day-1.jpeg',
+    venueScope: 'Day 1 programme', brochure: '/assets/ayambil/day-1-20261013.jpeg',
   },
   {
     day: '02', date: '2026-11-03', displayDate: '3 November 2026', weekday: 'Tuesday',
     portrait: '/assets/ayambil/sairam-dave-portrait.png',
     portraitSource: 'User-supplied Sairam Dave photograph, 10 October 2026',
     slug: 'sairam-dave', titleEn: 'Mari Maa... Maro Praan', mapsUrl: 'https://maps.app.goo.gl/szzzN9cXE8dWJW7r7', venueGu: 'ટાગોર હોલ', addressGu: 'સંસ્કાર કેન્દ્ર મ્યુઝિયમ સામે, પ્રીતમ રાય ક્રોસ રોડ, કોચરબ, પાલડી, અમદાવાદ, ગુજરાત – 380006.', descriptionGu: 'માતૃપૂજા પુસ્તક પર આધારિત સાંઈરામ દવેની વિશેષ પ્રસ્તુતિ.', category: 'Special presentation', title: 'મારી મા... મારો પ્રાણ',
-    subtitle: 'માતૃપૂજની વિશેષ પ્રસ્તુતિ', performer: 'Sairam Dave', time: '8:00 PM',
+    subtitle: 'માતૃપૂજાની વિશેષ પ્રસ્તુતિ', performer: 'Sairam Dave', time: '8:00 PM',
     description: 'A special presentation based on the માતૃપૂજા book, as listed in the brochure.',
     additional: 'The evening presentation is based on the માતૃપૂજા book attributed in the brochure to Pujya Acharya Shri Hemchandrasagarsuri Maharaj.',
-    morning: { titleEn: 'Shri Navpadji Puja', title: 'શ્રી નવપદજીની પૂજા', time: null, details: 'સંગીતકાર: સની શાહ', venue: 'Shri Chandramaulishwar Hall', address: 'Smruti Villa, Narayan Nagar, Ahmedabad, Gujarat.' },
+    morning: { titleEn: 'Shri Navpadji Puja', title: 'શ્રી નવપદજીની પૂજા', time: '9:00 AM', details: 'સંગીતકાર: સની શાહ', venue: 'Shri Chandramaulishwar Hall', address: 'Smruti Villa, Narayan Nagar, Ahmedabad, Gujarat.' },
     venue: 'Tagore Hall',
     address: 'Opposite Sanskar Kendra Museum, Pritam Rai Cross Road, Kocharab, Paldi, Ahmedabad, Gujarat – 380006.',
-    venueScope: 'Day 2 evening presentation', brochure: '/assets/ayambil/day-2.jpeg',
+    venueScope: 'Day 2 evening presentation', brochure: '/assets/ayambil/day-2-20261013.jpeg',
   },
   {
     day: '03', date: '2026-11-04', displayDate: '4 November 2026', weekday: 'Wednesday',
@@ -38,17 +38,17 @@ export const ayambilProgramme = [
     address: 'Behind V R Shah School, Anjali, Bhattha, Paldi, Ahmedabad – 380007.',
     venueScope: 'Parna location only, verified from the Day 3 brochure',
     venueNote: 'The separate સામૈયું location and time remain unconfirmed. No separate Pravachan schedule is verified.',
-    brochure: '/assets/ayambil/day-3.jpeg',
+    brochure: '/assets/ayambil/day-3-20261013.jpeg',
   },
 ];
 
 export const ayambilBrochure = [
-  { src: '/assets/ayambil/invitation.jpeg', title: 'Main event invitation', alt: 'Original Gujarati cover invitation for 500 Akhand Ayambil Tap Vijayollas' },
-  { src: '/assets/ayambil/blessings.jpeg', title: 'Blessings & religious presence', alt: 'Original brochure listing blessings and the religious presence for the Vijayollas' },
-  { src: '/assets/ayambil/written-invitation.jpeg', title: 'Written invitation', alt: 'Original Gujarati written invitation describing the uninterrupted Ayambil Tap journey' },
-  { src: '/assets/ayambil/day-1.jpeg', title: 'Day 1 · 2 November 2026', alt: 'Original Day 1 brochure with morning Tap Samvedna and evening Manan Sanghvi Bhakti Sandhya' },
-  { src: '/assets/ayambil/day-2.jpeg', title: 'Day 2 · 3 November 2026', alt: 'Original Day 2 brochure with morning Navpadji Puja and evening Sairam Dave presentation' },
-  { src: '/assets/ayambil/day-3.jpeg', title: 'Day 3 · 4 November 2026', alt: 'Original Day 3 brochure with morning Samaiyu, 8 AM Parna Mahotsav and Parna location' },
+  { src: '/assets/ayambil/invitation-20261013.jpeg', title: 'Main event invitation', alt: 'Original Gujarati cover invitation for 500 Akhand Ayambil Tap Vijayollas' },
+  { src: '/assets/ayambil/blessings-20261013.jpeg', title: 'Blessings & religious presence', alt: 'Original brochure listing blessings and the religious presence for the Vijayollas' },
+  { src: '/assets/ayambil/written-invitation-20261013.jpeg', title: 'Written invitation', alt: 'Original Gujarati written invitation describing the uninterrupted Ayambil Tap journey' },
+  { src: '/assets/ayambil/day-1-20261013.jpeg', title: 'Day 1 · 2 November 2026', alt: 'Original Day 1 brochure with morning Tap Samvedna and evening Manan Sanghvi Bhakti Sandhya' },
+  { src: '/assets/ayambil/day-2-20261013.jpeg', title: 'Day 2 · 3 November 2026', alt: 'Original Day 2 brochure with morning Navpadji Puja and evening Sairam Dave presentation' },
+  { src: '/assets/ayambil/day-3-20261013.jpeg', title: 'Day 3 · 4 November 2026', alt: 'Original Day 3 brochure with morning Samaiyu, 8 AM Parna Mahotsav and Parna location' },
 ];
 
 // Confirmed by the user: passes cover evening presentations only.

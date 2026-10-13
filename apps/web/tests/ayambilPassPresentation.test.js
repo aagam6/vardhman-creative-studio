@@ -7,7 +7,7 @@ test('evening-specific beneficiaries remain separate from common invitation orga
   const second = passCredits({ sessions: [{ date: '2026-11-03' }] });
   assert.equal(first.labharthi.length, 3);
   assert.match(first.labharthi[1], /મીનાબેન કિરણજી/);
-  assert.match(first.labharthi[2], /રાજુભાઈ/);
+  assert.match(first.labharthi[2], /રાજભાઈ/);
   assert.notDeepEqual(first.labharthi, second.labharthi);
   assert.equal(second.labharthi.length, 2);
   assert.match(second.labharthi[0], /મીનાક્ષીબેન/);

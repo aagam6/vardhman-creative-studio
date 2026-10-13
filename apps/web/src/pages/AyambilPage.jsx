@@ -1,5 +1,6 @@
 import React from 'react';
 import AyambilBookProgramme from '@/components/AyambilBookProgramme.jsx';
+import { programmeCredits } from '@/lib/ayambilOfficialCredits';
 
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
@@ -36,16 +37,16 @@ export default function AyambilPage() {
       <meta property="og:description" content={description} />
       <meta property="og:url" content={canonical} />
       <meta property="og:type" content="website" />
-      <meta property="og:image" content={`${contactConfig.orgWebsite}/assets/ayambil/invitation.jpeg`} />
-      <meta property="og:image:secure_url" content={`${contactConfig.orgWebsite}/assets/ayambil/invitation.jpeg`} />
+      <meta property="og:image" content={`${contactConfig.orgWebsite}/assets/ayambil/invitation-20261013.jpeg`} />
+      <meta property="og:image:secure_url" content={`${contactConfig.orgWebsite}/assets/ayambil/invitation-20261013.jpeg`} />
       <meta property="og:image:type" content="image/jpeg" />
-      <meta property="og:image:width" content="1425" />
-      <meta property="og:image:height" content="1425" />
+      <meta property="og:image:width" content="950" />
+      <meta property="og:image:height" content="950" />
       <meta property="og:image:alt" content="Original Gujarati Vijayollas invitation supplied for the event" />
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content="500 Akhand Ayambil Tap — વિજયોત્સવ" />
       <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={`${contactConfig.orgWebsite}/assets/ayambil/invitation.jpeg`} />
+      <meta name="twitter:image" content={`${contactConfig.orgWebsite}/assets/ayambil/invitation-20261013.jpeg`} />
     </Helmet>
     <a className="ay-skip" href="#ay-main">Skip to event information</a>
     <div className="ay-announcement">A celebration of devotion & perseverance <span>2–4 November 2026 · Ahmedabad</span></div>
@@ -67,7 +68,7 @@ export default function AyambilPage() {
           <div className="ay-facts"><span><CalendarDays size={17} aria-hidden="true" />2–4 November 2026</span><span><MapPin size={17} aria-hidden="true" />Ahmedabad, Gujarat</span></div>
           <div className="ay-hero-actions"><a className="ay-button ay-button-outline" href="#ay-programme" onClick={explore}>Explore the Programmes / કાર્યક્રમો જુઓ <ArrowDown size={17} aria-hidden="true" /></a><a className="ay-button" href="#ay-registration">Free Evening Registration / ફ્રી રજિસ્ટ્રેશન</a></div>
         </div>
-        <figure className="ay-invitation"><div className="ay-image-frame"><img src="/assets/ayambil/invitation.jpeg" alt="Original Gujarati invitation celebrating the 500 Akhand Ayambil Tap of two Jain Munivars" width="1425" height="1425" fetchPriority="high" /></div><figcaption>THE ORIGINAL INVITATION <span>૫૦૦ અખંડ આયંબિલ · વિજયોત્સવ</span></figcaption></figure>
+        <figure className="ay-invitation"><div className="ay-image-frame"><img src="/assets/ayambil/invitation-20261013.jpeg" alt="Original Gujarati invitation celebrating the 500 Akhand Ayambil Tap of two Jain Munivars" width="950" height="950" fetchPriority="high" /></div><figcaption>THE ORIGINAL INVITATION <span>૫૦૦ અખંડ આયંબિલ · વિજયોત્સવ</span></figcaption></figure>
       </section>
       
       <section className="ay-intro ay-container" id="ay-about" aria-labelledby="ay-about-heading">
@@ -96,7 +97,7 @@ export default function AyambilPage() {
             {day.performer ? <p className="ay-performer-name">{day.performer}</p> : <p className="ay-performer-name">Both Bal Tapasvi Munivars</p>}
             <p>{day.description}</p><p lang="gu">{day.descriptionGu}</p><div className="ay-card-time"><Clock size={16} aria-hidden="true" /><span>{day.time} <small>{day.day === '03' ? 'Parna Mahotsav' : 'Evening programme'} · IST</small></span></div>
             <div className="ay-card-venue"><MapPin size={17} aria-hidden="true" /><div><strong>{day.venue}</strong><p>{day.address}</p>{day.day === '03' && <small>Verified Parna location; other morning locations unconfirmed.</small>}</div></div>
-            <details><summary>Brochure details / પત્રિકાની વિગતો</summary><p>{day.additional}</p><a href={day.brochure} target="_blank" rel="noopener noreferrer">View original Day {day.day} brochure <ArrowUpRight size={14} aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a></details>
+            <section className="ay-manan-beneficiaries" aria-label={`Day ${day.day} brochure credits`}><h3 lang="gu">{day.day === '03' ? 'લાભાર્થી' : 'સવારના કાર્યક્રમના લાભાર્થી'}</h3><ul>{(programmeCredits[day.date].morning || programmeCredits[day.date].beneficiaries).map(name => <li key={name} lang="gu">{name}</li>)}</ul><h3 lang="gu">પત્રિકાની વધારાની વિગતો</h3><ul>{programmeCredits[day.date].additional.map(item => <li key={item} lang="gu">{item}</li>)}</ul></section><details><summary>Brochure details / પત્રિકાની વિગતો</summary><p>{day.additional}</p><a href={day.brochure} target="_blank" rel="noopener noreferrer">View original Day {day.day} brochure <ArrowUpRight size={14} aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a></details>
           </article>)}</div>
         </div>
       </section>
@@ -106,7 +107,7 @@ export default function AyambilPage() {
       <section className="ay-brochure ay-container" id="ay-brochure" aria-labelledby="ay-brochure-heading">
         <p className="ay-eyebrow">The complete original invitation</p><h2 id="ay-brochure-heading">Six pages of the celebration</h2>
         <p className="ay-brochure-intro">Read all six original pages. Select a poster to view it in full. / મૂળ પત્રિકાનાં છ પાનાં જુઓ. મોટું જોવા માટે પત્રિકા પર ક્લિક કરો.</p>
-        <div className="ay-brochure-grid">{ayambilBrochure.map(image => <figure key={image.src}><a href={image.src} target="_blank" rel="noopener noreferrer" aria-label={`Open ${image.title} original (opens in a new tab)`}><img src={image.src} alt={image.alt} width="1425" height="1425" loading="lazy" decoding="async" /></a><figcaption>{image.title}<ArrowUpRight size={14} aria-hidden="true" /></figcaption></figure>)}</div>
+        <div className="ay-brochure-grid">{ayambilBrochure.map(image => <figure key={image.src}><a href={image.src} target="_blank" rel="noopener noreferrer" aria-label={`Open ${image.title} original (opens in a new tab)`}><img src={image.src} alt={image.alt} width="950" height="950" loading="lazy" decoding="async" /></a><figcaption>{image.title}<ArrowUpRight size={14} aria-hidden="true" /></figcaption></figure>)}</div>
       </section>
 
       <section className="ay-closing ay-container" aria-labelledby="ay-closing-heading"><Ornament /><p className="ay-eyebrow">With reverence & joy</p><h2 id="ay-closing-heading">Join the celebration.</h2><p lang="gu">આવો, સાથે મળીને ઉજવણી કરીએ.</p><p className="ay-gujarati" lang="gu">આ તપની ઉજવણીમાં જોડાવા પધારજો.</p><p>Come together to honour this spiritual milestone<br />and share in three days of devotion.</p><a className="ay-button ay-button-outline" href="#ay-programme" onClick={explore}>Programme / કાર્યક્રમ જુઓ <ArrowUpRight size={16} aria-hidden="true" /></a><small>2–4 November 2026 · Ahmedabad, Gujarat, India</small></section>
