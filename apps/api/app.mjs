@@ -54,7 +54,7 @@ export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirect
   api.post('/admin/messages/process-test',admin,testOnly,limited('flow-test-process',2),route(async(req,res)=>res.json(await queue.runTest(req.body?.id))));
   api.post('/admin/messages/send-selected',admin,limited('flow-manual-send',5),route(async(req,res)=>{
    if(!queue)throw new ApiError(403,'Manual sending disabled');
-   if(!req.body||Object.keys(req.body).some(key=>!['id','bookingId','type'].includes(key)))throw new ApiError(400,'Only exact message identifiers allowed');
+   if(!req.body||Object.keys(req.body).some(key=>!['id','bookingId','type','reviewedLegacy'].includes(key)))throw new ApiError(400,'Only exact message identifiers and explicit legacy review allowed');
    res.json(await queue.runSelected(req.body));
   }));
   api.post('/admin/messages/status',admin,route(async(req,res)=>{if(!queue||typeof req.body?.id!=='string'||req.body.id.length>36)throw new ApiError(400,'Message identifier required');res.json(await queue.reconcile(req.body.id));}));

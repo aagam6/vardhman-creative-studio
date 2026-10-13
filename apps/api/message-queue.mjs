@@ -42,12 +42,14 @@ export function createMessageQueue(pool,flow,env){const enabled=env.AYAMBIL_WHAT
  }
  return {
  manualAvailable(){try{manualQueuePolicy(env);return enabled;}catch{return false;}},
- async runSelected({id,bookingId,type}){
+ async runSelected({id,bookingId,type,reviewedLegacy=false}){
   const cutoff=manualQueuePolicy(env);
   if(!enabled)throw new ApiError(403,'Manual sending disabled');
   if(![id,bookingId].every(v=>typeof v==='string'&&/^[a-f0-9-]{36}$/.test(v))||!['confirmation','pass','reminder'].includes(type))throw new ApiError(400,'Exact booking and message required');
+  if(typeof reviewedLegacy!=='boolean')throw new ApiError(400,'Explicit legacy review required');
   const job=await transaction(pool,async db=>{
-   const [rows]=await db.execute("SELECT q.* FROM ayambil_message_queue q JOIN ayambil_bookings b ON b.id=q.booking_id WHERE q.id=? AND q.booking_id=? AND q.notification_type=? AND q.status='queued' AND q.attempts=0 AND q.provider_id IS NULL AND b.status='active' AND b.whatsapp_consent=TRUE AND b.created_at>=? AND q.updated_at>=? AND q.next_attempt_at<=UTC_TIMESTAMP(3) FOR UPDATE",[id,bookingId,type,cutoff,cutoff]);
+   const boundary=reviewedLegacy?'':' AND b.created_at>=? AND q.updated_at>=?';
+   const [rows]=await db.execute("SELECT q.* FROM ayambil_message_queue q JOIN ayambil_bookings b ON b.id=q.booking_id WHERE q.id=? AND q.booking_id=? AND q.notification_type=? AND q.status='queued' AND q.attempts=0 AND q.provider_id IS NULL AND b.status='active' AND b.whatsapp_consent=TRUE"+boundary+" AND q.next_attempt_at<=UTC_TIMESTAMP(3) FOR UPDATE",[id,bookingId,type,...(reviewedLegacy?[]:[cutoff,cutoff])]);
    if(rows.length!==1)throw new ApiError(409,'Message is not eligible; do not retry blindly');
    const [blocked]=await db.execute("SELECT id FROM ayambil_message_queue WHERE booking_id=? AND status IN ('preparing','sending','uncertain') LIMIT 1",[bookingId]);
    if(blocked.length)throw new ApiError(409,'Booking requires manual provider reconciliation');

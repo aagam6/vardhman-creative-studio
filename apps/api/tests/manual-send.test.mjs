@@ -46,6 +46,27 @@ test('disabled manual send never accesses database',async()=>{
  let touched=false;const q=createMessageQueue({getConnection:async()=>{touched=true;}},{},{...env,AYAMBIL_WHATSAPP_MANUAL_PROCESSING_APPROVED:'false'});
  await assert.rejects(q.runSelected(selected),e=>e.status===403);assert.equal(touched,false);
 });
+test('exact reviewed older job bypasses only date boundary; in-flight booking and attempts stay protected',async()=>{
+ let blocked=false,posts=0,claimed=false;
+ const job={id:selected.id,booking_id:selected.bookingId,notification_type:'confirmation',payload:queueCrypto(env.AYAMBIL_QUEUE_ENCRYPTION_KEY).seal({to:'+12025550123',eventDate:'2026-11-02'})};
+ const execute=async(sql,args)=>{
+  if(sql.startsWith('SELECT q.*')) {
+   for(const clause of ['q.id=?','q.booking_id=?','q.notification_type=?',"q.status='queued'",'q.attempts=0','q.provider_id IS NULL',"b.status='active'",'b.whatsapp_consent=TRUE','FOR UPDATE'])assert.ok(sql.includes(clause));
+   if(sql.includes('b.created_at>=?'))return [[]];
+   assert.deepEqual(args,[selected.id,selected.bookingId,selected.type]);return [[job]];
+  }
+  if(sql.startsWith('SELECT id'))return [blocked?[{id:'in-flight'}]:[]];
+  if(sql.startsWith('SELECT status'))return [[{status:'active',whatsapp_consent:1,mobile:'+12025550123',event_date:'2026-11-02'}]];
+  if(sql.includes("status='preparing'"))claimed=true;
+  return [[]];
+ };
+ const db={execute,beginTransaction:async()=>{},commit:async()=>{},rollback:async()=>{},release(){}};
+ const queue=createMessageQueue({execute,getConnection:async()=>db},{prepare:async()=>({}),sendPrepared:async()=>{posts++;return {status:'accepted',id:'synthetic-provider-id'};}},env);
+ await assert.rejects(queue.runSelected(selected),e=>e.status===409);assert.equal(posts,0);
+ await assert.rejects(queue.runSelected({...selected,reviewedLegacy:'true'}),e=>e.status===400);
+ blocked=true;await assert.rejects(queue.runSelected({...selected,reviewedLegacy:true}),e=>e.status===409);assert.equal(claimed,false);assert.equal(posts,0);
+ blocked=false;assert.equal((await queue.runSelected({...selected,reviewedLegacy:true})).status,'accepted');assert.equal(posts,1);
+});
 test('manual endpoint requires session, exact origin, CSRF, rate limit and identifiers only',async()=>{
  let sends=0,limited=false;const csrf='synthetic-csrf';
  const store={session:async token=>{if(token!=='synthetic-session')throw new ApiError(401,'Unauthorized');return {csrf_hash:hash(csrf)};},limit:async()=>!limited};
