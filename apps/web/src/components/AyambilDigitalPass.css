@@ -64,3 +64,31 @@
   .ay-pass-side { width:205mm; height:105mm; margin:0; break-after:page; print-color-adjust:exact; -webkit-print-color-adjust:exact; }
   .ay-pass-actions,.ay-pass-wrapper>.ay-help { display:none; }
 }
+
+/* Clear hierarchy on the saved pass, with identical screen/export styling. */
+.ay-pass-side { background:linear-gradient(115deg,#fffdf7 0%,#fffaf0 72%,#f3e6cb 100%); border-color:#bc985d; }
+.ay-pass-side:before { border-color:#decba6; }
+.ay-pass-brand { color:#776043; letter-spacing:1.4px; }
+.ay-pass-validity { background:#edf3e9; border-color:#b5c7aa; border-radius:20px; padding:6px 12px; }
+.ay-pass-invalid { background:#faeaea; border-color:#ce9999; }
+.ay-pass-heading h3 { color:#792b36; }
+.ay-pass-attendee { background:#f6eedf; border-top:0; border-left:3px solid #a88345; border-radius:0 10px 10px 0; padding:15px 18px; margin:10px 0 20px; }
+.ay-pass-attendee strong { font-size:29px; }
+.ay-pass-attendee b { font-family:Inter,'Nirmala UI',sans-serif; font-size:10px; color:#735d48; }
+.ay-pass-programme { border-left-color:#decba6; }
+.ay-pass-programme p:first-child { color:#792b36; }
+.ay-pass-visit { border-top:2px solid #a88345; background:rgba(255,255,255,.5); }
+.ay-pass-visit h4 { color:#792b36; font-size:20px; }
+.ay-pass-back-title { color:#792b36; }
+.ay-pass-credits { gap:24px; }
+.ay-pass-credits dt { color:#792b36; }
+.ay-pass-credits dt small { color:#806e58; }
+.ay-pass-status { padding:7px 10px; background:#f4ecdc; border-radius:5px; }
+.ay-pass-rules h4 { color:#792b36; }
+.ay-pass-back>small { color:#786952; }
+.ay-pdf-render .ay-pass-status { padding:4px 8px; margin:5px 0; }
+.ay-pdf-render .ay-pass-credits { margin:12px 0; }
+.ay-pdf-render .ay-pass-credits dd { margin:5px 0; }
+.ay-pdf-render .ay-pass-rules ol { gap:6px 40px; margin:6px 0; }
+.ay-pdf-render .ay-pass-attendee { margin:6px 0 12px; }
+.ay-pdf-render .ay-pass-front { grid-template-rows:44px 94px 24px 170px 105px; }
