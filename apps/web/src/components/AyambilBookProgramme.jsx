@@ -10,5 +10,5 @@ export function OfficialCredits({ beneficiaries = false }) {
 }
 
 export default function AyambilBookProgramme() {
-  return <section className="ay-book-programme ay-container" aria-labelledby="ay-book-title"><p className="ay-eyebrow">Sairam Dave · 3 November 2026 · 8:00 PM IST</p><h2 id="ay-book-title" lang="gu">મારી મા... મારો પ્રાણ</h2><p lang="gu">પ્રસ્તુતિ: શ્રી સાંઈરામ દવે (લોકસાહિત્યકાર, હાસ્ય કલાકાર)</p><p lang="gu">“Be Care food” — રાજ ભાસ્કર: ભોજનનો બગાડ કરતી માનવજાતને જગાડતું પુસ્તકનું ભવ્ય વિમોચન.</p><p lang="gu">પત્રિકામાં આપેલો આધાર: {sairamBookReference}</p><OfficialCredits beneficiaries /></section>;
+  return <section className="ay-book-programme ay-container" aria-labelledby="ay-book-title"><p className="ay-eyebrow">Sairam Dave · 3 November 2026 · 8:00 PM IST</p><h2 id="ay-book-title" lang="gu">મારી મા... મારો પ્રાણ</h2><p lang="gu">પ્રસ્તુતિ: શ્રી સાંઈરામ દવે (લોકસાહિત્યકાર, હાસ્ય કલાકાર)</p><p lang="gu">“Be Care food” — રાજ ભાસ્કર: ભોજનનો બગાડ કરતી માનવજાતને જગાડતું પુસ્તકનું ભવ્ય વિમોચન (10 મિનિટ).</p><p lang="gu">પત્રિકામાં આપેલો આધાર: {sairamBookReference}</p><OfficialCredits beneficiaries /></section>;
 }
