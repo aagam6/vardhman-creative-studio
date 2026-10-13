@@ -4,6 +4,17 @@ import { createAyambilApi } from '../src/lib/ayambilExpressClient.js';
 import { passPage, passImagePlacement } from '../src/lib/ayambilPassLayout.js';
 import {readFileSync} from 'node:fs';
 const programme=JSON.parse(readFileSync(new URL('../../pocketbase/pb_hooks/ayambil/config.json',import.meta.url)));
+test('staging-only denial has actionable safe text and preserves administrator CSRF',async()=>{
+ const calls=[];
+ const api=createAyambilApi(async(url,options)=>{
+  calls.push({url,options});
+  if(url.includes('admin/session'))return Response.json({authenticated:true,csrfToken:'a'.repeat(64)});
+  return Response.json({errorCode:'STAGING_TEST_ONLY',error:'private server text must not be echoed'},{status:403});
+ });
+ await api.restore();
+ for(const path of ['admin/messages/test','admin/messages/process-test'])await assert.rejects(api.request(path,{method:'POST'}),error=>error.status===403&&error.message.includes('only on authorized staging')&&!error.message.includes('private server'));
+ assert.equal(calls.at(-1).options.headers['X-CSRF-Token'],'a'.repeat(64));
+});
 test('mock transport: both evening bookings, retries, filters, mutations and one-attendee downloads',async()=>{
   for(const session of programme.sessions)for(const count of [1,2]){
     const passes=Array.from({length:count},(_,i)=>({number:'SYNTHETIC-'+i,attendeeName:'Synthetic attendee',status:'active',sessions:[session]}));

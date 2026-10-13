@@ -18,7 +18,7 @@ const pass={number:'AYV26-QA-PREVIEW-ONLY',attendeeName:params.get('long')?'Synt
 const booking={id:'qa-booking',number:'BOOK26-QA-PREVIEW-ONLY',contactName:'Synthetic contact',mobile:'+12025550123',created:'2026-10-12T00:00:00Z',status:'active',attendees:[{id:'qa-attendee',fullName:pass.attendeeName,status:'active',dates:[session.date],passes:[pass]}],whatsapp:{status:'Queue summary unavailable',attempts:null,history:[]}};
 const nativeFetch=window.fetch.bind(window);window.__calls=[];window.fetch=async(url,options={})=>{window.__calls.push({url,method:options.method||'GET'});const route=new URL(url,location.origin).pathname;if(!route.startsWith('/api/'))return nativeFetch(url,options);
 if(route==='/api/ayambil/admin/session')return Response.json({authenticated:true,...(options.method==='POST'?{csrfToken:'a'.repeat(64)}:{})});
-if(route==='/api/ayambil/admin/bookings')return Response.json({items:[booking],page:1,hasMore:false,integration:{ready:false,missing:[]}});
+if(route==='/api/ayambil/admin/bookings')return Response.json({items:window.__newBooking?[{...booking,id:'qa-new-booking',number:'BOOK26-QA-NEW-ONLY',created:'2026-10-13 04:05:59.393'},booking]:[booking],page:1,hasMore:false,integration:{ready:false,missing:[]}});
 if(route==='/api/ayambil/admin/whatsapp')return Response.json({sending:false,configured:false,missing:[]});
 if(route==='/api/ayambil/admin/messages')return Response.json({items:[]});
 throw new Error('Unexpected fixture request');};
@@ -50,6 +50,7 @@ try{
  await page.goto(`${base}/__design?long=1`);await page.locator('.ay-pass-back').waitFor();const longWait=page.waitForEvent('download');await page.getByRole('button',{name:/Download PDF/}).click();await(await longWait).saveAs(path.join(out,'long-name.pdf'));checks++;
  for(const status of ['cancelled','superseded']){await page.goto(`${base}/__design?status=${status}`);await page.locator('.ay-pass-validity').waitFor();check(await page.getByRole('button',{name:/Download PDF/}).isDisabled(),'inactive download disabled');check(await page.getByRole('button',{name:/Print/}).isDisabled(),'inactive print disabled');}
  await page.goto(`${base}/__design?admin=1`);await page.locator('.ay-admin-booking').waitFor();
+ check(await page.getByRole('button',{name:'Queue authorized test to server-configured recipient',exact:true}).count()===0,'test controls hidden without server staging approval');
  check(!await page.locator('.ay-admin-attendee').isVisible(),'attendees collapsed');check(!await page.getByText('Contact number:').isVisible(),'contact concealed');
  await page.screenshot({path:path.join(out,'admin-desktop.png'),fullPage:true});
  await page.getByRole('button',{name:'Cancel booking',exact:true}).click();check(await page.getByRole('button',{name:'Confirm cancel',exact:true}).isVisible(),'existing confirmation');check(!await page.evaluate(()=>window.__calls.some(c=>c.url.includes('admin/change'))),'cancel opens confirmation without mutation');await page.getByRole('button',{name:'Keep unchanged',exact:true}).click();
@@ -58,6 +59,20 @@ try{
  await page.setViewportSize({width:390,height:844});check(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'mobile admin has no horizontal overflow');await page.screenshot({path:path.join(out,'admin-mobile.png'),fullPage:true});await page.getByRole('button',{name:'Reissue attendee pass',exact:true}).click();check(await page.getByRole('button',{name:'Confirm reissue',exact:true}).isVisible(),'reissue keeps confirmation');await page.getByRole('button',{name:'Keep unchanged',exact:true}).click();
  const csvWait=page.waitForEvent('download');await page.getByRole('button',{name:'Export filtered attendees'}).click();const csv=await csvWait;await csv.saveAs(path.join(out,'synthetic.csv'));check((await readFile(path.join(out,'synthetic.csv'),'utf8')).includes('QA TEST'),'CSV retains synthetic attendee');
  check(!await page.evaluate(()=>window.__calls.some(c=>c.url.includes('messages/process')||c.url.includes('messages/test'))),'no message action');check(errors.length===0,`browser errors: ${errors.join(';')}`);
+ await page.getByLabel('Search contact, attendee or booking').fill('old filter');
+ await page.getByRole('button',{name:'Search',exact:true}).click();await page.getByRole('button',{name:'Search',exact:true}).waitFor({state:'visible'});
+ await page.evaluate(()=>{window.__newBooking=true;});
+ await page.getByRole('button',{name:'Refresh latest bookings (clear filters)',exact:true}).click();
+ await page.getByRole('heading',{name:'BOOK26-QA-NEW-ONLY',exact:true}).waitFor();
+ check(await page.getByLabel('Search contact, attendee or booking').inputValue()==='','latest refresh clears stale search');
+ check((await page.locator('.ay-booking-meta').first().textContent()).includes('09:35 am IST'),'new booking UTC time converted to IST');
+ check(await page.locator('.ay-admin-booking').count()===2,'new booking visible without sign-out');
+ await page.getByLabel('Search contact, attendee or booking').fill('unsubmitted draft');
+ await page.evaluate(()=>{window.__newBooking=false;window.dispatchEvent(new Event('focus'));});
+ await page.waitForFunction(()=>document.querySelectorAll('.ay-admin-booking').length===1);
+ check((await page.evaluate(()=>window.__calls.filter(c=>c.url.includes('admin/bookings')).at(-1).url)).includes('search=&'),'focus refresh uses applied filters, not draft input');
+ check(await page.getByLabel('Search contact, attendee or booking').inputValue()==='unsubmitted draft','focus refresh preserves draft input');
+ check(!await page.evaluate(()=>window.__calls.some(c=>c.url.includes('admin/change')||c.url.includes('messages/process')||c.url.includes('messages/test'))),'refresh never mutates bookings or queue');
  await page.goto(`${base}/__design`);await page.locator('.ay-pass-attendee strong').waitFor();await page.locator('.ay-pass-attendee strong').evaluate(e=>e.textContent='Synthetic overflow '.repeat(100));await page.getByRole('button',{name:/Download PDF/}).click();await page.getByRole('status').filter({hasText:'too long'}).waitFor();checks++;
  console.log(`PASS ${checks} local browser/PDF assertions; provider and API responses mocked; artifacts ${out}`);
 }finally{await browser?.close();await server.close();}

@@ -8,6 +8,8 @@ import {hash,rateHash} from './security.mjs';
 const cookieName='__Host-ayambil';
 export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirectory,flow,queue,testRecipient,isInitialized=()=>true}) {
   const app=express();app.disable('x-powered-by');app.set('trust proxy',false);
+  const testSendingAvailable = config.stagingBuild === true && config.origin === 'https://white-reindeer-590806.hostingersite.com' && Boolean(testRecipient && queue && flow);
+  const testOnly = (req,res,next) => testSendingAvailable ? next() : res.status(403).json({error:'Test sending is available only on authorized staging',errorCode:'STAGING_TEST_ONLY'});
   const api=express.Router();
   api.use((req,res,next)=>{res.set({'Cache-Control':'no-store','Referrer-Policy':'no-referrer','X-Content-Type-Options':'nosniff'});next();});
   api.use((req,res,next)=>{if(!isInitialized())return res.status(503).json({ready:false,open:false,whatsapp:'disabled',error:'API initialization unavailable'});next();});
@@ -45,14 +47,14 @@ export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirect
   }));
   api.post('/admin/change',admin,route(async(req,res)=>res.json(await store.change(req.actor,req.body))));
   api.post('/admin/whatsapp-retry',admin,(req,res)=>res.status(403).json({error:'WhatsApp sending and retries disabled'}));
-  api.get('/admin/whatsapp',admin,route(async(req,res)=>res.json(flow?flow.configuration():{ready:false,configured:false,sending:false,missing:['VARDHMAN_FLOW_API_KEY','VARDHMAN_FLOW_API_SECRET']})));
+  api.get('/admin/whatsapp',admin,route(async(req,res)=>res.json({...flow?flow.configuration():{ready:false,configured:false,sending:false,missing:['VARDHMAN_FLOW_API_KEY','VARDHMAN_FLOW_API_SECRET']},testSendingAvailable})));
   api.get('/admin/messages',admin,route(async(req,res)=>res.json({items:queue?await queue.list():[]})));
   api.post('/admin/messages/reminder',admin,limited('flow-reminder',5),route(async(req,res)=>{if(!queue||typeof req.body?.bookingId!=='string'||req.body.bookingId.length!==36)throw new ApiError(400,'Messaging configuration and booking required');await store.enqueueReminder(queue,req.body.bookingId);res.json({queued:true,delivered:false});}));
   api.post('/admin/messages/process',admin,limited('flow-process',5),route(async(req,res)=>{if(config.normalProcessingApproved!==true)throw new ApiError(403,'Normal message processing requires separate approval');if(!queue)throw new ApiError(503,'Messaging configuration required');res.json(await queue.runOne());}));
-  api.post('/admin/messages/process-test',admin,limited('flow-test-process',2),route(async(req,res)=>{if(!queue||!testRecipient)throw new ApiError(503,'Authorized test configuration required');res.json(await queue.runTest(req.body?.id));}));
+  api.post('/admin/messages/process-test',admin,testOnly,limited('flow-test-process',2),route(async(req,res)=>res.json(await queue.runTest(req.body?.id))));
   api.post('/admin/messages/status',admin,route(async(req,res)=>{if(!queue||typeof req.body?.id!=='string'||req.body.id.length>36)throw new ApiError(400,'Message identifier required');res.json(await queue.reconcile(req.body.id));}));
-  api.post('/admin/messages/test',admin,limited('flow-test',2),route(async(req,res)=>{
-    if(!queue||!testRecipient||typeof req.body?.requestKey!=='string'||!/^[a-f0-9]{64}$/.test(req.body.requestKey))throw new ApiError(503,'Configured authorized test recipient and request identifier required');
+  api.post('/admin/messages/test',admin,testOnly,limited('flow-test',2),route(async(req,res)=>{
+    if(typeof req.body?.requestKey!=='string'||!/^[a-f0-9]{64}$/.test(req.body.requestKey))throw new ApiError(400,'Valid test request identifier required');
     const session=programme.sessions.find(s=>s.date===req.body.eventDate);if(!session)throw new ApiError(400,'Approved evening required');
     if(!flow)throw new ApiError(503,'Provider configuration required');
     const context=flow.compatibilityContext?.(session.date)||attendeeContext(session,'Authorized operator test',normalizePhone(testRecipient));

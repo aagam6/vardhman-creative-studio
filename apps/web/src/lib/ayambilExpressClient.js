@@ -32,6 +32,13 @@ export function createAyambilApi(transport = fetchAyambilJson) {
         ...(method !== 'GET' ? { body: JSON.stringify(options.body || {}) } : {}),
       });
       if (!response.ok) {
+        if (response.status === 403 && ['admin/messages/test', 'admin/messages/process-test'].includes(path)) {
+          let failure; try { failure = await response.json(); } catch { /* Never echo raw error bodies. */ }
+          if (failure?.errorCode === 'STAGING_TEST_ONLY') {
+            const error = new Error('Test sending is available only on authorized staging. Production test sending is disabled.');
+            error.status = 403; throw error;
+          }
+        }
         const error = new Error([401, 403].includes(response.status) ? 'Administrator authentication or session confirmation required' : `Ayambil API request failed (HTTP ${response.status}). Please retry.`);
         error.status = response.status;
         const requestId=response.headers.get('x-request-id');
