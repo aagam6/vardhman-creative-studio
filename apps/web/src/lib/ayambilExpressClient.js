@@ -9,6 +9,7 @@ export const supportedOperations = Object.freeze({
   'admin/messages/status': ['POST'], 'admin/messages/reminder': ['POST'],
   'admin/messages/process-test': ['POST'],
   'admin/messages/send-selected': ['POST'],
+  'admin/messages/batch-preview': ['GET'],
 
 });
 

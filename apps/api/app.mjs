@@ -49,6 +49,11 @@ export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirect
   api.post('/admin/whatsapp-retry',admin,(req,res)=>res.status(403).json({error:'WhatsApp sending and retries disabled'}));
   api.get('/admin/whatsapp',admin,route(async(req,res)=>{const worker=getQueueWorkerStatus();res.json({...(flow?flow.configuration():{ready:false,configured:false,sending:false,missing:['VARDHMAN_FLOW_API_KEY','VARDHMAN_FLOW_API_SECRET']}),testSendingAvailable,worker:{enabled:worker.enabled===true,active:worker.active===true}});}));
   api.get('/admin/messages',admin,route(async(req,res)=>res.json({items:queue?await queue.list():[]})));
+  api.get('/admin/messages/batch-preview',admin,route(async(req,res)=>{
+   if(!queue)throw new ApiError(403,'Manual sending disabled');
+   if(!['true','false',undefined].includes(req.query.reviewedLegacy))throw new ApiError(400,'Explicit review must be boolean');
+   res.json(await queue.previewBatch({type:req.query.type,date:req.query.date,reviewedLegacy:req.query.reviewedLegacy==='true'}));
+  }));
   api.post('/admin/messages/reminder',admin,limited('flow-reminder',5),route(async(req,res)=>{if(!queue||typeof req.body?.bookingId!=='string'||req.body.bookingId.length!==36)throw new ApiError(400,'Messaging configuration and booking required');await store.enqueueReminder(queue,req.body.bookingId);res.json({queued:true,delivered:false});}));
   api.post('/admin/messages/process',admin,limited('flow-process',5),route(async(req,res)=>{if(config.normalProcessingApproved!==true)throw new ApiError(403,'Normal message processing requires separate approval');if(!queue)throw new ApiError(503,'Messaging configuration required');res.json(await queue.runOne());}));
   api.post('/admin/messages/process-test',admin,testOnly,limited('flow-test-process',2),route(async(req,res)=>res.json(await queue.runTest(req.body?.id))));

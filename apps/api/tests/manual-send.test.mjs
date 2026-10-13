@@ -10,6 +10,24 @@ import {ApiError} from '../config.mjs';
 import {tmpdir} from 'node:os';
 const env={AYAMBIL_WHATSAPP_ENABLED:'true',AYAMBIL_QUEUE_ENCRYPTION_KEY:'a'.repeat(64),AYAMBIL_SITE_ORIGIN:'https://vardhmancreativestudio.com',AYAMBIL_PRODUCTION_TEMPLATE_POLICY:productionTemplatePolicy.version,AYAMBIL_WHATSAPP_MANUAL_PROCESSING_APPROVED:'true',AYAMBIL_WHATSAPP_QUEUE_OWNER:'express-mysql',AYAMBIL_WHATSAPP_MANUAL_START_AT:'2026-10-13T00:00:00.000Z',AYAMBIL_WHATSAPP_NORMAL_PROCESSING_APPROVED:'false'};
 const selected={id:'11111111-1111-4111-8111-111111111111',bookingId:'22222222-2222-4222-8222-222222222222',type:'confirmation'};
+test('batch preview is read-only, masked, exact evening/type and excludes attempted or blocked bookings',async()=>{
+ let calls=0;
+ const pool={execute:async(sql,args)=>{
+  calls++;assert.ok(sql.startsWith('SELECT'));
+  for(const guard of ['q.attempts=0','q.provider_id IS NULL',"q.status='queued'",'b.whatsapp_consent=TRUE',"b.status='active'",'NOT EXISTS',"'preparing','sending','uncertain'",'LIMIT 1001'])assert.ok(sql.includes(guard));
+  assert.deepEqual(args.slice(0,2),['confirmation','2026-11-02']);
+  if(args.length===4)assert.ok(sql.includes('b.created_at>=?'));else assert.ok(!sql.includes('b.created_at>=?'));
+  return [[{id:selected.id,booking_id:selected.bookingId,notification_type:'confirmation',number:'SYNTHETIC-BOOKING',mobile:'+12025550123'}]];
+ }};
+ const queue=createMessageQueue(pool,{},env);
+ const result=await queue.previewBatch({type:'confirmation',date:'2026-11-02'});
+ assert.equal(result.items[0].recipientMasked,'••••0123');assert.ok(!JSON.stringify(result).includes('12025550123'));
+ await queue.previewBatch({type:'confirmation',date:'2026-11-02',reviewedLegacy:true});
+ await assert.rejects(queue.previewBatch({type:'test',date:'2026-11-02'}),e=>e.status===400);
+ assert.equal(calls,2);
+ const disabled=createMessageQueue(pool,{}, {...env,AYAMBIL_WHATSAPP_MANUAL_PROCESSING_APPROVED:'false'});
+ await assert.rejects(disabled.previewBatch({type:'confirmation',date:'2026-11-02'}),e=>e.status===403);assert.equal(calls,2);
+});
 test('manual policy is independent, production-only, versioned and default-off',()=>{
  assert.equal(manualQueuePolicy(env),'2026-10-13 00:00:00.000');
  for(const patch of [{AYAMBIL_WHATSAPP_MANUAL_PROCESSING_APPROVED:'false'},{AYAMBIL_WHATSAPP_QUEUE_OWNER:''},{AYAMBIL_STAGING_BUILD:'true'},{AYAMBIL_WHATSAPP_AUTO_WORKER_ENABLED:'true'},{AYAMBIL_WHATSAPP_NORMAL_PROCESSING_APPROVED:'true'},{AYAMBIL_PRODUCTION_TEMPLATE_POLICY:'unknown'},{AYAMBIL_WHATSAPP_MANUAL_START_AT:''},{AYAMBIL_WHATSAPP_TEST_BODY_OVERRIDE:'true'}])assert.throws(()=>manualQueuePolicy({...env,...patch}));

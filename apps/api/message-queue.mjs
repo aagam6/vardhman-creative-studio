@@ -42,12 +42,23 @@ export function createMessageQueue(pool,flow,env){const enabled=env.AYAMBIL_WHAT
  }
  return {
  manualAvailable(){try{manualQueuePolicy(env);return enabled;}catch{return false;}},
+ async previewBatch({type,date,reviewedLegacy=false}){
+  const cutoff=manualQueuePolicy(env);
+  if(!enabled)throw new ApiError(403,'Manual sending disabled');
+  if(!['confirmation','pass','reminder'].includes(type)||!['2026-11-02','2026-11-03'].includes(date)||typeof reviewedLegacy!=='boolean')throw new ApiError(400,'Exact evening and message type required');
+  const boundary=reviewedLegacy?'':' AND b.created_at>=? AND q.updated_at>=?';
+  const [rows]=await pool.execute("SELECT q.id,q.booking_id,q.notification_type,b.number,b.mobile FROM ayambil_message_queue q JOIN ayambil_bookings b ON b.id=q.booking_id WHERE q.notification_type=? AND b.event_date=? AND q.status='queued' AND q.attempts=0 AND q.provider_id IS NULL AND b.status='active' AND b.whatsapp_consent=TRUE AND q.next_attempt_at<=UTC_TIMESTAMP(3)"+boundary+" AND NOT EXISTS (SELECT 1 FROM ayambil_message_queue blocked WHERE blocked.booking_id=q.booking_id AND blocked.status IN ('preparing','sending','uncertain')) ORDER BY q.id LIMIT 1001",[type,date,...(reviewedLegacy?[]:[cutoff,cutoff])]);
+  if(rows.length>1000)throw new ApiError(409,'Preview exceeds 1000 messages; narrow the selection');
+  return {items:rows.map(({mobile,...row})=>({...row,recipientMasked:'••••'+String(mobile).slice(-4)})),reviewedLegacy,date,type};
+ },
  async runSelected({id,bookingId,type,reviewedLegacy=false}){
   const cutoff=manualQueuePolicy(env);
   if(!enabled)throw new ApiError(403,'Manual sending disabled');
   if(![id,bookingId].every(v=>typeof v==='string'&&/^[a-f0-9-]{36}$/.test(v))||!['confirmation','pass','reminder'].includes(type))throw new ApiError(400,'Exact booking and message required');
   if(typeof reviewedLegacy!=='boolean')throw new ApiError(400,'Explicit legacy review required');
   const job=await transaction(pool,async db=>{
+   // Serialize different selected jobs for the same booking across admin tabs.
+   await db.execute('SELECT id FROM ayambil_bookings WHERE id=? FOR UPDATE',[bookingId]);
    const boundary=reviewedLegacy?'':' AND b.created_at>=? AND q.updated_at>=?';
    const [rows]=await db.execute("SELECT q.* FROM ayambil_message_queue q JOIN ayambil_bookings b ON b.id=q.booking_id WHERE q.id=? AND q.booking_id=? AND q.notification_type=? AND q.status='queued' AND q.attempts=0 AND q.provider_id IS NULL AND b.status='active' AND b.whatsapp_consent=TRUE"+boundary+" AND q.next_attempt_at<=UTC_TIMESTAMP(3) FOR UPDATE",[id,bookingId,type,...(reviewedLegacy?[]:[cutoff,cutoff])]);
    if(rows.length!==1)throw new ApiError(409,'Message is not eligible; do not retry blindly');
