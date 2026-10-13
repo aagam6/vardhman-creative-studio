@@ -1,13 +1,14 @@
 import {ApiError} from './config.mjs';
 import {notificationTemplates} from './notification-context.mjs';
 import {reviewedTemplateBodies} from './reviewed-template-bodies.mjs';
+import {productionSnapshotsApproved,productionTemplatePolicy} from './production-template-policy.mjs';
 export function normalizePhone(value){const digits=String(value||'').replace(/[+\s()-]/g,'');const number=/^[6-9]\d{9}$/.test(digits)?'91'+digits:digits;if(!/^[1-9]\d{7,14}$/.test(number))throw new ApiError(400,'Valid international WhatsApp number required');return number;}
 export function testBodyOverrideApproved(env){
  if(env.AYAMBIL_WHATSAPP_TEST_BODY_OVERRIDE!=='true')return false;
  if(env.AYAMBIL_STAGING_BUILD!=='true'||env.AYAMBIL_SITE_ORIGIN!=='https://white-reindeer-590806.hostingersite.com'||env.AYAMBIL_WHATSAPP_NORMAL_PROCESSING_APPROVED==='true')throw new ApiError(403,'BODY compatibility test requires the isolated staging origin/build and normal processing disabled');
  return true;
 }
-export function templateMetadata(template,mapping,{operatorSnapshots=false}={}){
+export function templateMetadata(template,mapping,{operatorSnapshots=false,requireReviewedBodies=false}={}){
  const snapshot=operatorSnapshots&&!Object.hasOwn(template,'components')&&Object.hasOwn(reviewedTemplateBodies,template.name);
  const components=snapshot?[{type:'BODY',text:reviewedTemplateBodies[template.name]}]:template.components;
  const body=Array.isArray(components)?components.find(c=>String(c?.type).toUpperCase()==='BODY'):null;
@@ -16,11 +17,12 @@ export function templateMetadata(template,mapping,{operatorSnapshots=false}={}){
  const formatSupported=bodyAvailable&&components.length===1&&!/\{\{|\}\}/.test(body.text.replace(/\{\{\s*\d+\s*\}\}/g,''))&&indexes.every((n,i)=>n===i+1);
  const expected=Object.values(notificationTemplates).find(v=>v.name===template.name);
  const mappingVerified=!!expected&&mapping?.name===template.name&&mapping?.language===template.language&&JSON.stringify(mapping.fields)===JSON.stringify(expected.fields)&&indexes.length===expected.fields.length;
- const verified=template.status==='APPROVED'&&template.language==='en'&&formatSupported&&mappingVerified;
+ const reviewedBodyMatches=!requireReviewedBodies||(Object.hasOwn(reviewedTemplateBodies,template.name)&&body?.text===reviewedTemplateBodies[template.name]);
+ const verified=template.status==='APPROVED'&&template.language==='en'&&formatSupported&&mappingVerified&&reviewedBodyMatches;
  return {bodyAvailable,bodySource:bodyAvailable?(snapshot?'operator_reviewed_snapshot':'provider'):'unavailable',placeholderCount:bodyAvailable?indexes.length:null,placeholderIndexes:indexes,componentsVerified:verified&&!snapshot,verified,verification:template.status!=='APPROVED'||template.language!=='en'?'approval_or_language_mismatch':!bodyAvailable?'approved_body_unavailable':!formatSupported?'unsupported_body_definition':!mappingVerified?'mapping_mismatch':snapshot?'operator_snapshot_mapping_validated':'provider_body_verified'};
 }
 export function createFlow(env,fetcher=fetch){
- const metadataOptions={operatorSnapshots:env.AYAMBIL_STAGING_BUILD==='true'&&env.AYAMBIL_SITE_ORIGIN==='https://white-reindeer-590806.hostingersite.com'};
+ const metadataOptions={operatorSnapshots:(env.AYAMBIL_STAGING_BUILD==='true'&&env.AYAMBIL_SITE_ORIGIN==='https://white-reindeer-590806.hostingersite.com')||productionSnapshotsApproved(env),requireReviewedBodies:productionSnapshotsApproved(env)};
  const base=env.VARDHMAN_FLOW_BASE_URL||'https://vardhmanflow.com/api/v1';
  const missing=['VARDHMAN_FLOW_API_KEY','VARDHMAN_FLOW_API_SECRET'].filter(k=>!env[k]);
  if(base!=='https://vardhmanflow.com/api/v1')missing.push('VARDHMAN_FLOW_BASE_URL');
@@ -83,7 +85,7 @@ export function createFlow(env,fetcher=fetch){
     const applicable=type?[mappings[type+'_02']||mappings[type],mappings[type+'_03']||mappings[type]]:[];
     const metadata=templateMetadata(t,applicable[0],metadataOptions);
     if(metadata.verified&&!applicable.every(m=>templateMetadata(t,m,metadataOptions).verified))Object.assign(metadata,{verified:false,componentsVerified:false,verification:'mapping_mismatch'});
-    return {name:t.name,language:t.language,...metadata};
+   return {name:t.name,language:t.language,...metadata,...(productionSnapshotsApproved(env)&&metadata.bodySource==='operator_reviewed_snapshot'?{policyVersion:productionTemplatePolicy.version}:{} )};
    });
    return {...this.configuration(),accountVerified:true,channel:{active:true,health:'healthy',phoneConfigured:!!normalizePhone(channel.phoneNumber)},templates:approved,usage:{requestCount:Number.isFinite(account.usage?.requestCount)?account.usage.requestCount:null,monthlyRequestCount:Number.isFinite(account.usage?.monthlyRequestCount)?account.usage.monthlyRequestCount:null}};
   }

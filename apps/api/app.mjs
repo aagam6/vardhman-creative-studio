@@ -52,6 +52,11 @@ export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirect
   api.post('/admin/messages/reminder',admin,limited('flow-reminder',5),route(async(req,res)=>{if(!queue||typeof req.body?.bookingId!=='string'||req.body.bookingId.length!==36)throw new ApiError(400,'Messaging configuration and booking required');await store.enqueueReminder(queue,req.body.bookingId);res.json({queued:true,delivered:false});}));
   api.post('/admin/messages/process',admin,limited('flow-process',5),route(async(req,res)=>{if(config.normalProcessingApproved!==true)throw new ApiError(403,'Normal message processing requires separate approval');if(!queue)throw new ApiError(503,'Messaging configuration required');res.json(await queue.runOne());}));
   api.post('/admin/messages/process-test',admin,testOnly,limited('flow-test-process',2),route(async(req,res)=>res.json(await queue.runTest(req.body?.id))));
+  api.post('/admin/messages/send-selected',admin,limited('flow-manual-send',5),route(async(req,res)=>{
+   if(!queue)throw new ApiError(403,'Manual sending disabled');
+   if(!req.body||Object.keys(req.body).some(key=>!['id','bookingId','type'].includes(key)))throw new ApiError(400,'Only exact message identifiers allowed');
+   res.json(await queue.runSelected(req.body));
+  }));
   api.post('/admin/messages/status',admin,route(async(req,res)=>{if(!queue||typeof req.body?.id!=='string'||req.body.id.length>36)throw new ApiError(400,'Message identifier required');res.json(await queue.reconcile(req.body.id));}));
   api.post('/admin/messages/test',admin,testOnly,limited('flow-test',2),route(async(req,res)=>{
     if(typeof req.body?.requestKey!=='string'||!/^[a-f0-9]{64}$/.test(req.body.requestKey))throw new ApiError(400,'Valid test request identifier required');

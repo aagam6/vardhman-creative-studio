@@ -51,7 +51,12 @@ export async function checkQueue(pool){
  const excluded=createMessageQueue(pool,flow,{...env,AYAMBIL_WHATSAPP_AUTOMATION_START_AT:'2100-01-01T00:00:00.000Z'});
  const beforeFresh=await queue.list(),beforeFreshSends=sends;
  assert.equal((await excluded.runOne()).processed,false);assert.deepEqual(await queue.list(),beforeFresh);assert.equal(sends,beforeFreshSends);
- for(let i=0;i<4;i++)assert.equal((await queue.runOne()).status,'sent');
+ const manual=createMessageQueue(pool,flow,{...env,AYAMBIL_STAGING_BUILD:'false',AYAMBIL_SITE_ORIGIN:'https://vardhmancreativestudio.com',AYAMBIL_PRODUCTION_TEMPLATE_POLICY:'ayambil-en-2026-10-13-v1',AYAMBIL_WHATSAPP_NORMAL_PROCESSING_APPROVED:'false',AYAMBIL_WHATSAPP_MANUAL_PROCESSING_APPROVED:'true',AYAMBIL_WHATSAPP_MANUAL_START_AT:'2000-01-01T00:00:00.000Z'});
+ const selected=(await manual.list()).find(row=>row.notification_type==='confirmation');
+ const exact={id:selected.id,bookingId:selected.booking_id,type:selected.notification_type};
+ assert.equal((await manual.runSelected(exact)).status,'sent');
+ await assert.rejects(manual.runSelected(exact),e=>e.status===409);
+ for(let i=0;i<3;i++)assert.equal((await queue.runOne()).status,'sent');
  assert.equal((await queue.runOne()).processed,false);assert.equal(sends,beforeFreshSends+4);
  const submitted=await queue.list();assert.equal(submitted.filter(row=>row.notification_type==='admin'&&row.status==='queued'&&row.attempts===0).length,1);
  assert.equal((await queue.reconcileFresh()).blocked,false);assert.equal((await queue.list()).filter(row=>row.status==='delivered').length,4);
