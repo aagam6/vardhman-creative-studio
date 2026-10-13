@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { toPng } from 'html-to-image';
 
 import { digitalPassTerms, passCredits } from '@/lib/ayambilPassPresentation';
-import { passPage, assemblePassPdf, assertPassContentFits } from '@/lib/ayambilPassLayout';
+import { passPage, assemblePassPdf, assertPassContentFits, passLocationUrl } from '@/lib/ayambilPassLayout';
 import './AyambilDigitalPass.css';
 
 function Credits({ pass }) {
@@ -31,7 +31,8 @@ export async function createPassPdf(element, number) {
       const bounds = side.getBoundingClientRect();
       const ratio = bounds.height / bounds.width;
       const image = await toPng(side, { pixelRatio: 2, backgroundColor: '#faf7ef', cacheBust: false });
-      images.push({image, ratio});
+      const links = [...side.querySelectorAll('.ay-pass-location')].map(anchor=>{const box=anchor.getBoundingClientRect();return {url:anchor.href,x:(box.left-bounds.left)/bounds.width,y:(box.top-bounds.top)/bounds.height,width:box.width/bounds.width,height:box.height/bounds.height};});
+      images.push({image, ratio, links});
     }
   } finally { holder.remove(); }
   if (images.length !== 2) throw new Error('Invalid pass layout');
@@ -75,7 +76,7 @@ export default function AyambilDigitalPass({ pass }) {
       <p className="ay-pass-registration">FREE EVENING REGISTRATION / રજિસ્ટ્રેશન</p>
       <div className="ay-pass-attendee"><span lang="gu">લાભાર્થીનું નામ <small>/ Attendee Name</small></span><strong>{pass.attendeeName}</strong><span>પાસ નંબર / Pass number</span><b>{pass.number}</b></div>
       {pass.sessions.map(session => <div className="ay-pass-programme" key={session.date}><p>{session.performer}</p><p lang="gu">{session.programme}</p><small>{session.date === '2026-11-02' ? 'Bhakti Sandhya' : 'Special presentation'}</small></div>)}
-      {pass.sessions.map(session => <section className="ay-pass-visit" key={session.date}><h4>{session.label} · {session.time}</h4><strong>{session.venue.replace('Chandramauleshwar', 'Chandramaulishwar')}</strong><p>{session.address}</p></section>)}
+      {pass.sessions.map(session => <section className="ay-pass-visit" key={session.date}><h4>{session.label} · {session.time}</h4><strong>{session.venue.replace('Chandramauleshwar', 'Chandramaulishwar')}</strong><p>{session.address}</p>{passLocationUrl(session.mapsUrl) && <a className="ay-pass-location" href={passLocationUrl(session.mapsUrl)} target="_blank" rel="noopener noreferrer">Open location / સ્થળ જુઓ ↗</a>}</section>)}
       </section><section className="ay-pass-side ay-pass-back" aria-label="Digital pass reverse"><div className="ay-pass-back-title">500 Akhand Ayambil Tap · વિજયોત્સવ <span>PASS INFORMATION</span></div><Credits pass={pass} />
       <p className="ay-pass-status">{active ? 'For the evening shown above. / ઉપર લખેલા સાંજના કાર્યક્રમ માટે.' : `Pass ${pass.status} — not valid for attendance.`}</p>
       <section className="ay-pass-rules" aria-label="Pass terms and organiser information"><h4>Pass Terms & Conditions <span lang="gu">પાસ માટેના નિયમો</span></h4><ol>{digitalPassTerms.map(([en, gu]) => <li key={en}><span>{en}</span><span lang="gu">{gu}</span></li>)}</ol></section>

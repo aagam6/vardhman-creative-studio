@@ -92,3 +92,6 @@
 .ay-pdf-render .ay-pass-rules ol { gap:6px 40px; margin:6px 0; }
 .ay-pdf-render .ay-pass-attendee { margin:6px 0 12px; }
 .ay-pdf-render .ay-pass-front { grid-template-rows:44px 94px 24px 170px 105px; }
+.ay-pass-location { display:inline-block; color:#792b36; font-size:12px; font-weight:600; text-decoration:underline; text-underline-offset:3px; }
+.ay-pdf-render .ay-pass-visit { padding-top:10px; } .ay-pdf-render .ay-pass-visit h4 { margin-bottom:4px; } .ay-pdf-render .ay-pass-visit p { margin:4px 0; }
+.ay-pdf-render .ay-pass-front { grid-template-rows:44px 94px 24px 150px 125px; }

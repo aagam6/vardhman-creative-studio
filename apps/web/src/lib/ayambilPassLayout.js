@@ -1,3 +1,4 @@
+export function passLocationUrl(value) { try { const url=new URL(value); return url.protocol==='https:' && ['maps.app.goo.gl','www.google.com','maps.google.com'].includes(url.hostname) ? url.href : null; } catch { return null; } }
 export const passPage = Object.freeze({ width: 205, height: 105, margin: 0, captureWidth: 1000 });
 export function passImagePlacement(ratio) {
   if (!Number.isFinite(ratio) || ratio <= 0) throw new Error('Invalid pass layout');
@@ -27,10 +28,11 @@ export function assertPassContentFits(side) {
 export function assemblePassPdf(Pdf, images) {
   if (images.length !== 2) throw new Error('Invalid pass layout');
   const pdf = new Pdf({ unit: 'mm', orientation: 'landscape', format: [passPage.width, passPage.height] });
-  images.forEach(({image, ratio}, index) => {
+  images.forEach(({image, ratio, links=[]}, index) => {
     if (index) pdf.addPage([passPage.width, passPage.height], 'landscape');
     const placement = passImagePlacement(ratio);
     pdf.addImage(image, 'PNG', placement.x, placement.y, placement.width, placement.height, undefined, 'FAST');
+    for(const link of links) { const url=passLocationUrl(link.url); if(url) pdf.link(placement.x+link.x*placement.width,placement.y+link.y*placement.height,link.width*placement.width,link.height*placement.height,{url}); }
   });
   return pdf;
 }
