@@ -13,6 +13,8 @@ const db = mkdtempSync(path.join(root, '.ayambil-runtime', 'integration-'));
 // Only the isolated test copy permits bookings without live messaging credentials.
 // No test bypass exists in the deployed hooks or public status endpoint.
 const testHooks = path.join(db,'test-hooks'); cpSync(path.join(root,'apps/pocketbase/pb_hooks'),testHooks,{recursive:true});
+// Historical worker is restored only inside the owned disposable legacy fixture.
+cpSync(path.join(root,'tools/legacy-pocketbase/ayambil-messaging.pb.js'),path.join(testHooks,'ayambil-messaging.pb.js'));
 const testService = path.join(testHooks,'ayambil/service.cjs');
 const gating = "if (!require('./messaging.cjs').settings(k => $os.getenv(k)).ready) throw new ForbiddenError('Backend and WhatsApp deployment verification is required before registration opens.');";
 const source = readFileSync(testService,'utf8'); assert.ok(source.includes(gating)); writeFileSync(testService,source.replace(gating,'/* Test fixture only: provider calls are mocked separately. */'));

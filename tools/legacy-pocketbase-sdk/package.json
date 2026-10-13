@@ -1,0 +1,1 @@
+{"name":"historical-pocketbase-sdk-tests","private":true,"type":"module","scripts":{"test":"node --test legacy-sdk.test.mjs"},"devDependencies":{"pocketbase":"^0.25.0"}}

@@ -14,8 +14,7 @@
     "@electric-sql/pglite": "^0.5.8",
     "@vitejs/plugin-react": "^4.3.4",
     "concurrently": "^10.0.4",
-    "vite": "^6.4.3",
-    "pocketbase": "^0.25.0"
+    "vite": "^6.4.3"
   },
   "workspaces": [
     "apps/web",

@@ -8,6 +8,7 @@ import {createLeadRouter} from './leads.mjs';
 import {createFlow} from './vardhmanflow.mjs';
 import {hostingerBootstrap} from './hostinger-bootstrap.mjs';
 import {startupDiagnostic} from './startup-diagnostics.mjs';
+import {startQueueWorker} from './queue-worker.mjs';
 
 // Canonical entry point: apps/api/server.mjs. No automatic schema changes.
 let stage='configuration';
@@ -21,8 +22,8 @@ try {
   const flow=createFlow(process.env);
   const queue=process.env.AYAMBIL_WHATSAPP_ENABLED==='true'?createMessageQueue(pool,flow,process.env):null;
   const store=createStore(pool,config,{queue,adminRecipients:(process.env.AYAMBIL_WHATSAPP_ADMIN_RECIPIENTS||'').split(',').map(s=>s.trim()).filter(Boolean)});
-  stage='application';let initialized=false;
-  const app=createApp({leadRouter:createLeadRouter({pool,store,config,isInitialized:()=>initialized}),legacyLeadRouter:createLeadRouter({pool,store,config,legacy:true,isInitialized:()=>initialized}),store,config,flow,queue,isInitialized:()=>initialized,testRecipient:process.env.AYAMBIL_STAGING_BUILD==='true'&&config.origin==='https://white-reindeer-590806.hostingersite.com'?process.env.AYAMBIL_WHATSAPP_TEST_RECIPIENT:undefined,staticDirectory:fileURLToPath(new URL('../../dist/apps/web',import.meta.url))});
+  stage='application';let initialized=false;let worker;
+  const app=createApp({leadRouter:createLeadRouter({pool,store,config,isInitialized:()=>initialized}),legacyLeadRouter:createLeadRouter({pool,store,config,legacy:true,isInitialized:()=>initialized}),store,config,flow,queue,isInitialized:()=>initialized,getQueueWorkerStatus:()=>({enabled:worker?.enabled===true,active:worker?.active===true}),testRecipient:process.env.AYAMBIL_STAGING_BUILD==='true'&&config.origin==='https://white-reindeer-590806.hostingersite.com'?process.env.AYAMBIL_WHATSAPP_TEST_RECIPIENT:undefined,staticDirectory:fileURLToPath(new URL('../../dist/apps/web',import.meta.url))});
   const host=process.env.AYAMBIL_LISTEN_HOST || '0.0.0.0';
   if(!['0.0.0.0','127.0.0.1'].includes(host))throw new Error('Unsupported listen host');
   stage='listener';const server=app.listen(port,host);
@@ -33,10 +34,11 @@ try {
     initializationStage='queue-schema';if(queue){const [versions]=await pool.query('SELECT version FROM ayambil_schema_version WHERE version=2');if(!versions.length)throw Error();}
     initializationStage='readiness';
     if(!await store.ready())throw Error();
+    worker=startQueueWorker(queue,process.env,{log:message=>console.error(message)});
     initialized=true;
     console.log(bootstrap.requested?'Ayambil initialization verified; remove stored bootstrap approval and password variables.':'Ayambil API readiness verified.');
   }catch(error){console.error('Ayambil initialization unavailable. '+startupDiagnostic(initializationStage,error));}})();
-  for(const signal of ['SIGTERM','SIGINT'])process.on(signal,()=>server.close(()=>pool.end().finally(()=>process.exit(0))));
+  for(const signal of ['SIGTERM','SIGINT'])process.on(signal,()=>{worker?.stop();server.close(()=>pool.end().finally(()=>process.exit(0)));});
 } catch(error) {
   // Driver errors can contain connection/user details; never print them.
   console.error('Ayambil API startup failed. '+startupDiagnostic(stage,error));process.exitCode=1;

@@ -7,6 +7,7 @@ const read=p=>readFileSync(new URL(p,import.meta.url),'utf8');
 test('active runtime uses Express only; PocketBase remains historical test evidence',()=>{
  const root=JSON.parse(read('../../../package.json')),web=JSON.parse(read('../../web/package.json'));
  assert.equal(root.scripts.start,'npm run start --prefix apps/api');assert.doesNotMatch(root.scripts.dev,/pocketbase/);assert.deepEqual(root.workspaces,['apps/web','apps/api']);assert.equal(web.dependencies.pocketbase,undefined);
+ assert.equal(root.dependencies?.pocketbase,undefined);assert.equal(root.devDependencies?.pocketbase,undefined);
  assert.doesNotMatch(read('../../web/vite.config.js'),/pocketbase/i);
  const scan=dir=>{for(const e of readdirSync(new URL(dir,import.meta.url),{withFileTypes:true})){const p=dir+'/'+e.name;if(e.isDirectory())scan(p);else if(/\.(js|jsx)$/.test(p))assert.doesNotMatch(read(p),/from ['"]pocketbase['"]|pocketbaseClient/);}};scan('../../web/src');
 });
