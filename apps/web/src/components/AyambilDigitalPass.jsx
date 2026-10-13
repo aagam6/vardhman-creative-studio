@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { toPng } from 'html-to-image';
-import { canSharePdf, copyPassDetails, passSummary } from '@/lib/ayambilPassUtils';
+
 import { digitalPassTerms, passCredits } from '@/lib/ayambilPassPresentation';
 import { passPage, assemblePassPdf, assertPassContentFits } from '@/lib/ayambilPassLayout';
 import './AyambilDigitalPass.css';
@@ -45,16 +45,11 @@ export function saveFile(file) {
 }
 
 export default function AyambilDigitalPass({ pass }) {
-  const ref = useRef(null); const [file, setFile] = useState(null); const [fileUrl, setFileUrl] = useState(''); const [busy, setBusy] = useState(false); const [message, setMessage] = useState('');
-  useEffect(() => {
-    if (!file) return;
-    const url = URL.createObjectURL(file); setFileUrl(url);
-    return () => URL.revokeObjectURL(url);
-  }, [file]);
+  const ref = useRef(null); const [busy, setBusy] = useState(false); const [message, setMessage] = useState('');
   const active = pass.status === 'active';
   const download = async () => {
     setBusy(true); setMessage('');
-    try { const pdf = await createPassPdf(ref.current, pass.number); setFile(pdf); saveFile(pdf); }
+    try { const pdf = await createPassPdf(ref.current, pass.number); saveFile(pdf); }
     catch (error) { setMessage(error.message === 'Pass content exceeds readable print size' ? 'Pass content is too long for a readable PDF. Contact the organisers for an authorised correction. / વાંચી શકાય તેવા PDF માટે પાસનું લખાણ ખૂબ લાંબું છે. અધિકૃત સુધારા માટે આયોજકોનો સંપર્ક કરો.' : 'PDF could not be prepared. Retry or contact the organisers. / PDF તૈયાર થઈ શક્યો નથી. ફરી પ્રયાસ કરો અથવા આયોજકોનો સંપર્ક કરો.'); }
     finally { setBusy(false); }
   };
@@ -63,7 +58,7 @@ export default function AyambilDigitalPass({ pass }) {
     try {
       // Print the same custom-size PDF used by Download, avoiding ancestor layout
       // and mobile media queries changing physical print dimensions.
-      const pdf = await createPassPdf(ref.current, pass.number); setFile(pdf);
+      const pdf = await createPassPdf(ref.current, pass.number);
       const url = URL.createObjectURL(pdf); const frame = document.createElement('iframe');
       frame.style.cssText = 'position:fixed;width:1px;height:1px;bottom:0;left:0;border:0';
       frame.title = 'Print attendee pass'; frame.src = url;
@@ -73,15 +68,6 @@ export default function AyambilDigitalPass({ pass }) {
     } catch (error) { setMessage(error.message === 'Pass content exceeds readable print size' ? 'Pass content is too long to print readably. Contact the organisers for an authorised correction. / વાંચી શકાય તેવી પ્રિન્ટ માટે પાસનું લખાણ ખૂબ લાંબું છે. અધિકૃત સુધારા માટે આયોજકોનો સંપર્ક કરો.' : 'Print could not be prepared. Retry downloading the PDF.'); }
     finally { setBusy(false); }
   };
-  const shareFile = async () => {
-    try { await navigator.share({ files: [file], title: '500 Akhand Ayambil Tap · વિજયોત્સવ' }); }
-    catch (error) { if (error.name !== 'AbortError') setMessage('File sharing is unavailable. Download the PDF and attach it in WhatsApp. / PDF ડાઉનલોડ કરીને WhatsAppમાં જોડો.'); }
-  };
-  const summary = passSummary({ ...pass, eventName: '500 Akhand Ayambil Tap · વિજયોત્સવ' });
-  const copy = async () => {
-    setMessage(await copyPassDetails(navigator, summary) ? 'Pass details copied. / પાસની વિગતો કોપી થઈ ગઈ.' : 'Clipboard unavailable. Copy the details below. / નીચે આપેલી વિગતો કોપી કરો.');
-  };
-  const canShareFile = active && canSharePdf(navigator, file);
   return <article className="ay-pass-wrapper">
     <div className="ay-digital-pass" ref={ref}>
       <section className="ay-pass-side ay-pass-front" aria-label="Digital pass front"><div className="ay-pass-brand"><img src="/assets/logo.png" width="44" height="44" alt="" /><span>VARDHMAN CREATIVE STUDIO<small>DIGITAL PASS · ડિજિટલ પાસ</small></span><b className={`ay-pass-validity ${active ? '' : 'ay-pass-invalid'}`}>{active ? 'ACTIVE · EVENING PASS' : `${pass.status.toUpperCase()} · NOT VALID`}</b></div>
@@ -96,15 +82,9 @@ export default function AyambilDigitalPass({ pass }) {
       <small>Morning programmes and 4 November are outside this registration. / સવારના કાર્યક્રમો અને ૪ નવેમ્બર માટે આ પાસ નથી. Issued {new Date(pass.issuedAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}.</small>
     </section></div>
     <div className="ay-pass-actions">
-      <button type="button" disabled={busy || !active} onClick={download}>{busy ? 'Preparing PDF… / PDF તૈયાર થઈ રહ્યો છે…' : 'Download PDF / પાસ ડાઉનલોડ કરો'}</button>
-      {fileUrl && active && <a href={fileUrl} download={file.name}>Save prepared PDF</a>}
-      <button type="button" disabled={busy || !active} onClick={print}>Print / પ્રિન્ટ</button>
-      {canShareFile && <button type="button" onClick={shareFile}>Share PDF…</button>}
-      {active && <a href={`https://wa.me/?text=${encodeURIComponent(summary)}`} target="_blank" rel="noopener noreferrer">WhatsApp / WhatsApp પર શેર કરો</a>}
-      <button type="button" onClick={copy}>Copy pass details / વિગતો કોપી કરો</button>
+      <button type="button" disabled={busy || !active} onClick={download}>{busy ? 'Preparing PDF…' : 'Download PDF'}</button>
+      <button type="button" disabled={busy || !active} onClick={print}>Print</button>
     </div>
-    <p className="ay-help">WhatsApp opens a draft for you to send. Attach the downloaded PDF; nothing is sent automatically. / WhatsApp પર મોકલવા માટે તમે જાતે Send દબાવો. ડાઉનલોડ કરેલો PDF જોડો.</p>
     <p role="status">{message}</p>
-    {message.startsWith('Clipboard') && <textarea readOnly aria-label="Pass details to copy" value={summary} />}
   </article>;
 }

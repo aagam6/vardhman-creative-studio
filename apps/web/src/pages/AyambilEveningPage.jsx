@@ -8,6 +8,7 @@ import { contactConfig } from '@/lib/contactConfig';
 import AyambilRegistration from '@/components/AyambilRegistration.jsx';
 import { AyambilFooter, PerformerPortrait, VenueCard, MananBeneficiaries } from '@/components/AyambilEventDetails.jsx';
 import './AyambilPage.css';
+import './AyambilEveningPage.css';
 
 export default function AyambilEveningPage({ eventDate }) {
   const event = ayambilProgramme.find(e => e.date === eventDate);
