@@ -129,3 +129,4 @@
 .ay-programme-story-grid h3{font-size:19px;line-height:1.6;color:#682b35;margin:14px 0 10px}
 .ay-programme-story-grid p{font-size:14px;line-height:1.9;color:#73614f;margin:0}
 @media(max-width:700px){.ay-evening-page[lang=gu] .ay-evening-hero{width:calc(100% - 32px);padding:24px 20px;border-radius:18px;gap:24px}.ay-evening-page[lang=gu] .ay-evening-hero h1{font-size:38px}.ay-evening-page[lang=gu] .ay-evening-hero h1 span{font-size:25px}.ay-programme-story-heading,.ay-programme-story-grid{grid-template-columns:1fr}.ay-programme-story-heading{gap:14px}.ay-evening-page[lang=gu] .ay-programme-story-heading h2{font-size:26px}.ay-programme-story-grid article{padding:20px}}
+.ay-evening-page[lang=gu] .ay-official-credits{grid-template-columns:1fr 1.2fr}@media(max-width:600px){.ay-evening-page[lang=gu] .ay-official-credits{grid-template-columns:1fr}}
