@@ -11,7 +11,7 @@ const emptyAttendee = date => ({ fullName: '', dates: [date] });
 
 export default function AyambilRegistration({ eventDate }) {
   const session = eveningConfig.sessions.find(s => s.date === eventDate);
-  const initialBooking = () => ({ contactName: '', mobile: '', eventDate, whatsappConsent: false, termsAccepted: false, attendees: [emptyAttendee(eventDate)] });
+  const initialBooking = () => ({ contactName: '', occupation: '', referralSource: '', mobile: '', eventDate, whatsappConsent: false, termsAccepted: false, attendees: [emptyAttendee(eventDate)] });
   const [booking, setBooking] = useState(initialBooking);
   const [availability, setAvailability] = useState('loading'); const [step, setStep] = useState('details');
   const [error, setError] = useState(''); const [busy, setBusy] = useState(false); const [confirmed, setConfirmed] = useState(false);
@@ -48,21 +48,23 @@ export default function AyambilRegistration({ eventDate }) {
     {step === 'details' && <form onSubmit={review}>
       <fieldset disabled={busy || availability !== 'open'}><legend>Contact details</legend><div className="ay-form-grid">
         <label>Full name<input autoComplete="name" required minLength={2} maxLength={120} value={booking.contactName} onChange={e => edit({ ...booking, contactName: e.target.value })} /></label>
-        <label>WhatsApp number<input type="tel" inputMode="tel" autoComplete="tel" placeholder="+91" required value={booking.mobile} onChange={e => edit({ ...booking, mobile: e.target.value })} /><small>Include your country code, e.g. +91. Event updates and pass links use this number with your consent.</small></label>
-        <label>Number of guests<select value={booking.attendees.length} onChange={e => edit({ ...booking, attendees: Number(e.target.value) === 1 ? booking.attendees.slice(0, 1) : [booking.attendees[0], booking.attendees[1] || emptyAttendee(eventDate)] })}><option value="1">1 guest</option><option value="2">2 guests</option></select><small>Up to two guests per booking.</small></label>
+        <label>Mobile Number (WhatsApp)<input type="tel" inputMode="tel" autoComplete="tel" placeholder="+91" required value={booking.mobile} onChange={e => edit({ ...booking, mobile: e.target.value })} /><small>Please enter your active WhatsApp mobile number. Your registration confirmation and event pass will be sent to this number. Include your country code, e.g. +91.</small></label>
+        <label>Number of Passes Required<select value={booking.attendees.length} onChange={e => edit({ ...booking, attendees: Number(e.target.value) === 1 ? booking.attendees.slice(0, 1) : [booking.attendees[0], booking.attendees[1] || emptyAttendee(eventDate)] })}><option value="1">1 pass</option><option value="2">2 passes</option></select><small>Up to two guests per booking.</small></label>
+        <label>Occupation<input autoComplete="organization-title" maxLength={120} value={booking.occupation} onChange={e=>edit({...booking,occupation:e.target.value})}/><small>Optional</small></label>
+        <label>How did you hear about this event?<select value={booking.referralSource} onChange={e=>edit({...booking,referralSource:e.target.value})}><option value="">Select an option (optional)</option><option>WhatsApp</option><option>Friends or family</option><option>Jain Sangh / community</option><option>Social media</option><option>Invitation brochure</option><option>Other</option></select></label>
       </div></fieldset>
-      {booking.attendees.map((attendee, index) => <fieldset key={index} disabled={busy || availability !== 'open'}><legend>Guest {index + 1}</legend>
+      {booking.attendees.map((attendee, index) => <fieldset key={index} disabled={busy || availability !== 'open'}><legend>{index === 0 ? 'Primary participant' : 'Names of Additional Participants'}</legend>
         <label>Name on the pass<input autoComplete="off" required minLength={2} maxLength={120} value={attendee.fullName} onChange={e => updateAttendee(index, { fullName: e.target.value })} /></label>
         <p>{session.label} · {session.performer} · {session.venue.replace('Chandramauleshwar', 'Chandramaulishwar')}</p>
         {booking.attendees.length > 1 && <button type="button" onClick={() => edit({ ...booking, attendees: booking.attendees.filter((_, i) => i !== index) })}>Remove guest {index + 1}</button>}
       </fieldset>)}
       <p className="ay-help">Your details are used for this event. Each pass belongs to the named guest; share it only with them.</p>
-      <details className="ay-terms"><summary>Pass terms & entry information</summary><ol>{ayambilTerms.map(([en]) => <li key={en}><span>{en}</span></li>)}</ol><Link to="/privacy">Privacy policy</Link></details>
-      <label className="ay-confirm"><input type="checkbox" required disabled={availability !== 'open'} checked={booking.termsAccepted} onChange={e => edit({ ...booking, termsAccepted: e.target.checked })} />I have read and accept the pass terms.</label>
+      <details className="ay-terms"><summary>Terms & Conditions</summary><ol>{ayambilTerms.map(([en]) => <li key={en}><span>{en}</span></li>)}</ol><Link to="/privacy">Privacy policy</Link></details>
+      <label className="ay-confirm"><input type="checkbox" required disabled={availability !== 'open'} checked={booking.termsAccepted} onChange={e => edit({ ...booking, termsAccepted: e.target.checked })} />By submitting this form, I confirm that I have read, understood, and agreed to all the Terms & Conditions.</label>
       <label className="ay-confirm"><input type="checkbox" required disabled={availability !== 'open'} checked={booking.whatsappConsent} onChange={e => edit({ ...booking, whatsappConsent: e.target.checked })} />I agree to receive event confirmation and passes on WhatsApp. This does not include marketing.</label>
       <div className="ay-form-actions"><button type="submit" className="ay-button" disabled={availability !== 'open'}>Review your booking</button></div>
     </form>}
-    {step === 'review' && <div className="ay-review"><h3>Review your booking</h3><p>{session.label} · {session.time} · {session.performer}</p><p lang="gu">{session.programme}</p><p>{session.venue.replace('Chandramauleshwar', 'Chandramaulishwar')} · {session.address}</p><p>{booking.contactName} · {booking.mobile}</p><p>WhatsApp consent and pass terms accepted.</p><ol>{booking.attendees.map((a, i) => <li key={i}><strong>{a.fullName}</strong><span>{session.label} · 8:00 PM IST</span></li>)}</ol>
+    {step === 'review' && <div className="ay-review"><h3>Review your booking</h3><p>{session.label} · {session.time} · {session.performer}</p><p lang="gu">{session.programme}</p><p>{session.venue.replace('Chandramauleshwar', 'Chandramaulishwar')} · {session.address}</p><p>{booking.contactName} · {booking.mobile}</p><p>Occupation: {booking.occupation || "Not specified"} · Heard about the event: {booking.referralSource || "Not specified"}</p><p>WhatsApp consent and Terms & Conditions accepted.</p><ol>{booking.attendees.map((a, i) => <li key={i}><strong>{a.fullName}</strong><span>{session.label} · 8:00 PM IST</span></li>)}</ol>
       <label className="ay-confirm"><input type="checkbox" checked={confirmed} disabled={busy} onChange={e => setConfirmed(e.target.checked)} />I confirm the guest names and evening are correct.</label>
       <div className="ay-form-actions"><button type="button" disabled={busy} onClick={() => { setStep('details'); setConfirmed(false); }}>Edit details</button><button type="button" className="ay-button" disabled={!confirmed || busy} onClick={submit}>{busy ? 'Reserving your passes…' : 'Confirm reservation'}</button></div>
     </div>}

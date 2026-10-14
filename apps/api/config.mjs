@@ -19,5 +19,5 @@ export function bookingInput(body) {
   const error=validateFields(body,programme.sessions.map(s=>s.date));
   if(error) throw new ApiError(400,error);
   if(!/^[a-f0-9]{64}$/.test(body.requestKey||'')) throw new ApiError(400,'Invalid submission identifier');
-  return {contactName:body.contactName.trim(),mobile:body.mobile.replace(/[\s()-]/g,''),eventDate:body.eventDate,whatsappConsent:true,termsAccepted:true,attendees:body.attendees.map(a=>({fullName:a.fullName.trim(),dates:[body.eventDate]})),requestKey:body.requestKey};
+  return {contactName:body.contactName.trim(),occupation:(body.occupation||'').trim(),referralSource:(body.referralSource||'').trim(),mobile:body.mobile.replace(/[\s()-]/g,''),eventDate:body.eventDate,whatsappConsent:true,termsAccepted:true,attendees:body.attendees.map(a=>({fullName:a.fullName.trim(),dates:[body.eventDate]})),requestKey:body.requestKey};
 }

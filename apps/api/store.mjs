@@ -30,7 +30,7 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
       attendees.push({...(privileged?{id:a.id}:{}),fullName:a.full_name,status:a.status,dates:[b.event_date],passes});
     }
     const whatsapp=privileged?(queue?queueSummary(await rows(db,'SELECT notification_type,status,attempts,updated_at FROM ayambil_message_queue WHERE booking_id=? ORDER BY updated_at',[id])):{status:'Queue not loaded (sending disabled)',attempts:null,history:[]}):undefined;
-    return {...(privileged?{id:b.id,contactName:b.contact_name,mobile:b.mobile}:{}),number:b.number,status:b.status,eventDate:b.event_date,created:b.created_at,attendees,...(privileged?{whatsapp}: {})};
+    return {...(privileged?{id:b.id,contactName:b.contact_name,mobile:b.mobile,occupation:b.occupation||'',referralSource:b.referral_source||''}:{}),number:b.number,status:b.status,eventDate:b.event_date,created:b.created_at,attendees,...(privileged?{whatsapp}: {})};
   };
   return {
     async ready(){const versions=await rows(pool,'SELECT version FROM ayambil_schema_version ORDER BY version');const events=await rows(pool,'SELECT event_date,snapshot FROM ayambil_events ORDER BY event_date');return JSON.stringify(versions.map(v=>Number(v.version)))==='[1,2]'&&events.length===2&&programme.sessions.every((s,index)=>events[index].event_date===s.date&&isDeepStrictEqual(json(events[index].snapshot),s));},
@@ -71,7 +71,8 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
         const setting=await one(db,'SELECT registration_open FROM ayambil_settings WHERE id=1 FOR UPDATE');if(!setting?.registration_open)throw new ApiError(403,'Registration closed');
         const event=await one(db,'SELECT snapshot FROM ayambil_events WHERE event_date=?',[body.eventDate]);if(!event)throw new ApiError(503,'Event configuration unavailable');
         const id=randomUUID(),number='BOOK26-'+randomUUID().replaceAll('-','').toUpperCase();
-        await rows(db,'INSERT INTO ayambil_bookings(id,number,contact_name,mobile,event_date,whatsapp_consent,terms_version,terms_accepted_at,created_at) VALUES(?,?,?,?,?,TRUE,?,UTC_TIMESTAMP(3),UTC_TIMESTAMP(3))',[id,number,body.contactName,body.mobile,body.eventDate,'2026-10-10']);
+        await rows(db,'INSERT INTO ayambil_bookings(id,number,contact_name,mobile,event_date,whatsapp_consent,terms_version,terms_accepted_at,created_at) VALUES(?,?,?,?,?,TRUE,?,UTC_TIMESTAMP(3),UTC_TIMESTAMP(3))',[id,number,body.contactName,body.mobile,body.eventDate,'2026-10-14']);
+        if(body.occupation || body.referralSource) await rows(db,'UPDATE ayambil_bookings SET occupation=?,referral_source=? WHERE id=?',[body.occupation,body.referralSource,id]);
         const links=[];
         for(const [index,a] of body.attendees.entries()) {
           const attendee={id:randomUUID(),full_name:a.fullName};

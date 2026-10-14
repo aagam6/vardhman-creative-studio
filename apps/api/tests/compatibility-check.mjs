@@ -16,7 +16,7 @@ export async function checkCompatibility(pool,store,input,receipt){
  const equivalent={...input,contactName:'  '+input.contactName+'  ',mobile:'+1 (202) 555-0123',attendees:input.attendees.map(a=>({...a,fullName:' '+a.fullName+' '}))};
  assert.equal((await store.register(equivalent)).number,receipt.number);
  const [records]=await pool.query('SELECT whatsapp_consent,terms_version,terms_accepted_at FROM ayambil_bookings');
- assert.equal(records.length,1);assert.equal(Number(records[0].whatsapp_consent),1);assert.equal(records[0].terms_version,'2026-10-10');assert.ok(records[0].terms_accepted_at);
+ assert.equal(records.length,1);assert.equal(Number(records[0].whatsapp_consent),1);assert.equal(records[0].terms_version,'2026-10-14');assert.ok(records[0].terms_accepted_at);
 }
 
 export async function checkParallelLists(store,input){
