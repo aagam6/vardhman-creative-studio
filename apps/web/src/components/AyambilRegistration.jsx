@@ -1,3 +1,4 @@
+import {withPrimaryParticipant} from '@/lib/ayambilPrimaryParticipant';
 import {gujaratiEvening} from '@/lib/ayambilGujarati';
 import React, { useEffect, useRef, useState } from 'react';
 import { registrationAvailability } from '@/lib/ayambilExpressClient.js';
@@ -24,7 +25,7 @@ export default function AyambilRegistration({ eventDate }) {
   };
   useEffect(() => { check(); }, []);
   useEffect(() => { if (step !== 'details') heading.current?.focus(); }, [step]);
-  const edit = next => { setBooking(next); submission.current = null; setConfirmed(false); setError(''); };
+  const edit = next => { setBooking(withPrimaryParticipant(next)); submission.current = null; setConfirmed(false); setError(''); };
   const updateAttendee = (index, patch) => edit({ ...booking, attendees: booking.attendees.map((a, i) => i === index ? { ...a, ...patch } : a) });
   const review = event => { event.preventDefault(); const problem = validateBooking(booking); if (problem) { setError(problem.includes(" / ") ? problem.split(" / ").slice(1).join(" / ") : problem); return; } setError(''); setStep('review'); };
   const submit = async () => {
@@ -48,13 +49,13 @@ export default function AyambilRegistration({ eventDate }) {
     {step !== 'success' && availability !== 'open' && <div className="ay-availability" role="status"><p>{availability === 'loading' ? 'રજિસ્ટ્રેશન ચાલુ છે કે નહીં તે તપાસીએ છીએ…' : availability === 'closed' ? 'રજિસ્ટ્રેશન હજી શરૂ થયું નથી.' : 'અત્યારે રજિસ્ટ્રેશન થઈ શકતું નથી. થોડી વાર પછી ફરી તપાસો.'}</p>{availability !== 'loading' && <button type="button" onClick={check}>ફરી તપાસો</button>}</div>}
     {step === 'details' && <form onSubmit={review}>
       <fieldset disabled={busy || availability !== 'open'}><legend>તમારી માહિતી</legend><div className="ay-form-grid">
-        <label>તમારું પૂરું નામ<input autoComplete="name" required minLength={2} maxLength={120} value={booking.contactName} onChange={e => edit({ ...booking, contactName: e.target.value })} /></label>
+        <label>તમારું પૂરું નામ<input autoComplete="name" required minLength={2} maxLength={120} value={booking.contactName} onChange={e => edit({ ...booking, contactName: e.target.value })} /><small>પહેલો પાસ આ નામે બનશે. પાસની સંખ્યામાં તમારો પાસ પણ ગણાય છે.</small></label>
         <label>WhatsApp મોબાઇલ નંબર<input type="tel" inputMode="tel" autoComplete="tel" placeholder="+91" required value={booking.mobile} onChange={e => edit({ ...booking, mobile: e.target.value })} /><small>તમારો ચાલુ WhatsApp નંબર લખો. કન્ફર્મેશન અને પાસ આ નંબર પર મોકલાશે. દેશનો કોડ પણ લખો, જેમ કે +91.</small></label>
         <label>કેટલા પાસ જોઈએ?<select value={booking.attendees.length} onChange={e => edit({ ...booking, attendees: Array.from({length:Number(e.target.value)},(_,i)=>booking.attendees[i] || emptyAttendee(eventDate)) })}><option value="1">1 પાસ</option><option value="2">2 પાસ</option><option value="3">3 પાસ</option><option value="4">4 પાસ</option><option value="5">5 પાસ</option><option value="6">6 પાસ</option></select><small>દરેક વ્યક્તિ માટે અલગ પાસ મળશે.</small></label>
         <label>તમે શું કરો છો?<select value={booking.occupation} onChange={e=>edit({...booking,occupation:e.target.value})}><option value="">કામ પસંદ કરો (જરૂરી નથી)</option>{["વિદ્યાર્થી","નોકરી","ધંધો / પોતાનું કામ","ઘર સંભાળું છું","નિવૃત્ત","બીજું"].map(value=><option key={value}>{value}</option>)}</select><small>આ માહિતી આપવી જરૂરી નથી</small></label>
         <label>આ કાર્યક્રમ વિશે ક્યાંથી જાણ્યું?<select value={booking.referralSource} onChange={e=>edit({...booking,referralSource:e.target.value})}><option value="">પસંદ કરો (જરૂરી નથી)</option><option>WhatsApp</option><option>મિત્રો કે પરિવાર</option><option>જૈન સંઘ</option><option>સોશિયલ મીડિયા</option><option>કાર્યક્રમની પત્રિકા</option><option>બીજી રીતે</option></select></label>
       </div></fieldset>
-      {booking.attendees.map((attendee, index) => <fieldset key={index} disabled={busy || availability !== 'open'}><legend>{index === 0 ? 'પહેલી વ્યક્તિનું નામ' : 'સાથે આવનાર વ્યક્તિનું નામ'}</legend>
+      {booking.attendees.map((attendee, index) => index > 0 && <fieldset key={index} disabled={busy || availability !== 'open'}><legend>સાથે આવનાર વ્યક્તિ {index + 1}નું નામ</legend>
         <label>પાસ પર લખવાનું પૂરું નામ<input autoComplete="off" required minLength={2} maxLength={120} value={attendee.fullName} onChange={e => updateAttendee(index, { fullName: e.target.value })} /></label>
         <p>{session.label} · {session.performer} · {session.venue.replace('Chandramauleshwar', 'Chandramaulishwar')}</p>
         {booking.attendees.length > 1 && <button type="button" onClick={() => edit({ ...booking, attendees: booking.attendees.filter((_, i) => i !== index) })}>વ્યક્તિ {index + 1}નું નામ કાઢો</button>}
