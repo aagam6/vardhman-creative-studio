@@ -8,4 +8,5 @@ if (metadata.status !== 0) console.warn('Optional llms metadata generation faile
 const vite = path.join(path.dirname(require.resolve('vite/package.json')), 'bin/vite.js');
 const result = spawnSync(process.execPath, [vite, 'build', '--outDir', '../../dist/apps/web'], { stdio: 'inherit' });
 if (result.error) console.error('Vite could not start.');
+if(result.status===0){const {generateEventSeo}=await import('./event-seo.mjs');await generateEventSeo(path.resolve('../../dist/apps/web'));}
 process.exit(result.status ?? 1);
