@@ -6,7 +6,7 @@ export function validateBooking(booking, dates) {
   if (!dates.includes(booking.eventDate)) return 'Select an evening event. / સાંજનો કાર્યક્રમ પસંદ કરો.';
   if (booking.whatsappConsent !== true) return 'WhatsApp consent is required. / WhatsApp પર કન્ફર્મેશન અને પાસ મેળવવાની મંજૂરી આપો.';
   if (!Array.isArray(booking.attendees) || !booking.attendees.length) return 'Add at least one attendee. / ઓછામાં ઓછું એક નામ ઉમેરો.';
-  if (booking.attendees.length > 2) return 'Maximum 2 attendees per booking. / એક રજિસ્ટ્રેશનમાં વધુમાં વધુ ૨ લોકોનાં નામ ઉમેરો.';
+  if (booking.attendees.length > 5) return 'Maximum 5 attendees per booking. / એક રજિસ્ટ્રેશનમાં વધુમાં વધુ ૫ લોકોનાં નામ ઉમેરો.';
   if (booking.termsAccepted !== true) return 'Accept the pass terms. / પાસ માટેના નિયમો સ્વીકારો.';
   for (let i = 0; i < booking.attendees.length; i++) {
     const a = booking.attendees[i];

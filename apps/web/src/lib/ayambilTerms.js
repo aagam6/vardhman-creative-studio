@@ -2,7 +2,7 @@ export const ayambilTermsVersion = '2026-10-14';
 export const ayambilTerms = [
  ['Registration is free.','રજિસ્ટ્રેશન ફ્રી છે.'],
  ['Registration is mandatory for attending the event.','કાર્યક્રમમાં હાજરી આપવા રજિસ્ટ્રેશન ફરજિયાત છે.'],
- ['Each booking can include at most two participants and applies only to the selected evening.','એક રજિસ્ટ્રેશનમાં વધુમાં વધુ બે વ્યક્તિ અને પસંદ કરેલી સાંજ માટે જ પાસ છે.'],
+ ['Each booking can include at most five participants and applies only to the selected evening.','એક રજિસ્ટ્રેશનમાં વધુમાં વધુ પાંચ વ્યક્તિ અને પસંદ કરેલી સાંજ માટે જ પાસ છે.'],
  ['Seats are limited and registrations will be confirmed on a first verified basis.','બેઠકો મર્યાદિત છે. પહેલાં ચકાસાયેલ રજિસ્ટ્રેશનને પ્રાથમિકતા આપવામાં આવશે.'],
  ['Participants must provide accurate information. Incorrect or misleading information may result in cancellation of registration.','સહભાગીઓએ સાચી માહિતી આપવી. ખોટી કે ગેરમાર્ગે દોરતી માહિતીથી રજિસ્ટ્રેશન રદ થઈ શકે છે.'],
  ['Every participant must carry their WhatsApp Confirmation/Event Pass for entry.','પ્રવેશ માટે દરેક વ્યક્તિએ WhatsApp કન્ફર્મેશન અથવા ઇવેન્ટ પાસ સાથે રાખવો.'],

@@ -16,9 +16,9 @@ test('config validates every server-only credential and keeps gates closed',()=>
  assert.throws(()=>configuration({...env,DB_PORT:'bad'}));
  assert.throws(()=>configuration({...env,AYAMBIL_WHATSAPP_ENABLED:'true'}));
 });
-test('validation accepts one/two, rejects three, mixed evenings and absent terms',()=>{
- for(const n of [1,2])assert.equal(bookingInput(body(n)).attendees.length,n);
- for(const b of [body(3),{...body(),termsAccepted:false},{...body(),eventDate:'2026-11-04'},{...body(),requestKey:''}])assert.throws(()=>bookingInput(b));
+test('validation accepts one through five, rejects six, mixed evenings and absent terms',()=>{
+ for(const n of [1,2,3,4,5])assert.equal(bookingInput(body(n)).attendees.length,n);
+ for(const b of [body(6),{...body(),termsAccepted:false},{...body(),eventDate:'2026-11-04'},{...body(),requestKey:''}])assert.throws(()=>bookingInput(b));
 });
 test('real scrypt verifies hashes without default administrator credentials',async()=>{
  const encoded=await passwordHash('Synthetic strong password');assert.equal(await passwordMatches('Synthetic strong password',encoded),true);assert.equal(await passwordMatches('wrong',encoded),false);assert.equal(await passwordMatches('wrong',null),false);
