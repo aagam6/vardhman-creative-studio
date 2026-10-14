@@ -37,3 +37,15 @@
 }
 @media(max-width:380px){.ay-performers-grid article{grid-template-columns:90px minmax(0,1fr);gap:14px}.ay-performers-grid .ay-portrait-frame{width:90px;height:120px}}
 .ay-religious-credits{display:grid;grid-template-columns:1.5fr 1fr;gap:24px;margin-block:24px 48px}.ay-religious-credits article{padding:24px;background:#fffdf8;border:1px solid #dfd0b7;border-radius:14px}.ay-religious-credits h2{font-size:26px;margin-bottom:16px}.ay-religious-credits li{font-size:16px;line-height:1.9;margin-block:10px}@media(max-width:700px){.ay-religious-credits{grid-template-columns:1fr}}
+.ay-page .ay-programme-grid{gap:24px;align-items:start}
+.ay-page .ay-programme-card{border:1px solid #dfceb2;border-radius:18px;background:#fffdf8;padding:26px;box-shadow:0 10px 30px #562b3006}
+.ay-page .ay-card-date{font-size:23px;line-height:1.5;font-weight:600;color:#682b35}
+.ay-page .ay-morning{padding:18px;border-radius:12px;background:#f4eddf;border:1px solid #e9ddc7;margin-block:20px}
+.ay-page .ay-morning h3{font-size:22px;line-height:1.6}
+.ay-page .ay-programme-card .ay-session-time{color:#682b35;font-size:17px;font-weight:600}
+.ay-page .ay-programme-card .ay-manan-beneficiaries{padding:18px;border:1px solid #e4d6c0;border-radius:12px;background:#faf6ed;margin-block:20px}
+.ay-page .ay-choice-card{border-radius:18px;background:#fffdf8;padding:26px;border-color:#dfceb2;box-shadow:0 10px 30px #562b3006}
+.ay-page .ay-button{border-radius:10px}
+.ay-page .ay-programme-card details{padding-top:16px;border-top:1px solid #e5d8c3;margin-top:20px}
+.ay-page .ay-programme-card details summary{cursor:pointer;color:#682b35;font-weight:500}
+@media(max-width:700px){.ay-page .ay-programme-card,.ay-page .ay-choice-card{padding:20px}.ay-page .ay-programme-grid{gap:18px}.ay-page .ay-morning{padding:16px}}
