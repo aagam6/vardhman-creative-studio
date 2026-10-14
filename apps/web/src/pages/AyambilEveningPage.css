@@ -27,3 +27,10 @@
 .ay-evening-portrait figcaption a{color:#682b35;text-decoration:underline;text-underline-offset:4px;min-height:44px;display:flex;align-items:center}
 @media(max-width:700px){.ay-evening-page .ay-evening-portrait{max-width:360px}.ay-evening-portrait img{max-height:420px}.ay-evening-portrait figcaption{flex-wrap:wrap;gap:4px}}
 .ay-evening-portrait figcaption{justify-content:center;padding:12px 6px 4px;font-size:14px;letter-spacing:.02em}.ay-evening-page .ay-evening-portrait{padding-bottom:14px}
+.ay-evening-page[lang=gu]{font-family:'Nirmala UI','Noto Serif Gujarati',sans-serif;line-height:1.8}
+.ay-evening-page[lang=gu] .ay-evening-hero h1{font-size:clamp(38px,5vw,62px);line-height:1.35}
+.ay-evening-page[lang=gu] .ay-facts{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:18px;border:1px solid #e4d5be;border-radius:14px;background:#fffaf2;margin-block:22px}
+.ay-evening-page[lang=gu] .ay-book-programme{max-width:980px;padding:32px;background:#fffdf8;border:1px solid #e4d5be;border-radius:18px;margin-block:24px}
+.ay-evening-page[lang=gu] .ay-registration label{line-height:1.8}
+.ay-evening-page[lang=gu] .ay-registration-heading h2{line-height:1.45}
+@media(max-width:700px){.ay-evening-page[lang=gu] .ay-facts{grid-template-columns:1fr}.ay-evening-page[lang=gu] .ay-book-programme{padding:22px;width:calc(100% - 32px)}}
