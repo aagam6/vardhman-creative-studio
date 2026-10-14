@@ -93,13 +93,18 @@ export default function AyambilPage() {
               <p className="ay-session-time">{day.morning.time || 'Morning · સમય આપેલો નથી'}{day.morning.time && ' · IST'}</p>
               <p lang={day.day !== '03' ? 'gu' : 'en'} className={day.day !== '03' ? 'ay-gujarati' : ''}>{day.morning.details}</p>
               <p><strong>{day.morning.venue || 'Location awaiting confirmation'}</strong>{day.morning.address && <><br />{day.morning.address}</>}</p>
+              {programmeCredits[day.date].morning && <section className="ay-session-beneficiaries" aria-label={`Day ${day.day} morning beneficiaries`}><h3 lang="gu">સવારના કાર્યક્રમના લાભાર્થી</h3><ul>{programmeCredits[day.date].morning.map(name=><li lang="gu" key={name}>{name}</li>)}</ul></section>}
             </section>
+            <section className="ay-evening-session" aria-label={`Day ${day.day} ${day.day === '03' ? 'Parna' : 'evening'} programme`}>
             <p className="ay-eyebrow">{day.day === '03' ? 'Concluding morning celebration' : 'Evening programme / સાંજનો કાર્યક્રમ'} · {day.category}</p>
             <h3 className="ay-gujarati" lang="gu">{day.title}</h3><p>{day.titleEn}</p>{day.subtitle && <p className="ay-gujarati" lang="gu">{day.subtitle}</p>}
             {day.performer ? <p className="ay-performer-name">{day.performer}</p> : <p className="ay-performer-name">Both Bal Tapasvi Munivars</p>}
             <p>{day.description}</p><p lang="gu">{day.descriptionGu}</p><div className="ay-card-time"><Clock size={16} aria-hidden="true" /><span>{day.time} <small>{day.day === '03' ? 'Parna Mahotsav' : 'Evening programme'} · IST</small></span></div>
             <div className="ay-card-venue"><MapPin size={17} aria-hidden="true" /><div><strong>{day.venue}</strong><p>{day.address}</p>{day.day === '03' && <small>Verified Parna location; other morning locations unconfirmed.</small>}</div></div>
-            <section className="ay-manan-beneficiaries" aria-label={`Day ${day.day} brochure credits`}><h3 lang="gu">{day.day === '03' ? 'લાભાર્થી' : 'સવારના કાર્યક્રમના લાભાર્થી'}</h3><ul>{(programmeCredits[day.date].morning || programmeCredits[day.date].beneficiaries).map(name => <li key={name} lang="gu">{name}</li>)}</ul>{programmeCredits[day.date].additional.length > 0 && <><h3 lang="gu">પત્રિકાની વધારાની વિગતો</h3><ul>{programmeCredits[day.date].additional.map(item => <li key={item} lang="gu">{item}</li>)}</ul></>}</section><details><summary>Brochure details / પત્રિકાની વિગતો</summary><p>{day.additional}</p><a href={day.brochure} target="_blank" rel="noopener noreferrer">View original Day {day.day} brochure <ArrowUpRight size={14} aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a></details>
+            {programmeCredits[day.date].additional.length > 0 && <ul className="ay-session-notes">{programmeCredits[day.date].additional.map(item=><li lang="gu" key={item}>{item}</li>)}</ul>}
+            {day.day === '01' && <MananBeneficiaries />}
+            {day.day === '03' && <section className="ay-session-beneficiaries"><h3 lang="gu">લાભાર્થી</h3><ul>{programmeCredits[day.date].beneficiaries.map(name=><li lang="gu" key={name}>{name}</li>)}</ul></section>}
+            </section><details><summary>Brochure details / પત્રિકાની વિગતો</summary><p>{day.additional}</p><a href={day.brochure} target="_blank" rel="noopener noreferrer">View original Day {day.day} brochure <ArrowUpRight size={14} aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a></details>
           </article>)}</div>
         </div>
       </section>
