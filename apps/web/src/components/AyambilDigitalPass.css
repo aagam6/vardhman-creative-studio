@@ -46,7 +46,7 @@
 .ay-pass-wrapper .ay-help,.ay-pass-wrapper>p[role=status] { font-size:12px; margin-top:10px; }
 .ay-pass-wrapper textarea { width:100%; min-height:160px; }
 .ay-pdf-render { width:1000px!important; max-width:none!important; padding:0!important; }
-.ay-pdf-render .ay-pass-side { width:1000px; height:512.19512195px; min-height:0; overflow:hidden; }
+.ay-pdf-render .ay-pass-side { width:1000px; height:585.36585366px; min-height:0; overflow:hidden; }
 .ay-pdf-render .ay-pass-front { grid-template-rows:44px 94px 24px 176px 105px; }
 @media(max-width:700px) {
   .ay-digital-pass:not(.ay-pdf-render) .ay-pass-side { padding:24px; min-height:0; }
@@ -60,8 +60,8 @@
   .ay-digital-pass:not(.ay-pdf-render) .ay-pass-back-title { flex-direction:column; }
 }
 @media print {
-  @page { size:205mm 105mm; margin:0; }
-  .ay-pass-side { width:205mm; height:105mm; margin:0; break-after:page; print-color-adjust:exact; -webkit-print-color-adjust:exact; }
+  @page { size:205mm 120mm; margin:0; }
+  .ay-pass-side { width:205mm; height:120mm; margin:0; break-after:page; print-color-adjust:exact; -webkit-print-color-adjust:exact; }
   .ay-pass-actions,.ay-pass-wrapper>.ay-help { display:none; }
 }
 
@@ -95,3 +95,24 @@
 .ay-pass-location { display:inline-block; color:#792b36; font-size:12px; font-weight:600; text-decoration:underline; text-underline-offset:3px; }
 .ay-pdf-render .ay-pass-visit { padding-top:10px; } .ay-pdf-render .ay-pass-visit h4 { margin-bottom:4px; } .ay-pdf-render .ay-pass-visit p { margin:4px 0; }
 .ay-pdf-render .ay-pass-front { grid-template-rows:44px 94px 24px 150px 125px; }
+.ay-pass-heading .ay-pass-english{font-size:27px}
+.ay-pass-heading h3{font-size:48px;line-height:1.2}
+.ay-pass-attendee strong{font-size:32px}
+.ay-pass-attendee span{font-size:12px}
+.ay-pass-attendee b{font-size:11px}
+.ay-pass-programme p:first-child{font-size:28px}
+.ay-pass-programme p{font-size:24px}
+.ay-pass-visit h4{font-size:22px}
+.ay-pass-visit strong{font-size:17px}
+.ay-pass-visit p{font-size:13px}
+.ay-pass-back-title{font-size:23px}
+.ay-pass-credits{grid-template-columns:1fr 1.2fr}
+.ay-pass-credits dt{font-size:17px}
+.ay-pass-credits dd{font-size:15px;line-height:1.6}
+.ay-pass-rules h4{font-size:16px}
+.ay-pass-rules li{font-size:13px}
+.ay-pass-status{font-size:12px}
+.ay-pass-back>small{font-size:11px}
+.ay-pdf-render .ay-pass-front{grid-template-rows:44px 110px 20px 130px 135px}
+@media(max-width:700px){.ay-digital-pass:not(.ay-pdf-render) .ay-pass-heading h3{font-size:40px}.ay-digital-pass:not(.ay-pdf-render) .ay-pass-attendee strong{font-size:28px}}
+.ay-pdf-render .ay-pass-front{grid-template-rows:44px 110px 24px 175px 155px}

@@ -7,7 +7,7 @@ import './AyambilDigitalPass.css';
 
 function Credits({ pass }) {
   const credits = passCredits(pass);
-  return <dl className="ay-pass-credits">{[['labharthi', 'લાભાર્થીઓ', 'Beneficiaries'], ['aayojak', 'આયોજકો', 'Organisers'], ['nimantrak', 'નિમંત્રકો', 'Inviting Organisations']].map(([key, gu, en]) => <div key={key}><dt><span lang="gu">{gu}</span><small>{en}</small></dt><dd>{(Array.isArray(credits[key]) ? credits[key].map(name => <span className="ay-credit-name" lang="gu" key={name}>{name}</span>) : credits[key]) || <span className="ay-pass-pending">Name awaiting approval / <span lang="gu">નામ કન્ફર્મ કરવાનું બાકી છે</span></span>}</dd></div>)}</dl>;
+  return <dl className="ay-pass-credits">{[['aayojak', 'આયોજકો', 'Organisers'], ['nimantrak', 'નિમંત્રકો', 'Inviting Organisations']].map(([key, gu, en]) => <div key={key}><dt><span lang="gu">{gu}</span><small>{en}</small></dt><dd>{(Array.isArray(credits[key]) ? credits[key].map(name => <span className="ay-credit-name" lang="gu" key={name}>{name}</span>) : credits[key]) || <span className="ay-pass-pending">Name awaiting approval / <span lang="gu">નામ કન્ફર્મ કરવાનું બાકી છે</span></span>}</dd></div>)}</dl>;
 }
 
 export async function createPassPdf(element, number) {
@@ -63,7 +63,7 @@ export default function AyambilDigitalPass({ pass }) {
       const url = URL.createObjectURL(pdf); const frame = document.createElement('iframe');
       frame.style.cssText = 'position:fixed;width:1px;height:1px;bottom:0;left:0;border:0';
       frame.title = 'Print attendee pass'; frame.src = url;
-      frame.onload = () => { try { frame.contentWindow.focus(); frame.contentWindow.print(); } catch { setMessage('Open the prepared PDF and print at actual size, 205 × 105 mm.'); } };
+      frame.onload = () => { try { frame.contentWindow.focus(); frame.contentWindow.print(); } catch { setMessage('Open the prepared PDF and print at actual size, 205 × 120 mm.'); } };
       document.body.appendChild(frame);
       setTimeout(() => { frame.remove(); URL.revokeObjectURL(url); }, 60000);
     } catch (error) { setMessage(error.message === 'Pass content exceeds readable print size' ? 'Pass content is too long to print readably. Contact the organisers for an authorised correction. / વાંચી શકાય તેવી પ્રિન્ટ માટે પાસનું લખાણ ખૂબ લાંબું છે. અધિકૃત સુધારા માટે આયોજકોનો સંપર્ક કરો.' : 'Print could not be prepared. Retry downloading the PDF.'); }
@@ -74,7 +74,7 @@ export default function AyambilDigitalPass({ pass }) {
       <section className="ay-pass-side ay-pass-front" aria-label="Digital pass front"><div className="ay-pass-brand"><img src="/assets/logo.png" width="44" height="44" alt="" /><span>VARDHMAN CREATIVE STUDIO<small>DIGITAL PASS · ડિજિટલ પાસ</small></span><b className={`ay-pass-validity ${active ? '' : 'ay-pass-invalid'}`}>{active ? 'ACTIVE · EVENING PASS' : `${pass.status.toUpperCase()} · NOT VALID`}</b></div>
       <div className="ay-pass-heading"><p className="ay-pass-english">500 Akhand Ayambil Tap</p><h3 lang="gu">વિજયોત્સવ</h3></div>
       <p className="ay-pass-registration">FREE EVENING REGISTRATION / રજિસ્ટ્રેશન</p>
-      <div className="ay-pass-attendee"><span lang="gu">લાભાર્થીનું નામ <small>/ Attendee Name</small></span><strong>{pass.attendeeName}</strong><span>પાસ નંબર / Pass number</span><b>{pass.number}</b></div>
+      <div className="ay-pass-attendee"><span lang="gu">ભાગ લેનારનું નામ <small>/ Attendee Name</small></span><strong>{pass.attendeeName}</strong><span>પાસ નંબર / Pass number</span><b>{pass.number}</b></div>
       {pass.sessions.map(session => <div className="ay-pass-programme" key={session.date}><p>{session.performer}</p><p lang="gu">{session.programme}</p><small>{session.date === '2026-11-02' ? 'Bhakti Sandhya' : 'Special presentation'}</small></div>)}
       {pass.sessions.map(session => <section className="ay-pass-visit" key={session.date}><h4>{session.label} · {session.time}</h4><strong>{session.venue.replace('Chandramauleshwar', 'Chandramaulishwar')}</strong><p>{session.address}</p>{passLocationUrl(session.mapsUrl) && <a className="ay-pass-location" href={passLocationUrl(session.mapsUrl)} target="_blank" rel="noopener noreferrer">Open location / સ્થળ જુઓ ↗</a>}</section>)}
       </section><section className="ay-pass-side ay-pass-back" aria-label="Digital pass reverse"><div className="ay-pass-back-title">500 Akhand Ayambil Tap · વિજયોત્સવ <span>PASS INFORMATION</span></div><Credits pass={pass} />

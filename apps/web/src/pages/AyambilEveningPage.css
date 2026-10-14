@@ -88,3 +88,8 @@
 .ay-evening-page[lang=gu] .ay-registration-progress{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .ay-evening-page[lang=gu] .ay-registration-progress li{gap:6px;font-size:12px}
 .ay-evening-page[lang=gu] .ay-registration-progress li>span{width:26px;height:26px;flex-shrink:0}
+.ay-evening-page[lang=gu] .ay-evening-hero h1{font-size:54px}
+.ay-evening-page[lang=gu] .ay-evening-hero h1 span{font-size:32px}
+.ay-evening-page[lang=gu] .ay-registration-heading h2{font-size:36px}
+.ay-evening-page[lang=gu] .ay-book-programme h2{font-size:34px}
+@media(max-width:700px){.ay-evening-page[lang=gu] .ay-evening-hero h1{font-size:40px}.ay-evening-page[lang=gu] .ay-evening-hero h1 span{font-size:26px}.ay-evening-page[lang=gu] .ay-registration-heading h2{font-size:30px}.ay-evening-page[lang=gu] .ay-book-programme h2{font-size:28px}}

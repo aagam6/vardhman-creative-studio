@@ -48,7 +48,7 @@ test('malformed lists, HTML successes and denial statuses fail safely',async()=>
   await assert.rejects(createAyambilApi(async()=>Response.json({error:'denied'},{status:401})).restore(),e=>e.status===401);
 });
 test('landscape pass physical dimensions, per-side fit and excessive content rejection',()=>{
-  assert.equal(passPage.width,205);assert.equal(passPage.height,105);
-  const p=passImagePlacement(105/205);assert.ok(p.x>=0&&p.y===0&&p.height<=105&&p.width<=205);
+  assert.equal(passPage.width,205);assert.equal(passPage.height,120);
+  const p=passImagePlacement(120/205);assert.ok(p.x>=0&&p.y===0&&p.height<=120&&p.width<=205);
   assert.throws(()=>passImagePlacement(5),/readable/);assert.throws(()=>passImagePlacement(NaN));
 });

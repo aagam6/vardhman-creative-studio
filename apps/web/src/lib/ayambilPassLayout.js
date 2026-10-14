@@ -1,5 +1,5 @@
 export function passLocationUrl(value) { try { const url=new URL(value); return url.protocol==='https:' && ['maps.app.goo.gl','www.google.com','maps.google.com'].includes(url.hostname) ? url.href : null; } catch { return null; } }
-export const passPage = Object.freeze({ width: 205, height: 105, margin: 0, captureWidth: 1000 });
+export const passPage = Object.freeze({ width: 205, height: 120, margin: 0, captureWidth: 1000 });
 export function passImagePlacement(ratio) {
   if (!Number.isFinite(ratio) || ratio <= 0) throw new Error('Invalid pass layout');
   const availableWidth = passPage.width - 2 * passPage.margin;
