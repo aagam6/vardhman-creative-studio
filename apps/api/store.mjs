@@ -127,11 +127,18 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
       }catch(error){error.ayambilStage=stage;throw error;}
     },
     async change(actor,body){
-      if(!body||!['cancel','restore','reissue'].includes(body.action)||typeof body.bookingId!=='string')throw new ApiError(400,'Invalid change');
+      if(!body||!['cancel','restore','reissue','cancel-pass'].includes(body.action)||typeof body.bookingId!=='string')throw new ApiError(400,'Invalid change');
       return transaction(pool,async db=>{
         const b=await one(db,'SELECT * FROM ayambil_bookings WHERE id=? FOR UPDATE',[body.bookingId]);if(!b)throw new ApiError(404,'Booking unavailable');
         let downloadKey;
-        if(body.action==='reissue') {
+        if(body.action==='cancel-pass') {
+          if(typeof body.passNumber!=='string'||body.passNumber.length>64)throw new ApiError(400,'Exact pass required');
+          const pass=await one(db,'SELECT p.id,p.status FROM ayambil_passes p JOIN ayambil_attendees a ON a.id=p.attendee_id WHERE p.number=? AND a.booking_id=? FOR UPDATE',[body.passNumber,b.id]);
+          if(!pass)throw new ApiError(404,'Pass unavailable for this booking');
+          if(pass.status!=='active')throw new ApiError(409,'Only an active pass can be cancelled');
+          await rows(db,"UPDATE ayambil_passes SET status='cancelled' WHERE id=?",[pass.id]);
+          await rows(db,'UPDATE ayambil_capabilities SET revoked_at=UTC_TIMESTAMP(3) WHERE pass_id=?',[pass.id]);
+        } else if(body.action==='reissue') {
           const a=await one(db,'SELECT * FROM ayambil_attendees WHERE id=? AND booking_id=?',[body.attendeeId||'',b.id]);
           if(b.status!=='active'||!a||a.status!=='active')throw new ApiError(409,'Active attendee required');
           await rows(db,'UPDATE ayambil_capabilities c JOIN ayambil_passes p ON p.id=c.pass_id SET c.revoked_at=UTC_TIMESTAMP(3) WHERE p.attendee_id=?',[a.id]);
@@ -142,7 +149,7 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
           const status=body.action==='cancel'?'cancelled':'active';
           await rows(db,'UPDATE ayambil_bookings SET status=? WHERE id=?',[status,b.id]);
           await rows(db,'UPDATE ayambil_attendees SET status=? WHERE booking_id=?',[status,b.id]);
-          await rows(db,"UPDATE ayambil_passes p JOIN ayambil_attendees a ON a.id=p.attendee_id SET p.status=? WHERE a.booking_id=? AND p.status<>'superseded'",[status,b.id]);
+          await rows(db,"UPDATE ayambil_passes p JOIN ayambil_attendees a ON a.id=p.attendee_id SET p.status=? WHERE a.booking_id=? AND p.status<>'superseded' AND (?='cancelled' OR EXISTS(SELECT 1 FROM ayambil_capabilities c WHERE c.pass_id=p.id AND c.revoked_at IS NULL))",[status,b.id,status]);
           // Cancellation denies links by active-state checks. Restoration retains
           // the previous key only until its original expiry, matching old backend.
         }

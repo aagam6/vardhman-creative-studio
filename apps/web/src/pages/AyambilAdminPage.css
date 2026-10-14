@@ -44,3 +44,4 @@
 .ay-admin .ay-booking-actions{margin-block:16px}
 @media(max-width:1000px){.ay-booking-overview{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.ay-admin .ay-admin-booking{padding:18px}.ay-admin .ay-booking-heading h2{font-size:22px!important}.ay-booking-overview{grid-template-columns:1fr 1fr;gap:8px}.ay-booking-overview>div{padding:11px}.ay-booking-people li{width:100%;justify-content:space-between}}
+.ay-admin .ay-cancel-pass{color:#912d36;border-color:#d7a5a9;background:#fff5f4;margin-top:12px}.ay-admin .ay-cancel-pass:disabled{opacity:.45}
