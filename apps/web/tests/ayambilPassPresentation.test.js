@@ -13,7 +13,7 @@ test('evening-specific beneficiaries remain separate from common invitation orga
   assert.match(second.labharthi[0], /મીનાક્ષીબેન/);
   assert.match(second.labharthi[1], /રંતાબેન/);
   assert.equal(first.aayojak.length, 2);
-  assert.equal(second.nimantrak.length, 3);
+  assert.equal(second.nimantrak.length, 2);
 });
 
 test('saved approved credit snapshots take precedence over date-specific defaults', () => {
