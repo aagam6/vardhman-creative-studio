@@ -93,3 +93,20 @@
 .ay-evening-page[lang=gu] .ay-registration-heading h2{font-size:36px}
 .ay-evening-page[lang=gu] .ay-book-programme h2{font-size:34px}
 @media(max-width:700px){.ay-evening-page[lang=gu] .ay-evening-hero h1{font-size:40px}.ay-evening-page[lang=gu] .ay-evening-hero h1 span{font-size:26px}.ay-evening-page[lang=gu] .ay-registration-heading h2{font-size:30px}.ay-evening-page[lang=gu] .ay-book-programme h2{font-size:28px}}
+.ay-evening-page[lang=gu] .ay-evening-hero{background:radial-gradient(ellipse at 80% 30%,#e8dac033,transparent 65%)}
+.ay-evening-page[lang=gu] .ay-hero-venue{grid-column:1/-1;border-left:0!important;padding:10px 0 0!important;border-top:1px solid #e4d5be;font-weight:500}
+.ay-evening-nav{display:flex;gap:28px;border-block:1px solid #e2d6c3;padding-block:14px;margin-bottom:24px}
+.ay-evening-nav a{font-size:14px;color:#682b35;text-decoration:none;padding:6px 0;border-bottom:2px solid transparent}
+.ay-evening-nav a:hover{border-bottom-color:#98743c}
+.ay-evening-highlights{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-block:24px 32px}
+.ay-evening-highlights article{padding:24px;border:1px solid #e4d7c1;border-radius:14px;background:#fffdf8}
+.ay-evening-highlights article>span{color:#a2814c;font-size:13px}
+.ay-evening-page[lang=gu] .ay-evening-highlights h2{font-size:19px;line-height:1.5;margin:12px 0 8px}
+.ay-evening-highlights p{font-size:14px;color:#766858;line-height:1.8;margin:0}
+.ay-evening-help{padding-block:24px 48px;max-width:980px!important}
+.ay-evening-help h2{font-size:30px;line-height:1.5;margin:12px 0 24px}
+.ay-evening-help details{border-top:1px solid #dfd2be;padding:18px 0}
+.ay-evening-help summary{cursor:pointer;font-size:16px;font-weight:500;color:#682b35;min-height:30px}
+.ay-evening-help details p{font-size:15px;line-height:1.9;margin:14px 0 0;max-width:760px}
+.ay-evening-page a:focus-visible,.ay-evening-page summary:focus-visible{outline:3px solid #a88345;outline-offset:5px}
+@media(max-width:700px){.ay-evening-nav{gap:22px;justify-content:center}.ay-evening-highlights{grid-template-columns:1fr;gap:12px}.ay-evening-highlights article{padding:18px}.ay-evening-help h2{font-size:26px}}
