@@ -12,8 +12,8 @@ Sources: six user-supplied brochure images dated 13 October 2026.
 - મીનાક્ષીબેન રસીકલાલ શાહ પરિવાર; રોનકભાઈ, જિગીશાબેન; ચિંતનભાઈ, નિધીબેન; બીનાબેન–પિયુષકુમાર; મેઘાબેન–દિપકકુમાર.
 - Book attribution retains the user-approved માતૃપૂજા reference.
 
-## Awaiting user confirmation
-- Second organiser: image appears to show રંભાબેન, while the existing source says રંતાબેન. Do not change until confirmed.
-- Day 1 evening સંવેદના name and parenthetical spelling: current source says શ્રી હંસલભાઈ (નાના નામ: શાસ્ત્રી પરિવાર); ask the user for the exact wording.
+## User confirmation received
+- Second organiser: શ્રી રંભાબેન બસ્તીમલજી પાલરેચા પરિવાર (પુના). Confirmed directly by the user.
+- Day 1 evening: સંવેદના: શ્રી સંદીપભાઈ શાહ (નમો નમઃ). Confirmed directly by the user.
 
 The long blessings/name list is displayed through the supplied brochure photo and has not been certified as a full text transcription. No production database snapshots or downloaded PDFs were modified by this audit.

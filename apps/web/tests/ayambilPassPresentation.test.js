@@ -11,7 +11,7 @@ test('evening-specific beneficiaries remain separate from common invitation orga
   assert.notDeepEqual(first.labharthi, second.labharthi);
   assert.equal(second.labharthi.length, 2);
   assert.match(second.labharthi[0], /મીનાક્ષીબેન/);
-  assert.match(second.labharthi[1], /રંતાબેન/);
+  assert.match(second.labharthi[1], /રંભાબેન બસ્તીમલજી પાલરેચા/);
   assert.equal(first.aayojak.length, 2);
   assert.equal(second.nimantrak.length, 2);
 });
