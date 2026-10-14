@@ -34,3 +34,4 @@
 .ay-evening-page[lang=gu] .ay-registration label{line-height:1.8}
 .ay-evening-page[lang=gu] .ay-registration-heading h2{line-height:1.45}
 @media(max-width:700px){.ay-evening-page[lang=gu] .ay-facts{grid-template-columns:1fr}.ay-evening-page[lang=gu] .ay-book-programme{padding:22px;width:calc(100% - 32px)}}
+.ay-evening-page[lang=gu] .ay-facts{padding:14px 18px;gap:14px;border-radius:10px;background:#fffdf8}.ay-evening-page[lang=gu] .ay-facts>span{font-size:15px;color:#573b35;line-height:1.7}.ay-evening-page[lang=gu] .ay-facts>span+span{border-left:1px solid #e4d5be;padding-left:20px}@media(max-width:700px){.ay-evening-page[lang=gu] .ay-facts>span+span{border-left:0;border-top:1px solid #e4d5be;padding-left:0;padding-top:10px}}

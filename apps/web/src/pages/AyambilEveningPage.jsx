@@ -3,7 +3,7 @@ import {gujaratiEvening} from '@/lib/ayambilGujarati';
 import AyambilBookProgramme, { OfficialCredits } from '@/components/AyambilBookProgramme.jsx';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
-import { CalendarDays, Clock, ArrowDown } from 'lucide-react';
+import { ArrowDown } from 'lucide-react';
 import { ayambilProgramme } from '@/lib/ayambilProgramme';
 import { contactConfig } from '@/lib/contactConfig';
 import AyambilRegistration from '@/components/AyambilRegistration.jsx';
@@ -17,7 +17,7 @@ export default function AyambilEveningPage({ eventDate }) {
     <a className="ay-skip" href="#ay-registration">ફોર્મ પર જાઓ</a>
     <div className="ay-announcement"><span lang="gu">સાંજનો કાર્યક્રમ · ફ્રી રજિસ્ટ્રેશન</span></div>
     <header className="ay-header ay-container"><Link to="/500-akhand-ayambil-vijayollas">← બધા કાર્યક્રમો</Link><Link to="/" className="ay-brand"><img src="/assets/logo.png" alt="" width="36" height="36" /><span>વર્ધમાન<small>ક્રિએટિવ સ્ટુડિયો</small></span></Link></header>
-    <main><section className="ay-evening-hero ay-container" aria-labelledby="ay-evening-title"><div><p className="ay-eyebrow">વિજયોત્સવ</p><p lang="gu" className="ay-identity-gu">૫૦૦ અખંડ આયંબિલ તપનો વિજયોત્સવ</p><p className="ay-evening-category">{event.category}</p><h1 id="ay-evening-title">{event.performer}<span lang="gu" className="ay-gujarati">{event.title}</span></h1><p lang="gu">{event.descriptionGu}</p><div className="ay-facts"><span><CalendarDays size={18} aria-hidden="true" />{event.weekday}, {event.displayDate}</span><span><Clock size={18} aria-hidden="true" />{event.time}</span></div><a className="ay-button" href="#ay-registration">ફ્રી રજિસ્ટ્રેશન કરો <ArrowDown size={18} aria-hidden="true" /></a><p className="ay-help">એક ફોર્મમાં ૬ લોકોના પાસ લઈ શકો છો.</p></div><figure className="ay-evening-poster ay-evening-portrait"><img src={event.portrait} alt={event.performer} width="950" height="950" fetchPriority="high" /><figcaption><span>{event.performer}</span></figcaption></figure></section>
+    <main><section className="ay-evening-hero ay-container" aria-labelledby="ay-evening-title"><div><p className="ay-eyebrow">વિજયોત્સવ</p><p lang="gu" className="ay-identity-gu">૫૦૦ અખંડ આયંબિલ તપનો વિજયોત્સવ</p><p className="ay-evening-category">{event.category}</p><h1 id="ay-evening-title">{event.performer}<span lang="gu" className="ay-gujarati">{event.title}</span></h1><p lang="gu">{event.descriptionGu}</p><div className="ay-facts"><span>{event.weekday}, {event.displayDate}</span><span>{event.time}</span></div><a className="ay-button" href="#ay-registration">ફ્રી રજિસ્ટ્રેશન કરો <ArrowDown size={18} aria-hidden="true" /></a><p className="ay-help">એક ફોર્મમાં ૬ લોકોના પાસ લઈ શકો છો.</p></div><figure className="ay-evening-poster ay-evening-portrait"><img src={event.portrait} alt={event.performer} width="950" height="950" fetchPriority="high" /><figcaption><span>{event.performer}</span></figcaption></figure></section>
     {eventDate === '2026-11-02' && <div className="ay-container"><MananBeneficiaries /><OfficialCredits /></div>}
     {eventDate === '2026-11-03' && <AyambilBookProgramme />}
     <AyambilRegistration key={eventDate} eventDate={eventDate} />
