@@ -1,19 +1,11 @@
-# Brochure name verification — 14 October 2026
+# Final name transcription — 14 October 2026
 
-Sources: six user-supplied brochure images dated 13 October 2026.
+The latest full user-supplied text supersedes earlier image-only transcriptions and earlier conflicting corrections.
 
-## Confirmed by direct user instructions
-- રોનકભાઈ replaces રોહિતભાઈ in Day 1 morning and Day 3 family credits.
-- રાજભાઈ – પ્રિયાબેન in the Manan evening family credit.
-- Inviting organisations retain the user's exact પો.હે., શ્વેતામ્બર and નિર્મળકુમાર wording.
+Applied names: હેમાંશચંદ્રસાગરજી; દેવર્ધિચંદ્રસાગરજી; શ્રીમતિ મીનાક્ષીબેન રસીકલાલ શાહ; રંભાબેન બસ્તીમલજી પાલરેચા; રોનકભાઈ, જિગીષાબેન; ચિંતનભાઈ નિધીબેન; બીનીતાબેન–પિયૂષકુમાર; મેઘાબેન–દિપલકુમાર; વિશ્વ જયેશભાઈ વોરા; મીનાબેન કિરણજી પાલરેચા; રાજભાઈ–પ્રિયાબેન; પાર્શ્વ–મોક્ષા–માન્યા–હીત–મીત.
 
-## Clear photo match
-- Main invitation: પૂજ્ય મુનિ શ્રી હેમાંશચંદ્રસાગર મહારાજ; પૂજ્ય મુનિ શ્રી દેવર્ષિચંદ્રસાગર મહારાજ. Remove the extra જી previously added after સાગર.
-- મીનાક્ષીબેન રસીકલાલ શાહ પરિવાર; રોનકભાઈ, જિગીશાબેન; ચિંતનભાઈ, નિધીબેન; બીનાબેન–પિયુષકુમાર; મેઘાબેન–દિપકકુમાર.
-- Book attribution retains the user-approved માતૃપૂજા reference.
+Day 1 evening samvedna: શ્રી સંદિપભાઈ (નમો નમઃ શાશ્વત પરિવાર).
+Day 1 morning subject follows user text exactly: શ્રી સાયફ તપસે નમઃ.
+Inviters displayed separately using the final user wording. Nishra and inspiration lists use the supplied text.
 
-## User confirmation received
-- Second organiser: શ્રી રંભાબેન બસ્તીમલજી પાલરેચા પરિવાર (પુના). Confirmed directly by the user.
-- Day 1 evening: સંવેદના: શ્રી સંદીપભાઈ શાહ (નમો નમઃ). Confirmed directly by the user.
-
-The long blessings/name list is displayed through the supplied brochure photo and has not been certified as a full text transcription. No production database snapshots or downloaded PDFs were modified by this audit.
+Previously removed beneficiary columns and registration highlight cards remain removed. No production database snapshots, bookings, sent messages or downloaded PDFs were changed. Existing saved approved pass credit snapshots continue to take precedence over display defaults.

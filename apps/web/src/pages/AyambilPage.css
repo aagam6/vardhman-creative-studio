@@ -36,3 +36,4 @@
  .ay-performers-grid .ay-manan-beneficiaries{grid-column:1/-1}
 }
 @media(max-width:380px){.ay-performers-grid article{grid-template-columns:90px minmax(0,1fr);gap:14px}.ay-performers-grid .ay-portrait-frame{width:90px;height:120px}}
+.ay-religious-credits{display:grid;grid-template-columns:1.5fr 1fr;gap:24px;margin-block:24px 48px}.ay-religious-credits article{padding:24px;background:#fffdf8;border:1px solid #dfd0b7;border-radius:14px}.ay-religious-credits h2{font-size:26px;margin-bottom:16px}.ay-religious-credits li{font-size:16px;line-height:1.9;margin-block:10px}@media(max-width:700px){.ay-religious-credits{grid-template-columns:1fr}}

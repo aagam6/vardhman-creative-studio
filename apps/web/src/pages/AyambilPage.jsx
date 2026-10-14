@@ -1,3 +1,4 @@
+import {religiousCredits} from '@/lib/ayambilOfficialCredits';
 import React from 'react';
 import AyambilBookProgramme from '@/components/AyambilBookProgramme.jsx';
 import { programmeCredits } from '@/lib/ayambilOfficialCredits';
@@ -74,16 +75,17 @@ export default function AyambilPage() {
       <section className="ay-intro ay-container" id="ay-about" aria-labelledby="ay-about-heading">
         <Ornament /><p className="ay-eyebrow">Faith. Discipline. Devotion.</p>
         <h2 id="ay-about-heading">A journey of tap.<br /><em>A moment of celebration.</em></h2><p lang="gu">બંને પૂજ્ય મુનિવરોના ૫૦૦ અખંડ આયંબિલ તપની ઉજવણીમાં ભક્તિ સંધ્યા, વિશેષ પ્રસ્તુતિ અને પારણાં મહોત્સવ યોજાશે.</p>
-        <p>The invitation celebrates 500 uninterrupted Ayambil Tap undertaken by two Jain ascetic monks, Pujya Muni Shri Hemanshchandrasagarji Maharaj and Pujya Muni Shri Devarshichandrasagarji Maharaj. The celebration brings together bhakti, a special presentation and the concluding Parna Mahotsav.</p>
-        <p className="ay-gujarati ay-munivars" lang="gu">પૂજ્ય મુનિ શ્રી હેમાંશચંદ્રસાગર મહારાજ<br />તથા પૂજ્ય મુનિ શ્રી દેવર્ષિચંદ્રસાગર મહારાજ</p>
+        <p>The invitation celebrates 500 uninterrupted Ayambil Tap undertaken by two Jain ascetic monks, Pujya Muni Shri Hemanshchandrasagarji Maharaj and Pujya Muni Shri Devardhichandrasagarji Maharaj. The celebration brings together bhakti, a special presentation and the concluding Parna Mahotsav.</p>
+        <p className="ay-gujarati ay-munivars" lang="gu">પૂજ્ય મુનિ શ્રી હેમાંશચંદ્રસાગરજી મહારાજ<br />તથા પૂજ્ય મુનિ શ્રી દેવર્ધિચંદ્રસાગરજી મહારાજ</p>
       </section>
+      <section className="ay-container ay-religious-credits" aria-label="નિશ્રા અને પ્રેરણા">{[['નિશ્રા',religiousCredits.nishra],['પ્રેરણા',religiousCredits.inspiration]].map(([title,names])=><article key={title}><h2 lang="gu">{title}</h2><ul>{names.map(name=><li lang="gu" key={name}>{name}</li>)}</ul></article>)}</section>
       <section className="ay-performers ay-container" aria-labelledby="ay-performers-heading"><p className="ay-eyebrow">Evenings to come together</p><h2 id="ay-performers-heading">Evening Presentations</h2><p lang="gu">સાંજના કાર્યક્રમો</p><div className="ay-performers-grid">{ayambilProgramme.filter(day => day.performer).map(day => <article key={day.day}><PerformerPortrait event={day} /><div><p className="ay-eyebrow">{day.displayDate} · {day.time}</p><h3>{day.performer}</h3><p className="ay-gujarati" lang="gu">{day.title}</p><p>{day.category}</p>{day.date === '2026-11-02' && <MananBeneficiaries />}{day.date === '2026-11-03' && <SairamBeneficiaries />}</div></article>)}</div></section>
       <AyambilBookProgramme />
       <section className="ay-programme-section" aria-labelledby="ay-programme">
         <div className="ay-container"><div className="ay-section-heading"><div><p className="ay-eyebrow">02 — 04 November · 2026</p><h2 id="ay-programme" tabIndex={-1}>Three days, one sacred celebration.</h2><p lang="gu">ત્રણ દિવસના કાર્યક્રમો</p></div><p>From an evening of devotion<br />to the joy of Parna.</p></div>
           <ol className="ay-timeline">{ayambilProgramme.map(day => <li key={day.date}><span>{day.day}</span><time dateTime={day.date}>{day.displayDate}</time><small>{day.category}</small></li>)}</ol>
           <div className="ay-programme-grid">{ayambilProgramme.map(day => <article key={day.date} className={`ay-programme-card ay-day-${day.day}`}>
-            <div className="ay-card-top"><span>DAY {day.day}</span><span>{day.weekday}</span></div>
+            <div className="ay-card-top"><span>DAY {day.day}</span><span>{day.lunarDate} · {day.weekday}</span></div>
             <time className="ay-card-date" dateTime={day.date}>{day.displayDate}</time>
             <section className="ay-morning" aria-label={`Day ${day.day} morning programme`}>
               <p className="ay-eyebrow">Morning programme / સવારનો કાર્યક્રમ</p>

@@ -2,20 +2,20 @@
 // Keep each date independent: Phase 2 can extend this data without changing the page.
 export const ayambilProgramme = [
   {
-    day: '01', date: '2026-11-02', displayDate: '2 November 2026', weekday: 'Monday',
+    day: '01', lunarDate: 'આસો વદ-૮', date: '2026-11-02', displayDate: '2 November 2026', weekday: 'Monday',
     portrait: '/assets/ayambil/manan-sanghvi-portrait.png',
     portraitSource: 'User-supplied Manan Sanghvi photograph, 10 October 2026',
-    slug: 'manan-sanghvi', titleEn: 'Ek Shaam Dada Rishabh Ke Naam', mapsUrl: 'https://maps.app.goo.gl/bXgLhbJ1cLfvdxqA6', venueGu: 'શ્રી ચંદ્રમૌલિશ્વર હોલ', addressGu: 'સ્મૃતિ વિલા, નારાયણ નગર, અમદાવાદ, ગુજરાત.', descriptionGu: 'દાદા ઋષભને સમર્પિત મનન સંઘવીની ભક્તિ સંધ્યા.', category: 'Bhakti Sandhya', title: 'એક શામ દાદા ઋષભ કે નામ',
+    slug: 'manan-sanghvi', titleEn: 'Ek Shaam Dada Rishabh Ke Naam', mapsUrl: 'https://maps.app.goo.gl/bXgLhbJ1cLfvdxqA6', venueGu: 'શ્રી ચંદ્રમૌલેશ્વર હોલ', addressGu: 'સ્મૃતિ વિલા, નારાયણ નગર, અમદાવાદ, ગુજરાત.', descriptionGu: 'દાદા ઋષભને સમર્પિત મનન સંઘવીની ભક્તિ સંધ્યા.', category: 'Bhakti Sandhya', title: 'એક શામ દાદા ઋષભ કે નામ',
     performer: 'Manan Sanghvi', time: '8:00 PM',
     description: 'An evening of bhakti dedicated to Dada Rishabh.',
     additional: 'The evening includes honours for Ayambil tapasvis and marks the 500th flag of Shri Adishwar Dada at Siddhachal, as described in the brochure.',
-    morning: { titleEn: 'Tap Samvedna — Anumodna of both Bal Tapasvi Munivars', title: 'બંને બાળ તપસ્વી મુનિવરોની યશસ્વી અનુમોદના (તપસંવેદના)', time: '9:00 AM–12:00 PM', details: 'વિષય: શ્રી સમ્યક્ તપસે નમઃ · સંવેદનાકાર: શ્રી દિપકભાઈ બારડોલી', venue: 'Shri Chandramaulishwar Hall', address: 'Smruti Villa, Narayan Nagar, Ahmedabad, Gujarat.' },
+    morning: { titleEn: 'Tap Samvedna — Anumodna of both Bal Tapasvi Munivars', title: 'બંને બાળ તપસ્વી મુનિવરોની યશસ્વી અનુમોદના (તપસંવેદના)', time: '9:00 AM–12:00 PM', details: 'વિષય: શ્રી સાયફ તપસે નમઃ · સંવેદનાકાર: શ્રી દિપકભાઈ બારડોલી', venue: 'Shri Chandramaulishwar Hall', address: 'Smruti Villa, Narayan Nagar, Ahmedabad, Gujarat.' },
     venue: 'Shri Chandramaulishwar Hall',
     address: 'Smruti Villa, Narayan Nagar, Ahmedabad, Gujarat.',
     venueScope: 'Day 1 programme', brochure: '/assets/ayambil/day-1-20261013.jpeg',
   },
   {
-    day: '02', date: '2026-11-03', displayDate: '3 November 2026', weekday: 'Tuesday',
+    day: '02', lunarDate: 'આસો વદ-૯', date: '2026-11-03', displayDate: '3 November 2026', weekday: 'Tuesday',
     portrait: '/assets/ayambil/sairam-dave-portrait.png',
     portraitSource: 'User-supplied Sairam Dave photograph, 10 October 2026',
     slug: 'sairam-dave', titleEn: 'Mari Maa... Maro Praan', mapsUrl: 'https://maps.app.goo.gl/szzzN9cXE8dWJW7r7', venueGu: 'ટાગોર હોલ', addressGu: 'સંસ્કાર કેન્દ્ર મ્યુઝિયમ સામે, પ્રીતમ રાય ક્રોસ રોડ, કોચરબ, પાલડી, અમદાવાદ, ગુજરાત – 380006.', descriptionGu: 'માતૃપૂજા પુસ્તક પર આધારિત સાંઈરામ દવેની વિશેષ પ્રસ્તુતિ.', category: 'Special presentation', title: 'મારી મા... મારો પ્રાણ',
@@ -28,7 +28,7 @@ export const ayambilProgramme = [
     venueScope: 'Day 2 evening presentation', brochure: '/assets/ayambil/day-2-20261013.jpeg',
   },
   {
-    day: '03', date: '2026-11-04', displayDate: '4 November 2026', weekday: 'Wednesday',
+    day: '03', lunarDate: 'આસો વદ-૧૦', date: '2026-11-04', displayDate: '4 November 2026', weekday: 'Wednesday',
     descriptionGu: 'બંને બાળ તપસ્વી મુનિવરોનો પારણાં મહોત્સવ. આ કાર્યક્રમ સાથે ત્રણ દિવસની ઉજવણી પૂરી થાય છે.', titleEn: 'Parna Mahotsav', category: 'Vijayollas & Parna Mahotsav', title: 'યશસ્વી પારણાં મહોત્સવ',
     performer: null, time: '8:00 AM',
     description: 'The Parna Mahotsav of both Bal Tapasvi Munivars, concluding the three-day celebration.',
