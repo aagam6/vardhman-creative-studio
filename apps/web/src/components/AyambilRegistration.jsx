@@ -43,7 +43,7 @@ export default function AyambilRegistration({ eventDate }) {
   return <section className="ay-registration ay-container ay-guest-reservation" id="ay-registration" aria-labelledby="ay-registration-title">
     <header className="ay-registration-heading"><p className="ay-eyebrow">સાંજના કાર્યક્રમ માટે ફ્રી રજિસ્ટ્રેશન</p><h2 id="ay-registration-title" ref={heading} tabIndex={-1}>તમારો પાસ અહીં મેળવો</h2><p className="ay-registration-intro">તમારું નામ અને WhatsApp નંબર આપો. એક ફોર્મમાં ૬ લોકોના ફ્રી પાસ લઈ શકો છો.</p></header>
     <div className="ay-registration-event"><div><strong>{session.performer}</strong><span lang="gu">{session.programme}</span></div><div><strong>{session.label} · {session.time}</strong><span>{session.venue.replace('Chandramauleshwar', 'Chandramaulishwar')}</span></div></div>
-    <p className="ay-help">આ પાસ પસંદ કરેલી સાંજ માટે છે. સવારના કાર્યક્રમો અને ૪ નવેમ્બર માટે નથી.</p>
+
     <ol className="ay-registration-progress" aria-label="Registration steps">{[['details','તમારી માહિતી'],['review','માહિતી તપાસો'],['success','પાસ સાચવો']].map(([key,label],index) => <li key={key} aria-current={step===key ? 'step' : undefined}><span>{index+1}</span>{label}</li>)}</ol>
 
     {step !== 'success' && availability !== 'open' && <div className="ay-availability" role="status"><p>{availability === 'loading' ? 'રજિસ્ટ્રેશન ચાલુ છે કે નહીં તે તપાસીએ છીએ…' : availability === 'closed' ? 'રજિસ્ટ્રેશન હજી શરૂ થયું નથી.' : 'અત્યારે રજિસ્ટ્રેશન થઈ શકતું નથી. થોડી વાર પછી ફરી તપાસો.'}</p>{availability !== 'loading' && <button type="button" onClick={check}>ફરી તપાસો</button>}</div>}
