@@ -12,7 +12,7 @@ const emptyAttendee = date => ({ fullName: '', dates: [date] });
 
 export default function AyambilRegistration({ eventDate }) {
   const session = gujaratiEvening(eveningConfig.sessions.find(s => s.date === eventDate));
-  const initialBooking = () => ({ contactName: '', occupation: '', referralSource: '', mobile: '', eventDate, whatsappConsent: false, termsAccepted: false, attendees: [emptyAttendee(eventDate)] });
+  const initialBooking = () => ({ contactName: '', occupation: '', referralSource: '', mobile: '+91', eventDate, whatsappConsent: false, termsAccepted: false, attendees: [emptyAttendee(eventDate)] });
   const [booking, setBooking] = useState(initialBooking);
   const [availability, setAvailability] = useState('loading'); const [step, setStep] = useState('details');
   const [error, setError] = useState(''); const [busy, setBusy] = useState(false); const [confirmed, setConfirmed] = useState(false);
