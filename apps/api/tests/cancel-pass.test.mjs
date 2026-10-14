@@ -28,3 +28,32 @@ test('booking restoration excludes passes whose capabilities were explicitly rev
  const {store,calls}=fixture();await store.change({admin_id:'operator'},{action:'restore',bookingId:'booking-one'});
  const passUpdate=calls.find(([sql])=>sql.startsWith('UPDATE ayambil_passes p'));assert.ok(passUpdate[0].includes('c.revoked_at IS NULL'));assert.deepEqual(passUpdate[1],['active','booking-one','active']);
 });
+
+test('local stateful scenario: cancel one pass, deny its download, retain other pass across booking restore',async()=>{
+ const state={booking:{id:'b',number:'BOOK26-SYNTHETIC',status:'active',event_date:'2026-11-02'},passes:[{id:'p1',number:'AYV26-ONE',status:'active',revoked:false,snapshot:{number:'AYV26-ONE',attendeeName:'Synthetic One'}},{id:'p2',number:'AYV26-TWO',status:'active',revoked:false,snapshot:{number:'AYV26-TWO',attendeeName:'Synthetic Two'}}],audit:[]};
+ const {hash}=await import('../security.mjs');const keys=['A'.repeat(64),'B'.repeat(64)];
+ const execute=async(sql,args=[])=>{
+  if(sql.startsWith('SELECT * FROM ayambil_bookings'))return [[state.booking]];
+  if(sql.startsWith('SELECT p.id,p.status'))return [state.passes.filter(p=>p.number===args[0]&&args[1]===state.booking.id)];
+  if(sql.startsWith("UPDATE ayambil_passes SET status='cancelled'")){state.passes.find(p=>p.id===args[0]).status='cancelled';return [[]];}
+  if(sql.startsWith('UPDATE ayambil_capabilities SET')){state.passes.find(p=>p.id===args[0]).revoked=true;return [[]];}
+  if(sql.startsWith('UPDATE ayambil_bookings SET')){state.booking.status=args[0];return [[]];}
+  if(sql.startsWith('UPDATE ayambil_attendees SET'))return [[]];
+  if(sql.startsWith('UPDATE ayambil_passes p')){for(const p of state.passes)if(args[0]==='cancelled'||!p.revoked)p.status=args[0];return [[]];}
+  if(sql.startsWith('INSERT INTO ayambil_audit')){state.audit.push(args[3]);return [[]];}
+  if(sql.startsWith('SELECT p.snapshot,p.status FROM ayambil_capabilities')){
+   const index=keys.findIndex(key=>hash(key)===args[0]);const p=state.passes[index];return [[...(p&&!p.revoked&&p.status==='active'&&state.booking.status==='active'?[{snapshot:p.snapshot,status:p.status}]:[])]];
+  }
+  if(sql.startsWith('SELECT * FROM ayambil_attendees'))return [[]];
+  throw Error('Unexpected local query: '+sql);
+ };
+ const db={execute,beginTransaction:async()=>{},commit:async()=>{},rollback:async()=>{},release(){}};
+ const store=createStore({execute,getConnection:async()=>db},{},{}),actor={admin_id:'synthetic-admin'};
+ assert.equal((await store.download(keys[0])).passes[0].number,'AYV26-ONE');
+ await store.change(actor,{action:'cancel-pass',bookingId:'b',passNumber:'AYV26-ONE'});
+ await assert.rejects(store.download(keys[0]),e=>e.status===404);
+ assert.equal((await store.download(keys[1])).passes[0].number,'AYV26-TWO');assert.equal(state.booking.status,'active');
+ await store.change(actor,{action:'cancel',bookingId:'b'});await assert.rejects(store.download(keys[1]),e=>e.status===404);
+ await store.change(actor,{action:'restore',bookingId:'b'});await assert.rejects(store.download(keys[0]),e=>e.status===404);
+ assert.equal((await store.download(keys[1])).passes[0].number,'AYV26-TWO');assert.equal(state.passes.length,2);assert.deepEqual(state.audit,['cancel-pass','cancel','restore']);
+});
