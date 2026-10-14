@@ -1,5 +1,5 @@
 // Transcribed from supplied invitation and Day 02 evening poster.
-// The poster spells the second name રંતાબેન, not the typed request's રમાબેન.
+// Second organiser spelling awaits explicit confirmation from the supplied photo.
 export const organisers = [
   'શ્રીમતી મીનાક્ષીબેન રસીકલાલ શાહ પરિવાર (વડગામ)',
   'શ્રી રંતાબેન બસ્તીમલજી પાલેરિયા પરિવાર (પુના)',

@@ -75,7 +75,7 @@ export default function AyambilPage() {
         <Ornament /><p className="ay-eyebrow">Faith. Discipline. Devotion.</p>
         <h2 id="ay-about-heading">A journey of tap.<br /><em>A moment of celebration.</em></h2><p lang="gu">બંને પૂજ્ય મુનિવરોના ૫૦૦ અખંડ આયંબિલ તપની ઉજવણીમાં ભક્તિ સંધ્યા, વિશેષ પ્રસ્તુતિ અને પારણાં મહોત્સવ યોજાશે.</p>
         <p>The invitation celebrates 500 uninterrupted Ayambil Tap undertaken by two Jain ascetic monks, Pujya Muni Shri Hemanshchandrasagarji Maharaj and Pujya Muni Shri Devarshichandrasagarji Maharaj. The celebration brings together bhakti, a special presentation and the concluding Parna Mahotsav.</p>
-        <p className="ay-gujarati ay-munivars" lang="gu">પૂજ્ય મુનિ શ્રી હેમાંશચંદ્રસાગરજી મહારાજ<br />તથા પૂજ્ય મુનિ શ્રી દેવર્ષિચંદ્રસાગરજી મહારાજ</p>
+        <p className="ay-gujarati ay-munivars" lang="gu">પૂજ્ય મુનિ શ્રી હેમાંશચંદ્રસાગર મહારાજ<br />તથા પૂજ્ય મુનિ શ્રી દેવર્ષિચંદ્રસાગર મહારાજ</p>
       </section>
       <section className="ay-performers ay-container" aria-labelledby="ay-performers-heading"><p className="ay-eyebrow">Evenings to come together</p><h2 id="ay-performers-heading">Evening Presentations</h2><p lang="gu">સાંજના કાર્યક્રમો</p><div className="ay-performers-grid">{ayambilProgramme.filter(day => day.performer).map(day => <article key={day.day}><PerformerPortrait event={day} /><div><p className="ay-eyebrow">{day.displayDate} · {day.time}</p><h3>{day.performer}</h3><p className="ay-gujarati" lang="gu">{day.title}</p><p>{day.category}</p>{day.date === '2026-11-02' && <MananBeneficiaries />}{day.date === '2026-11-03' && <SairamBeneficiaries />}</div></article>)}</div></section>
       <AyambilBookProgramme />
