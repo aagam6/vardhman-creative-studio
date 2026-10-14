@@ -1,4 +1,5 @@
 import React from 'react';
+import {contactConfig} from '@/lib/contactConfig';
 import { Helmet } from 'react-helmet';
 import { ShieldCheck, Mail, Phone, Clock } from 'lucide-react';
 import PageTransition from '@/components/PageTransition.jsx';
@@ -33,7 +34,7 @@ export default function AgencyPrivacyPolicyPage() {
                 Your privacy and confidentiality are of paramount importance to us. This policy outlines how Vardhman Creative Studio collects, uses, and safeguards your data.
               </p>
               <div className="flex gap-4 items-center text-xs text-gray-500 mt-6 pt-6 border-t border-white/5">
-                <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Last Updated: August 2026</span>
+                <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Last Updated: 14 October 2026</span>
               </div>
             </div>
 
@@ -51,16 +52,16 @@ export default function AgencyPrivacyPolicyPage() {
               <div>
                 <h2 className="text-xl font-bold text-white mb-4">2. How We Use Your Data</h2>
                 <p className="text-sm text-gray-400 leading-relaxed font-light">
-                  Any details you share with us are used exclusively to process your creative project request. Specifically, we use your info to send quotation proposals, coordinate scheduling and design revisions, and transmit final project deliverables. We do not use your information for spam or unsolicited marketing list-building.
+                  Project inquiry details are used to process your creative project request. Event registration details are used as described in the event section below. Specifically, we use your info to send quotation proposals, coordinate scheduling and design revisions, and transmit final project deliverables. We do not use your information for spam or unsolicited marketing list-building.
                 </p>
               </div>
 
               <hr className="border-white/5" />
 
               <div>
-                <h2 className="text-xl font-bold text-white mb-4">3. Absolute Confidentiality Guarantee</h2>
+                <h2 className="text-xl font-bold text-white mb-4">3. Data Access and Service Providers</h2>
                 <p className="text-sm text-gray-400 leading-relaxed font-light">
-                  Vardhman Creative Studio guarantees 100% confidentiality for your business plans, digital assets, branding files, and personal contact details. We do not share, sell, distribute, or rent your database records to third-party advertisers or external corporations.
+                  Access to registration and project information is limited to the people and service providers who need it to operate the website, manage registrations or deliver the requested service. Hosting and WhatsApp messaging providers may process relevant information for these purposes. No website or transmission method can guarantee absolute security.
                 </p>
               </div>
 
@@ -69,25 +70,37 @@ export default function AgencyPrivacyPolicyPage() {
               <div>
                 <h2 className="text-xl font-bold text-white mb-4">4. Cookies and Analytics</h2>
                 <p className="text-sm text-gray-400 leading-relaxed font-light">
-                  Our website uses secure cookies and analytics configurations to monitor load times, track traffic behavior anonymously, and optimize user experience performance.
+                  The website uses session cookies for administrator sign-in. Analytics and Meta Pixel may collect browser/device information, page visits and interaction data. These services are not necessarily anonymous and may use cookies or identifiers under their own policies. You can manage cookies through your browser settings.
                 </p>
               </div>
 
               <hr className="border-white/5" />
 
               <div>
-                <h2 className="text-xl font-bold text-white mb-4">5. Contact Support</h2>
+                <h2 className="text-xl font-bold text-white mb-4" lang="gu">૫૦૦ આયંબિલ કાર્યક્રમનું રજિસ્ટ્રેશન</h2>
+                <div lang="gu" className="text-sm text-gray-300 leading-loose space-y-4">
+                  <p>ફોર્મમાં તમારું નામ, WhatsApp નંબર, પસંદ કરેલી સાંજ અને સાથે આવનાર લોકોનાં નામ લેવામાં આવે છે. તમે કામ અને કાર્યક્રમની જાણ ક્યાંથી થઈ તે પણ આપી શકો છો; આ બે વિગતો આપવી જરૂરી નથી.</p>
+                  <p>આ માહિતી રજિસ્ટ્રેશન તપાસવા, દરેક વ્યક્તિનો પાસ બનાવવા, પ્રવેશ ગોઠવવા અને તમારી મંજૂરીથી WhatsApp પર કન્ફર્મેશન, પાસ અથવા કાર્યક્રમની જરૂરી માહિતી મોકલવા વપરાય છે. WhatsAppની મંજૂરી અલગ જાહેરાતો મોકલવાની મંજૂરી નથી.</p>
+                  <p>આયોજકો અને અધિકૃત વ્યવસ્થાપકો રજિસ્ટ્રેશન તથા પાસની વિગતો જોઈ શકે છે. WhatsApp સેવા માટે નંબર અને સંદેશની જરૂરી વિગતો messaging provider અને WhatsApp/Meta સુધી જાય છે. એક ફોર્મમાં બીજા લોકોનાં નામ આપતાં પહેલાં તેમની મંજૂરી લો.</p>
+                  <p>પાસ, સંદેશની સ્થિતિ અને રજિસ્ટ્રેશનના ફેરફારોની નોંધ કાર્યક્રમનું સંચાલન અને સમસ્યાઓ તપાસવા માટે રાખવામાં આવે છે. તમારી માહિતી સુધારવા કે કાઢવાની વિનંતી માટે નીચે આપેલા contact પર સંપર્ક કરો. માત્ર booking cancel કરવાથી તેની બધી નોંધો આપમેળે delete થતી નથી.</p>
+                  <p>કાર્યક્રમ દરમિયાન ફોટા અને વિડિયો લેવામાં આવી શકે છે. રજિસ્ટ્રેશનના નિયમોમાં જણાવ્યા મુજબ તેનો ઉપયોગ કાર્યક્રમના પ્રચાર અને નોંધ માટે થઈ શકે છે. આ અંગે પ્રશ્ન હોય તો આયોજકોનો સંપર્ક કરો.</p>
+                  <p>તમારો પાસ ફક્ત જેનું નામ લખેલું હોય તે વ્યક્તિ સાથે શેર કરો. પાસની ખાનગી download link જાહેરમાં મૂકશો નહીં.</p>
+                </div>
+              </div>
+              <hr className="border-white/5" />
+              <div>
+                <h2 className="text-xl font-bold text-white mb-4">6. Contact Support</h2>
                 <p className="text-sm text-gray-400 leading-relaxed font-light mb-6">
                   For questions regarding this policy or to request data removal, please contact our support desk:
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex items-center gap-3 p-4 rounded-xl bg-white/[0.02] border border-white/5">
                     <Mail className="w-5 h-5 text-purple-400" />
-                    <span className="text-xs sm:text-sm text-gray-300">support@vardhmancreativestudio.com</span>
+                    <span className="text-xs sm:text-sm text-gray-300">{contactConfig.supportEmail}</span>
                   </div>
                   <div className="flex items-center gap-3 p-4 rounded-xl bg-white/[0.02] border border-white/5">
                     <Phone className="w-5 h-5 text-purple-400" />
-                    <span className="text-xs sm:text-sm text-gray-300">+91 79901 06225</span>
+                    <span className="text-xs sm:text-sm text-gray-300">{contactConfig.contactPhone}</span>
                   </div>
                 </div>
               </div>
