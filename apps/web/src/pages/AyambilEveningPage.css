@@ -26,3 +26,4 @@
 .ay-evening-portrait figcaption{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:8px 6px;font-size:12px;color:#766455}
 .ay-evening-portrait figcaption a{color:#682b35;text-decoration:underline;text-underline-offset:4px;min-height:44px;display:flex;align-items:center}
 @media(max-width:700px){.ay-evening-page .ay-evening-portrait{max-width:360px}.ay-evening-portrait img{max-height:420px}.ay-evening-portrait figcaption{flex-wrap:wrap;gap:4px}}
+.ay-evening-portrait figcaption{justify-content:center;padding:12px 6px 4px;font-size:14px;letter-spacing:.02em}.ay-evening-page .ay-evening-portrait{padding-bottom:14px}
