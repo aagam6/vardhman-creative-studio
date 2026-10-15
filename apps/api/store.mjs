@@ -46,16 +46,17 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
     async login(email,password){
       const a=await one(pool,'SELECT id,password_hash,enabled FROM ayambil_admins WHERE email=?',[email]);
       if(!await passwordMatches(password,a?.password_hash)||!a?.enabled)throw new ApiError(401,'Sign-in failed');
-      const token=capability(),csrf=capability();
+      const token=capability(),csrf=hash('ayambil-session-csrf:'+token);
       await rows(pool,'INSERT INTO ayambil_admin_sessions(token_hash,admin_id,csrf_hash,expires_at) VALUES(?,?,?,DATE_ADD(UTC_TIMESTAMP(3),INTERVAL 8 HOUR))',[hash(token),a.id,hash(csrf)]);
       return {token,csrf};
     },
     async session(token){if(!/^[a-f0-9]{64}$/.test(token||''))throw new ApiError(401,'Administrator sign-in required');const a=await one(pool,'SELECT s.admin_id,s.csrf_hash FROM ayambil_admin_sessions s JOIN ayambil_admins a ON a.id=s.admin_id WHERE s.token_hash=? AND s.expires_at>UTC_TIMESTAMP(3) AND a.enabled=TRUE',[hash(token)]);if(!a)throw new ApiError(401,'Administrator sign-in required');return a;},
     async restoreSession(token){
       // Exact-origin POST plus a valid HttpOnly cookie permits a fresh CSRF
-      // proof after reload. It never extends the authenticated session expiry.
+      // proof after reload. Stable per session so another tab cannot invalidate it.
+      // It never extends the authenticated session expiry.
       await this.session(token);
-      const csrf=capability();
+      const csrf=hash('ayambil-session-csrf:'+token);
       await rows(pool,'UPDATE ayambil_admin_sessions SET csrf_hash=? WHERE token_hash=? AND expires_at>UTC_TIMESTAMP(3)',[hash(csrf),hash(token)]);
       return {authenticated:true,csrfToken:csrf};
     },

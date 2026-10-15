@@ -14,6 +14,7 @@ import '@/components/AyambilRegistration.css';
 import './AyambilAdminPage.css';
 
 export default function AyambilAdminPage() {
+  const [sessionChecking,setSessionChecking]=useState(true);
   const [authenticated, setAuthenticated] = useState(false); const [credentials, setCredentials] = useState({ email: '', password: '' });
   const [filters, setFilters] = useState({ search: '', date: '', status: '' }); const [items, setItems] = useState([]);
   const [page, setPage] = useState(1); const [hasMore, setHasMore] = useState(false); const [busy, setBusy] = useState(false);
@@ -29,7 +30,7 @@ export default function AyambilAdminPage() {
   const [lastLoaded, setLastLoaded] = useState('');
   const clearAdmin = () => { generation.current++; loadingRef.current = false; setBusy(false); setAuthenticated(false); setItems([]); setPending(null); setReissuedLink(""); setLastLoaded(''); };
   const signOut = async () => { setBusy(true); try { await ayambilApi.logout(); clearAdmin(); } catch { setError("Sign-out could not be confirmed. Retry before leaving this device."); } finally { setBusy(false); } };
-  useEffect(() => { let mounted = true; ayambilApi.restore().then(() => { if (mounted) setAuthenticated(true); }).catch(failure => { if (mounted && failure.status !== 401) setError("Session could not be restored. Sign in or retry when the API is available."); }); return () => { mounted = false; }; }, []);
+  useEffect(() => { let mounted = true; ayambilApi.restore().then(() => { if (mounted) setAuthenticated(true); }).catch(failure => { if (mounted && failure.status !== 401) setError("Session could not be restored. Sign in or retry when the API is available."); }).finally(()=>{if(mounted)setSessionChecking(false);}); return () => { mounted = false; }; }, []);
   const login = async event => {
     event.preventDefault(); setBusy(true); setError('');
     try { await ayambilApi.login(credentials.email, credentials.password); setCredentials({ email: '', password: '' }); setAuthenticated(true); }
@@ -48,9 +49,9 @@ export default function AyambilAdminPage() {
       setItems(result.items); setPage(result.page); setHasMore(result.hasMore);
       setLastLoaded(new Date().toISOString());
       try { const configuration = await registrationApi('admin/whatsapp'); if (requestGeneration === generation.current) setIntegration(configuration); }
-      catch (failure) { if (requestGeneration !== generation.current) return; if (failure.status === 401 || failure.status === 403) clearAdmin(); setError(`WhatsApp configuration could not be loaded: ${failure.message}`); }
+      catch (failure) { if (requestGeneration !== generation.current) return; if (failure.status === 401) clearAdmin(); setError(`WhatsApp configuration could not be loaded: ${failure.message}`); }
     }
-    catch (failure) { if (requestGeneration !== generation.current) return; if (failure.status === 401 || failure.status === 403) clearAdmin(); setError(`Unable to load registrations: ${failure.message}`); }
+    catch (failure) { if (requestGeneration !== generation.current) return; if (failure.status === 401) clearAdmin(); setError(`Unable to load registrations: ${failure.message}`); }
     finally { if (requestGeneration === generation.current) { loadingRef.current = false; setBusy(false); } }
   };
   refreshRef.current = () => load(page, appliedFilters.current, true);
@@ -73,15 +74,15 @@ export default function AyambilAdminPage() {
     try {
       const rows = await collectAttendeeCsv(registrationApi,filters);
       downloadCsv(rows); setNotice('Filtered attendee list downloaded. It contains private contact details; store it securely.');
-    } catch (failure) { if([401,403].includes(failure.status))clearAdmin(); setError(`Export failed: ${failure.message}. No complete attendee list was downloaded.`); }
+    } catch (failure) { if(failure.status===401)clearAdmin(); setError(`Export failed: ${failure.message}. No complete attendee list was downloaded.`); }
     finally { setBusy(false); }
   };
   const metrics = dashboardMetrics(items);
   return <div className="ay-page ay-admin"><Helmet><title>Ayambil registration management | Vardhman Creative Studio</title><meta name="robots" content="noindex,nofollow" /></Helmet>
     <header className="ay-container ay-header"><Link to="/500-akhand-ayambil-vijayollas">← Event page</Link><strong>Registration management</strong>{authenticated && <button type="button" onClick={signOut}>Sign out</button>}</header>
-    <main className="ay-container ay-registration"><div className="ay-admin-title"><span>AYAMBIL · ADMINISTRATION</span><h1>Evening registrations</h1></div><p>2–3 November 2026 · Authorized administrators only</p>
+    <main className="ay-container ay-registration">{sessionChecking && <p role="status">Checking your administrator session…</p>}<div className="ay-admin-title"><span>AYAMBIL · ADMINISTRATION</span><h1>Evening registrations</h1></div><p>2–3 November 2026 · Authorized administrators only</p>
       {authenticated && <section className="ay-kpi-section" aria-label="Registration overview"><p>Current filtered page · {lastLoaded ? `Page ${page}` : 'Awaiting bookings'} · These counts are not event-wide totals.</p><div className="ay-kpi-grid">{[['Bookings',metrics.bookings],['Active bookings',metrics.active],['Active attendees',metrics.attendees],['Cancelled bookings',metrics.cancelled]].map(([label,value]) => <article className="ay-kpi-card" key={label}><span>{label}</span><strong>{lastLoaded ? value : '—'}</strong></article>)}</div></section>}
-      {!authenticated ? <form onSubmit={login}><fieldset disabled={busy}><legend>Administrator sign-in</legend><label>Email<input type="email" autoComplete="username" required value={credentials.email} onChange={e => setCredentials({ ...credentials, email: e.target.value })} /></label><label>Password<input type="password" autoComplete="current-password" required value={credentials.password} onChange={e => setCredentials({ ...credentials, password: e.target.value })} /></label><button type="submit">{busy ? 'Signing in…' : 'Sign in'}</button></fieldset><p className="ay-help">An enabled event administrator account must be provisioned securely in the MySQL backend. No default account is provided.</p></form> : <>
+      {sessionChecking ? null : !authenticated ? <form onSubmit={login}><fieldset disabled={busy}><legend>Administrator sign-in</legend><label>Email<input type="email" autoComplete="username" required value={credentials.email} onChange={e => setCredentials({ ...credentials, email: e.target.value })} /></label><label>Password<input type="password" autoComplete="current-password" required value={credentials.password} onChange={e => setCredentials({ ...credentials, password: e.target.value })} /></label><button type="submit">{busy ? 'Signing in…' : 'Sign in'}</button></fieldset><p className="ay-help">An enabled event administrator account must be provisioned securely in the MySQL backend. No default account is provided.</p></form> : <>
         <p role="status">Times shown in IST. {lastLoaded ? `Bookings last refreshed ${adminTimestamp(lastLoaded)}.` : "Bookings have not loaded yet."} Refresh checks run every minute while this page is visible.</p><button type="button" disabled={busy} onClick={() => { const empty = {search:"",date:"",status:""}; setFilters(empty); load(1, empty); }}>Refresh latest bookings (clear filters)</button>
         <form className="ay-admin-filters" onSubmit={e => { e.preventDefault(); load(1); }}><label>Search contact, attendee or booking<input value={filters.search} maxLength={120} onChange={e => setFilters({ ...filters, search: e.target.value })} /></label><label>Evening date<select value={filters.date} onChange={e => setFilters({ ...filters, date: e.target.value })}><option value="">Both evenings</option>{eveningConfig.sessions.map(s => <option value={s.date} key={s.date}>{s.label}</option>)}</select></label><label>Status<select value={filters.status} onChange={e => setFilters({ ...filters, status: e.target.value })}><option value="">All statuses</option><option value="active">Active</option><option value="cancelled">Cancelled</option></select></label><button type="submit" disabled={busy}>Search</button><button type="button" onClick={exportList} disabled={busy}>Export filtered attendees</button></form>
         {integration && <section aria-label="WhatsApp integration"><h2>Channel & templates</h2><p role="status">WhatsApp sending: {integration.sending ? 'enabled' : 'not enabled'}. Provider configuration: {integration.configured ? 'present; verify channel and templates' : 'required'}. {(integration.missing || []).join(', ')}</p><button type="button" disabled={busy} onClick={async () => { setBusy(true); setError(''); try { setIntegration(await registrationApi('admin/whatsapp/inspect', {method:'POST',body:{}})); } catch (failure) { setError(failure.message); } finally { setBusy(false); } }}>Verify channel and templates (no message)</button>{integration.accountVerified && <p>Channel healthy. Approved templates: {integration.templates.map(t => `${t.name} (${t.language})${t.verified ? (t.bodySource==='operator_reviewed_snapshot' ? ' — mapping validated against operator-reviewed BODY snapshot (not API BODY)' : ' — provider BODY verified') : t.bodyAvailable ? ' — definition/mapping not verified' : ' — approved; BODY definition unavailable'}`).join('; ')}. Account check does not prove message delivery.</p>}</section>}

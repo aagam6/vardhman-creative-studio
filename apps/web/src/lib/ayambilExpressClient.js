@@ -45,7 +45,7 @@ export function createAyambilApi(transport = fetchAyambilJson) {
         error.status = response.status;
         const requestId=response.headers.get('x-request-id');
         if (/^[a-f0-9-]{36}$/.test(requestId || '')) error.message += ` Reference: ${requestId}`;
-        if ([401, 403].includes(response.status)) csrf = '';
+        if (response.status === 401) csrf = '';
         throw error;
       }
       if (!/^application\/(?:json|[\w.+-]+\+json)(?:\s*;|$)/i.test(response.headers.get('content-type') || '')) throw new Error('Ayambil API did not return JSON');
