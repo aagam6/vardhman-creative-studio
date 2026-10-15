@@ -16,7 +16,7 @@ test('staging-only denial has actionable safe text and preserves administrator C
  assert.equal(calls.at(-1).options.headers['X-CSRF-Token'],'a'.repeat(64));
 });
 test('mock transport: both evening bookings, retries, filters, mutations and one-attendee downloads',async()=>{
-  for(const session of programme.sessions)for(const count of [1,2]){
+  for(const session of programme.sessions)for(const count of [1,2,3,4,5,6]){
     const passes=Array.from({length:count},(_,i)=>({number:'SYNTHETIC-'+i,attendeeName:'Synthetic attendee',status:'active',sessions:[session]}));
     const saved={id:'synthetic-booking',number:'SYNTHETIC',status:'active',attendees:passes.map((pass,i)=>({id:'synthetic-'+i,fullName:pass.attendeeName,dates:[session.date],passes:[pass]}))};
     const calls=[];
@@ -51,4 +51,17 @@ test('landscape pass physical dimensions, per-side fit and excessive content rej
   assert.equal(passPage.width,205);assert.equal(passPage.height,120);
   const p=passImagePlacement(120/205);assert.ok(p.x>=0&&p.y===0&&p.height<=120&&p.width<=205);
   assert.throws(()=>passImagePlacement(5),/readable/);assert.throws(()=>passImagePlacement(NaN));
+});
+
+test('response boundary rejects seven attendees while accepting six and checking pass ownership',async()=>{
+ const {validateResponse}=await import('../src/lib/ayambilExpressClient.js');
+ const session=programme.sessions[0];
+ const attendee=i=>({id:'attendee-'+i,fullName:'Synthetic '+i,dates:[session.date],passes:[{number:'SYNTHETIC-'+i,attendeeName:'Synthetic '+i,status:'active',sessions:[session]}]});
+ const saved={id:'booking',number:'SYNTHETIC',status:'active',attendees:Array.from({length:6},(_,i)=>attendee(i))};
+ const list=item=>({items:[item],page:1,hasMore:false,integration:{ready:false,missing:[]}});
+ assert.doesNotThrow(()=>validateResponse('admin/bookings',list(saved)));
+ assert.doesNotThrow(()=>validateResponse('admin/change',saved));
+ assert.throws(()=>validateResponse('admin/bookings',list({...saved,attendees:[...saved.attendees,attendee(6)]})),/Invalid booking response/);
+ const broken=structuredClone(saved);broken.attendees[5].passes[0].attendeeName='Different person';
+ assert.throws(()=>validateResponse('admin/bookings',list(broken)),/Invalid saved pass association/);
 });

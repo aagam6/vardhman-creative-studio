@@ -71,7 +71,7 @@ export function createAyambilApi(transport = fetchAyambilJson) {
 }
 
 function booking(data, privileged = false) {
-  if (!data || typeof data.number !== 'string' || !data.number || !['active', 'cancelled'].includes(data.status) || !Array.isArray(data.attendees) || data.attendees.length < 1 || data.attendees.length > 2 || (privileged && typeof data.id !== 'string')) throw new Error('Invalid booking response');
+  if (!data || typeof data.number !== 'string' || !data.number || !['active', 'cancelled'].includes(data.status) || !Array.isArray(data.attendees) || data.attendees.length < 1 || data.attendees.length > 6 || (privileged && typeof data.id !== 'string')) throw new Error('Invalid booking response');
   for (const attendee of data.attendees) {
     if (typeof attendee.fullName !== 'string' || !Array.isArray(attendee.dates) || attendee.dates.length !== 1 || !Array.isArray(attendee.passes) || !attendee.passes.length || (privileged && typeof attendee.id !== 'string')) throw new Error('Invalid attendee response');
     for (const pass of attendee.passes) {
