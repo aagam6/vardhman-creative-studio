@@ -26,7 +26,7 @@ test('wrong booking or inactive pass rolls back without mutations',async()=>{
 });
 test('booking restoration excludes passes whose capabilities were explicitly revoked',async()=>{
  const {store,calls}=fixture();await store.change({admin_id:'operator'},{action:'restore',bookingId:'booking-one'});
- const passUpdate=calls.find(([sql])=>sql.startsWith('UPDATE ayambil_passes p'));assert.ok(passUpdate[0].includes('c.revoked_at IS NULL'));assert.deepEqual(passUpdate[1],['active','booking-one','active']);
+ const passUpdate=calls.find(([sql])=>sql.startsWith('UPDATE ayambil_passes p'));assert.ok(passUpdate[0].includes('c.revoked_at IS NULL'));assert.deepEqual(passUpdate[1],['active','booking-one']);
 });
 
 test('local stateful scenario: cancel one pass, deny its download, retain other pass across booking restore',async()=>{
@@ -56,4 +56,11 @@ test('local stateful scenario: cancel one pass, deny its download, retain other 
  await store.change(actor,{action:'cancel',bookingId:'b'});await assert.rejects(store.download(keys[1]),e=>e.status===404);
  await store.change(actor,{action:'restore',bookingId:'b'});await assert.rejects(store.download(keys[0]),e=>e.status===404);
  assert.equal((await store.download(keys[1])).passes[0].number,'AYV26-TWO');assert.equal(state.passes.length,2);assert.deepEqual(state.audit,['cancel-pass','cancel','restore']);
+});
+
+test('whole booking cancellation updates all current passes without capability eligibility filter',async()=>{
+ const {store,calls}=fixture();await store.change({admin_id:'operator'},{action:'cancel',bookingId:'booking-one'});
+ const update=calls.find(([sql])=>sql.startsWith('UPDATE ayambil_passes p'));
+ assert.deepEqual(update[1],['cancelled','booking-one']);assert.ok(!update[0].includes('ayambil_capabilities'));
+ assert.ok(calls.some(([sql,args])=>sql.startsWith('INSERT INTO ayambil_audit')&&args[3]==='cancel'));
 });

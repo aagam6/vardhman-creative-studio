@@ -150,7 +150,8 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
           const status=body.action==='cancel'?'cancelled':'active';
           await rows(db,'UPDATE ayambil_bookings SET status=? WHERE id=?',[status,b.id]);
           await rows(db,'UPDATE ayambil_attendees SET status=? WHERE booking_id=?',[status,b.id]);
-          await rows(db,"UPDATE ayambil_passes p JOIN ayambil_attendees a ON a.id=p.attendee_id SET p.status=? WHERE a.booking_id=? AND p.status<>'superseded' AND (?='cancelled' OR EXISTS(SELECT 1 FROM ayambil_capabilities c WHERE c.pass_id=p.id AND c.revoked_at IS NULL))",[status,b.id,status]);
+          if(body.action==='cancel') await rows(db,"UPDATE ayambil_passes p JOIN ayambil_attendees a ON a.id=p.attendee_id SET p.status=? WHERE a.booking_id=? AND p.status<>'superseded'",[status,b.id]);
+          else await rows(db,"UPDATE ayambil_passes p JOIN ayambil_attendees a ON a.id=p.attendee_id JOIN ayambil_capabilities c ON c.pass_id=p.id AND c.revoked_at IS NULL SET p.status=? WHERE a.booking_id=? AND p.status<>'superseded'",[status,b.id]);
           // Cancellation denies links by active-state checks. Restoration retains
           // the previous key only until its original expiry, matching old backend.
         }
