@@ -1,3 +1,4 @@
+import {requestLogging} from './request-logging.mjs';
 import express from 'express';
 import {randomUUID} from 'node:crypto';
 import {attendeeContext} from './notification-context.mjs';
@@ -11,6 +12,7 @@ export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirect
   const testSendingAvailable = config.stagingBuild === true && config.origin === 'https://white-reindeer-590806.hostingersite.com' && Boolean(testRecipient && queue && flow);
   const testOnly = (req,res,next) => testSendingAvailable ? next() : res.status(403).json({error:'Test sending is available only on authorized staging',errorCode:'STAGING_TEST_ONLY'});
   const api=express.Router();
+  api.use(requestLogging);
   api.use((req,res,next)=>{res.set({'Cache-Control':'no-store','Referrer-Policy':'no-referrer','X-Content-Type-Options':'nosniff'});next();});
   api.use((req,res,next)=>{if(!isInitialized())return res.status(503).json({ready:false,open:false,whatsapp:'disabled',error:'API initialization unavailable'});next();});
   api.use(express.json({limit:'32kb'}));
@@ -34,7 +36,7 @@ export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirect
   api.post('/admin/session',route(async(req,res)=>res.json(await store.restoreSession(token(req)))));
   api.post('/admin/logout',route(async(req,res)=>{await store.logout(token(req));res.clearCookie(cookieName,{secure:true,httpOnly:true,sameSite:'strict',path:'/'});res.json({authenticated:false});}));
   api.get('/admin/bookings',admin,route(async(req,res)=>{
-    const requestId=randomUUID();res.set('X-Request-Id',requestId);
+    const requestId=res.getHeader('X-Request-Id')||randomUUID();res.set('X-Request-Id',requestId);
     try {res.json(await store.list(req.query));}
     catch(error){
       const stage=['bookings.filters','bookings.select','bookings.hydrate'].includes(error.ayambilStage)?error.ayambilStage:'bookings.response';
@@ -46,7 +48,7 @@ export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirect
     }
   }));
   api.post('/admin/change',admin,route(async(req,res)=>{
-    const requestId=randomUUID();res.set('X-Request-Id',requestId);
+    const requestId=res.getHeader('X-Request-Id')||randomUUID();res.set('X-Request-Id',requestId);
     try { res.json(await store.change(req.actor,req.body)); }
     catch(error) {
       const stage=['change.transaction','change.lock','change.booking','change.attendees','change.passes','change.audit','change.response'].includes(error.ayambilStage)?error.ayambilStage:'change.unknown';
