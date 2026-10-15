@@ -108,7 +108,13 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
       const passes=await one(pool,"SELECT COALESCE(SUM(p.status='active' AND a.status='active' AND b.status='active'),0) AS activePasses,COALESCE(SUM(p.status='cancelled'),0) AS cancelledPasses FROM ayambil_passes p JOIN ayambil_attendees a ON a.id=p.attendee_id JOIN ayambil_bookings b ON b.id=a.booking_id");
       const messages=await one(pool,"SELECT COALESCE(SUM(status IN ('queued','preparing','sending','uncertain')),0) AS pendingMessages,COALESCE(SUM(status='failed'),0) AS failedMessages FROM ayambil_message_queue WHERE booking_id IS NOT NULL AND notification_type IN ('confirmation','pass','reminder')");
       const activity=await rows(pool,'SELECT au.id,au.action,au.created_at AS created,b.number AS bookingNumber,b.contact_name AS contactName,ad.email AS actor FROM ayambil_audit au JOIN ayambil_bookings b ON b.id=au.booking_id JOIN ayambil_admins ad ON ad.id=au.admin_id ORDER BY au.created_at DESC,au.id DESC LIMIT 30');
-      return {scope:'event',totals:Object.fromEntries(Object.entries({...bookings,...passes,...messages}).map(([key,value])=>[key,Number(value)])),activity};
+      const evenings=[];
+      for(const session of programme.sessions){
+        const bookingTotals=await one(pool,"SELECT COUNT(*) AS bookings,COALESCE(SUM(status='active'),0) AS activeBookings,COALESCE(SUM(status='cancelled'),0) AS cancelledBookings FROM ayambil_bookings WHERE event_date=?",[session.date]);
+        const passTotals=await one(pool,"SELECT COUNT(*) AS totalPasses,COALESCE(SUM(p.status='active' AND a.status='active' AND b.status='active'),0) AS activePasses,COALESCE(SUM(p.status='cancelled'),0) AS cancelledPasses FROM ayambil_passes p JOIN ayambil_attendees a ON a.id=p.attendee_id JOIN ayambil_bookings b ON b.id=a.booking_id WHERE b.event_date=?",[session.date]);
+        evenings.push({date:session.date,...Object.fromEntries(Object.entries({...bookingTotals,...passTotals}).map(([key,value])=>[key,Number(value)]))});
+      }
+      return {scope:'event',totals:Object.fromEntries(Object.entries({...bookings,...passes,...messages}).map(([key,value])=>[key,Number(value)])),evenings,activity};
     },
     async list(query){
       let stage='bookings.filters';try {
