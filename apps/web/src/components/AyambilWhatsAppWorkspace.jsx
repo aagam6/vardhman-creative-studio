@@ -1,0 +1,8 @@
+import React,{useEffect,useState} from 'react';
+const tabs=[['send','Send selected'],['status','Message status'],['settings','Channel settings']];
+export default function AyambilWhatsAppWorkspace({selectedCount,busy,onRefresh,send,status,settings}){
+ const [active,setActive]=useState('send');
+ useEffect(()=>{if(selectedCount>0)setActive('send');},[selectedCount]);
+ const move=(event,index)=>{if(!['ArrowRight','ArrowLeft','Home','End'].includes(event.key))return;event.preventDefault();const next=event.key==='Home'?0:event.key==='End'?2:(index+(event.key==='ArrowRight'?1:2))%3;setActive(tabs[next][0]);event.currentTarget.parentElement.querySelectorAll('[role=tab]')[next]?.focus();};
+ return <div className="ay-wa-workspace"><header className="ay-wa-heading"><div><span className="ay-card-label">WHATSAPP</span><h2>Messages & delivery</h2><p>Send passes to selected bookings and check delivery in one place.</p></div><button type="button" disabled={busy} onClick={onRefresh}>Refresh message status</button></header><div className="ay-wa-tabs" role="tablist" aria-label="WhatsApp workspace">{tabs.map(([key,label],index)=><button type="button" role="tab" id={`wa-tab-${key}`} aria-controls={`wa-panel-${key}`} aria-selected={active===key} tabIndex={active===key?0:-1} disabled={busy} key={key} onKeyDown={event=>move(event,index)} onClick={()=>setActive(key)}>{label}{key==='send'&&<span>{selectedCount}</span>}</button>)}</div>{tabs.map(([key])=><div role="tabpanel" id={`wa-panel-${key}`} aria-labelledby={`wa-tab-${key}`} hidden={active!==key} key={key}>{key==='send'?send:key==='status'?status:settings}</div>)}</div>;
+}
