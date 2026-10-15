@@ -129,7 +129,9 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
     },
     async change(actor,body){
       if(!body||!['cancel','restore','reissue','cancel-pass'].includes(body.action)||typeof body.bookingId!=='string')throw new ApiError(400,'Invalid change');
-      return transaction(pool,async db=>{
+      let stage='change.transaction';
+      try { return await transaction(pool,async db=>{
+        stage='change.lock';
         const b=await one(db,'SELECT * FROM ayambil_bookings WHERE id=? FOR UPDATE',[body.bookingId]);if(!b)throw new ApiError(404,'Booking unavailable');
         let downloadKey;
         if(body.action==='cancel-pass') {
@@ -148,16 +150,21 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
           if(!old)throw new ApiError(409,'Saved pass unavailable');downloadKey=(await issued(db,a,json(old.snapshot).sessions[0])).key;
         } else {
           const status=body.action==='cancel'?'cancelled':'active';
+          stage='change.booking';
           await rows(db,'UPDATE ayambil_bookings SET status=? WHERE id=?',[status,b.id]);
+          stage='change.attendees';
           await rows(db,'UPDATE ayambil_attendees SET status=? WHERE booking_id=?',[status,b.id]);
+          stage='change.passes';
           if(body.action==='cancel') await rows(db,"UPDATE ayambil_passes p JOIN ayambil_attendees a ON a.id=p.attendee_id SET p.status=? WHERE a.booking_id=? AND p.status<>'superseded'",[status,b.id]);
           else await rows(db,"UPDATE ayambil_passes p JOIN ayambil_attendees a ON a.id=p.attendee_id JOIN ayambil_capabilities c ON c.pass_id=p.id AND c.revoked_at IS NULL SET p.status=? WHERE a.booking_id=? AND p.status<>'superseded'",[status,b.id]);
           // Cancellation denies links by active-state checks. Restoration retains
           // the previous key only until its original expiry, matching old backend.
         }
+        stage='change.audit';
         await rows(db,'INSERT INTO ayambil_audit(id,admin_id,booking_id,action,created_at) VALUES(?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),actor.admin_id,b.id,body.action]);
+        stage='change.response';
         return {...await booking(db,b.id,true),...(downloadKey?{downloadKey}: {})};
-      });
+      }); } catch(error) { error.ayambilStage=stage; throw error; }
     }
   };
 }

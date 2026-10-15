@@ -45,7 +45,17 @@ export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirect
       console.error(JSON.stringify({operation:'admin.bookings',requestId,stage,code,errno,sqlState,category}));throw error;
     }
   }));
-  api.post('/admin/change',admin,route(async(req,res)=>res.json(await store.change(req.actor,req.body))));
+  api.post('/admin/change',admin,route(async(req,res)=>{
+    const requestId=randomUUID();res.set('X-Request-Id',requestId);
+    try { res.json(await store.change(req.actor,req.body)); }
+    catch(error) {
+      const stage=['change.transaction','change.lock','change.booking','change.attendees','change.passes','change.audit','change.response'].includes(error.ayambilStage)?error.ayambilStage:'change.unknown';
+      const errno=Number.isInteger(error.errno)&&error.errno>=0&&error.errno<=65535?error.errno:null;
+      const sqlState=typeof error.sqlState==='string'&&/^[A-Z0-9]{5}$/.test(error.sqlState)?error.sqlState:null;
+      const code=['ER_CANT_AGGREGATE_2COLLATIONS','ER_BAD_FIELD_ERROR','ER_NO_SUCH_TABLE','ER_PARSE_ERROR','ER_TABLEACCESS_DENIED_ERROR','ER_DUP_ENTRY','ER_ROW_IS_REFERENCED_2','ER_NO_REFERENCED_ROW_2','ER_CHECK_CONSTRAINT_VIOLATED','ER_LOCK_DEADLOCK','ER_LOCK_WAIT_TIMEOUT','ER_WRONG_ARGUMENTS'].includes(error.code)?error.code:'unclassified';
+      console.error(JSON.stringify({operation:'admin.change',requestId,stage,code,errno,sqlState}));throw error;
+    }
+  }));
   api.post('/admin/whatsapp-retry',admin,(req,res)=>res.status(403).json({error:'WhatsApp sending and retries disabled'}));
   api.get('/admin/whatsapp',admin,route(async(req,res)=>{const worker=getQueueWorkerStatus();res.json({...(flow?flow.configuration():{ready:false,configured:false,sending:false,missing:['VARDHMAN_FLOW_API_KEY','VARDHMAN_FLOW_API_SECRET']}),testSendingAvailable,worker:{enabled:worker.enabled===true,active:worker.active===true}});}));
   api.get('/admin/messages',admin,route(async(req,res)=>res.json({items:queue?await queue.list():[]})));

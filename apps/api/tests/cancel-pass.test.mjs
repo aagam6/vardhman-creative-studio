@@ -64,3 +64,13 @@ test('whole booking cancellation updates all current passes without capability e
  assert.deepEqual(update[1],['cancelled','booking-one']);assert.ok(!update[0].includes('ayambil_capabilities'));
  assert.ok(calls.some(([sql,args])=>sql.startsWith('INSERT INTO ayambil_audit')&&args[3]==='cancel'));
 });
+
+test('failed booking update reports its safe stage and rolls back',async()=>{
+ const error=Object.assign(new Error('Private SQL data'),{errno:1451});let rolledBack=false;
+ const db={beginTransaction:async()=>{},commit:async()=>{},rollback:async()=>{rolledBack=true;},release(){},execute:async(sql)=>{
+ if(sql.startsWith('SELECT * FROM ayambil_bookings'))return [[{id:'b'}]];
+ throw error;
+ }};
+ await assert.rejects(createStore({getConnection:async()=>db},{}).change({admin_id:'a'},{action:'cancel',bookingId:'b'}),e=>e.ayambilStage==='change.booking'&&e.errno===1451);
+ assert.equal(rolledBack,true);
+});
