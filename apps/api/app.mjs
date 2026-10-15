@@ -85,7 +85,15 @@ export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirect
   }));
   api.post('/admin/whatsapp/inspect',admin,limited('flow-inspect',5),route(async(req,res)=>{if(!flow)throw new ApiError(503,'Provider configuration required');res.json(await flow.inspect({templateDefinitions:true}));}));
   api.use((req,res)=>res.status(404).json({error:'API operation unavailable'}));
-  api.use((error,req,res,next)=>{void next;const status=error instanceof ApiError?error.status:error.type==='entity.parse.failed'?400:error.type==='entity.too.large'?413:503;res.status(status).json({error:error instanceof ApiError?error.message:status===400?'Invalid JSON':'API unavailable'});});
+  api.use((error,req,res,next)=>{void next;const status=error instanceof ApiError?error.status:error.type==='entity.parse.failed'?400:error.type==='entity.too.large'?413:503;
+    if(status>=500){
+      const requestId=res.getHeader('X-Request-Id')||randomUUID();res.set('X-Request-Id',requestId);
+      const operation=['/admin/session','/admin/change','/admin/logout','/admin/bookings','/register','/pass-download'].includes(req.path)?req.path:'other';
+      const errno=Number.isInteger(error.errno)&&error.errno>=0&&error.errno<=65535?error.errno:null;
+      const sqlState=typeof error.sqlState==='string'&&/^[A-Z0-9]{5}$/.test(error.sqlState)?error.sqlState:null;
+      console.error(JSON.stringify({operation:'api.failure',endpoint:operation,requestId,errno,sqlState}));
+    }
+    res.status(status).json({error:error instanceof ApiError?error.message:status===400?'Invalid JSON':'API unavailable'});});
   app.use('/api/ayambil',api);
   // Other API namespaces must never serve index.html or accidentally proxy the
   // unrelated existing /hcgi/platform lead backend.
