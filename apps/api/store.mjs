@@ -88,9 +88,9 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
         const receipt={...await booking(db,id),downloadKeys:links};
         if(queue){
           const session=json(event.snapshot),context={eventName:programme.eventName,eventDate:session.date,time:session.time,performer:session.performer,programme:session.programme,venue:session.venue,contactName:body.contactName,attendeeCount:String(body.attendees.length),attendeeNames:body.attendees.map(a=>a.fullName).join(', ')};
+          await queue.enqueue(db,{bookingId:id,type:'confirmation',dedupe:id,context:attendeeContext(session,body.contactName,body.mobile)});
           for(const [index,key] of links.entries()){
             const individual=attendeeContext(session,body.attendees[index].fullName,body.mobile);
-            await queue.enqueue(db,{bookingId:id,type:'confirmation',dedupe:id+':'+index,context:individual});
             await queue.enqueue(db,{bookingId:id,type:'pass',dedupe:id+':'+index,context:{...individual,passLink:config.origin+'/500-akhand-ayambil-vijayollas/passes#'+key}});
           }
           for(const to of adminRecipients)await queue.enqueue(db,{bookingId:id,type:'admin',dedupe:id+':'+to,context:{...context,to}});

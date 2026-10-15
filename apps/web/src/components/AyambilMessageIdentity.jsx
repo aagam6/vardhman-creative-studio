@@ -1,0 +1,4 @@
+import React from 'react';
+export default function AyambilMessageIdentity({message}) {
+ return <dl className="ay-message-identity"><div><dt>Booking contact</dt><dd>{message.contactName || 'Contact unavailable'}</dd></div><div><dt>WhatsApp recipient</dt><dd>{message.recipient || 'Recipient unavailable'}</dd></div>{message.notification_type==='pass'&&<><div><dt>Pass holder</dt><dd>{message.attendeeName || 'Pass holder unavailable'}</dd></div><div><dt>Pass number</dt><dd>{message.passNumber || 'Pass number unavailable'}</dd></div></>}<div><dt>Booking / evening</dt><dd>{message.bookingNumber || message.booking_id || 'No booking'}{message.eventDate?` · ${message.eventDate}`:''}</dd></div></dl>;
+}

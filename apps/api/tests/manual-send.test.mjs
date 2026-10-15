@@ -98,3 +98,18 @@ test('manual endpoint requires session, exact origin, CSRF, rate limit and ident
   const response=await request();assert.equal(response.status,200);assert.equal(response.headers.get('cache-control'),'no-store');assert.equal(sends,1);
  }finally{await new Promise(r=>server.close(r));}
 });
+
+test('an old queued confirmation is suppressed when its booking already had a confirmation attempt',async()=>{
+ let posts=0,cancelled=false;
+ const job={id:selected.id,booking_id:selected.bookingId,notification_type:'confirmation',payload:queueCrypto(env.AYAMBIL_QUEUE_ENCRYPTION_KEY).seal({to:'+12025550123',eventDate:'2026-11-02'})};
+ const execute=async(sql)=>{
+ if(sql.startsWith('SELECT q.*'))return [[job]];
+ if(sql.includes("AND notification_type='confirmation' AND id<>? AND (attempts>0"))return [[{id:'already-sent'}]];
+ if(sql.startsWith('SELECT id'))return [[]];
+ if(sql.includes("error_code='duplicate_confirmation'"))cancelled=true;
+ return [[]];
+ };
+ const db={execute,beginTransaction:async()=>{},commit:async()=>{},rollback:async()=>{},release(){}};
+ const queue=createMessageQueue({execute,getConnection:async()=>db},{prepare:async()=>({}),sendPrepared:async()=>{posts++;return {status:'sent'};}},env);
+ assert.equal((await queue.runSelected(selected)).status,'cancelled');assert.equal(cancelled,true);assert.equal(posts,0);
+});
