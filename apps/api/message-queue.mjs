@@ -51,7 +51,7 @@ export function createMessageQueue(pool,flow,env){const enabled=env.AYAMBIL_WHAT
   if(rows.length>1000)throw new ApiError(409,'Preview exceeds 1000 messages; narrow the selection');
   return {items:rows.map(({mobile,...row})=>({...row,recipientMasked:'••••'+String(mobile).slice(-4)})),reviewedLegacy,date,type};
  },
- async runSelected({id,bookingId,type,reviewedLegacy=false}){
+ async runSelected({id,bookingId,type,reviewedLegacy=false},actor){
   const cutoff=manualQueuePolicy(env);
   if(!enabled)throw new ApiError(403,'Manual sending disabled');
   if(![id,bookingId].every(v=>typeof v==='string'&&/^[a-f0-9-]{36}$/.test(v))||!['confirmation','pass','reminder'].includes(type))throw new ApiError(400,'Exact booking and message required');
@@ -64,6 +64,7 @@ export function createMessageQueue(pool,flow,env){const enabled=env.AYAMBIL_WHAT
    if(rows.length!==1)throw new ApiError(409,'Message is not eligible; do not retry blindly');
    const [blocked]=await db.execute("SELECT id FROM ayambil_message_queue WHERE booking_id=? AND status IN ('preparing','sending','uncertain') LIMIT 1",[bookingId]);
    if(blocked.length)throw new ApiError(409,'Booking requires manual provider reconciliation');
+   if(actor?.admin_id)await db.execute('INSERT INTO ayambil_audit(id,admin_id,booking_id,action,created_at) VALUES(?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),actor.admin_id,bookingId,'request-'+type]);
    await db.execute("UPDATE ayambil_message_queue SET status='preparing',attempts=attempts+1,updated_at=UTC_TIMESTAMP(3) WHERE id=?",[id]);return rows[0];
   });
   return submitJob(job);

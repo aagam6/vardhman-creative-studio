@@ -35,6 +35,7 @@ export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirect
   api.get('/admin/session',admin,route(async(req,res)=>res.json({authenticated:true})));
   api.post('/admin/session',route(async(req,res)=>res.json(await store.restoreSession(token(req)))));
   api.post('/admin/logout',route(async(req,res)=>{await store.logout(token(req));res.clearCookie(cookieName,{secure:true,httpOnly:true,sameSite:'strict',path:'/'});res.json({authenticated:false});}));
+  api.get('/admin/overview',admin,route(async(req,res)=>res.json(await store.overview())));
   api.get('/admin/bookings',admin,route(async(req,res)=>{
     const requestId=res.getHeader('X-Request-Id')||randomUUID();res.set('X-Request-Id',requestId);
     try {res.json(await store.list(req.query));}
@@ -72,7 +73,7 @@ export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirect
   api.post('/admin/messages/send-selected',admin,limited('flow-manual-send',5),route(async(req,res)=>{
    if(!queue)throw new ApiError(403,'Manual sending disabled');
    if(!req.body||Object.keys(req.body).some(key=>!['id','bookingId','type','reviewedLegacy'].includes(key)))throw new ApiError(400,'Only exact message identifiers and explicit legacy review allowed');
-   res.json(await queue.runSelected(req.body));
+   res.json(await queue.runSelected(req.body,req.actor));
   }));
   api.post('/admin/messages/status',admin,route(async(req,res)=>{if(!queue||typeof req.body?.id!=='string'||req.body.id.length>36)throw new ApiError(400,'Message identifier required');res.json(await queue.reconcile(req.body.id));}));
   api.post('/admin/messages/test',admin,testOnly,limited('flow-test',2),route(async(req,res)=>{
@@ -90,7 +91,7 @@ export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirect
   api.use((error,req,res,next)=>{void next;const status=error instanceof ApiError?error.status:error.type==='entity.parse.failed'?400:error.type==='entity.too.large'?413:503;
     if(status>=500){
       const requestId=res.getHeader('X-Request-Id')||randomUUID();res.set('X-Request-Id',requestId);
-      const operation=['/admin/session','/admin/change','/admin/logout','/admin/bookings','/register','/pass-download'].includes(req.path)?req.path:'other';
+      const operation=['/admin/session','/admin/change','/admin/logout','/admin/bookings','/admin/overview','/register','/pass-download'].includes(req.path)?req.path:'other';
       const errno=Number.isInteger(error.errno)&&error.errno>=0&&error.errno<=65535?error.errno:null;
       const sqlState=typeof error.sqlState==='string'&&/^[A-Z0-9]{5}$/.test(error.sqlState)?error.sqlState:null;
       console.error(JSON.stringify({operation:'api.failure',endpoint:operation,requestId,errno,sqlState}));

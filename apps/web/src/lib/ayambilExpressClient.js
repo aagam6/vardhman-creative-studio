@@ -3,7 +3,7 @@ import { fetchAyambilJson, validatePassDownload } from './ayambilApiResponse.js'
 export const supportedOperations = Object.freeze({
   health: ['GET'], status: ['GET'], register: ['POST'], 'pass-download': ['POST'],
   'admin/login': ['POST'], 'admin/session': ['GET', 'POST'], 'admin/logout': ['POST'],
-  'admin/bookings': ['GET'], 'admin/change': ['POST'], 'admin/whatsapp-retry': ['POST'],
+  'admin/overview': ['GET'], 'admin/bookings': ['GET'], 'admin/change': ['POST'], 'admin/whatsapp-retry': ['POST'],
   'admin/whatsapp': ['GET'], 'admin/whatsapp/inspect': ['POST'], 'admin/messages': ['GET'],
   'admin/messages/test': ['POST'], 'admin/messages/process': ['POST'],
   'admin/messages/status': ['POST'], 'admin/messages/reminder': ['POST'],
@@ -83,6 +83,7 @@ function booking(data, privileged = false) {
   }
 }
 export function validateResponse(path, data) {
+  if(path==='admin/overview' && (data?.scope!=='event'||!data.totals||['bookings','activeBookings','cancelledBookings','activePasses','cancelledPasses','pendingMessages','failedMessages'].some(key=>!Number.isSafeInteger(data.totals[key])||data.totals[key]<0)||!Array.isArray(data.activity)))throw new Error('Invalid event overview');
   if (path === 'status' && (typeof data?.ready !== 'boolean' || typeof data.open !== 'boolean' || !['disabled', 'configured'].includes(data.whatsapp))) throw new Error('Invalid availability response');
   if (path === 'register') {
     booking(data);

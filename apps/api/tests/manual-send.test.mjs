@@ -56,7 +56,7 @@ test('selected send claims exact eligible job once; persists intent; timeout ref
  };
  const db={execute,beginTransaction:async()=>{},commit:async()=>{},rollback:async()=>{},release(){}};
  const queue=createMessageQueue({execute,getConnection:async()=>db},{prepare:async()=>({}),sendPrepared:async()=>{assert.equal(status,'sending');posts++;throw Error('mock timeout');}},env);
- assert.equal((await queue.runSelected(selected)).status,'uncertain');assert.equal(posts,1);
+ assert.equal((await queue.runSelected(selected,{admin_id:'synthetic-operator'})).status,'uncertain');assert.equal(posts,1);assert.ok(statements.some(sql=>sql.startsWith('INSERT INTO ayambil_audit')));
  await assert.rejects(queue.runSelected(selected),e=>e.status===409);assert.equal(posts,1);
  await assert.rejects(queue.runSelected({...selected,type:'test'}),e=>e.status===400);
 });

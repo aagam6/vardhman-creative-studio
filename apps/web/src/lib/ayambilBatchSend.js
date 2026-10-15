@@ -23,3 +23,9 @@ export async function runReviewedBatch({preview,request,shouldStop,onResult,wait
   }
   return {submitted,stopped:false};
 }
+
+export function scopeBatchToBookings(preview,bookingIds) {
+ validateBatchPreview(preview);
+ const selected=new Set(bookingIds);
+ return {...preview,items:preview.items.filter(job=>selected.has(job.booking_id))};
+}

@@ -103,9 +103,17 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
       const pass=await one(pool,"SELECT p.snapshot,p.status FROM ayambil_capabilities c JOIN ayambil_passes p ON p.id=c.pass_id JOIN ayambil_attendees a ON a.id=p.attendee_id JOIN ayambil_bookings b ON b.id=a.booking_id WHERE c.key_hash=? AND c.expires_at>UTC_TIMESTAMP(3) AND c.revoked_at IS NULL AND p.status='active' AND a.status='active' AND b.status='active'",[hash(key)]);
       if(!pass)throw new ApiError(404,'Pass download unavailable');return {passes:[{...json(pass.snapshot),status:pass.status}]};
     },
+    async overview(){
+      const bookings=await one(pool,"SELECT COUNT(*) AS bookings,COALESCE(SUM(status='active'),0) AS activeBookings,COALESCE(SUM(status='cancelled'),0) AS cancelledBookings FROM ayambil_bookings");
+      const passes=await one(pool,"SELECT COALESCE(SUM(p.status='active' AND a.status='active' AND b.status='active'),0) AS activePasses,COALESCE(SUM(p.status='cancelled'),0) AS cancelledPasses FROM ayambil_passes p JOIN ayambil_attendees a ON a.id=p.attendee_id JOIN ayambil_bookings b ON b.id=a.booking_id");
+      const messages=await one(pool,"SELECT COALESCE(SUM(status IN ('queued','preparing','sending','uncertain')),0) AS pendingMessages,COALESCE(SUM(status='failed'),0) AS failedMessages FROM ayambil_message_queue WHERE booking_id IS NOT NULL AND notification_type IN ('confirmation','pass','reminder')");
+      const activity=await rows(pool,'SELECT au.id,au.action,au.created_at AS created,b.number AS bookingNumber,b.contact_name AS contactName,ad.email AS actor FROM ayambil_audit au JOIN ayambil_bookings b ON b.id=au.booking_id JOIN ayambil_admins ad ON ad.id=au.admin_id ORDER BY au.created_at DESC,au.id DESC LIMIT 30');
+      return {scope:'event',totals:Object.fromEntries(Object.entries({...bookings,...passes,...messages}).map(([key,value])=>[key,Number(value)])),activity};
+    },
     async list(query){
       let stage='bookings.filters';try {
-      const date=String(query.date||''),status=String(query.status||''),search=String(query.search||'');const page=Number(query.page||1);
+      const date=String(query.date||''),status=String(query.status||''),search=String(query.search||'');const page=Number(query.page||1);const message=String(query.message||'');
+      if(!['','pending','failed'].includes(message))throw new ApiError(400,'Invalid message filter');
       if(!['','2026-11-02','2026-11-03'].includes(date)||!['','active','cancelled'].includes(status)||search.length>120||!Number.isInteger(page)||page<1||page>100000)throw new ApiError(400,'Invalid filters');
       // Normalize each operand before CONCAT, not just its result: imported
       // column and connection collations can differ without a schema change.
@@ -119,7 +127,8 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
           OR EXISTS(SELECT 1 FROM ayambil_attendees a WHERE a.booking_id=b.id
             AND LOCATE(CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci,
               CONVERT(a.full_name USING utf8mb4) COLLATE utf8mb4_unicode_ci)>0))
-        ORDER BY b.created_at DESC,b.id LIMIT 51 OFFSET ?`,[date,date,status,status,search,search,search,(page-1)*50]);
+        AND (?='' OR EXISTS(SELECT 1 FROM ayambil_message_queue mq WHERE mq.booking_id=b.id AND ((?='pending' AND mq.status IN ('queued','preparing','sending','uncertain')) OR (?='failed' AND mq.status='failed'))))
+        ORDER BY b.created_at DESC,b.id LIMIT 51 OFFSET ?`,[date,date,status,status,search,search,search,message,message,message,(page-1)*50]);
       stage='bookings.hydrate';const items=[];
       // Bound each page to the pool's five connections. Concurrent dashboard
       // and export requests must not enqueue fifty hydration chains apiece.
