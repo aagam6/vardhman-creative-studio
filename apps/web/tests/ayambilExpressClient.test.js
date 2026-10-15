@@ -65,3 +65,10 @@ test('response boundary rejects seven attendees while accepting six and checking
  const broken=structuredClone(saved);broken.attendees[5].passes[0].attendeeName='Different person';
  assert.throws(()=>validateResponse('admin/bookings',list(broken)),/Invalid saved pass association/);
 });
+
+ test('logout does not depend on session restoration and admin reads use distinct cache keys',async()=>{
+ const calls=[];const api=createAyambilApi(async(url,options)=>{calls.push({url,options});return Response.json({authenticated:false});});
+ await api.logout();assert.equal(calls.length,1);assert.match(calls[0].url,/admin\/logout$/);
+ await api.request('admin/session');await api.request('admin/session');
+ assert.notEqual(calls[1].url,calls[2].url);assert.match(calls[1].url,/_fresh=/);
+ });

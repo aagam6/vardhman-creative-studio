@@ -57,7 +57,10 @@ test('mock-store HTTP routes return JSON/no-store; auth, CSRF, gates and SPA are
   const list=await request('/api/ayambil/admin/bookings?page=2',{headers});assert.deepEqual(await list.json(),{items:[],page:2,hasMore:false});
   assert.equal((await request('/api/ayambil/admin/session',{headers})).status,200);
   assert.deepEqual(await (await request('/api/ayambil/admin/session',{...post,headers})).json(),{authenticated:true,csrfToken:csrf});
-  assert.equal((await request('/api/ayambil/admin/logout',{...post,headers:{...headers,'X-CSRF-Token':csrf}})).status,200);
+  assert.equal((await request('/api/ayambil/admin/logout',{...post,headers:{...headers,Origin:'https://untrusted.invalid'}})).status,403);
+  const logout=await request('/api/ayambil/admin/logout',{...post,headers});
+  assert.equal(logout.status,200);assert.match(logout.headers.get('set-cookie'),/Expires=Thu, 01 Jan 1970/);
+  assert.equal((await request('/api/ayambil/admin/logout',post)).status,200);
   limited=false;assert.equal((await request('/api/ayambil/pass-download',post)).status,429);
   assert.equal((await request('/api/ayambil/status',{headers:{Origin:'https://untrusted.invalid'}})).status,403);
  }finally{await new Promise(r=>server.close(r));}

@@ -24,7 +24,9 @@ export function createAyambilApi(transport = fetchAyambilJson) {
     if (!Object.hasOwn(supportedOperations, path) || !supportedOperations[path].includes(method)) throw new Error('Invalid API operation');
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 15000);
-    const query = new URLSearchParams(options.query || {}).toString();
+    const queryParams = new URLSearchParams(options.query || {});
+    if (path.startsWith('admin/') && method === 'GET') queryParams.set('_fresh', globalThis.crypto.randomUUID());
+    const query = queryParams.toString();
     const headers = { Accept: 'application/json' };
     if (method !== 'GET') headers['Content-Type'] = 'application/json';
     if (path.startsWith('admin/') && method === 'POST' && csrf) headers['X-CSRF-Token'] = csrf;
@@ -66,7 +68,7 @@ export function createAyambilApi(transport = fetchAyambilJson) {
       try { const confirmed = await request('admin/session'); if (confirmed?.authenticated !== true) throw new Error('Sign-in not confirmed'); return confirmed; }
       catch (error) { csrf = ''; throw error; }
     },
-    async logout() { try { await this.restore(); const result = await request('admin/logout', { method: 'POST' }); if (result?.authenticated !== false) throw new Error('Sign-out not confirmed'); } finally { csrf = ''; } },
+    async logout() { try { const result = await request('admin/logout', { method: 'POST' }); if (result?.authenticated !== false) throw new Error('Sign-out not confirmed'); } finally { csrf = ''; } },
   };
 }
 

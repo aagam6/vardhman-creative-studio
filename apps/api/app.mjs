@@ -32,7 +32,7 @@ export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirect
   }));
   api.get('/admin/session',admin,route(async(req,res)=>res.json({authenticated:true})));
   api.post('/admin/session',route(async(req,res)=>res.json(await store.restoreSession(token(req)))));
-  api.post('/admin/logout',admin,route(async(req,res)=>{await store.logout(token(req));res.clearCookie(cookieName,{secure:true,httpOnly:true,sameSite:'strict',path:'/'});res.json({authenticated:false});}));
+  api.post('/admin/logout',route(async(req,res)=>{await store.logout(token(req));res.clearCookie(cookieName,{secure:true,httpOnly:true,sameSite:'strict',path:'/'});res.json({authenticated:false});}));
   api.get('/admin/bookings',admin,route(async(req,res)=>{
     const requestId=randomUUID();res.set('X-Request-Id',requestId);
     try {res.json(await store.list(req.query));}
