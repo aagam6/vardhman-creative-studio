@@ -72,6 +72,8 @@ export default function AyambilPage() {
         <figure className="ay-invitation"><div className="ay-image-frame"><img src="/assets/ayambil/invitation-20261013.jpeg" alt="Original Gujarati invitation celebrating the 500 Akhand Ayambil Tap of two Jain Munivars" width="950" height="950" fetchPriority="high" /></div><figcaption>THE ORIGINAL INVITATION <span>૫૦૦ અખંડ આયંબિલ · વિજયોત્સવ</span></figcaption></figure>
       </section>
       
+      <EveningRegistrationChoices />
+
       <section className="ay-intro ay-container" id="ay-about" aria-labelledby="ay-about-heading">
         <Ornament /><p className="ay-eyebrow">Faith. Discipline. Devotion.</p>
         <h2 id="ay-about-heading">A journey of tap.<br /><em>A moment of celebration.</em></h2><p lang="gu">બંને પૂજ્ય મુનિવરોના ૫૦૦ અખંડ આયંબિલ તપની ઉજવણીમાં ભક્તિ સંધ્યા, વિશેષ પ્રસ્તુતિ અને પારણાં મહોત્સવ યોજાશે.</p>
@@ -108,8 +110,7 @@ export default function AyambilPage() {
           </article>)}</div>
         </div>
       </section>
-      <section className="ay-venues-section" id="ay-venues" aria-labelledby="ay-venues-heading"><div className="ay-container"><p className="ay-eyebrow">Meet in Ahmedabad</p><h2 id="ay-venues-heading">Places of Celebration / <span lang="gu">કાર્યક્રમના સ્થળો</span></h2><p lang="gu">તમારા કાર્યક્રમનું લોકેશન જુઓ.</p><div className="ay-venue-grid">{ayambilProgramme.map(day => <VenueCard key={day.date} event={day} />)}</div><p className="ay-source-note">Venue details transcribed from the supplied programme brochure. Please confirm the complete Day 3 morning schedule before making travel arrangements. / ૪ નવેમ્બરના સામૈયાનો સમય અને સ્થળ હજી કન્ફર્મ નથી. આવતાં પહેલાં તપાસી લો.</p></div></section>
-      <EveningRegistrationChoices />
+      <section className="ay-venues-section" id="ay-venues" aria-labelledby="ay-venues-heading"><div className="ay-container"><p className="ay-eyebrow">Meet in Ahmedabad</p><h2 id="ay-venues-heading">Places of Celebration / <span lang="gu">કાર્યક્રમના સ્થળો</span></h2><p lang="gu">તમારા કાર્યક્રમનું લોકેશન જુઓ.</p><div className="ay-venue-grid">{ayambilProgramme.map(day => <VenueCard key={day.date} event={day} />)}</div></div></section>
       
       <section className="ay-brochure ay-container" id="ay-brochure" aria-labelledby="ay-brochure-heading">
         <p className="ay-eyebrow">The complete original invitation</p><h2 id="ay-brochure-heading">Six pages of the celebration</h2>
