@@ -1,3 +1,4 @@
+import {submitRegistration} from '@/lib/ayambilRegistrationRecovery.js';
 import {withPrimaryParticipant} from '@/lib/ayambilPrimaryParticipant';
 import {gujaratiEvening} from '@/lib/ayambilGujarati';
 import React, { useEffect, useRef, useState } from 'react';
@@ -17,6 +18,7 @@ export default function AyambilRegistration({ eventDate }) {
   const [booking, setBooking] = useState(initialBooking);
   const [availability, setAvailability] = useState('loading'); const [step, setStep] = useState('details');
   const [error, setError] = useState(''); const [busy, setBusy] = useState(false); const [confirmed, setConfirmed] = useState(false);
+  const [recovering,setRecovering]=useState(false);
   const [receipt, setReceipt] = useState(null); const submission = useRef(null); const locked = useRef(false); const heading = useRef(null);
   const check = async () => {
     setAvailability('loading');
@@ -34,11 +36,11 @@ export default function AyambilRegistration({ eventDate }) {
     locked.current = true; setBusy(true); setError('');
     if (!submission.current) submission.current = { ...booking, requestKey: requestKey() };
     try {
-      const saved = await registrationApi('register', { method: 'POST', body: submission.current });
+      const saved = await submitRegistration(registrationApi, submission.current, ()=>setRecovering(true));
       if (!saved?.number || !Array.isArray(saved.attendees) || saved.attendees.length !== booking.attendees.length || saved.attendees.some(a => !Array.isArray(a.passes) || !a.passes.length)) throw new Error('Incomplete response');
       setReceipt(saved); setStep('success');
-    } catch { setError('રજિસ્ટ્રેશન કન્ફર્મ થઈ શક્યું નથી. આ જ વિગતો સાથે ફરી પ્રયાસ કરો. કન્ફર્મેશન ન મળે ત્યાં સુધી બીજું રજિસ્ટ્રેશન શરૂ ન કરો.'); }
-    finally { locked.current = false; setBusy(false); }
+    } catch { setError('સર્વર પરથી કન્ફર્મેશન મળ્યું નથી. રજિસ્ટ્રેશન સેવ થયું હોઈ શકે છે. આ જ પેજ પર ફરી પ્રયાસ કરો. કન્ફર્મેશન ન મળે ત્યાં સુધી બીજું રજિસ્ટ્રેશન શરૂ ન કરો.'); }
+    finally { locked.current = false; setBusy(false); setRecovering(false); }
   };
   return <section className="ay-registration ay-container ay-guest-reservation" id="ay-registration" aria-labelledby="ay-registration-title">
     <header className="ay-registration-heading"><p className="ay-eyebrow">સાંજના કાર્યક્રમ માટે ફ્રી રજિસ્ટ્રેશન</p><h2 id="ay-registration-title" ref={heading} tabIndex={-1}>તમારો પાસ અહીં મેળવો</h2><p className="ay-registration-intro">તમારું નામ અને WhatsApp નંબર આપો. એક ફોર્મમાં ૬ લોકોના ફ્રી પાસ લઈ શકો છો.</p></header>
@@ -68,7 +70,7 @@ export default function AyambilRegistration({ eventDate }) {
     </form>}
     {step === 'review' && <div className="ay-review"><h3>માહિતી તપાસો</h3><p>{session.label} · {session.time} · {session.performer}</p><p lang="gu">{session.programme}</p><p>{session.venue.replace('Chandramauleshwar', 'Chandramaulishwar')} · {session.address}</p><p>{booking.contactName} · {booking.mobile}</p><p>કામ: {booking.occupation || "આપ્યું નથી"} · કાર્યક્રમની જાણ: {booking.referralSource || "આપ્યું નથી"}</p><p>WhatsApp અને રજિસ્ટ્રેશનના નિયમો માટે મંજૂરી આપી છે.</p><ol>{booking.attendees.map((a, i) => <li key={i}><strong>{a.fullName}</strong><span>{session.label} · સાંજે ૮ વાગ્યે</span></li>)}</ol>
       <label className="ay-confirm"><input type="checkbox" checked={confirmed} disabled={busy} onChange={e => setConfirmed(e.target.checked)} />વ્યક્તિઓનાં નામ અને કાર્યક્રમની તારીખ સાચી છે.</label>
-      <div className="ay-form-actions"><button type="button" disabled={busy} onClick={() => { setStep('details'); setConfirmed(false); }}>માહિતી બદલો</button><button type="button" className="ay-button" disabled={!confirmed || busy} onClick={submit}>{busy ? 'પાસ તૈયાર થાય છે…' : 'રજિસ્ટ્રેશન કરો'}</button></div>
+      <div className="ay-form-actions"><button type="button" disabled={busy} onClick={() => { setStep('details'); setConfirmed(false); }}>માહિતી બદલો</button><button type="button" className="ay-button" disabled={!confirmed || busy} onClick={submit}>{busy ? (recovering ? 'સેવ થયેલું રજિસ્ટ્રેશન તપાસીએ છીએ…' : 'પાસ તૈયાર થાય છે…') : 'રજિસ્ટ્રેશન કરો'}</button></div>
     </div>}
     {step === 'success' && receipt && <div className="ay-confirmation"><h3>{receipt.status === 'active' ? 'તમારું રજિસ્ટ્રેશન થઈ ગયું છે' : 'રજિસ્ટ્રેશન રદ થયું છે'}</h3><p>રજિસ્ટ્રેશન નંબર: <strong>{receipt.number}</strong></p><p>WhatsApp પર પાસ આવવામાં સમય લાગી શકે છે. ત્યાં સુધી તમારો પાસ અહીંથી ડાઉનલોડ કરીને સાચવી રાખો.</p><p>નીચેથી દરેક વ્યક્તિનો પાસ ડાઉનલોડ કરી લો.</p>{receipt.attendees.flatMap(a => a.passes.filter(p => p.status !== 'superseded').map(pass => <AyambilDigitalPass key={pass.number} pass={pass} />))}<button type="button" onClick={() => { setReceipt(null); submission.current = null; setBooking(initialBooking()); setStep('details'); setConfirmed(false); check(); }}>બીજું રજિસ્ટ્રેશન</button></div>}
     {error && <p className="ay-form-error" role="alert">{error}</p>}
