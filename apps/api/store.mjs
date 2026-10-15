@@ -127,8 +127,8 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
           OR EXISTS(SELECT 1 FROM ayambil_attendees a WHERE a.booking_id=b.id
             AND LOCATE(CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci,
               CONVERT(a.full_name USING utf8mb4) COLLATE utf8mb4_unicode_ci)>0))
-        AND (?='' OR EXISTS(SELECT 1 FROM ayambil_message_queue mq WHERE mq.booking_id=b.id AND ((?='pending' AND mq.status IN ('queued','preparing','sending','uncertain')) OR (?='failed' AND mq.status='failed'))))
-        ORDER BY b.created_at DESC,b.id LIMIT 51 OFFSET ?`,[date,date,status,status,search,search,search,message,message,message,(page-1)*50]);
+        ${message ? `AND EXISTS(SELECT 1 FROM ayambil_message_queue mq WHERE CONVERT(mq.booking_id USING utf8mb4) COLLATE utf8mb4_unicode_ci=CONVERT(b.id USING utf8mb4) COLLATE utf8mb4_unicode_ci AND ${message==='pending'?"mq.status IN ('queued','preparing','sending','uncertain')":"mq.status='failed'"})` : ''}
+        ORDER BY b.created_at DESC,b.id LIMIT 51 OFFSET ?`,[date,date,status,status,search,search,search,(page-1)*50]);
       stage='bookings.hydrate';const items=[];
       // Bound each page to the pool's five connections. Concurrent dashboard
       // and export requests must not enqueue fifty hydration chains apiece.

@@ -14,7 +14,7 @@ test('event overview aggregates the whole event without multiplying totals by at
 });
 test('message filters reject unsupported states and bind selected status without recipient data',async()=>{
  const queries=[];const store=createStore({execute:async(sql,args)=>{queries.push({sql,args});return [[]];}},{});
- await store.list({message:'failed'});assert.ok(queries[0].sql.includes('mq.booking_id=b.id'));assert.ok(queries[0].args.includes('failed'));await assert.rejects(store.list({message:'anything'}),e=>e.status===400);
+ await store.list({message:'failed'});assert.ok(queries[0].sql.includes('CONVERT(mq.booking_id USING utf8mb4) COLLATE utf8mb4_unicode_ci'));assert.ok(queries[0].sql.includes("mq.status='failed'"));await store.list({});assert.ok(!queries[1].sql.includes('ayambil_message_queue'));assert.equal(queries[1].args.length,8);await assert.rejects(store.list({message:'anything'}),e=>e.status===400);
 });
 test('overview is denied to unauthenticated visitors and is never cached',async()=>{
  let touched=false;const store={session:async()=>{throw new ApiError(401,'Sign in');},overview:async()=>{touched=true;return {};}};
