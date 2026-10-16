@@ -116,3 +116,87 @@
 .ay-pdf-render .ay-pass-front{grid-template-rows:44px 110px 20px 130px 135px}
 @media(max-width:700px){.ay-digital-pass:not(.ay-pdf-render) .ay-pass-heading h3{font-size:40px}.ay-digital-pass:not(.ay-pdf-render) .ay-pass-attendee strong{font-size:28px}}
 .ay-pdf-render .ay-pass-front{grid-template-rows:44px 110px 24px 175px 155px}
+
+/* Shared premium series palette. Keep tokens on the pass for detached PDF capture. */
+[data-pass-theme="royal"] {
+  --pass-primary:#14243A; --pass-secondary:#243D60; --pass-gold:#D9BD83;
+  --pass-heading:#F7F3EA; --pass-text:#D8DCE4; --pass-card:#1C304A; --pass-divider:#52647A;
+}
+[data-pass-theme="heritage"] {
+  --pass-primary:#173F35; --pass-secondary:#24594A; --pass-gold:#E5D2A0;
+  --pass-heading:#F7F3EA; --pass-text:#D9E3DD; --pass-card:#204B40; --pass-divider:#58766B;
+}
+.ay-digital-pass[data-pass-theme] .ay-pass-side { background:var(--pass-primary); color:var(--pass-text); border-color:var(--pass-gold); }
+.ay-digital-pass[data-pass-theme] .ay-pass-side:before { border-color:var(--pass-gold); }
+.ay-digital-pass[data-pass-theme] .ay-pass-brand,
+.ay-digital-pass[data-pass-theme] .ay-pass-registration,
+.ay-digital-pass[data-pass-theme] .ay-pass-attendee span,
+.ay-digital-pass[data-pass-theme] .ay-pass-attendee b,
+.ay-digital-pass[data-pass-theme] .ay-pass-credits dt,
+.ay-digital-pass[data-pass-theme] .ay-pass-location { color:var(--pass-gold); }
+.ay-digital-pass[data-pass-theme] .ay-pass-heading,
+.ay-digital-pass[data-pass-theme] .ay-pass-heading h3,
+.ay-digital-pass[data-pass-theme] .ay-pass-attendee strong,
+.ay-digital-pass[data-pass-theme] .ay-pass-programme p:first-child,
+.ay-digital-pass[data-pass-theme] .ay-pass-visit h4,
+.ay-digital-pass[data-pass-theme] .ay-pass-visit strong,
+.ay-digital-pass[data-pass-theme] .ay-pass-back-title,
+.ay-digital-pass[data-pass-theme] .ay-pass-rules h4 { color:var(--pass-heading); }
+.ay-digital-pass[data-pass-theme] .ay-pass-attendee,
+.ay-digital-pass[data-pass-theme] .ay-pass-visit { background:var(--pass-card); border-color:var(--pass-gold); }
+.ay-digital-pass[data-pass-theme] .ay-pass-programme,
+.ay-digital-pass[data-pass-theme] .ay-pass-back-title { border-color:var(--pass-divider); }
+.ay-digital-pass[data-pass-theme] .ay-pass-validity,
+.ay-digital-pass[data-pass-theme] .ay-pass-status { background:var(--pass-secondary); color:var(--pass-gold); border-color:var(--pass-gold); }
+.ay-digital-pass[data-pass-theme] .ay-pass-credits dt small,
+.ay-digital-pass[data-pass-theme] .ay-pass-back>small { color:var(--pass-text); }
+.ay-pass-wrapper[data-pass-theme] .ay-pass-actions button,
+.ay-pass-wrapper[data-pass-theme] .ay-pass-actions a { background:var(--pass-primary); color:var(--pass-gold); border-color:var(--pass-gold); }
+.ay-pass-wrapper[data-pass-theme] .ay-pass-actions button:hover:not(:disabled),
+.ay-pass-wrapper[data-pass-theme] .ay-pass-actions a:hover { background:var(--pass-secondary); }
+.ay-pass-wrapper[data-pass-theme] :focus-visible { outline-color:var(--pass-gold); }
+
+/* Refined reading hierarchy; the two-page PDF retains its physical dimensions. */
+.ay-digital-pass[data-pass-theme] .ay-pass-brand { gap:14px; }
+.ay-digital-pass[data-pass-theme] .ay-pass-brand img {
+  box-sizing:border-box; flex:0 0 44px; width:44px; height:44px;
+  padding:3px; border:1px solid var(--pass-gold); border-radius:6px;
+  background:var(--pass-secondary); filter:brightness(1.2);
+}
+.ay-digital-pass[data-pass-theme] .ay-pass-attendee { justify-content:center; gap:5px; }
+.ay-digital-pass[data-pass-theme] .ay-pass-attendee strong { font-size:36px; line-height:1.25; }
+.ay-digital-pass[data-pass-theme] .ay-pass-attendee b { font-size:12px; letter-spacing:.35px; }
+.ay-digital-pass[data-pass-theme] .ay-pass-programme {
+  display:flex; flex-direction:column; justify-content:center; padding-top:0; padding-bottom:16px;
+}
+.ay-digital-pass[data-pass-theme] .ay-pass-programme p { margin:8px 0; }
+.ay-digital-pass[data-pass-theme] .ay-pass-programme small { margin-top:8px; }
+.ay-digital-pass[data-pass-theme] .ay-pass-visit { padding:14px 16px 12px; }
+.ay-digital-pass[data-pass-theme] .ay-pass-visit h4 { color:var(--pass-gold); margin-bottom:8px; font-size:23px; }
+.ay-digital-pass[data-pass-theme] .ay-pass-visit strong { display:block; line-height:1.4; }
+.ay-digital-pass[data-pass-theme] .ay-pass-location { margin-top:3px; }
+.ay-digital-pass[data-pass-theme] .ay-pass-credits { column-gap:32px; margin:20px 0; }
+.ay-digital-pass[data-pass-theme] .ay-pass-credits dt { line-height:1.5; }
+.ay-digital-pass[data-pass-theme] .ay-pass-credits dd { margin-top:9px; line-height:1.65; }
+.ay-digital-pass[data-pass-theme] .ay-credit-name + .ay-credit-name { margin-top:5px; }
+.ay-digital-pass[data-pass-theme] .ay-pass-rules h4 { margin:14px 0 10px; }
+.ay-digital-pass[data-pass-theme] .ay-pass-rules li { line-height:1.6; }
+.ay-pass-wrapper[data-pass-theme] .ay-pass-actions { gap:12px; }
+.ay-pass-wrapper[data-pass-theme] .ay-pass-actions button { min-height:48px; padding:12px 20px; font-weight:600; }
+.ay-pass-wrapper[data-pass-theme] .ay-pass-actions button:first-child { background:var(--pass-gold); color:var(--pass-primary); }
+.ay-pass-wrapper[data-pass-theme] .ay-pass-actions button:first-child:hover:not(:disabled) { background:var(--pass-heading); color:var(--pass-primary); }
+.ay-digital-pass.ay-pdf-render[data-pass-theme] .ay-pass-credits { margin:16px 0; }
+.ay-digital-pass.ay-pdf-render[data-pass-theme] .ay-pass-visit { padding:10px 14px; }
+.ay-digital-pass.ay-pdf-render[data-pass-theme] .ay-pass-rules h4 { margin:10px 0 8px; }
+@media(max-width:700px) {
+  .ay-digital-pass[data-pass-theme]:not(.ay-pdf-render) .ay-pass-attendee strong { font-size:30px; }
+  .ay-digital-pass[data-pass-theme]:not(.ay-pdf-render) .ay-pass-programme { padding:16px 0 0; }
+  .ay-digital-pass[data-pass-theme]:not(.ay-pdf-render) .ay-pass-visit { padding:14px 12px; }
+  .ay-digital-pass[data-pass-theme]:not(.ay-pdf-render) .ay-pass-visit h4 { font-size:21px; line-height:1.5; }
+  .ay-digital-pass[data-pass-theme]:not(.ay-pdf-render) .ay-pass-credits { gap:20px; }
+  .ay-pass-wrapper[data-pass-theme] .ay-pass-actions button { flex:1 1 auto; }
+}
+
+/* Preserve breathing room for multi-line names on the fixed PDF canvas. */
+.ay-digital-pass.ay-pdf-render[data-pass-theme] .ay-pass-attendee[data-long-name="true"] { gap:4px; }
+.ay-digital-pass.ay-pdf-render[data-pass-theme] .ay-pass-attendee[data-long-name="true"] strong { font-size:26px; line-height:1.15; }

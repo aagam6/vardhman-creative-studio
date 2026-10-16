@@ -30,7 +30,7 @@ export async function createPassPdf(element, number) {
       assertPassContentFits(side);
       const bounds = side.getBoundingClientRect();
       const ratio = bounds.height / bounds.width;
-      const image = await toPng(side, { pixelRatio: 2, backgroundColor: '#faf7ef', cacheBust: false });
+      const image = await toPng(side, { pixelRatio: 2, backgroundColor: getComputedStyle(side).backgroundColor, cacheBust: false });
       const links = [...side.querySelectorAll('.ay-pass-location')].map(anchor=>{const box=anchor.getBoundingClientRect();return {url:anchor.href,x:(box.left-bounds.left)/bounds.width,y:(box.top-bounds.top)/bounds.height,width:box.width/bounds.width,height:box.height/bounds.height};});
       images.push({image, ratio, links});
     }
@@ -48,6 +48,7 @@ export function saveFile(file) {
 export default function AyambilDigitalPass({ pass }) {
   const ref = useRef(null); const [busy, setBusy] = useState(false); const [message, setMessage] = useState('');
   const active = pass.status === 'active';
+  const theme = pass.sessions[0]?.date === '2026-11-03' ? 'heritage' : 'royal';
   const download = async () => {
     setBusy(true); setMessage('');
     try { const pdf = await createPassPdf(ref.current, pass.number); saveFile(pdf); }
@@ -69,12 +70,12 @@ export default function AyambilDigitalPass({ pass }) {
     } catch (error) { setMessage(error.message === 'Pass content exceeds readable print size' ? 'Pass content is too long to print readably. Contact the organisers for an authorised correction. / વાંચી શકાય તેવી પ્રિન્ટ માટે પાસનું લખાણ ખૂબ લાંબું છે. અધિકૃત સુધારા માટે આયોજકોનો સંપર્ક કરો.' : 'Print could not be prepared. Retry downloading the PDF.'); }
     finally { setBusy(false); }
   };
-  return <article className="ay-pass-wrapper">
-    <div className="ay-digital-pass" ref={ref}>
+  return <article className="ay-pass-wrapper" data-pass-theme={theme}>
+    <div className="ay-digital-pass" data-pass-theme={theme} ref={ref}>
       <section className="ay-pass-side ay-pass-front" aria-label="Digital pass front"><div className="ay-pass-brand"><img src="/assets/logo.png" width="44" height="44" alt="" /><span>VARDHMAN CREATIVE STUDIO<small>DIGITAL PASS · ડિજિટલ પાસ</small></span><b className={`ay-pass-validity ${active ? '' : 'ay-pass-invalid'}`}>{active ? 'ACTIVE · EVENING PASS' : `${pass.status.toUpperCase()} · NOT VALID`}</b></div>
       <div className="ay-pass-heading"><p className="ay-pass-english">500 Akhand Ayambil Tap</p><h3 lang="gu">વિજયોત્સવ</h3></div>
       <p className="ay-pass-registration">FREE EVENING REGISTRATION / રજિસ્ટ્રેશન</p>
-      <div className="ay-pass-attendee"><span lang="gu">ભાગ લેનારનું નામ <small>/ Attendee Name</small></span><strong>{pass.attendeeName}</strong><span>પાસ નંબર / Pass number</span><b>{pass.number}</b></div>
+      <div className="ay-pass-attendee" data-long-name={Array.from(pass.attendeeName || '').length > 28 ? 'true' : undefined}><span lang="gu">ભાગ લેનારનું નામ <small>/ Attendee Name</small></span><strong>{pass.attendeeName}</strong><span>પાસ નંબર / Pass number</span><b>{pass.number}</b></div>
       {pass.sessions.map(session => <div className="ay-pass-programme" key={session.date}><p>{session.performer}</p><p lang="gu">{session.programme}</p><small>{session.date === '2026-11-02' ? 'Bhakti Sandhya' : 'Special presentation'}</small></div>)}
       {pass.sessions.map(session => <section className="ay-pass-visit" key={session.date}><h4>{session.label} · {session.time}</h4><strong>{session.venue.replace('Chandramauleshwar', 'Chandramaulishwar')}</strong><p>{session.address}</p>{passLocationUrl(session.mapsUrl) && <a className="ay-pass-location" href={passLocationUrl(session.mapsUrl)} target="_blank" rel="noopener noreferrer">Open location / સ્થળ જુઓ ↗</a>}</section>)}
       </section><section className="ay-pass-side ay-pass-back" aria-label="Digital pass reverse"><div className="ay-pass-back-title">500 Akhand Ayambil Tap · વિજયોત્સવ <span>PASS INFORMATION</span></div><Credits pass={pass} />

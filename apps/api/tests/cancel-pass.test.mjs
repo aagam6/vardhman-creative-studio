@@ -74,3 +74,34 @@ test('failed booking update reports its safe stage and rolls back',async()=>{
  await assert.rejects(createStore({getConnection:async()=>db},{}).change({admin_id:'a'},{action:'cancel',bookingId:'b'}),e=>e.ayambilStage==='change.booking'&&e.errno===1451);
  assert.equal(rolledBack,true);
 });
+
+test('Trash accepts only cancelled passes and preserves status, links and history',async()=>{
+ const {store,calls}=fixture({id:'p',status:'cancelled',trashed_at:null});
+ await store.change({admin_id:'operator'},{action:'trash-pass',bookingId:'booking-one',passNumber:'AYV26-one'});
+ const updates=calls.filter(([sql])=>sql.startsWith('UPDATE'));
+ assert.equal(updates.length,1);assert.equal(updates[0][0],'UPDATE ayambil_passes SET trashed_at=UTC_TIMESTAMP(3) WHERE id=?');
+ assert.ok(!calls.some(([sql])=>sql.startsWith('DELETE')));
+ assert.ok(calls.some(([sql,args])=>sql.startsWith('INSERT INTO ayambil_audit')&&args[3]==='trash-pass'));
+ for(const pass of [null,{id:'p',status:'active'},{id:'p',status:'superseded'},{id:'p',status:'cancelled',trashed_at:'2026-10-15'}]){
+ const f=fixture(pass);await assert.rejects(f.store.change({admin_id:'operator'},{action:'trash-pass',bookingId:'booking-one',passNumber:'AYV26-one'}));assert.ok(!f.calls.some(([sql])=>sql.startsWith('UPDATE')));
+ }
+});
+test('Restore from Trash clears only trash metadata and whole booking restore excludes Trash',async()=>{
+ const {store,calls}=fixture({id:'p',status:'cancelled',trashed_at:'2026-10-15'});
+ await store.change({admin_id:'operator'},{action:'untrash-pass',bookingId:'booking-one',passNumber:'AYV26-one'});
+ assert.deepEqual(calls.filter(([sql])=>sql.startsWith('UPDATE')).map(([sql])=>sql),['UPDATE ayambil_passes SET trashed_at=NULL WHERE id=?']);
+ const f=fixture();await f.store.change({admin_id:'operator'},{action:'restore',bookingId:'booking-one'});
+ assert.ok(f.calls.find(([sql])=>sql.startsWith('UPDATE ayambil_passes p'))[0].includes('p.trashed_at IS NULL'));
+});
+
+test('reissue cannot silently supersede a pass held in Trash',async()=>{
+ let updated=false;
+ const db={beginTransaction:async()=>{},commit:async()=>{},rollback:async()=>{},release(){},execute:async(sql)=>{
+ if(sql.startsWith('SELECT * FROM ayambil_bookings'))return [[{id:'b',status:'active'}]];
+ if(sql.includes('p.trashed_at IS NOT NULL'))return [[{id:'trashed'}]];
+ if(sql.startsWith('UPDATE'))updated=true;
+ return [[]];
+ }};
+ await assert.rejects(createStore({getConnection:async()=>db},{}).change({admin_id:'operator'},{action:'reissue',bookingId:'b',attendeeId:'a'}),e=>e.status===409);
+ assert.equal(updated,false);
+});

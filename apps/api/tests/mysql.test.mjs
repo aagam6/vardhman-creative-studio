@@ -1,3 +1,4 @@
+import {prepareCurrentSchema,checkTrashLifecycle} from './trash-engine-check.mjs';
 import {checkCompatibility,checkParallelLists} from './compatibility-check.mjs';
 import {checkEmptyAdmin,checkPopulatedExport} from './empty-admin-check.mjs';
 import {checkSearchCollations} from './collation-check.mjs';
@@ -24,11 +25,12 @@ test('REAL MySQL: schema, concurrent idempotency, rollback, auth, filters and pa
   for(const statement of migration.split(';').map(s=>s.trim()).filter(Boolean))await pool.query(statement);
   await checkBootstrap(pool,config);
   for(const s of programme.sessions)await pool.execute('INSERT INTO ayambil_events VALUES(?,?)',[s.date,JSON.stringify(s)]);
+  await prepareCurrentSchema(pool);
   const store=createStore(pool,config);assert.equal(await store.ready(),false);await checkEmptyAdmin(pool,store,config);
   const body=n=>({contactName:'Synthetic Contact',mobile:'+12025550123',eventDate:'2026-11-02',termsAccepted:true,whatsappConsent:true,requestKey:randomUUID().replaceAll('-','').repeat(2),attendees:Array.from({length:n},(_,i)=>({fullName:'Synthetic Attendee '+i,dates:['2026-11-02']}))});
   await assert.rejects(store.register(body(1)),e=>e.status===403);
   await pool.query('UPDATE ayambil_settings SET registration_open=TRUE WHERE id=1');
-  await assert.rejects(store.register(body(3)),e=>e.status===400);
+  await assert.rejects(store.register(body(7)),e=>e.status===400);
   const input=body(2);const results=await Promise.all(Array.from({length:4},()=>store.register(input)));assert.equal(new Set(results.map(r=>r.number)).size,1);
   const receipt=results.find(r=>r.downloadKeys);assert.equal(receipt.downloadKeys.length,2);await checkCompatibility(pool,store,input,receipt);
   const [count]=await pool.query('SELECT COUNT(*) AS n FROM ayambil_bookings');assert.equal(count[0].n,1);
@@ -49,7 +51,7 @@ test('REAL MySQL: schema, concurrent idempotency, rollback, auth, filters and pa
   await assert.rejects(store.register(body(1)));const [after]=await pool.query('SELECT COUNT(*) AS n FROM ayambil_bookings');assert.equal(after[0].n,1);
   await pool.query('DROP TRIGGER ayambil_test_fail');
   await store.logout(session.token);await assert.rejects(store.session(session.token),e=>e.status===401);
-  await checkParallelLists(store,input);await checkQueue(pool);assert.equal(await store.ready(),true);
+  await checkParallelLists(store,input);await checkQueue(pool);await checkTrashLifecycle(pool,config,actor);assert.equal(await store.ready(),true);
  }finally{await pool.end();}
  // Preserve schema for inspection. Operator removes ONLY this disposable schema.
 });

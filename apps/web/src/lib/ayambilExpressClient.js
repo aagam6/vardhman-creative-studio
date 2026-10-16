@@ -3,7 +3,7 @@ import { fetchAyambilJson, validatePassDownload } from './ayambilApiResponse.js'
 export const supportedOperations = Object.freeze({
   health: ['GET'], status: ['GET'], register: ['POST'], 'pass-download': ['POST'],
   'admin/login': ['POST'], 'admin/session': ['GET', 'POST'], 'admin/logout': ['POST'],
-  'admin/overview': ['GET'], 'admin/bookings': ['GET'], 'admin/change': ['POST'], 'admin/whatsapp-retry': ['POST'],
+  'admin/trash': ['GET'], 'admin/overview': ['GET'], 'admin/bookings': ['GET'], 'admin/change': ['POST'], 'admin/whatsapp-retry': ['POST'],
   'admin/whatsapp': ['GET'], 'admin/whatsapp/inspect': ['POST'], 'admin/messages': ['GET'],
   'admin/messages/test': ['POST'], 'admin/messages/process': ['POST'],
   'admin/messages/status': ['POST'], 'admin/messages/reminder': ['POST'],
@@ -84,6 +84,10 @@ function booking(data, privileged = false) {
 }
 export function validateResponse(path, data) {
   if(path==='admin/overview' && (data?.scope!=='event'||!data.totals||['bookings','activeBookings','cancelledBookings','activePasses','cancelledPasses','pendingMessages','failedMessages'].some(key=>!Number.isSafeInteger(data.totals[key])||data.totals[key]<0)||!Array.isArray(data.activity)))throw new Error('Invalid event overview');
+  if(path==='admin/trash'){
+    if(!Array.isArray(data?.items)||data.items.length>50||!Number.isInteger(data.page)||data.page<1||typeof data.hasMore!=='boolean')throw new Error('Invalid Trash response');
+    for(const row of data.items)if(['passNumber','attendeeName','bookingId','bookingNumber','contactName','trashedAt'].some(key=>typeof row[key]!=='string'||!row[key])||!['2026-11-02','2026-11-03'].includes(row.eventDate)||row.status!=='cancelled')throw new Error('Invalid trashed pass');
+  }
   if (path === 'status' && (typeof data?.ready !== 'boolean' || typeof data.open !== 'boolean' || !['disabled', 'configured'].includes(data.whatsapp))) throw new Error('Invalid availability response');
   if (path === 'register') {
     booking(data);

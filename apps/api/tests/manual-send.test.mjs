@@ -113,3 +113,17 @@ test('an old queued confirmation is suppressed when its booking already had a co
  const queue=createMessageQueue({execute,getConnection:async()=>db},{prepare:async()=>({}),sendPrepared:async()=>{posts++;return {status:'sent'};}},env);
  assert.equal((await queue.runSelected(selected)).status,'cancelled');assert.equal(cancelled,true);assert.equal(posts,0);
 });
+
+for(const previousStatus of ['accepted','sent','delivered','read'])test(`a restored booking cannot submit an old duplicate confirmation after ${previousStatus}`,async()=>{
+ let posts=0,duplicateCancelled=false;
+ const job={id:selected.id,booking_id:selected.bookingId,notification_type:'confirmation',payload:queueCrypto(env.AYAMBIL_QUEUE_ENCRYPTION_KEY).seal({to:'+12025550123',eventDate:'2026-11-02'})};
+ const execute=async(sql,args=[])=>{
+  if(sql.startsWith('SELECT q.*'))return [[job]];
+  if(sql.includes("AND notification_type='confirmation' AND id<>? AND (attempts>0")){assert.ok(sql.includes("'accepted','sent','delivered','read'"));return [[{id:'original-confirmation',status:previousStatus,attempts:1,provider_id:'original-provider'}]];}
+  if(sql.includes("error_code='duplicate_confirmation'")){assert.deepEqual(args,[selected.id]);duplicateCancelled=true;}
+  return [[]];
+ };
+ const db={execute,beginTransaction:async()=>{},commit:async()=>{},rollback:async()=>{},release(){}};
+ const queue=createMessageQueue({execute,getConnection:async()=>db},{prepare:async()=>({}),sendPrepared:async()=>{posts++;return {status:'sent'};}},env);
+ const result=await queue.runSelected(selected);assert.equal(result.reason,'duplicate_confirmation');assert.equal(result.status,'cancelled');assert.equal(duplicateCancelled,true);assert.equal(posts,0);
+});
