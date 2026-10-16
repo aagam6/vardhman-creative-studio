@@ -200,3 +200,4 @@
 /* Preserve breathing room for multi-line names on the fixed PDF canvas. */
 .ay-digital-pass.ay-pdf-render[data-pass-theme] .ay-pass-attendee[data-long-name="true"] { gap:4px; }
 .ay-digital-pass.ay-pdf-render[data-pass-theme] .ay-pass-attendee[data-long-name="true"] strong { font-size:26px; line-height:1.15; }
+.ay-booking-download{min-width:0;margin:12px 0}.ay-booking-download>button{max-width:100%;white-space:normal;overflow-wrap:anywhere;line-height:1.5}

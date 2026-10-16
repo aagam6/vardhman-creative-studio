@@ -44,6 +44,13 @@ export async function checkTrashLifecycle(pool,config,actor){
  assert.equal(trashed.totals.trashedPasses,cancelled.totals.trashedPasses+1);assert.equal(trashed.totals.cancelledPasses,cancelled.totals.cancelledPasses-1);
  assert.equal(trashed.evenings[0].trashedPasses,cancelled.evenings[0].trashedPasses+1);assert.equal(trashed.evenings[1].trashedPasses,cancelled.evenings[1].trashedPasses);
  assert.ok((await store.trash({date:'2026-11-02'})).items.some(p=>p.passNumber===number));assert.equal((await store.trash({date:'2026-11-03'})).items.length,0);
+ assert.equal((await store.list({status:'cancelled',search:receipt.number})).items.length,1,'Partly trashed booking retains remaining cancelled passes');
+ for(const attendee of receipt.attendees.slice(1))await store.change(actor,{action:'trash-pass',bookingId:id,passNumber:attendee.passes[0].number});
+ assert.equal((await store.list({status:'cancelled',search:receipt.number})).items.length,0,'Fully trashed booking is absent from Cancelled');
+ assert.equal((await store.trash({})).items.filter(p=>p.bookingId===id).length,6);
+ for(const attendee of receipt.attendees.slice(1))await store.change(actor,{action:'untrash-pass',bookingId:id,passNumber:attendee.passes[0].number});
+ assert.equal((await store.list({status:'cancelled',search:receipt.number})).items.length,1,'Untrash restores Cancelled visibility');
+ assert.deepEqual(await jobs(),original);
  await store.change(actor,{action:'restore',bookingId:id});let restored=(await store.list({search:receipt.number})).items[0];assert.equal(restored.attendees[0].passes[0].status,'cancelled');assert.equal((await store.overview()).totals.pendingMessages,before.totals.pendingMessages-1);
  await assert.rejects(store.download(receipt.downloadKeys[0]),e=>e.status===404);
  await store.change(actor,{action:'untrash-pass',bookingId:id,passNumber:number});assert.equal((await store.trash({})).items.length,0);await assert.rejects(store.download(receipt.downloadKeys[0]),e=>e.status===404);

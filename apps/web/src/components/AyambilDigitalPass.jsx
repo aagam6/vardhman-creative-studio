@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { toPng } from 'html-to-image';
 
 import { digitalPassTerms, passCredits } from '@/lib/ayambilPassPresentation';
-import { passPage, assemblePassPdf, assertPassContentFits, passLocationUrl } from '@/lib/ayambilPassLayout';
+import { passPage, assemblePassPdf, assemblePassCollectionPdf, assertPassContentFits, passLocationUrl } from '@/lib/ayambilPassLayout';
 import './AyambilDigitalPass.css';
 
 function Credits({ pass }) {
@@ -10,7 +10,7 @@ function Credits({ pass }) {
   return <dl className="ay-pass-credits">{[['aayojak', 'આયોજકો', 'Organisers'], ['nimantrak', 'નિમંત્રકો', 'Inviting Organisations']].map(([key, gu, en]) => <div key={key}><dt><span lang="gu">{gu}</span><small>{en}</small></dt><dd>{(Array.isArray(credits[key]) ? credits[key].map(name => <span className="ay-credit-name" lang="gu" key={name}>{name}</span>) : credits[key]) || <span className="ay-pass-pending">Name awaiting approval / <span lang="gu">નામ કન્ફર્મ કરવાનું બાકી છે</span></span>}</dd></div>)}</dl>;
 }
 
-export async function createPassPdf(element, number) {
+async function capturePassImages(element) {
   // Capture the actual server-issued pass: Gujarati text remains intact in the PDF.
   await document.fonts.ready;
   // A stable export width prevents responsive font/line wrapping from changing
@@ -36,9 +36,21 @@ export async function createPassPdf(element, number) {
     }
   } finally { holder.remove(); }
   if (images.length !== 2) throw new Error('Invalid pass layout');
+  return images;
+}
+export async function createPassPdf(element, number) {
+  const images = await capturePassImages(element);
   const { jsPDF } = await import('jspdf');
   const pdf = assemblePassPdf(jsPDF, images);
   return new File([pdf.output('blob')], `${number}.pdf`, { type: 'application/pdf' });
+}
+export async function createPassesPdf(elements, number) {
+  if (!elements.length || elements.length > 6) throw new Error('Invalid pass selection');
+  const images = [];
+  for (const element of elements) images.push(...await capturePassImages(element));
+  const { jsPDF } = await import('jspdf');
+  const pdf = assemblePassCollectionPdf(jsPDF, images);
+  return new File([pdf.output('blob')], `${number}-all-passes.pdf`, { type: 'application/pdf' });
 }
 export function saveFile(file) {
   const url = URL.createObjectURL(file); const anchor = document.createElement('a');

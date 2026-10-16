@@ -1,3 +1,4 @@
+import AyambilBookingDownload from './AyambilBookingDownload.jsx';
 import {submitRegistration} from '@/lib/ayambilRegistrationRecovery.js';
 import {withPrimaryParticipant} from '@/lib/ayambilPrimaryParticipant';
 import {gujaratiEvening} from '@/lib/ayambilGujarati';
@@ -72,7 +73,7 @@ export default function AyambilRegistration({ eventDate }) {
       <label className="ay-confirm"><input type="checkbox" checked={confirmed} disabled={busy} onChange={e => setConfirmed(e.target.checked)} />વ્યક્તિઓનાં નામ અને કાર્યક્રમની તારીખ સાચી છે.</label>
       <div className="ay-form-actions"><button type="button" disabled={busy} onClick={() => { setStep('details'); setConfirmed(false); }}>માહિતી બદલો</button><button type="button" className="ay-button" disabled={!confirmed || busy} onClick={submit}>{busy ? (recovering ? 'સેવ થયેલું રજિસ્ટ્રેશન તપાસીએ છીએ…' : 'પાસ તૈયાર થાય છે…') : 'રજિસ્ટ્રેશન કરો'}</button></div>
     </div>}
-    {step === 'success' && receipt && <div className="ay-confirmation"><h3>{receipt.status === 'active' ? 'તમારું રજિસ્ટ્રેશન થઈ ગયું છે' : 'રજિસ્ટ્રેશન રદ થયું છે'}</h3><p>રજિસ્ટ્રેશન નંબર: <strong>{receipt.number}</strong></p><p>WhatsApp પર પાસ આવવામાં સમય લાગી શકે છે. ત્યાં સુધી તમારો પાસ અહીંથી ડાઉનલોડ કરીને સાચવી રાખો.</p><p>નીચેથી દરેક વ્યક્તિનો પાસ ડાઉનલોડ કરી લો.</p>{receipt.attendees.flatMap(a => a.passes.filter(p => p.status !== 'superseded').map(pass => <AyambilDigitalPass key={pass.number} pass={pass} />))}<button type="button" onClick={() => { setReceipt(null); submission.current = null; setBooking(initialBooking()); setStep('details'); setConfirmed(false); check(); }}>બીજું રજિસ્ટ્રેશન</button></div>}
+    {step === 'success' && receipt && <div className="ay-confirmation"><h3>{receipt.status === 'active' ? 'તમારું રજિસ્ટ્રેશન થઈ ગયું છે' : 'રજિસ્ટ્રેશન રદ થયું છે'}</h3><p>રજિસ્ટ્રેશન નંબર: <strong>{receipt.number}</strong></p><p>WhatsApp પર પાસ આવવામાં સમય લાગી શકે છે. ત્યાં સુધી તમારો પાસ અહીંથી ડાઉનલોડ કરીને સાચવી રાખો.</p><p>બધા પાસ એક PDFમાં અથવા નીચે અલગથી ડાઉનલોડ કરી શકો છો.</p><AyambilBookingDownload booking={receipt}/>{receipt.attendees.flatMap(a => a.passes.filter(p => p.status !== 'superseded').map(pass => <AyambilDigitalPass key={pass.number} pass={pass} />))}<button type="button" onClick={() => { setReceipt(null); submission.current = null; setBooking(initialBooking()); setStep('details'); setConfirmed(false); check(); }}>બીજું રજિસ્ટ્રેશન</button></div>}
     {error && <p className="ay-form-error" role="alert">{error}</p>}
   </section>;
 }

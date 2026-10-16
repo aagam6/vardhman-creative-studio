@@ -27,6 +27,11 @@ export function assertPassContentFits(side) {
 
 export function assemblePassPdf(Pdf, images) {
   if (images.length !== 2) throw new Error('Invalid pass layout');
+  return assemblePassCollectionPdf(Pdf, images);
+}
+
+export function assemblePassCollectionPdf(Pdf, images) {
+  if (!images.length || images.length > 12 || images.length % 2) throw new Error('Invalid pass layout');
   const pdf = new Pdf({ unit: 'mm', orientation: 'landscape', format: [passPage.width, passPage.height] });
   images.forEach(({image, ratio, links=[]}, index) => {
     if (index) pdf.addPage([passPage.width, passPage.height], 'landscape');

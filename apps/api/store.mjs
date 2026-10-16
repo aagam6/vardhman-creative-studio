@@ -140,6 +140,7 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
       stage='bookings.select';const ids=await rows(pool,`SELECT b.id FROM ayambil_bookings b
         WHERE (CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci=_utf8mb4'' COLLATE utf8mb4_unicode_ci OR CONVERT(b.event_date USING utf8mb4) COLLATE utf8mb4_unicode_ci=CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci)
         AND (CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci=_utf8mb4'' COLLATE utf8mb4_unicode_ci OR CONVERT(b.status USING utf8mb4) COLLATE utf8mb4_unicode_ci=CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci)
+        ${status==='cancelled'?"AND EXISTS (SELECT 1 FROM ayambil_attendees ca JOIN ayambil_passes cp ON cp.attendee_id=ca.id WHERE ca.booking_id=b.id AND cp.status='cancelled' AND cp.trashed_at IS NULL)":''}
         AND (CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci=_utf8mb4'' COLLATE utf8mb4_unicode_ci OR LOCATE(CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci,
           CONCAT(CONVERT(b.number USING utf8mb4) COLLATE utf8mb4_unicode_ci,_utf8mb4' ' COLLATE utf8mb4_unicode_ci,
             CONVERT(b.contact_name USING utf8mb4) COLLATE utf8mb4_unicode_ci,_utf8mb4' ' COLLATE utf8mb4_unicode_ci,
