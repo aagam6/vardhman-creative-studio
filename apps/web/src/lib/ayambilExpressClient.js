@@ -1,7 +1,7 @@
 import { fetchAyambilJson, validatePassDownload } from './ayambilApiResponse.js';
 
 export const supportedOperations = Object.freeze({
-  health: ['GET'], status: ['GET'], register: ['POST'], 'pass-download': ['POST'],
+  health: ['GET'], status: ['GET'], register: ['POST'], 'pass-download': ['POST'], 'booking-pass-download':['POST'],
   'admin/login': ['POST'], 'admin/session': ['GET', 'POST'], 'admin/logout': ['POST'],
   'admin/trash': ['GET'], 'admin/overview': ['GET'], 'admin/bookings': ['GET'], 'admin/change': ['POST'], 'admin/whatsapp-retry': ['POST'],
   'admin/whatsapp': ['GET'], 'admin/whatsapp/inspect': ['POST'], 'admin/messages': ['GET'],
@@ -94,6 +94,7 @@ export function validateResponse(path, data) {
     if (data.downloadKeys !== undefined && (!Array.isArray(data.downloadKeys) || data.downloadKeys.length !== data.attendees.length || data.downloadKeys.some(key => !/^[a-f0-9]{64}$/.test(key)))) throw new Error('Invalid private links');
   }
   if (path === 'pass-download') validatePassDownload(data);
+  if (path === 'booking-pass-download') validatePassDownload(data,true);
   if (path === 'admin/bookings') {
     if (!Array.isArray(data?.items) || !Number.isInteger(data.page) || data.page < 1 || typeof data.hasMore !== 'boolean' || data.integration?.ready !== false || !Array.isArray(data.integration.missing)) throw new Error('Invalid bookings response');
     data.items.forEach(item => booking(item, true));

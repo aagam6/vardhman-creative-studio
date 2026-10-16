@@ -1,7 +1,8 @@
 // Validate server-issued data at the API boundary; never fabricate pass details.
-export function validatePassDownload(data) {
+export function validatePassDownload(data,bookingScope=false) {
   if (!data || !Array.isArray(data.passes)) throw new Error('Invalid pass response');
-  if (data.passes.length > 1) throw new Error('Attendee-specific response required');
+  if (data.passes.length > (bookingScope?6:1)) throw new Error('Attendee-specific response required');
+  if(bookingScope&&(data.scope!=='booking'||typeof data.bookingNumber!=='string'||!data.bookingNumber||!data.passes.length||new Set(data.passes.map(p=>p?.number)).size!==data.passes.length))throw new Error('Invalid booking pass response');
   for (const pass of data.passes) {
     if (!pass || typeof pass.number !== 'string' || !pass.number ||
         typeof pass.attendeeName !== 'string' || !pass.attendeeName ||
@@ -11,6 +12,7 @@ export function validatePassDownload(data) {
       throw new Error('Invalid issued pass');
     }
   }
+  if(bookingScope&&(data.passes.some(p=>p.status!=='active')||new Set(data.passes.map(p=>p.sessions[0].date)).size!==1))throw new Error('Invalid booking pass response');
   return data.passes;
 }
 

@@ -13,6 +13,15 @@ test('private response validates issued pass and empty results without inventing
   assert.deepEqual(validatePassDownload({passes:[]}),[]);
   for(const invalid of [undefined,{},'',{passes:null},{passes:[{}]},{passes:[{...pass,sessions:undefined}]},{passes:[pass,pass]}]) assert.throws(()=>validatePassDownload(invalid));
 });
+test('only the explicit booking response permits 2–6 distinct passes',()=>{
+ for(let n=2;n<=6;n++){
+  const passes=Array.from({length:n},(_,i)=>({...pass,status:'active',number:'PASS-'+i}));
+  const response={scope:'booking',bookingNumber:'BOOK26-test',passes};
+  assert.equal(validatePassDownload(response,true).length,n);
+  assert.throws(()=>validatePassDownload(response));
+ }
+ for(const response of [{scope:'booking',bookingNumber:'BOOK',passes:[]},{scope:'booking',bookingNumber:'BOOK',passes:[pass,pass]},{scope:'booking',bookingNumber:'BOOK',passes:Array.from({length:7},(_,i)=>({...pass,number:''+i}))},{passes:[pass]}])assert.throws(()=>validatePassDownload(response,true));
+});
 test('HTTP 200 SPA HTML is rejected, JSON is preserved and denial statuses reach SDK',async()=>{
   const original=globalThis.fetch;
   try {

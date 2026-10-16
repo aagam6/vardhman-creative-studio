@@ -33,12 +33,12 @@ export async function checkTrashLifecycle(pool,config,actor){
  const receipt=await store.register(input);await store.register(input);
  const current=(await store.list({search:receipt.number})).items[0],id=current.id;
  const jobs=async()=>(await pool.execute('SELECT id,notification_type,status,attempts,provider_id FROM ayambil_message_queue WHERE booking_id=? ORDER BY id',[id]))[0];
- let original=await jobs();assert.equal(original.length,7);assert.equal(original.filter(j=>j.notification_type==='confirmation').length,1);
+ let original=await jobs();assert.equal(original.length,2);assert.equal(original.filter(j=>j.notification_type==='confirmation').length,1);
  const confirmation=original.find(j=>j.notification_type==='confirmation');
  await queue.runSelected({id:confirmation.id,bookingId:id,type:'confirmation'});assert.equal(sends,1);original=await jobs();
  const before=await store.overview();assert.equal((await store.list({message:'pending',search:receipt.number})).items.length,1);
  await store.change(actor,{action:'cancel',bookingId:id});const cancelled=await store.overview();
- assert.equal(cancelled.totals.pendingMessages,before.totals.pendingMessages-6);assert.equal(cancelled.totals.cancelledPasses,before.totals.cancelledPasses+6);assert.equal((await store.list({message:'pending',search:receipt.number})).items.length,0);
+ assert.equal(cancelled.totals.pendingMessages,before.totals.pendingMessages-1);assert.equal(cancelled.totals.cancelledPasses,before.totals.cancelledPasses+6);assert.equal((await store.list({message:'pending',search:receipt.number})).items.length,0);
  const number=receipt.attendees[0].passes[0].number;
  await store.change(actor,{action:'trash-pass',bookingId:id,passNumber:number});const trashed=await store.overview();
  assert.equal(trashed.totals.trashedPasses,cancelled.totals.trashedPasses+1);assert.equal(trashed.totals.cancelledPasses,cancelled.totals.cancelledPasses-1);
@@ -51,15 +51,15 @@ export async function checkTrashLifecycle(pool,config,actor){
  for(const attendee of receipt.attendees.slice(1))await store.change(actor,{action:'untrash-pass',bookingId:id,passNumber:attendee.passes[0].number});
  assert.equal((await store.list({status:'cancelled',search:receipt.number})).items.length,1,'Untrash restores Cancelled visibility');
  assert.deepEqual(await jobs(),original);
- await store.change(actor,{action:'restore',bookingId:id});let restored=(await store.list({search:receipt.number})).items[0];assert.equal(restored.attendees[0].passes[0].status,'cancelled');assert.equal((await store.overview()).totals.pendingMessages,before.totals.pendingMessages-1);
+ await store.change(actor,{action:'restore',bookingId:id});let restored=(await store.list({search:receipt.number})).items[0];assert.equal(restored.attendees[0].passes[0].status,'cancelled');assert.equal((await store.overview()).totals.pendingMessages,before.totals.pendingMessages);
  await assert.rejects(store.download(receipt.downloadKeys[0]),e=>e.status===404);
- await store.change(actor,{action:'untrash-pass',bookingId:id,passNumber:number});assert.equal((await store.trash({})).items.length,0);await assert.rejects(store.download(receipt.downloadKeys[0]),e=>e.status===404);
+ await store.change(actor,{action:'untrash-pass',bookingId:id,passNumber:number});assert.equal((await store.trash({})).items.filter(p=>p.bookingId===id).length,0);await assert.rejects(store.download(receipt.downloadKeys[0]),e=>e.status===404);
  await store.change(actor,{action:'restore',bookingId:id});await store.download(receipt.downloadKeys[0]);assert.equal((await store.overview()).totals.pendingMessages,before.totals.pendingMessages);
  for(let i=0;i<3;i++){await store.change(actor,{action:'cancel',bookingId:id});await store.change(actor,{action:'restore',bookingId:id});assert.deepEqual(await jobs(),original);}
  await assert.rejects(queue.runSelected({id:confirmation.id,bookingId:id,type:'confirmation'}),e=>e.status===409);assert.equal(sends,1);
  // Individually cancelled original passes must stay out of pending totals after whole-booking restore.
- await store.change(actor,{action:'cancel-pass',bookingId:id,passNumber:number});await store.change(actor,{action:'restore',bookingId:id});assert.equal((await store.overview()).totals.pendingMessages,before.totals.pendingMessages-1);await assert.rejects(store.download(receipt.downloadKeys[0]),e=>e.status===404);
+ await store.change(actor,{action:'cancel-pass',bookingId:id,passNumber:number});await store.change(actor,{action:'restore',bookingId:id});assert.equal((await store.overview()).totals.pendingMessages,before.totals.pendingMessages);await assert.rejects(store.download(receipt.downloadKeys[0]),e=>e.status===404);
  assert.deepEqual(await jobs(),original);assert.equal(sends,1);
  await pool.query('UPDATE ayambil_settings SET registration_open=FALSE WHERE id=1');
- console.log('Real SQL Trash/pending/restore: counters, filters, revoked links, 7 unchanged jobs, 1 mocked confirmation verified');
+ console.log('Real SQL Trash/pending/restore: counters, filters, revoked links, 2 unchanged jobs, 1 mocked confirmation verified');
 }

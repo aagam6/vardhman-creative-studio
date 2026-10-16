@@ -27,6 +27,7 @@ export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirect
   api.get('/status',route(async(req,res)=>{try{res.json(await store.status());}catch{res.status(503).json({ready:false,open:false,whatsapp:'disabled'});}}));
   api.post('/register',limited('register',10),route(async(req,res)=>res.json(await store.register(req.body))));
   api.post('/pass-download',limited('download',30),route(async(req,res)=>res.json(await store.download(req.body?.key))));
+  api.post('/booking-pass-download',limited('download',30),route(async(req,res)=>res.json(await store.downloadBooking(req.body?.key))));
   api.post('/admin/login',limited('login',5),route(async(req,res)=>{
     if(typeof req.body?.email!=='string'||req.body.email.length>254||typeof req.body.password!=='string'||req.body.password.length>256)throw new ApiError(400,'Invalid sign-in');
     const session=await store.login(req.body.email.trim().toLowerCase(),req.body.password);

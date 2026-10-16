@@ -9,7 +9,7 @@ import {isDeepStrictEqual} from 'node:util';
 const pendingMessageEligibility=`b.status='active' AND mq.notification_type IN ('confirmation','pass','reminder') AND EXISTS (
  SELECT 1 FROM ayambil_attendees pa JOIN ayambil_passes pp ON pp.attendee_id=pa.id
  WHERE pa.booking_id=b.id AND pa.status='active' AND pp.status='active' AND pp.trashed_at IS NULL
- AND (mq.notification_type<>'pass' OR (pp.revision=1 AND BINARY mq.dedupe_hash=BINARY SHA2(CONCAT('pass:',b.id,':',pa.ordinal-1),256))))`;
+ AND (mq.notification_type<>'pass' OR (NOT EXISTS(SELECT 1 FROM ayambil_message_queue previous WHERE previous.booking_id=b.id AND previous.notification_type='pass' AND previous.id<>mq.id AND ((previous.dedupe_hash=SHA2(CONCAT('pass:booking:',b.id),256) AND (mq.dedupe_hash<>previous.dedupe_hash OR previous.attempts>0 OR previous.provider_id IS NOT NULL OR previous.status<>'queued')) OR (previous.status='queued' AND previous.attempts=0 AND previous.provider_id IS NULL AND previous.id<mq.id AND mq.dedupe_hash<>SHA2(CONCAT('pass:booking:',b.id),256)))))))`;
 const json=value=>typeof value==='string'?JSON.parse(value):value;
 export async function transaction(pool,action) {
   const db=await pool.getConnection();
@@ -94,14 +94,20 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
         if(queue){
           const session=json(event.snapshot),context={eventName:programme.eventName,eventDate:session.date,time:session.time,performer:session.performer,programme:session.programme,venue:session.venue,contactName:body.contactName,attendeeCount:String(body.attendees.length),attendeeNames:body.attendees.map(a=>a.fullName).join(', ')};
           await queue.enqueue(db,{bookingId:id,type:'confirmation',dedupe:id,context:attendeeContext(session,body.contactName,body.mobile)});
-          for(const [index,key] of links.entries()){
-            const individual=attendeeContext(session,body.attendees[index].fullName,body.mobile);
-            await queue.enqueue(db,{bookingId:id,type:'pass',dedupe:id+':'+index,context:{...individual,passLink:config.origin+'/500-akhand-ayambil-vijayollas/passes#'+key}});
-          }
+          await queue.enqueue(db,{bookingId:id,type:'pass',dedupe:'booking:'+id,context:{...attendeeContext(session,body.contactName,body.mobile),bookingPasses:true}});
           for(const to of adminRecipients)await queue.enqueue(db,{bookingId:id,type:'admin',dedupe:id+':'+to,context:{...context,to}});
         }
         return receipt;
       });
+    },
+    async downloadBooking(key){
+      let id;try{id=queue?.verifyBookingLink(key);}catch{throw new ApiError(404,'Booking download unavailable');}
+      if(!id)throw new ApiError(404,'Booking download unavailable');
+      const b=await one(pool,"SELECT number FROM ayambil_bookings WHERE id=? AND status='active'",[id]);
+      if(!b)throw new ApiError(404,'Booking download unavailable');
+      const saved=await rows(pool,"SELECT p.snapshot,p.status FROM ayambil_passes p JOIN ayambil_attendees a ON a.id=p.attendee_id JOIN ayambil_capabilities c ON c.pass_id=p.id JOIN ayambil_bookings b ON b.id=a.booking_id WHERE a.booking_id=? AND b.status='active' AND a.status='active' AND p.status='active' AND p.trashed_at IS NULL AND c.revoked_at IS NULL AND c.expires_at>UTC_TIMESTAMP(3) ORDER BY a.ordinal",[id]);
+      if(!saved.length||saved.length>6)throw new ApiError(404,'Booking download unavailable');
+      return {scope:'booking',bookingNumber:b.number,passes:saved.map(p=>({...json(p.snapshot),status:p.status}))};
     },
     async download(key){
       if(!/^[a-zA-Z0-9]{64}$/.test(key||''))throw new ApiError(404,'Pass download unavailable');

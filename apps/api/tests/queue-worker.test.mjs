@@ -28,12 +28,12 @@ test('normal selection is bounded to fresh consented bookings, never old/tests/p
  assert.deepEqual(await queue.runOne(),{processed:false});assert.match(sql,/q.attempts=0/);assert.match(sql,/q.provider_id IS NULL/);assert.match(sql,/b.whatsapp_consent=TRUE/);assert.match(sql,/b.status='active'/);assert.match(sql,/b.created_at>=\?/);assert.match(sql,/q.updated_at>=\?/);assert.match(sql,/'confirmation','pass','reminder'/);assert.doesNotMatch(sql,/'test'|'admin'/);assert.deepEqual(args,['2026-10-13 00:00:00.000','2026-10-13 00:00:00.000']);assert.equal(sends,0);
 });
 test('pass preflight accepts alphanumeric capability only for the same booking and saved recipient',async()=>{
- const id='synthetic-booking',key='AbZ9'.repeat(16);let sends=0,capabilityChecked=false;const statements=[];
+ const id='11111111-1111-4111-8111-111111111111',key='AbZ9'.repeat(16);let sends=0,capabilityChecked=false;const statements=[];
  const context={to:'+12025550123',eventDate:'2026-11-02',passLink:'https://example.invalid/passes#'+key};
  const job={id:'synthetic-job',booking_id:id,notification_type:'pass',attempts:0,payload:queueCrypto(approved.AYAMBIL_QUEUE_ENCRYPTION_KEY).seal(context)};
- const execute=async(sql,args)=>{statements.push(sql);if(sql.startsWith('SELECT q.*'))return [[job]];if(sql.startsWith('SELECT p.id')){assert.match(sql,/a.booking_id=\?/);assert.match(sql,/c.revoked_at IS NULL/);assert.match(sql,/c.expires_at>/);assert.equal(args[1],id);capabilityChecked=true;return [[{id:'synthetic-pass'}]];}if(sql.startsWith('SELECT status,whatsapp_consent'))return [[{status:'active',whatsapp_consent:1,mobile:'+12025550123',event_date:'2026-11-02'}]];return [[]];};
+ const execute=async(sql,args)=>{statements.push(sql);if(sql.startsWith('SELECT q.*'))return [[job]];if(sql.startsWith('SELECT contact_name'))return [[{contact_name:'Synthetic Contact',mobile:'+12025550123',event_date:'2026-11-02'}]];if(sql.startsWith('SELECT p.id')){assert.match(sql,/a.booking_id=\?/);assert.match(sql,/c.revoked_at IS NULL/);assert.match(sql,/c.expires_at>/);assert.equal(args[0],id);capabilityChecked=true;return [[{id:'synthetic-pass'}]];}if(sql.startsWith('SELECT status,whatsapp_consent'))return [[{status:'active',whatsapp_consent:1,mobile:'+12025550123',event_date:'2026-11-02'}]];return [[]];};
  const db={execute,beginTransaction:async()=>{},commit:async()=>{},rollback:async()=>{},release(){}};
- const queue=createMessageQueue({execute,getConnection:async()=>db},{prepare:async()=>({}),sendPrepared:async()=>{assert.ok(statements.some(s=>s.includes("status='sending'")));sends++;return {id:'synthetic-provider',status:'sent'};}},approved);
+ const queue=createMessageQueue({execute,getConnection:async()=>db},{prepare:async()=>({}),sendPrepared:async()=>{assert.ok(statements.some(s=>s.includes("status='sending'")));sends++;return {id:'synthetic-provider',status:'sent'};}},{...approved,AYAMBIL_SITE_ORIGIN:'https://example.invalid'});
  assert.equal((await queue.runOne()).status,'sent');assert.equal(capabilityChecked,true);assert.equal(sends,1);
 });
 test('wrong saved recipient/evening and expired capability never reach provider POST',async()=>{

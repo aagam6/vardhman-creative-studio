@@ -6,6 +6,7 @@ import {configuration} from '../config.mjs';
 import {randomUUID} from 'node:crypto';
 import {provisionInitialAdmin} from '../bootstrap.mjs';
 import {programme} from '../config.mjs';
+import {checkBookingPassMessages} from './booking-pass-engine-check.mjs';
 export async function checkQueue(pool){
  const migration=readFileSync(new URL('../migrations/002_whatsapp_queue.sql',import.meta.url),'utf8').replace(/^--.*$/gm,'');for(const statement of migration.split(';').map(s=>s.trim()).filter(Boolean))await pool.query(statement);
  // Existing lifecycle data deliberately refuses the environment bootstrap.
@@ -42,12 +43,12 @@ export async function checkQueue(pool){
  await pool.query('UPDATE ayambil_settings SET registration_open=TRUE WHERE id=1');
  const input={contactName:'Synthetic queue contact',mobile:'+12025550123',eventDate:'2026-11-02',termsAccepted:true,whatsappConsent:true,requestKey:randomUUID().replaceAll('-','').repeat(2),attendees:[{fullName:'Synthetic queued attendee',dates:['2026-11-02']},{fullName:'Synthetic second attendee',dates:['2026-11-02']}]};
  const store=createStore(pool,config,{queue,adminRecipients:['12025550124']});
- await store.register(input);await store.register(input);assert.equal((await queue.list()).length,4);
+ await store.register(input);await store.register(input);assert.equal((await queue.list()).length,3);
  const [contexts]=await pool.query("SELECT notification_type,payload FROM ayambil_message_queue WHERE notification_type IN ('confirmation','pass')");
  const decoded=contexts.map(row=>({type:row.notification_type,context:queueCrypto(env.AYAMBIL_QUEUE_ENCRYPTION_KEY).open(row.payload)}));
  assert.equal(decoded.filter(row=>row.type==='confirmation').length,1);
- assert.equal(new Set(decoded.filter(row=>row.type==='pass').map(row=>row.context.passLink)).size,2);
- for(const row of decoded){if(row.type==='pass')assert.ok(input.attendees.some(a=>a.fullName===row.context.attendeeName));else assert.equal(row.context.attendeeName,input.contactName);assert.ok(row.context.venueLocationUrl);assert.equal(row.context.attendeeNames,undefined);}
+ assert.equal(decoded.filter(row=>row.type==='pass').length,1);assert.equal(decoded.find(row=>row.type==='pass').context.bookingPasses,true);
+ for(const row of decoded){assert.equal(row.context.attendeeName,input.contactName);assert.ok(row.context.venueLocationUrl);assert.equal(row.context.attendeeNames,undefined);}
  const excluded=createMessageQueue(pool,flow,{...env,AYAMBIL_WHATSAPP_AUTOMATION_START_AT:'2100-01-01T00:00:00.000Z'});
  const beforeFresh=await queue.list(),beforeFreshSends=sends;
  assert.equal((await excluded.runOne()).processed,false);assert.deepEqual(await queue.list(),beforeFresh);assert.equal(sends,beforeFreshSends);
@@ -56,10 +57,10 @@ export async function checkQueue(pool){
  const exact={id:selected.id,bookingId:selected.booking_id,type:selected.notification_type};
  assert.equal((await manual.runSelected(exact)).status,'sent');
  await assert.rejects(manual.runSelected(exact),e=>e.status===409);
- for(let i=0;i<2;i++)assert.equal((await queue.runOne()).status,'sent');
- assert.equal((await queue.runOne()).processed,false);assert.equal(sends,beforeFreshSends+3);
+ for(let i=0;i<1;i++)assert.equal((await queue.runOne()).status,'sent');
+ assert.equal((await queue.runOne()).processed,false);assert.equal(sends,beforeFreshSends+2);
  const submitted=await queue.list();assert.equal(submitted.filter(row=>row.notification_type==='admin'&&row.status==='queued'&&row.attempts===0).length,1);
- assert.equal((await queue.reconcileFresh()).blocked,false);assert.equal((await queue.list()).filter(row=>row.status==='delivered').length,3);
+ assert.equal((await queue.reconcileFresh()).blocked,false);assert.equal((await queue.list()).filter(row=>row.status==='delivered').length,2);
  await pool.query("UPDATE ayambil_bookings SET status='cancelled' WHERE contact_name='Synthetic queue contact'");
  const before=sends,unchanged=await queue.list();await queue.runOne();assert.equal(sends,before);assert.deepEqual(await queue.list(),unchanged);
  // Exercise concurrent enqueue calls with six different attendee keys against
@@ -74,7 +75,7 @@ export async function checkQueue(pool){
   const [jobs]=await pool.execute('SELECT * FROM ayambil_message_queue WHERE booking_id=? ORDER BY id',[sixBooking.id]);
   return {bookings,passes,jobs};
  };
- const initial=await snapshot();assert.equal(initial.passes.length,6);assert.equal(initial.jobs.filter(j=>j.notification_type==='confirmation').length,1);assert.equal(initial.jobs.filter(j=>j.notification_type==='pass').length,6);
+ const initial=await snapshot();assert.equal(initial.passes.length,6);assert.equal(initial.jobs.filter(j=>j.notification_type==='confirmation').length,1);assert.equal(initial.jobs.filter(j=>j.notification_type==='pass').length,1);
  await enqueueSix();assert.deepEqual(await snapshot(),initial);
  // Disposable fixture only: race the first enqueue with no confirmation row.
  await pool.execute("DELETE FROM ayambil_message_queue WHERE booking_id=? AND notification_type='confirmation'",[sixBooking.id]);
@@ -88,4 +89,5 @@ export async function checkQueue(pool){
   const old=await snapshot();await enqueueSix();assert.deepEqual(await snapshot(),old);
  }
  assert.equal(sends,before,'enqueue and historical checks must never send');
+ await checkBookingPassMessages(pool,config);
  await pool.query('UPDATE ayambil_settings SET registration_open=FALSE WHERE id=1');}
