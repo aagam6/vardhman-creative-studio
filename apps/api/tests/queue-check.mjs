@@ -62,4 +62,30 @@ export async function checkQueue(pool){
  assert.equal((await queue.reconcileFresh()).blocked,false);assert.equal((await queue.list()).filter(row=>row.status==='delivered').length,3);
  await pool.query("UPDATE ayambil_bookings SET status='cancelled' WHERE contact_name='Synthetic queue contact'");
  const before=sends,unchanged=await queue.list();await queue.runOne();assert.equal(sends,before);assert.deepEqual(await queue.list(),unchanged);
+ // Exercise concurrent enqueue calls with six different attendee keys against
+ // the real engine. Neither legacy hashes nor delivery states may create a job.
+ const sixInput={...input,requestKey:randomUUID().replaceAll('-','').repeat(2),contactName:'Synthetic single confirmation',attendees:Array.from({length:6},(_,i)=>({fullName:'Synthetic six '+i,dates:['2026-11-02']}))};
+ const sixReceipt=await store.register(sixInput);
+ const [[sixBooking]]=await pool.execute('SELECT id FROM ayambil_bookings WHERE number=?',[sixReceipt.number]);
+ const enqueueSix=()=>Promise.all(Array.from({length:6},(_,i)=>transaction(pool,db=>queue.enqueue(db,{bookingId:sixBooking.id,type:'confirmation',dedupe:sixBooking.id+':attendee:'+i,context:{to:'12025550123'}}))));
+ const snapshot=async()=>{
+  const [bookings]=await pool.execute('SELECT * FROM ayambil_bookings WHERE id=?',[sixBooking.id]);
+  const [passes]=await pool.execute('SELECT p.* FROM ayambil_passes p JOIN ayambil_attendees a ON a.id=p.attendee_id WHERE a.booking_id=? ORDER BY p.id',[sixBooking.id]);
+  const [jobs]=await pool.execute('SELECT * FROM ayambil_message_queue WHERE booking_id=? ORDER BY id',[sixBooking.id]);
+  return {bookings,passes,jobs};
+ };
+ const initial=await snapshot();assert.equal(initial.passes.length,6);assert.equal(initial.jobs.filter(j=>j.notification_type==='confirmation').length,1);assert.equal(initial.jobs.filter(j=>j.notification_type==='pass').length,6);
+ await enqueueSix();assert.deepEqual(await snapshot(),initial);
+ // Disposable fixture only: race the first enqueue with no confirmation row.
+ await pool.execute("DELETE FROM ayambil_message_queue WHERE booking_id=? AND notification_type='confirmation'",[sixBooking.id]);
+ await enqueueSix();const raced=await snapshot();
+ assert.deepEqual(raced.bookings,initial.bookings);assert.deepEqual(raced.passes,initial.passes);
+ assert.deepEqual(raced.jobs.filter(j=>j.notification_type==='pass'),initial.jobs.filter(j=>j.notification_type==='pass'));
+ assert.equal(raced.jobs.filter(j=>j.notification_type==='confirmation').length,1);
+ const [[canonical]]=await pool.execute("SELECT dedupe_hash=SHA2(CONCAT('confirmation:',booking_id),256) AS canonical FROM ayambil_message_queue WHERE booking_id=? AND notification_type='confirmation'",[sixBooking.id]);assert.equal(Number(canonical.canonical),1);
+ for(const status of ['queued','sent','delivered','read','uncertain','cancelled']){
+  await pool.execute("UPDATE ayambil_message_queue SET dedupe_hash=SHA2(?,256),status=?,attempts=?,provider_id=? WHERE booking_id=? AND notification_type='confirmation'",['legacy-confirmation-'+status,status,status==='queued'?0:1,status==='queued'||status==='cancelled'?null:'legacy-'+status,sixBooking.id]);
+  const old=await snapshot();await enqueueSix();assert.deepEqual(await snapshot(),old);
+ }
+ assert.equal(sends,before,'enqueue and historical checks must never send');
  await pool.query('UPDATE ayambil_settings SET registration_open=FALSE WHERE id=1');}

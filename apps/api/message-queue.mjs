@@ -86,7 +86,21 @@ export function createMessageQueue(pool,flow,env){const enabled=env.AYAMBIL_WHAT
   for(const row of rows){if(!canVerifyProviderStatus(row))return {blocked:true};await this.reconcile(row.id);}
   return {blocked:false};
  },
- async enqueue(db,{bookingId=null,type,dedupe,context}){if(!enabled)throw new ApiError(503,'WhatsApp configuration required');if(!['confirmation','admin','pass','reminder','test'].includes(type)||typeof dedupe!=='string'||!dedupe)throw new ApiError(400,'Invalid notification');const payload=crypto.seal(context);await db.execute('INSERT INTO ayambil_message_queue(id,dedupe_hash,booking_id,notification_type,payload,next_attempt_at,updated_at) VALUES(?,?,?,?,?,UTC_TIMESTAMP(3),UTC_TIMESTAMP(3)) ON DUPLICATE KEY UPDATE dedupe_hash=dedupe_hash',[randomUUID(),hash(type+':'+dedupe),bookingId,type,payload]);},
+ async enqueue(db,{bookingId=null,type,dedupe,context}){
+  if(!enabled)throw new ApiError(503,'WhatsApp configuration required');
+  if(!['confirmation','admin','pass','reminder','test'].includes(type)||typeof dedupe!=='string'||!dedupe)throw new ApiError(400,'Invalid notification');
+  if(type==='confirmation'&&bookingId){
+   // All callers use this transaction's booking lock. Different attendee keys,
+   // concurrent requests and legacy queue keys must still mean one confirmation.
+   const [bookings]=await db.execute('SELECT id FROM ayambil_bookings WHERE id=? FOR UPDATE',[bookingId]);
+   if(bookings.length!==1)throw new ApiError(404,'Booking unavailable');
+   const [existing]=await db.execute("SELECT id FROM ayambil_message_queue WHERE booking_id=? AND notification_type='confirmation' LIMIT 1 FOR UPDATE",[bookingId]);
+   if(existing.length)return; // Preserve attempted/sent/cancelled history verbatim.
+   dedupe=bookingId;
+  }
+  const payload=crypto.seal(context);
+  await db.execute('INSERT INTO ayambil_message_queue(id,dedupe_hash,booking_id,notification_type,payload,next_attempt_at,updated_at) VALUES(?,?,?,?,?,UTC_TIMESTAMP(3),UTC_TIMESTAMP(3)) ON DUPLICATE KEY UPDATE dedupe_hash=dedupe_hash',[randomUUID(),hash(type+':'+dedupe),bookingId,type,payload]);
+ },
  async testId(db,dedupe){const [rows]=await db.execute("SELECT id FROM ayambil_message_queue WHERE dedupe_hash=? AND notification_type='test' AND booking_id IS NULL",[hash('test:'+dedupe)]);if(rows.length!==1)throw new ApiError(409,'Test job could not be confirmed');return rows[0].id;},
  async list(){
   const [rows]=await pool.query('SELECT q.id,q.dedupe_hash,q.booking_id,q.notification_type,q.status,q.attempts,q.updated_at,q.error_code,q.provider_id,b.number AS bookingNumber,b.contact_name AS contactName,b.mobile AS recipient,b.event_date AS eventDate FROM ayambil_message_queue q LEFT JOIN ayambil_bookings b ON CONVERT(b.id USING utf8mb4) COLLATE utf8mb4_unicode_ci=CONVERT(q.booking_id USING utf8mb4) COLLATE utf8mb4_unicode_ci ORDER BY q.updated_at DESC,q.id LIMIT 50');
