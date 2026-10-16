@@ -1,4 +1,5 @@
 import AyambilBookingDownload from './AyambilBookingDownload.jsx';
+import AyambilHelp from './AyambilHelp.jsx';
 import {submitRegistration} from '@/lib/ayambilRegistrationRecovery.js';
 import {withPrimaryParticipant} from '@/lib/ayambilPrimaryParticipant';
 import {gujaratiEvening} from '@/lib/ayambilGujarati';
@@ -77,5 +78,6 @@ export default function AyambilRegistration({ eventDate }) {
     </div>}
     {step === 'success' && receipt && <div className="ay-confirmation"><h3>{receipt.status === 'active' ? 'તમારું રજિસ્ટ્રેશન થઈ ગયું છે' : 'રજિસ્ટ્રેશન રદ થયું છે'}</h3><p>રજિસ્ટ્રેશન નંબર: <strong>{receipt.number}</strong></p><p>WhatsApp પર પાસ આવવામાં સમય લાગી શકે છે. ત્યાં સુધી તમારો પાસ અહીંથી ડાઉનલોડ કરીને સાચવી રાખો.</p><p>બધા પાસ એક PDFમાં અથવા નીચે અલગથી ડાઉનલોડ કરી શકો છો.</p><AyambilBookingDownload booking={receipt}/>{receipt.attendees.flatMap(a => a.passes.filter(p => p.status !== 'superseded').map(pass => <AyambilDigitalPass key={pass.number} pass={pass} />))}<button type="button" onClick={() => { setReceipt(null); submission.current = null; setBooking(initialBooking()); setStep('details'); setConfirmed(false); check(); }}>બીજું રજિસ્ટ્રેશન</button></div>}
     {error && <p className="ay-form-error" role="alert">{error}</p>}
+    <AyambilHelp />
   </section>;
 }
