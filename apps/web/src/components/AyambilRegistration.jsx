@@ -58,11 +58,13 @@ export default function AyambilRegistration({ eventDate }) {
         <label>તમે શું કરો છો?<select value={booking.occupation} onChange={e=>edit({...booking,occupation:e.target.value})}><option value="">કામ પસંદ કરો (જરૂરી નથી)</option>{["વિદ્યાર્થી","નોકરી","ધંધો / પોતાનું કામ","ઘર સંભાળું છું","નિવૃત્ત","બીજું"].map(value=><option key={value}>{value}</option>)}</select><small>આ માહિતી આપવી જરૂરી નથી</small></label>
         <label>આ કાર્યક્રમ વિશે ક્યાંથી જાણ્યું?<select value={booking.referralSource} onChange={e=>edit({...booking,referralSource:e.target.value})}><option value="">પસંદ કરો (જરૂરી નથી)</option><option>WhatsApp</option><option>મિત્રો કે પરિવાર</option><option>જૈન સંઘ</option><option>સોશિયલ મીડિયા</option><option>કાર્યક્રમની પત્રિકા</option><option>બીજી રીતે</option></select></label>
       </div></fieldset>
-      {booking.attendees.map((attendee, index) => index > 0 && <fieldset key={index} disabled={busy || availability !== 'open'}><legend>સાથે આવનાર વ્યક્તિ {index + 1}નું નામ</legend>
-        <label>પાસ પર લખવાનું પૂરું નામ<input autoComplete="off" required minLength={2} maxLength={120} value={attendee.fullName} onChange={e => updateAttendee(index, { fullName: e.target.value })} /></label>
-        <p>{session.label} · {session.performer} · {session.venue.replace('Chandramauleshwar', 'Chandramaulishwar')}</p>
-        {booking.attendees.length > 1 && <button type="button" onClick={() => edit({ ...booking, attendees: booking.attendees.filter((_, i) => i !== index) })}>વ્યક્તિ {index + 1}નું નામ કાઢો</button>}
-      </fieldset>)}
+      {booking.attendees.length > 1 && <fieldset className="ay-companion-fields" disabled={busy || availability !== 'open'}><legend>સાથે આવનાર લોકોનાં નામ</legend>
+        <p className="ay-companion-event">{session.label} · {session.performer} · {session.venue.replace('Chandramauleshwar', 'Chandramaulishwar')}</p>
+        <div className="ay-companion-list">{booking.attendees.map((attendee, index) => index > 0 && <div className="ay-companion-row" key={index}>
+          <label>વ્યક્તિ {index + 1}નું પૂરું નામ<input autoComplete="off" required minLength={2} maxLength={120} value={attendee.fullName} onChange={e => updateAttendee(index, { fullName: e.target.value })} /></label>
+          <button type="button" onClick={() => edit({ ...booking, attendees: booking.attendees.filter((_, i) => i !== index) })}>વ્યક્તિ {index + 1}નું નામ કાઢો</button>
+        </div>)}</div>
+      </fieldset>}
       <p className="ay-help">આ માહિતી કાર્યક્રમ માટે છે. પાસ પર જેનું નામ હોય, પાસ તે વ્યક્તિ માટે જ છે.</p>
       <details className="ay-terms"><summary>રજિસ્ટ્રેશનના નિયમો</summary><ol>{ayambilTerms.map(([en,gu]) => <li key={en}><span>{gu}</span></li>)}</ol><Link to="/privacy">તમારી માહિતી કેવી રીતે વાપરીએ છીએ</Link></details>
       <label className="ay-confirm"><input type="checkbox" required disabled={availability !== 'open'} checked={booking.termsAccepted} onChange={e => edit({ ...booking, termsAccepted: e.target.checked })} />મેં રજિસ્ટ્રેશનના બધા નિયમો વાંચ્યા અને સમજ્યા છે. મને તે મંજૂર છે.</label>
