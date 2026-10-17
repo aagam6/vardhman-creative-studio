@@ -34,7 +34,7 @@ export default function AgencyPrivacyPolicyPage() {
                 Your privacy and confidentiality are of paramount importance to us. This policy outlines how Vardhman Creative Studio collects, uses, and safeguards your data.
               </p>
               <div className="flex gap-4 items-center text-xs text-gray-500 mt-6 pt-6 border-t border-white/5">
-                <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Last Updated: 14 October 2026</span>
+                <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Last Updated: 17 October 2026</span>
               </div>
             </div>
 
@@ -70,7 +70,7 @@ export default function AgencyPrivacyPolicyPage() {
               <div>
                 <h2 className="text-xl font-bold text-white mb-4">4. Cookies and Analytics</h2>
                 <p className="text-sm text-gray-400 leading-relaxed font-light">
-                  The website uses session cookies for administrator sign-in. Google Analytics measures visits to public pages and may use cookies and browser/device identifiers under Google's privacy policy. Our analytics integration excludes administrator and private pass pages, removes URL query parameters and fragments, and does not send booking names, phone numbers or pass numbers. Advertising personalization and Google signals are disabled. You can manage cookies through your browser settings.
+                  The website uses session cookies for administrator sign-in. Google Analytics measures public page visits, registration steps, successful bookings and help WhatsApp button clicks, with the programme date and pass count. It may use cookies and browser/device identifiers under Google's privacy policy. Our analytics integration excludes administrator and private pass pages, removes URL query parameters and fragments, and does not send booking names, phone numbers, booking numbers or pass numbers. Advertising personalization and Google signals are disabled. You can manage cookies through your browser settings.
                 </p>
               </div>
 
