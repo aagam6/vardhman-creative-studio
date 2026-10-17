@@ -70,7 +70,7 @@ export default function AgencyPrivacyPolicyPage() {
               <div>
                 <h2 className="text-xl font-bold text-white mb-4">4. Cookies and Analytics</h2>
                 <p className="text-sm text-gray-400 leading-relaxed font-light">
-                  The website uses session cookies for administrator sign-in. Analytics and Meta Pixel may collect browser/device information, page visits and interaction data. These services are not necessarily anonymous and may use cookies or identifiers under their own policies. You can manage cookies through your browser settings.
+                  The website uses session cookies for administrator sign-in. Google Analytics measures visits to public pages and may use cookies and browser/device identifiers under Google's privacy policy. Our analytics integration excludes administrator and private pass pages, removes URL query parameters and fragments, and does not send booking names, phone numbers or pass numbers. Advertising personalization and Google signals are disabled. You can manage cookies through your browser settings.
                 </p>
               </div>
 

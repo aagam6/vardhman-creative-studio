@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import { Route, Routes, BrowserRouter as Router, Navigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import ScrollToTop from '@/components/ScrollToTop.jsx';
+import WebsiteAnalytics from '@/components/WebsiteAnalytics.jsx';
 
 const HomePage = lazy(() => import('@/pages/HomePage.jsx'));
 const AboutPage = lazy(() => import('@/pages/AboutPage.jsx'));
@@ -29,6 +30,7 @@ const PageLoader = () => (
 function App() {
     return (
         <Router>
+            <WebsiteAnalytics />
             <ScrollToTop />
             <Suspense fallback={<PageLoader />}>
                 <Routes>
