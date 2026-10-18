@@ -43,7 +43,7 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
       const record=await one(db,'SELECT * FROM ayambil_bookings WHERE id=? FOR UPDATE',[bookingId]);if(!record||record.status!=='active'||!record.whatsapp_consent)throw new ApiError(409,'Active consented booking required');
       const attendees=await rows(db,"SELECT a.id,a.full_name,p.snapshot FROM ayambil_attendees a JOIN ayambil_passes p ON p.attendee_id=a.id WHERE a.booking_id=? AND a.status='active' AND p.status='active'",[bookingId]);if(!attendees.length)throw new ApiError(409,'Active saved pass required');
       const saved=json(attendees[0].snapshot),session=saved.sessions[0];if(Date.parse(session.date+'T20:00:00+05:30')<=Date.now())throw new ApiError(409,'Evening has already started');
-      for(const attendee of attendees){const event=json(attendee.snapshot).sessions[0];await queue.enqueue(db,{bookingId,type:'reminder',dedupe:bookingId+':'+attendee.id+':'+event.date,context:attendeeContext(event,attendee.full_name,record.mobile)});}
+      await queue.enqueue(db,{bookingId,type:'reminder',dedupe:'booking:'+bookingId,context:attendeeContext(session,record.contact_name,record.mobile)});
     });},
     async enqueueTest(queue,item){return transaction(pool,async db=>{await queue.enqueue(db,item);return queue.testId(db,item.dedupe);});},
     async status(){const setting=await one(pool,'SELECT registration_open FROM ayambil_settings WHERE id=1');return {ready:true,open:config.registrationOpen&&!!setting?.registration_open,whatsapp:queue?'configured':'disabled'};},

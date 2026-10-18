@@ -4,12 +4,12 @@ import {attendeeContext,notificationTemplates} from '../notification-context.mjs
 import {programme} from '../config.mjs';
 import {createFlow} from '../vardhmanflow.mjs';
 import {createStore} from '../store.mjs';
-test('store reminders enqueue distinct attendee contexts and idempotency keys',async()=>{
+test('store reminder uses booking contact once for multiple attendees with stable booking dedupe',async()=>{
  const session=programme.sessions[1],jobs=[];
- const db={beginTransaction:async()=>{},commit:async()=>{},rollback:async()=>{},release(){},execute:async(sql)=>[sql.includes('FROM ayambil_bookings')?[{status:'active',whatsapp_consent:1,mobile:'12025550123'}]:[{id:'one',full_name:'Synthetic One',snapshot:{sessions:[session]}},{id:'two',full_name:'Synthetic Two',snapshot:{sessions:[session]}}]]};
+ const db={beginTransaction:async()=>{},commit:async()=>{},rollback:async()=>{},release(){},execute:async(sql)=>[sql.includes('FROM ayambil_bookings')?[{status:'active',whatsapp_consent:1,mobile:'12025550123',contact_name:'Synthetic family'}]:[{id:'one',full_name:'Synthetic One',snapshot:{sessions:[session]}},{id:'two',full_name:'Synthetic Two',snapshot:{sessions:[session]}}]]};
  const store=createStore({getConnection:async()=>db},{});
  await store.enqueueReminder({enqueue:async(db,item)=>jobs.push(item)},'synthetic-booking');
- assert.equal(jobs.length,2);assert.notEqual(jobs[0].dedupe,jobs[1].dedupe);assert.equal(jobs[0].context.attendeeName,'Synthetic One');assert.equal(jobs[1].context.attendeeName,'Synthetic Two');assert.doesNotMatch(JSON.stringify(jobs[0].context),/Synthetic Two|passLink/);
+ assert.equal(jobs.length,1);assert.equal(jobs[0].dedupe,'booking:synthetic-booking');assert.equal(jobs[0].context.attendeeName,'Synthetic family');assert.equal(jobs[0].context.to,'12025550123');assert.equal(jobs[0].context.eventDate,session.date);assert.doesNotMatch(JSON.stringify(jobs[0].context),/Synthetic Two|passLink/);
 });
 test('individual contexts preserve both canonical evening associations and reject missing/crossed URLs',()=>{
  for(const session of programme.sessions){
