@@ -34,7 +34,7 @@ try {
     const bootstrap=await hostingerBootstrap(pool,process.env);
     initializationStage='queue-schema';if(queue){const [versions]=await pool.query('SELECT version FROM ayambil_schema_version WHERE version=2');if(!versions.length)throw Error();}
     initializationStage='readiness';
-    if(!await store.ready())throw Error();
+    if(!await store.ready()){console.error('Ayambil readiness metadata: '+JSON.stringify(await store.readinessDiagnostic()));throw Error();}
     worker=startQueueWorker(queue,process.env,{log:message=>console.error(message)});
     try{reminderWorker=startReminderScheduler(queue,process.env,{log:message=>console.error(message)});console.log('Ayambil reminder scheduler: '+(reminderWorker.enabled?'enabled; previous-day 18:00 IST; one per booking.':'disabled.'));}catch{console.error('Ayambil reminder scheduler unavailable; booking API remains available.');}
     initialized=true;

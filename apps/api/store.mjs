@@ -39,6 +39,10 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
   };
   return {
     async ready(){const versions=await rows(pool,'SELECT version FROM ayambil_schema_version ORDER BY version');const events=await rows(pool,'SELECT event_date,snapshot FROM ayambil_events ORDER BY event_date');return ['[1,2]','[1,2,3]'].includes(JSON.stringify(versions.map(v=>Number(v.version))))&&events.length===2&&programme.sessions.every((s,index)=>events[index].event_date===s.date&&isDeepStrictEqual(json(events[index].snapshot),s));},
+    async readinessDiagnostic(){
+      const versions=await rows(pool,'SELECT version FROM ayambil_schema_version ORDER BY version');const events=await rows(pool,'SELECT event_date,snapshot FROM ayambil_events ORDER BY event_date');
+      return {versions:versions.map(v=>Number(v.version)),eventCount:events.length,events:events.map((event,index)=>{let saved;try{saved=json(event.snapshot);}catch{return {index,snapshotType:typeof event.snapshot,invalidJson:true};}const expected=programme.sessions[index];return {index,dateType:typeof event.event_date,dateMatches:event.event_date===expected?.date,snapshotType:typeof event.snapshot,prototype:Object.getPrototypeOf(saved)?.constructor?.name,deepMatches:isDeepStrictEqual(saved,expected),differentFields:expected?[...new Set([...Object.keys(saved||{}),...Object.keys(expected)])].filter(key=>JSON.stringify(saved?.[key])!==JSON.stringify(expected[key])):[]};})};
+    },
     async enqueueReminder(queue,bookingId){return transaction(pool,async db=>{
       const record=await one(db,'SELECT * FROM ayambil_bookings WHERE id=? FOR UPDATE',[bookingId]);if(!record||record.status!=='active'||!record.whatsapp_consent)throw new ApiError(409,'Active consented booking required');
       const attendees=await rows(db,"SELECT a.id,a.full_name,p.snapshot FROM ayambil_attendees a JOIN ayambil_passes p ON p.attendee_id=a.id WHERE a.booking_id=? AND a.status='active' AND p.status='active'",[bookingId]);if(!attendees.length)throw new ApiError(409,'Active saved pass required');
