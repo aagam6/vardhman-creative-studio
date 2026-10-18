@@ -39,7 +39,7 @@ try {
     try{reminderWorker=startReminderScheduler(queue,process.env,{log:message=>console.error(message)});console.log('Ayambil reminder scheduler: '+(reminderWorker.enabled?'enabled; previous-day 18:00 IST; one per booking.':'disabled.'));}catch{console.error('Ayambil reminder scheduler unavailable; booking API remains available.');}
     initialized=true;
     console.log(bootstrap.requested?'Ayambil initialization verified; remove stored bootstrap approval and password variables.':'Ayambil API readiness verified.');
-  }catch(error){console.error('Ayambil initialization unavailable. '+startupDiagnostic(initializationStage,error));}})();
+  }catch(error){console.error('Ayambil initialization unavailable. '+startupDiagnostic(initializationStage,error));console.error('Ayambil startup error category: '+JSON.stringify({name:error?.name,code:/^[A-Z0-9_]+$/.test(error?.code||'')?error.code:undefined,errno:Number.isInteger(error?.errno)?error.errno:undefined}));}})();
   for(const signal of ['SIGTERM','SIGINT'])process.on(signal,()=>{worker?.stop();reminderWorker?.stop();server.close(()=>pool.end().finally(()=>process.exit(0)));});
 } catch(error) {
   // Driver errors can contain connection/user details; never print them.

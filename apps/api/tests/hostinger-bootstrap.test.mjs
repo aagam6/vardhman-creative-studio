@@ -22,6 +22,6 @@ test('one-time path requires explicit closed gates and clears private process in
 test('dateStrings configuration and readiness match both ISO dates without Date coercion',async()=>{
  const config=configuration({DB_HOST:'127.0.0.1',DB_PORT:'3306',DB_NAME:'synthetic',DB_USER:'synthetic',DB_PASSWORD:'synthetic',AYAMBIL_SITE_ORIGIN:'https://example.invalid',AYAMBIL_RATE_LIMIT_SECRET:'a'.repeat(32)});
  assert.equal(config.database.dateStrings,true);
- let dates=['2026-11-02','2026-11-03'];const pool={execute:async sql=>[sql.includes('schema_version')?[{version:1},{version:2}]:dates.map(event_date=>({event_date,snapshot:JSON.stringify(programme.sessions.find(s=>s.date===event_date))}))]};
+ let dates=['2026-11-02','2026-11-03'];const pool={query:async sql=>[sql.includes('schema_version')?[{version:1},{version:2}]:dates.map(event_date=>({event_date,snapshot:JSON.stringify(programme.sessions.find(s=>s.date===event_date))}))]};
  assert.equal(await createStore(pool,config).ready(),true);dates=['2026-11-02'];assert.equal(await createStore(pool,config).ready(),false);
 });
