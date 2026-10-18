@@ -500,6 +500,7 @@ export default function ParamVirChakraPage() {
       event: {
         "@context": "https://schema.org",
         "@type": "Event",
+        "@id": `${canonicalUrl}#event`,
 
         name: "Param Vir Chakra – Shaurya Gatha",
 
@@ -695,20 +696,14 @@ export default function ParamVirChakraPage() {
         "description": "Learn about the Shaurya Gatha event in Ahmedabad, dedicated to honoring India's Param Vir Chakra recipients.",
         "url": `${canonicalUrl}#about`,
         "mainEntity": {
-          "@type": "Event",
-          "name": "Param Vir Chakra – Shaurya Gatha"
+          "@id": `${canonicalUrl}#event`
         }
       },
       website: {
         "@context": "https://schema.org",
         "@type": "WebSite",
         "name": "Vardhman Creative Studio",
-        "url": "https://vardhmancreativestudio.com",
-        "potentialAction": {
-          "@type": "SearchAction",
-          "target": "https://vardhmancreativestudio.com/?s={search_term_string}",
-          "query-input": "required name=search_term_string"
-        }
+        "url": "https://vardhmancreativestudio.com"
       },
       webpage: {
         "@context": "https://schema.org",

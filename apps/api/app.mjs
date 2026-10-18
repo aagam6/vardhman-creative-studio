@@ -1,5 +1,6 @@
 import {requestLogging} from './request-logging.mjs';
 import express from 'express';
+import {publicSeo} from './public-seo.mjs';
 import {randomUUID} from 'node:crypto';
 import {attendeeContext} from './notification-context.mjs';
 import {normalizePhone} from './vardhmanflow.mjs';
@@ -107,6 +108,7 @@ export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirect
   app.use('/api',(req,res)=>res.set('Cache-Control','no-store').status(404).json({error:'API unavailable'}));
   app.use('/hcgi/platform',(req,res)=>res.set('Cache-Control','no-store').status(503).json({error:'Legacy backend routing requires separate configuration'}));
   app.use(['/admin/ayambil','/500-akhand-ayambil-vijayollas/passes'],(req,res,next)=>{res.set({'Cache-Control':'no-store','Referrer-Policy':'no-referrer'});next();});
+  app.use(publicSeo);
   for(const route of ['/500-akhand-ayambil-vijayollas','/500-akhand-ayambil-vijayollas/manan-sanghvi','/500-akhand-ayambil-vijayollas/sairam-dave']) app.get(route,(req,res)=>res.sendFile(route.slice(1)+'/index.html',{root:staticDirectory}));
   app.use(express.static(staticDirectory,{index:false}));
   app.get('/{*path}',(req,res)=>res.sendFile('index.html',{root:staticDirectory}));

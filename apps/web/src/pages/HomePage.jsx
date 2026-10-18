@@ -15,6 +15,7 @@ export default function HomePage() {
     <PageTransition>
       <div className="min-h-screen bg-background text-foreground selection:bg-purple-500/30 selection:text-purple-200">
         <Helmet>
+          <link rel="canonical" href="https://vardhmancreativestudio.com/" />
           <title>Vardhman Creative Studio | Video Editing, Graphic Design & Web Agency Ahmedabad</title>
           <meta 
             name="description" 
