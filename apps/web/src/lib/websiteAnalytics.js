@@ -19,7 +19,23 @@ export function publicAnalyticsPage(href) {
     const url = new URL(href);
     const path = url.pathname.replace(/\/+$/, '') || '/';
     if (url.protocol !== 'https:' || !['vardhmancreativestudio.com', 'www.vardhmancreativestudio.com'].includes(url.host) || !Object.hasOwn(pages, path)) return null;
-    return { page_location: `${url.origin}${path}`, page_title: pages[path] };
+    // Only our public campaign vocabulary may reach GA. Never forward arbitrary
+    // query strings (names, phone numbers, booking IDs or pass capabilities).
+    const campaign = new URLSearchParams();
+    const allowed = {
+      utm_source: ['instagram', 'whatsapp'],
+      utm_medium: ['social', 'messaging'],
+      utm_campaign: ['ayambil_2026'],
+      utm_content: ['bio', 'manan_reel', 'sairam_reel', 'manan_booking', 'sairam_booking', 'event_info'],
+    };
+    if (path.startsWith('/500-akhand-ayambil-vijayollas')) {
+      for (const [key, values] of Object.entries(allowed)) {
+        const value = url.searchParams.get(key);
+        if (url.searchParams.getAll(key).length === 1 && values.includes(value)) campaign.set(key, value);
+      }
+    }
+    const query = campaign.toString();
+    return { page_location: `${url.origin}${path}${query ? `?${query}` : ''}`, page_title: pages[path] };
   } catch {
     return null;
   }

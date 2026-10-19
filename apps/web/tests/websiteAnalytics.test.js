@@ -30,3 +30,22 @@ test('SPA tracking initializes once, avoids duplicate views and disables collect
   assert.equal(commands.find(c => c[0] === 'config')[2].send_page_view, false);
   assert.doesNotMatch(JSON.stringify(commands), /secret|#private|\/passes|\/admin/);
 });
+
+test('public campaign tags survive but personal data and private routes remain excluded', () => {
+  const base = 'https://vardhmancreativestudio.com/500-akhand-ayambil-vijayollas/manan-sanghvi';
+  const campaign = '?utm_source=instagram&utm_medium=social&utm_campaign=ayambil_2026&utm_content=manan_reel';
+  assert.equal(publicAnalyticsPage(base + campaign + '&phone=secret&token=private#capability').page_location, base + campaign);
+  assert.equal(publicAnalyticsPage(base + '?utm_source=someone@example.com&utm_campaign=secret&utm_term=phone').page_location, base);
+  assert.equal(publicAnalyticsPage(base + '?utm_source=instagram&utm_source=secret').page_location, base);
+  assert.equal(publicAnalyticsPage('https://vardhmancreativestudio.com/500-akhand-ayambil-vijayollas/passes' + campaign), null);
+  const win = {};
+  const doc = {referrer:'',createElement:()=>({}),head:{appendChild(){}}};
+  const track = createWebsiteAnalytics(win, doc);
+  track(base + campaign);
+  track(base + campaign + '&phone=secret');
+  track(base + '?utm_source=whatsapp&utm_medium=messaging&utm_campaign=ayambil_2026&utm_content=manan_booking');
+  const commands = win.dataLayer.map(args=>[...args]);
+  assert.equal(commands.filter(c=>c[0]==='event' && c[1]==='page_view').length, 2);
+  assert.doesNotMatch(JSON.stringify(commands), /secret|private|capability/);
+  assert.equal(commands.find(c=>c[0]==='config')[2].page_location, base + campaign);
+});
