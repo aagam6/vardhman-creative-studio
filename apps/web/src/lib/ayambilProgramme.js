@@ -8,11 +8,11 @@ export const ayambilProgramme = [
     slug: 'manan-sanghvi', titleEn: 'Ek Shaam Dada Rishabh Ke Naam', mapsUrl: 'https://maps.app.goo.gl/bXgLhbJ1cLfvdxqA6', venueGu: 'શ્રી ચંદ્રમૌલેશ્વર હોલ', addressGu: 'સ્મૃતિ વિલા, નારાયણ નગર, અમદાવાદ, ગુજરાત.', descriptionGu: 'દાદા ઋષભને સમર્પિત મનન સંઘવીની ભક્તિ સંધ્યા.', category: 'Bhakti Sandhya', title: 'એક શામ દાદા ઋષભ કે નામ',
     performer: 'Manan Sanghvi', time: '8:00 PM',
     description: 'An evening of bhakti dedicated to Dada Rishabh.',
-    additional: 'The evening includes honours for Ayambil tapasvis and marks the 500th flag of Shri Adishwar Dada at Siddhachal, as described in the brochure.',
+    additional: 'An evening of bhakti dedicated to Dada Rishabh, marking the 500th flag of Shri Adishwar Dada at Siddhachal.',
     morning: { titleEn: 'Tap Samvedna — Anumodna of both Bal Tapasvi Munivars', title: 'બંને બાળ તપસ્વી મુનિવરોની યશસ્વી અનુમોદના (તપસંવેદના)', time: '9:00 AM–12:00 PM', details: 'વિષય: શ્રી સમ્યક્ તપસે નમઃ · સંવેદનાકાર: શ્રી દિપકભાઈ બારડોલી', venue: 'Shri Chandramaulishwar Hall', address: 'Smruti Villa, Narayan Nagar, Ahmedabad, Gujarat.' },
     venue: 'Shri Chandramaulishwar Hall',
     address: 'Smruti Villa, Narayan Nagar, Ahmedabad, Gujarat.',
-    venueScope: 'Day 1 programme', brochure: '/assets/ayambil/day-1-20261013.jpeg',
+    venueScope: 'Day 1 programme', brochure: null,
   },
   {
     day: '02', lunarDate: 'આસો વદ-૯', date: '2026-11-03', displayDate: '3 November 2026', weekday: 'Tuesday',
@@ -46,7 +46,6 @@ export const ayambilBrochure = [
   { src: '/assets/ayambil/invitation-20261013.jpeg', title: 'Main event invitation', alt: 'Original Gujarati cover invitation for 500 Akhand Ayambil Tap Vijayollas' },
   { src: '/assets/ayambil/blessings-20261013.jpeg', title: 'Blessings & religious presence', alt: 'Original brochure listing blessings and the religious presence for the Vijayollas' },
   { src: '/assets/ayambil/written-invitation-20261013.jpeg', title: 'Written invitation', alt: 'Original Gujarati written invitation describing the uninterrupted Ayambil Tap journey' },
-  { src: '/assets/ayambil/day-1-20261013.jpeg', title: 'Day 1 · 2 November 2026', alt: 'Original Day 1 brochure with morning Tap Samvedna and evening Manan Sanghvi Bhakti Sandhya' },
   { src: '/assets/ayambil/day-2-20261013.jpeg', title: 'Day 2 · 3 November 2026', alt: 'Original Day 2 brochure with morning Navpadji Puja and evening Sairam Dave presentation' },
   { src: '/assets/ayambil/day-3-20261013.jpeg', title: 'Day 3 · 4 November 2026', alt: 'Original Day 3 brochure with morning Samaiyu, 8 AM Parna Mahotsav and Parna location' },
 ];

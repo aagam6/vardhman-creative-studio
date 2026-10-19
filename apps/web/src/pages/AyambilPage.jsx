@@ -106,15 +106,15 @@ export default function AyambilPage() {
             {programmeCredits[day.date].additional.length > 0 && <ul className="ay-session-notes">{programmeCredits[day.date].additional.map(item=><li lang="gu" key={item}>{item}</li>)}</ul>}
             {day.day === '01' && <MananBeneficiaries />}
             {day.day === '03' && <section className="ay-session-beneficiaries"><h3 lang="gu">લાભાર્થી</h3><ul>{programmeCredits[day.date].beneficiaries.map(name=><li lang="gu" key={name}>{name}</li>)}</ul></section>}
-            </section><details><summary>Brochure details / પત્રિકાની વિગતો</summary><p>{day.additional}</p><a href={day.brochure} target="_blank" rel="noopener noreferrer">View original Day {day.day} brochure <ArrowUpRight size={14} aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a></details>
+            </section><details><summary>Programme details / કાર્યક્રમની વિગતો</summary><p>{day.additional}</p>{day.brochure && <a href={day.brochure} target="_blank" rel="noopener noreferrer">View original Day {day.day} brochure <ArrowUpRight size={14} aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>}</details>
           </article>)}</div>
         </div>
       </section>
       <section className="ay-venues-section" id="ay-venues" aria-labelledby="ay-venues-heading"><div className="ay-container"><p className="ay-eyebrow">Meet in Ahmedabad</p><h2 id="ay-venues-heading">Places of Celebration / <span lang="gu">કાર્યક્રમના સ્થળો</span></h2><p lang="gu">તમારા કાર્યક્રમનું લોકેશન જુઓ.</p><div className="ay-venue-grid">{ayambilProgramme.map(day => <VenueCard key={day.date} event={day} />)}</div></div></section>
       
       <section className="ay-brochure ay-container" id="ay-brochure" aria-labelledby="ay-brochure-heading">
-        <p className="ay-eyebrow">The complete original invitation</p><h2 id="ay-brochure-heading">Six pages of the celebration</h2>
-        <p className="ay-brochure-intro">Read all six original pages. Select a poster to view it in full. / મૂળ પત્રિકાનાં છ પાનાં જુઓ. મોટું જોવા માટે પત્રિકા પર ક્લિક કરો.</p>
+        <p className="ay-eyebrow">Programme invitation</p><h2 id="ay-brochure-heading">Pages of the celebration</h2>
+        <p className="ay-brochure-intro">Select a poster to view it in full. / મોટું જોવા માટે પત્રિકા પર ક્લિક કરો.</p>
         <div className="ay-brochure-grid">{ayambilBrochure.map(image => <figure key={image.src}><a href={image.src} target="_blank" rel="noopener noreferrer" aria-label={`Open ${image.title} original (opens in a new tab)`}><img src={image.src} alt={image.alt} width="950" height="950" loading="lazy" decoding="async" /></a><figcaption>{image.title}<ArrowUpRight size={14} aria-hidden="true" /></figcaption></figure>)}</div>
       </section>
 
