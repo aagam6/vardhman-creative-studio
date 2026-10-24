@@ -1,6 +1,7 @@
 import { fetchAyambilJson, validatePassDownload } from './ayambilApiResponse.js';
 
 export const supportedOperations = Object.freeze({
+  'admin/trash/empty-preview':['GET'], 'admin/trash/empty':['POST'],
   health: ['GET'], status: ['GET'], register: ['POST'], 'pass-download': ['POST'], 'booking-pass-download':['POST'],
   'admin/login': ['POST'], 'admin/session': ['GET', 'POST'], 'admin/logout': ['POST'],
   'admin/trash': ['GET'], 'admin/overview': ['GET'], 'admin/bookings': ['GET'], 'admin/change': ['POST'], 'admin/whatsapp-retry': ['POST'],
@@ -75,7 +76,7 @@ export function createAyambilApi(transport = fetchAyambilJson) {
 function booking(data, privileged = false) {
   if (!data || typeof data.number !== 'string' || !data.number || !['active', 'cancelled'].includes(data.status) || !Array.isArray(data.attendees) || data.attendees.length < 1 || data.attendees.length > 6 || (privileged && typeof data.id !== 'string')) throw new Error('Invalid booking response');
   for (const attendee of data.attendees) {
-    if (typeof attendee.fullName !== 'string' || !Array.isArray(attendee.dates) || attendee.dates.length !== 1 || !Array.isArray(attendee.passes) || !attendee.passes.length || (privileged && typeof attendee.id !== 'string')) throw new Error('Invalid attendee response');
+    if (typeof attendee.fullName !== 'string' || !Array.isArray(attendee.dates) || attendee.dates.length !== 1 || !Array.isArray(attendee.passes) || (!attendee.passes.length && !(privileged && attendee.passHistoryPurged===true)) || (privileged && typeof attendee.id !== 'string')) throw new Error('Invalid attendee response');
     for (const pass of attendee.passes) {
       validatePassDownload({ passes: [pass] });
       if (!['active', 'cancelled', 'superseded'].includes(pass.status) || pass.sessions[0].date !== attendee.dates[0] || pass.attendeeName !== attendee.fullName) throw new Error('Invalid saved pass association');

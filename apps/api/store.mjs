@@ -1,3 +1,4 @@
+import {maintenanceStatus} from './maintenance.mjs';
 import {randomUUID} from 'node:crypto';
 import {ApiError,bookingInput,programme} from './config.mjs';
 import {capability,hash,passwordMatches} from './security.mjs';
@@ -5,6 +6,7 @@ import {attendeeContext} from './notification-context.mjs';
 import {passExpiresAt} from './pass-expiry.mjs';
 import {queueSummary} from './queue-summary.mjs';
 import {isDeepStrictEqual} from 'node:util';
+import {createLocalTrashPurge} from './empty-trash-local.mjs';
 // Pending work must still belong to a usable booking/pass, not cancelled history.
 const pendingMessageEligibility=`b.status='active' AND mq.notification_type IN ('confirmation','pass','reminder') AND EXISTS (
  SELECT 1 FROM ayambil_attendees pa JOIN ayambil_passes pp ON pp.attendee_id=pa.id
@@ -32,12 +34,14 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
     const attendees=[];
     for(const a of await rows(db,'SELECT * FROM ayambil_attendees WHERE booking_id=? ORDER BY ordinal',[id])) {
       const passes=(await rows(db,'SELECT snapshot,status,trashed_at FROM ayambil_passes WHERE attendee_id=? ORDER BY revision',[a.id])).map(p=>({...json(p.snapshot),status:p.status,...(privileged?{trashedAt:p.trashed_at||null}:{})}));
-      attendees.push({...(privileged?{id:a.id}:{}),fullName:a.full_name,status:a.status,dates:[b.event_date],passes});
+      const removed=privileged&&!passes.length&&(config.localTrashPurge===true||config.trashPurgeEnabled===true)?await one(db,"SELECT id FROM "+(config.localTrashPurge===true?'ayambil_local_trash_backup':'ayambil_trash_backup')+" WHERE JSON_UNQUOTE(JSON_EXTRACT(payload,'$.pass.attendee_id'))=? LIMIT 1",[a.id]):null;
+      attendees.push({...(privileged?{id:a.id,...(removed?{passHistoryPurged:true}:{})}:{}),fullName:a.full_name,status:a.status,dates:[b.event_date],passes});
     }
     const whatsapp=privileged?(queue?queueSummary(await rows(db,'SELECT notification_type,status,attempts,updated_at FROM ayambil_message_queue WHERE booking_id=? ORDER BY updated_at',[id])):{status:'Queue not loaded (sending disabled)',attempts:null,history:[]}):undefined;
     return {...(privileged?{id:b.id,contactName:b.contact_name,mobile:b.mobile,occupation:b.occupation||'',referralSource:b.referral_source||''}:{}),number:b.number,status:b.status,eventDate:b.event_date,created:b.created_at,attendees,...(privileged?{whatsapp}: {})};
   };
   return {
+    localTrashPurge:createLocalTrashPurge(pool,config),
     async ready(){const versions=await rows(pool,'SELECT version FROM ayambil_schema_version ORDER BY version');const events=await rows(pool,'SELECT event_date,snapshot FROM ayambil_events ORDER BY event_date');return ['[1,2]','[1,2,3]'].includes(JSON.stringify(versions.map(v=>Number(v.version))))&&events.length===2&&programme.sessions.every((s,index)=>events[index].event_date===s.date&&isDeepStrictEqual(json(events[index].snapshot),s));},
     async enqueueReminder(queue,bookingId){return transaction(pool,async db=>{
       const record=await one(db,'SELECT * FROM ayambil_bookings WHERE id=? FOR UPDATE',[bookingId]);if(!record||record.status!=='active'||!record.whatsapp_consent)throw new ApiError(409,'Active consented booking required');
@@ -46,7 +50,7 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
       await queue.enqueue(db,{bookingId,type:'reminder',dedupe:'booking:'+bookingId,context:attendeeContext(session,record.contact_name,record.mobile)});
     });},
     async enqueueTest(queue,item){return transaction(pool,async db=>{await queue.enqueue(db,item);return queue.testId(db,item.dedupe);});},
-    async status(){const setting=await one(pool,'SELECT registration_open FROM ayambil_settings WHERE id=1');return {ready:true,open:config.registrationOpen&&!!setting?.registration_open,whatsapp:queue?'configured':'disabled'};},
+    async status(){const setting=await one(pool,'SELECT '+(config.maintenanceSchemaEnabled?'registration_open,maintenance_active,maintenance_until':'registration_open')+' FROM ayambil_settings WHERE id=1');const maintenance=config.maintenanceSchemaEnabled?maintenanceStatus(setting):null;return {ready:true,open:config.registrationOpen&&!!setting?.registration_open&&!maintenance,whatsapp:queue?'configured':'disabled',...(maintenance?{maintenance}:{})};},
     async limit(bucket,max){return transaction(pool,async db=>{const window=Math.floor(Date.now()/60000);await rows(db,'INSERT INTO ayambil_rate_limits(bucket,window_start,attempts) VALUES(?,?,1) ON DUPLICATE KEY UPDATE attempts=IF(window_start=VALUES(window_start),attempts+1,1),window_start=VALUES(window_start)',[bucket,window]);const result=await one(db,'SELECT attempts FROM ayambil_rate_limits WHERE bucket=? FOR UPDATE',[bucket]);return result.attempts<=max;});},
     async login(email,password){
       const a=await one(pool,'SELECT id,password_hash,enabled FROM ayambil_admins WHERE email=?',[email]);
@@ -74,7 +78,7 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
         const previous=await one(db,'SELECT * FROM ayambil_idempotency WHERE key_hash=? FOR UPDATE',[requestHash]);
         if(previous.payload_hash!==payloadHash)throw new ApiError(409,'Submission identifier conflict');
         if(previous.booking_id)return booking(db,previous.booking_id);
-        const setting=await one(db,'SELECT registration_open FROM ayambil_settings WHERE id=1 FOR UPDATE');if(!setting?.registration_open)throw new ApiError(403,'Registration closed');
+        const setting=await one(db,'SELECT '+(config.maintenanceSchemaEnabled?'registration_open,maintenance_active':'registration_open')+' FROM ayambil_settings WHERE id=1 FOR UPDATE');if(!setting?.registration_open||(config.maintenanceSchemaEnabled&&setting.maintenance_active))throw new ApiError(403,'Registration closed');
         const event=await one(db,'SELECT snapshot FROM ayambil_events WHERE event_date=?',[body.eventDate]);if(!event)throw new ApiError(503,'Event configuration unavailable');
         const id=randomUUID(),number='BOOK26-'+randomUUID().replaceAll('-','').toUpperCase();
         await rows(db,'INSERT INTO ayambil_bookings(id,number,contact_name,mobile,event_date,whatsapp_consent,terms_version,terms_accepted_at,created_at) VALUES(?,?,?,?,?,TRUE,?,UTC_TIMESTAMP(3),UTC_TIMESTAMP(3))',[id,number,body.contactName,body.mobile,body.eventDate,'2026-10-14']);

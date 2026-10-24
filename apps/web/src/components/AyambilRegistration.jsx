@@ -1,3 +1,4 @@
+import AyambilMaintenance from './AyambilMaintenance.jsx';
 import AyambilBookingDownload from './AyambilBookingDownload.jsx';
 import AyambilHelp from './AyambilHelp.jsx';
 import { createRegistrationFunnel, trackAyambilEvent } from '@/lib/ayambilAnalytics.js';
@@ -19,7 +20,7 @@ export default function AyambilRegistration({ eventDate }) {
   const session = gujaratiEvening(eveningConfig.sessions.find(s => s.date === eventDate));
   const initialBooking = () => ({ contactName: '', occupation: '', referralSource: '', mobile: '+91', eventDate, whatsappConsent: false, termsAccepted: false, attendees: [emptyAttendee(eventDate)] });
   const [booking, setBooking] = useState(initialBooking);
-  const [availability, setAvailability] = useState('loading'); const [step, setStep] = useState('details');
+  const [maintenance,setMaintenance]=useState(null); const [availability, setAvailability] = useState('loading'); const [step, setStep] = useState('details');
   const [error, setError] = useState(''); const [busy, setBusy] = useState(false); const [confirmed, setConfirmed] = useState(false);
   const [recovering,setRecovering]=useState(false);
   const [receipt, setReceipt] = useState(null); const submission = useRef(null); const locked = useRef(false); const heading = useRef(null);
@@ -38,18 +39,18 @@ export default function AyambilRegistration({ eventDate }) {
     observer.observe(section.current);
     return () => observer.disconnect();
   }, [eventDate]);
-  const check = async () => {
-    setAvailability('loading');
-    try { const status = await registrationApi('status'); setAvailability(registrationAvailability(status)); }
+  const check = async (silent=false) => {
+    if(silent!==true)setAvailability('loading');
+    try { const status = await registrationApi('status'); setMaintenance(status.maintenance?.active?status.maintenance:null);setAvailability(registrationAvailability(status)); }
     catch { setAvailability('unavailable'); }
   };
-  useEffect(() => { check(); }, []);
+  useEffect(() => { check();const interval=setInterval(()=>check(true),15000);return()=>clearInterval(interval); }, []);
   useEffect(() => { if (step !== 'details') heading.current?.focus(); }, [step]);
   const edit = next => { setBooking(withPrimaryParticipant(next)); submission.current = null; setConfirmed(false); setError(''); };
   const updateAttendee = (index, patch) => edit({ ...booking, attendees: booking.attendees.map((a, i) => i === index ? { ...a, ...patch } : a) });
   const review = event => { event.preventDefault(); const problem = validateBooking(booking); if (problem) { setError(problem.includes(" / ") ? problem.split(" / ").slice(1).join(" / ") : problem); return; } funnel.current('registration_review', { passCount: booking.attendees.length }); setError(''); setStep('review'); };
   const submit = async () => {
-    if (!confirmed || locked.current) return;
+    if (!confirmed || locked.current || availability !== 'open') return;
     const problem = validateBooking(booking); if (problem) { setError(problem.includes(" / ") ? problem.split(" / ").slice(1).join(" / ") : problem); return; }
     locked.current = true; setBusy(true); setError('');
     if (!submission.current) submission.current = { ...booking, requestKey: requestKey() };
@@ -68,7 +69,8 @@ export default function AyambilRegistration({ eventDate }) {
 
     <ol className="ay-registration-progress" aria-label="Registration steps">{[['details','તમારી માહિતી'],['review','માહિતી તપાસો'],['success','પાસ સાચવો']].map(([key,label],index) => <li key={key} aria-current={step===key ? 'step' : undefined}><span>{index+1}</span>{label}</li>)}</ol>
 
-    {step !== 'success' && availability !== 'open' && <div className="ay-availability" role="status"><p>{availability === 'loading' ? 'રજિસ્ટ્રેશન ચાલુ છે કે નહીં તે તપાસીએ છીએ…' : availability === 'closed' ? 'રજિસ્ટ્રેશન હજી શરૂ થયું નથી.' : 'અત્યારે રજિસ્ટ્રેશન થઈ શકતું નથી. થોડી વાર પછી ફરી તપાસો.'}</p>{availability !== 'loading' && <button type="button" onClick={check}>ફરી તપાસો</button>}</div>}
+    {step !== 'success' && maintenance && <AyambilMaintenance maintenance={maintenance}/>}
+    {step !== 'success' && !maintenance && availability !== 'open' && <div className="ay-availability" role="status"><p>{availability === 'loading' ? 'રજિસ્ટ્રેશન ચાલુ છે કે નહીં તે તપાસીએ છીએ…' : availability === 'closed' ? 'રજિસ્ટ્રેશન હજી શરૂ થયું નથી.' : 'અત્યારે રજિસ્ટ્રેશન થઈ શકતું નથી. થોડી વાર પછી ફરી તપાસો.'}</p>{availability !== 'loading' && <button type="button" onClick={check}>ફરી તપાસો</button>}</div>}
     {step === 'details' && <form onSubmit={review} onChangeCapture={() => funnel.current('registration_start')}>
       <fieldset disabled={busy || availability !== 'open'}><legend>તમારી માહિતી</legend><div className="ay-form-grid">
         <label>તમારું પૂરું નામ<input autoComplete="name" required minLength={2} maxLength={120} value={booking.contactName} onChange={e => edit({ ...booking, contactName: e.target.value })} /><small>પહેલો પાસ આ નામે બનશે. પાસની સંખ્યામાં તમારો પાસ પણ ગણાય છે.</small></label>
@@ -92,7 +94,7 @@ export default function AyambilRegistration({ eventDate }) {
     </form>}
     {step === 'review' && <div className="ay-review"><h3>માહિતી તપાસો</h3><p>{session.label} · {session.time} · {session.performer}</p><p lang="gu">{session.programme}</p><p>{session.venue.replace('Chandramauleshwar', 'Chandramaulishwar')} · {session.address}</p><p>{booking.contactName} · {booking.mobile}</p><p>કામ: {booking.occupation || "આપ્યું નથી"} · કાર્યક્રમની જાણ: {booking.referralSource || "આપ્યું નથી"}</p><p>WhatsApp અને રજિસ્ટ્રેશનના નિયમો માટે મંજૂરી આપી છે.</p><ol>{booking.attendees.map((a, i) => <li key={i}><strong>{a.fullName}</strong><span>{session.label} · સાંજે ૮ વાગ્યે</span></li>)}</ol>
       <label className="ay-confirm"><input type="checkbox" checked={confirmed} disabled={busy} onChange={e => setConfirmed(e.target.checked)} />વ્યક્તિઓનાં નામ અને કાર્યક્રમની તારીખ સાચી છે.</label>
-      <div className="ay-form-actions"><button type="button" disabled={busy} onClick={() => { setStep('details'); setConfirmed(false); }}>માહિતી બદલો</button><button type="button" className="ay-button" disabled={!confirmed || busy} onClick={submit}>{busy ? (recovering ? 'સેવ થયેલું રજિસ્ટ્રેશન તપાસીએ છીએ…' : 'પાસ તૈયાર થાય છે…') : 'રજિસ્ટ્રેશન કરો'}</button></div>
+      <div className="ay-form-actions"><button type="button" disabled={busy} onClick={() => { setStep('details'); setConfirmed(false); }}>માહિતી બદલો</button><button type="button" className="ay-button" disabled={!confirmed || busy || availability !== 'open'} onClick={submit}>{busy ? (recovering ? 'સેવ થયેલું રજિસ્ટ્રેશન તપાસીએ છીએ…' : 'પાસ તૈયાર થાય છે…') : 'રજિસ્ટ્રેશન કરો'}</button></div>
     </div>}
     {step === 'success' && receipt && <div className="ay-confirmation"><h3>{receipt.status === 'active' ? 'તમારું રજિસ્ટ્રેશન થઈ ગયું છે' : 'રજિસ્ટ્રેશન રદ થયું છે'}</h3><p>રજિસ્ટ્રેશન નંબર: <strong>{receipt.number}</strong></p><p>WhatsApp પર પાસ આવવામાં સમય લાગી શકે છે. ત્યાં સુધી તમારો પાસ અહીંથી ડાઉનલોડ કરીને સાચવી રાખો.</p><p>બધા પાસ એક PDFમાં અથવા નીચે અલગથી ડાઉનલોડ કરી શકો છો.</p><AyambilBookingDownload booking={receipt}/>{receipt.attendees.flatMap(a => a.passes.filter(p => p.status !== 'superseded').map(pass => <AyambilDigitalPass key={pass.number} pass={pass} />))}<button type="button" onClick={() => { funnel.current = createRegistrationFunnel(trackAyambilEvent, eventDate); setReceipt(null); submission.current = null; setBooking(initialBooking()); setStep('details'); setConfirmed(false); check(); }}>બીજું રજિસ્ટ્રેશન</button></div>}
     {error && <p className="ay-form-error" role="alert">{error}</p>}

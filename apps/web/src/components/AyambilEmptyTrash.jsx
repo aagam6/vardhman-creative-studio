@@ -1,0 +1,11 @@
+import React,{useEffect,useState} from 'react';
+import {registrationApi} from '@/lib/ayambilRegistration';
+export default function AyambilEmptyTrash({refreshKey,onChanged}){
+ const [preview,setPreview]=useState(null),[confirm,setConfirm]=useState(false),[typed,setTyped]=useState(''),[busy,setBusy]=useState(false),[notice,setNotice]=useState('');
+ async function load(){try{setPreview(await registrationApi('admin/trash/empty-preview'));}catch{setPreview(null);}}
+ useEffect(()=>{load();},[refreshKey]);
+ async function prepare(){setNotice('');setTyped('');setConfirm(false);try{setPreview(await registrationApi('admin/trash/empty-preview'));setConfirm(true);}catch(e){setNotice(e.message);}}
+ async function empty(e){e.preventDefault();setBusy(true);try{const r=await registrationApi('admin/trash/empty',{method:'POST',body:{revision:preview.revision,confirmation:typed}});setNotice(`${r.deleted} trashed passes permanently deleted. Backup saved: ${r.backupBatch}. Bookings and other passes unchanged.`);setConfirm(false);await load();onChanged?.();}catch(e){setNotice(e.message);setConfirm(false);await load();}finally{setBusy(false);}}
+ if(!preview?.enabled)return null;
+ return <section aria-label="Empty Trash"><h3>Empty Trash{preview.localOnly?' · Local test database':''}</h3><p>This deletes all cancelled trashed passes from both evenings, regardless of the date filter. A backup is saved in the local database first. Active passes, bookings, attendee records and message queues stay unchanged.</p><button type="button" disabled={busy||!preview.count||!preview.eligible} onClick={prepare}>Empty Trash ({preview.count})</button>{!preview.eligible&&<p role="alert">A protected pass is incorrectly marked as Trash. Deletion is blocked.</p>}{confirm&&<form onSubmit={empty}><h4>Permanently delete {preview.count} passes?</h4><p>These passes cannot be restored using the Trash restore button.</p><label>Type EMPTY TRASH<input autoFocus value={typed} onChange={e=>setTyped(e.target.value)} disabled={busy}/></label><button disabled={busy||typed!=='EMPTY TRASH'}>Confirm permanent deletion</button><button type="button" disabled={busy} onClick={()=>setConfirm(false)}>Keep unchanged</button></form>}{notice&&<p role="status">{notice}</p>}</section>;
+}
