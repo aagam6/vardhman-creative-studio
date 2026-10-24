@@ -38,6 +38,8 @@ export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirect
   api.post('/admin/session',route(async(req,res)=>res.json(await store.restoreSession(token(req)))));
   api.post('/admin/logout',route(async(req,res)=>{await store.logout(token(req));res.clearCookie(cookieName,{secure:true,httpOnly:true,sameSite:'strict',path:'/'});res.json({authenticated:false});}));
   api.get('/admin/trash',admin,route(async(req,res)=>res.json(await store.trash(req.query))));
+  api.get('/admin/trash/empty-preview',admin,route(async(req,res)=>res.json(await store.localTrashPurge.preview())));
+  api.post('/admin/trash/empty',admin,route(async(req,res)=>res.json(await store.localTrashPurge.empty(req.actor,req.body))));
   api.get('/admin/overview',admin,route(async(req,res)=>res.json(await store.overview())));
   api.get('/admin/bookings',admin,route(async(req,res)=>{
     const requestId=res.getHeader('X-Request-Id')||randomUUID();res.set('X-Request-Id',requestId);
