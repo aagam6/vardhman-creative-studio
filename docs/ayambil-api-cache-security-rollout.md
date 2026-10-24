@@ -54,3 +54,12 @@ Recovery: roll back only this application's release if needed; keep booking
 state, database and message flags unchanged. Do not disable website-wide caching.
 Private baseline and rollout evidence is kept in ignored
 `tmp/cache-security-20261024/`, outside the PR.
+
+Production verification found two hosting details: Node deployment preserves
+`public_html/.htaccess` rather than replacing it from `dist/apps/web`, and its
+conditional `<If>` headers did not override the blanket public rule. Use the
+LiteSpeed-supported `SetEnvIf Request_URI` classification and `env=` headers.
+Back up the live document-root file, copy only the repository header/rewrite
+section into it, and preserve every platform-managed Passenger/SetEnv directive.
+Verify the real root file after deployment and after any later hosting changes.
+Do not replace it wholesale with the static build file, which lacks Passenger.
