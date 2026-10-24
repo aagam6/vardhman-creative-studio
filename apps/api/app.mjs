@@ -10,6 +10,10 @@ import {hash,rateHash} from './security.mjs';
 const cookieName='__Host-ayambil';
 export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirectory,flow,queue,testRecipient,isInitialized=()=>true,getQueueWorkerStatus=()=>({enabled:false,active:false})}) {
   const app=express();app.disable('x-powered-by');app.set('trust proxy',false);
+  // Also protect early failures and other API namespaces, before routing/auth.
+  app.use(['/api','/hcgi/platform','/admin/ayambil','/500-akhand-ayambil-vijayollas/passes'],(req,res,next)=>{
+    res.set({'Cache-Control':'private, no-store, max-age=0, must-revalidate','CDN-Cache-Control':'no-store','Surrogate-Control':'no-store','Pragma':'no-cache','Expires':'0'});next();
+  });
   const testSendingAvailable = config.stagingBuild === true && config.origin === 'https://white-reindeer-590806.hostingersite.com' && Boolean(testRecipient && queue && flow);
   const testOnly = (req,res,next) => testSendingAvailable ? next() : res.status(403).json({error:'Test sending is available only on authorized staging',errorCode:'STAGING_TEST_ONLY'});
   const api=express.Router();
