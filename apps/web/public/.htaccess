@@ -15,11 +15,16 @@
 	RewriteRule ^ index.html [L]
 </IfModule>
 
+<IfModule mod_setenvif.c>
+	# Use the original request path before the SPA/Passenger rewrite.
+	SetEnvIf Request_URI "^/(api(/|$)|hcgi/platform(/|$)|admin/ayambil(/|$)|500-akhand-ayambil-vijayollas/passes(/|$))" AYAMBIL_NOSTORE=1
+</IfModule>
+
 <IfModule mod_headers.c>
 	Header set X-Powered-By "Hostinger Horizons"
 
 	# Cache everything on CDN by default
-	Header set Cache-Control "public, s-maxage=604800, max-age=0"
+	Header set Cache-Control "public, s-maxage=604800, max-age=0" env=!AYAMBIL_NOSTORE
 
 	# Cache in browser all assets for 1 year (immutable hashed files)
 	<If "%{REQUEST_URI} =~ m#^/assets/.*$#">
@@ -28,13 +33,11 @@
 
 	# Dynamic APIs and private Ayambil pages must override the CDN default.
 	# Clear both header tables so proxied responses never retain a public value.
-	<If "%{REQUEST_URI} =~ m#^/(?:api(?:/|$)|hcgi/platform(?:/|$)|admin/ayambil(?:/|$)|500-akhand-ayambil-vijayollas/passes(?:/|$))#">
-		Header unset Cache-Control
-		Header always unset Cache-Control
-		Header always set Cache-Control "private, no-store, max-age=0, must-revalidate"
-		Header always set CDN-Cache-Control "no-store"
-		Header always set Surrogate-Control "no-store"
-		Header always set Pragma "no-cache"
-		Header always set Expires "0"
-	</If>
+	Header unset Cache-Control env=AYAMBIL_NOSTORE
+	Header always unset Cache-Control env=AYAMBIL_NOSTORE
+	Header always set Cache-Control "private, no-store, max-age=0, must-revalidate" env=AYAMBIL_NOSTORE
+	Header always set CDN-Cache-Control "no-store" env=AYAMBIL_NOSTORE
+	Header always set Surrogate-Control "no-store" env=AYAMBIL_NOSTORE
+	Header always set Pragma "no-cache" env=AYAMBIL_NOSTORE
+	Header always set Expires "0" env=AYAMBIL_NOSTORE
 </IfModule>
