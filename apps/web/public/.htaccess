@@ -25,4 +25,16 @@
 	<If "%{REQUEST_URI} =~ m#^/assets/.*$#">
 		Header set Cache-Control "public, max-age=31536000, immutable"
 	</If>
+
+	# Dynamic APIs and private Ayambil pages must override the CDN default.
+	# Clear both header tables so proxied responses never retain a public value.
+	<If "%{REQUEST_URI} =~ m#^/(?:api(?:/|$)|hcgi/platform(?:/|$)|admin/ayambil(?:/|$)|500-akhand-ayambil-vijayollas/passes(?:/|$))#">
+		Header unset Cache-Control
+		Header always unset Cache-Control
+		Header always set Cache-Control "private, no-store, max-age=0, must-revalidate"
+		Header always set CDN-Cache-Control "no-store"
+		Header always set Surrogate-Control "no-store"
+		Header always set Pragma "no-cache"
+		Header always set Expires "0"
+	</If>
 </IfModule>
