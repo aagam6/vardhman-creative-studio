@@ -1,3 +1,5 @@
+import {createNotificationService} from './notification-service.mjs';
+import {startNotificationWorker} from './notification-worker.mjs';
 import {createMessageQueue} from './message-queue.mjs';
 import {fileURLToPath} from 'node:url';
 import mysql from 'mysql2/promise';
@@ -23,8 +25,9 @@ try {
   const flow=createFlow(process.env);
   const queue=process.env.AYAMBIL_WHATSAPP_ENABLED==='true'?createMessageQueue(pool,flow,process.env):null;
   const store=createStore(pool,config,{queue,adminRecipients:(process.env.AYAMBIL_WHATSAPP_ADMIN_RECIPIENTS||'').split(',').map(s=>s.trim()).filter(Boolean)});
-  stage='application';let initialized=false;let worker;let reminderWorker;
-  const app=createApp({leadRouter:createLeadRouter({pool,store,config,isInitialized:()=>initialized}),legacyLeadRouter:createLeadRouter({pool,store,config,legacy:true,isInitialized:()=>initialized}),store,config,flow,queue,isInitialized:()=>initialized,getQueueWorkerStatus:()=>({enabled:worker?.enabled===true,active:worker?.active===true,reminder:{enabled:reminderWorker?.enabled===true,active:reminderWorker?.active===true,time:"18:00",timezone:"Asia/Kolkata",daysBefore:1}}),testRecipient:process.env.AYAMBIL_STAGING_BUILD==='true'&&config.origin==='https://white-reindeer-590806.hostingersite.com'?process.env.AYAMBIL_WHATSAPP_TEST_RECIPIENT:undefined,staticDirectory:fileURLToPath(new URL('../../dist/apps/web',import.meta.url))});
+  const notifications=config.notificationService?createNotificationService({pool,config,flow,key:process.env.AYAMBIL_QUEUE_ENCRYPTION_KEY}):null;
+  stage='application';let initialized=false;let worker;let reminderWorker;let notificationWorker;
+  const app=createApp({leadRouter:createLeadRouter({pool,store,config,isInitialized:()=>initialized}),legacyLeadRouter:createLeadRouter({pool,store,config,legacy:true,isInitialized:()=>initialized}),store,config,flow,queue,notifications,isInitialized:()=>initialized,getQueueWorkerStatus:()=>({enabled:worker?.enabled===true,active:worker?.active===true,reminder:{enabled:reminderWorker?.enabled===true,active:reminderWorker?.active===true,time:"18:00",timezone:"Asia/Kolkata",daysBefore:1}}),testRecipient:process.env.AYAMBIL_STAGING_BUILD==='true'&&config.origin==='https://white-reindeer-590806.hostingersite.com'?process.env.AYAMBIL_WHATSAPP_TEST_RECIPIENT:undefined,staticDirectory:fileURLToPath(new URL('../../dist/apps/web',import.meta.url))});
   const host=process.env.AYAMBIL_LISTEN_HOST || '0.0.0.0';
   if(!['0.0.0.0','127.0.0.1'].includes(host))throw new Error('Unsupported listen host');
   stage='listener';const server=app.listen(port,host);
@@ -35,13 +38,15 @@ try {
     initializationStage='queue-schema';if(queue){const [versions]=await pool.query('SELECT version FROM ayambil_schema_version WHERE version=2');if(!versions.length)throw Error();}
     initializationStage='readiness';
     if(!await store.ready())throw Error();
+    if(notifications)await notifications.ready();
+    notificationWorker=startNotificationWorker(notifications,config,process.env);
     const workerEnv=config.bookingControls?{...process.env,AYAMBIL_WHATSAPP_AUTO_WORKER_ENABLED:'false',AYAMBIL_WHATSAPP_REMINDER_SCHEDULER_ENABLED:'false'}:process.env;
     worker=startQueueWorker(queue,workerEnv,{log:message=>console.error(message)});
     try{reminderWorker=startReminderScheduler(queue,workerEnv,{log:message=>console.error(message)});console.log('Ayambil reminder scheduler: '+(reminderWorker.enabled?'enabled; previous-day 18:00 IST; one per booking.':'disabled.'));}catch{console.error('Ayambil reminder scheduler unavailable; booking API remains available.');}
     initialized=true;
     console.log(bootstrap.requested?'Ayambil initialization verified; remove stored bootstrap approval and password variables.':'Ayambil API readiness verified.');
   }catch(error){console.error('Ayambil initialization unavailable. '+startupDiagnostic(initializationStage,error));}})();
-  for(const signal of ['SIGTERM','SIGINT'])process.on(signal,()=>{worker?.stop();reminderWorker?.stop();server.close(()=>pool.end().finally(()=>process.exit(0)));});
+  for(const signal of ['SIGTERM','SIGINT'])process.on(signal,()=>{worker?.stop();reminderWorker?.stop();notificationWorker?.stop();server.close(()=>pool.end().finally(()=>process.exit(0)));});
 } catch(error) {
   // Driver errors can contain connection/user details; never print them.
   console.error('Ayambil API startup failed. '+startupDiagnostic(stage,error));process.exitCode=1;

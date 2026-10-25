@@ -67,6 +67,16 @@ export function createFlow(env,fetcher=fetch){
    if(slots.length!==mapping.fields.length||slots.some((n,i)=>n!==i+1)||mapping.fields.some(f=>!allowed.includes(f)||(!compatibility&&(typeof context[f]!=='string'||!context[f].trim()))))throw new ApiError(503,'Template variables mismatch');
    return {to:normalizePhone(context.to),templateName:mapping.name,language:mapping.language,components:[{type:'body',parameters:mapping.fields.map((f,i)=>({type:'text',text:compatibility?`TEST VALUE ${i+1}`:context[f]}))}]};
   },
+  async verifyBilingual(template){
+   const account=await request('account');const channel=account.channel;
+   if(!channel?.id||channel.isActive!==true||channel.healthStatus!=='healthy'||(env.VARDHMAN_FLOW_CHANNEL_ID&&env.VARDHMAN_FLOW_CHANNEL_ID!==channel.id))throw new ApiError(503,'Healthy channel required');
+   const templates=await request('templates?status=APPROVED');
+   const t=Array.isArray(templates)&&templates.find(x=>String(x.id)===template.templateId&&x.name===template.name&&x.language===template.languageCode);
+   if(!t||t.status!=='APPROVED'||String(t.category).toUpperCase()!=='UTILITY')throw new ApiError(503,'Exact approved Utility template identity required');
+   const c=t.components;const body=c?.find(x=>String(x.type).toUpperCase()==='BODY');const header=c?.find(x=>String(x.type).toUpperCase()==='HEADER');const buttons=c?.find(x=>String(x.type).toUpperCase()==='BUTTONS')?.buttons||[];
+   if(!Array.isArray(c)||body?.text!==template.body||header?.text!==template.header||c.some(x=>!['BODY','HEADER','BUTTONS'].includes(String(x.type).toUpperCase()))||buttons.length!==(template.button?1:0)||template.button&&(buttons[0].type?.toUpperCase()!=='URL'||buttons[0].text!==template.button||buttons[0].url!==template.dynamicUrl))throw new ApiError(503,'Provider full definition missing or differs from reviewed bilingual template');
+   return {verified:true,templateId:template.templateId,status:'APPROVED',category:'UTILITY',observedAt:new Date().toISOString(),source:'authenticated_provider_definition'};
+  },
   async sendPrepared(payload){
    if(env.AYAMBIL_WHATSAPP_ENABLED!=='true')throw new ApiError(403,'Sending not enabled');
    const data=await request('messages/template',payload);if(typeof data.messageId!=='string'||!data.messageId||data.messageId.length>200)throw new ApiError(503,'Provider acceptance unknown');

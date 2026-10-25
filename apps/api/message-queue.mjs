@@ -1,3 +1,6 @@
+import {nextDeliveryStatus} from './delivery-status-policy.mjs';
+import {requireQueueOwnership} from './queue-ownership-reconciliation.mjs';
+import {isLocalFlow} from './local-flow-contract.mjs';
 import {dueReminderSession,reminderPolicy} from './reminder-schedule.mjs';
 import {createCipheriv,createDecipheriv,randomBytes,randomUUID} from 'node:crypto';
 import {hash} from './security.mjs';
@@ -24,6 +27,8 @@ export function normalQueuePolicy(env){
  return new Date(cutoff).toISOString().replace('T',' ').replace('Z','');
 }
 export function createMessageQueue(pool,flow,env,{now=()=>new Date()}={}){const enabled=env.AYAMBIL_WHATSAPP_ENABLED==='true';const crypto=enabled?queueCrypto(env.AYAMBIL_QUEUE_ENCRYPTION_KEY):null;
+ function assertDispatchAllowed(){if(env.AYAMBIL_BOOKING_CONTROLS_ENABLED==='true')throw new ApiError(403,'Booking-controls dispatch remains disabled pending separately reviewed activation');}
+
  async function keepSinglePassMessage(db,job){
   if(job.notification_type!=='pass'||!job.booking_id)return true;
   const [inFlight]=await db.execute("SELECT id FROM ayambil_message_queue WHERE booking_id=? AND notification_type='pass' AND id<>? AND status IN ('preparing','sending','uncertain') LIMIT 1",[job.booking_id,job.id]);
@@ -43,6 +48,13 @@ export function createMessageQueue(pool,flow,env,{now=()=>new Date()}={}){const 
  }
  async function keepSingleConfirmation(db,job){
   if(job.notification_type!=='confirmation'||!job.booking_id)return true;
+  if(env.AYAMBIL_LOCAL_PROVIDER_REHEARSAL==='true'){
+   const c=pool?.pool?.config?.connectionConfig;
+   if(!isLocalFlow(flow)||c?.host!=='127.0.0.1'||!/^ayambil_test_[a-z0-9_]+$/.test(c?.database||''))throw new ApiError(403,'Disposable mocked provider required');
+   const [owned]=await db.execute("SELECT id FROM ayambil_local_notification_outbox WHERE subject=? AND purpose IN ('booking_confirmed','waiting_approved') LIMIT 1",[job.booking_id]);
+   if(owned.length)return false; // Leave original legacy job/history unchanged.
+  }
+
   const [other]=await db.execute("SELECT id FROM ayambil_message_queue WHERE booking_id=? AND notification_type='confirmation' AND id<>? AND (attempts>0 OR provider_id IS NOT NULL OR status IN ('preparing','sending','uncertain','accepted','sent','delivered','read')) LIMIT 1",[job.booking_id,job.id]);
   if(other.length){await db.execute("UPDATE ayambil_message_queue SET status='cancelled',payload='',error_code='duplicate_confirmation',updated_at=UTC_TIMESTAMP(3) WHERE id=?",[job.id]);return false;}
   await db.execute("UPDATE ayambil_message_queue SET status='cancelled',payload='',error_code='duplicate_confirmation',updated_at=UTC_TIMESTAMP(3) WHERE booking_id=? AND notification_type='confirmation' AND id<>? AND status='queued' AND attempts=0 AND provider_id IS NULL",[job.booking_id,job.id]);
@@ -60,6 +72,7 @@ export function createMessageQueue(pool,flow,env,{now=()=>new Date()}={}){const 
   return true;
  }
  async function submitJob(job,testId=null){
+  assertDispatchAllowed();
   let prepared;
   try {
    const context=crypto.open(job.payload);
@@ -89,8 +102,13 @@ export function createMessageQueue(pool,flow,env,{now=()=>new Date()}={}){const 
   catch(error){if(error.providerRejected){await pool.execute("UPDATE ayambil_message_queue SET status='failed',error_code=?,updated_at=UTC_TIMESTAMP(3) WHERE id=?",['provider_rejected_'+error.providerRejected,job.id]);return {processed:true,status:'failed',error:error.message};}await pool.execute("UPDATE ayambil_message_queue SET status='uncertain',error_code='acceptance_unknown',updated_at=UTC_TIMESTAMP(3) WHERE id=?",[job.id]);return {processed:true,status:'uncertain'};}
  }
  return {
+ async submitLocalBilingualPrepared(payload){
+  const c=pool?.pool?.config?.connectionConfig;
+  if(env.AYAMBIL_LOCAL_PROVIDER_REHEARSAL!=='true'||c?.host!=='127.0.0.1'||!/^ayambil_test_[a-z0-9_]+$/.test(c.database||'')||!isLocalFlow(flow))throw new ApiError(403,'Disposable mocked provider contract required');
+  return flow.sendPrepared(payload);
+ },
  verifyBookingLink(token){return verifyBookingPassToken(env.AYAMBIL_QUEUE_ENCRYPTION_KEY,token);},
- manualAvailable(){try{manualQueuePolicy(env);return enabled;}catch{return false;}},
+ manualAvailable(){try{assertDispatchAllowed();manualQueuePolicy(env);return enabled;}catch{return false;}},
  async previewBatch({type,date,reviewedLegacy=false}){
   const cutoff=manualQueuePolicy(env);
   if(!enabled)throw new ApiError(403,'Manual sending disabled');
@@ -100,7 +118,7 @@ export function createMessageQueue(pool,flow,env,{now=()=>new Date()}={}){const 
   if(rows.length>1000)throw new ApiError(409,'Preview exceeds 1000 messages; narrow the selection');
   return {items:rows.map(({mobile,...row})=>({...row,recipientMasked:'••••'+String(mobile).slice(-4)})),reviewedLegacy,date,type};
  },
- async runSelected({id,bookingId,type,reviewedLegacy=false},actor){
+ async runSelected({id,bookingId,type,reviewedLegacy=false},actor){assertDispatchAllowed();
   const cutoff=manualQueuePolicy(env);
   if(!enabled)throw new ApiError(403,'Manual sending disabled');
   if(![id,bookingId].every(v=>typeof v==='string'&&/^[a-f0-9-]{36}$/.test(v))||!['confirmation','pass','reminder'].includes(type))throw new ApiError(400,'Exact booking and message required');
@@ -168,7 +186,7 @@ export function createMessageQueue(pool,flow,env,{now=()=>new Date()}={}){const 
    return {...row,...(row.notification_type==='pass'&&!grouped?identities.get(dedupe_hash)||{}:{}),...(grouped?{bookingPasses:true}:{}),manualSendingAvailable:this.manualAvailable(),canVerifyProviderStatus:canVerifyProviderStatus({...row,provider_id})};
   });
  },
- async runScheduledReminder(){
+ async runScheduledReminder(){assertDispatchAllowed();
   reminderPolicy(env);const session=dueReminderSession(now());if(!session)return {processed:false};
   const job=await transaction(pool,async db=>{
    const [bookings]=await db.execute("SELECT b.id,b.contact_name,b.mobile FROM ayambil_bookings b WHERE b.event_date=? AND b.status='active' AND b.whatsapp_consent=TRUE AND EXISTS (SELECT 1 FROM ayambil_attendees a JOIN ayambil_passes p ON p.attendee_id=a.id WHERE a.booking_id=b.id AND a.status='active' AND p.status='active' AND p.trashed_at IS NULL) AND NOT EXISTS (SELECT 1 FROM ayambil_message_queue q WHERE q.booking_id=b.id AND q.notification_type='reminder' AND (q.attempts>0 OR q.provider_id IS NOT NULL OR q.status IN ('preparing','sending','uncertain','accepted','sent','delivered','read','failed'))) ORDER BY b.id LIMIT 1 FOR UPDATE",[session.date]);
@@ -188,17 +206,27 @@ export function createMessageQueue(pool,flow,env,{now=()=>new Date()}={}){const 
   return submitJob(job);
  },
  async runTest(id){if(typeof id!=='string'||! /^[a-f0-9-]{36}$/.test(id))throw new ApiError(400,'Test job identifier required');return this.runOne(id);},
- async runOne(testId=null){if(!enabled)throw new ApiError(503,'WhatsApp sending not configured');
+ async runOne(testId=null){assertDispatchAllowed();if(!enabled)throw new ApiError(503,'WhatsApp sending not configured');
   let cutoff;
   if(testId!==null){
    if(env.AYAMBIL_STAGING_BUILD!=='true'||env.AYAMBIL_SITE_ORIGIN!=='https://white-reindeer-590806.hostingersite.com'||typeof testId!=='string'||!/^[a-f0-9-]{36}$/.test(testId))throw new ApiError(403,'Exact authorized staging test required');
   }else cutoff=normalQueuePolicy(env);
-  const job=await transaction(pool,async db=>{const [rows]=testId?await db.execute("SELECT * FROM ayambil_message_queue WHERE id=? AND notification_type='test' AND booking_id IS NULL AND provider_id IS NULL AND attempts=0 AND status='queued' AND next_attempt_at<=UTC_TIMESTAMP(3) LIMIT 1 FOR UPDATE",[testId]):await db.execute("SELECT q.* FROM ayambil_message_queue q JOIN ayambil_bookings b ON b.id=q.booking_id WHERE q.status='queued' AND q.attempts=0 AND q.provider_id IS NULL AND q.notification_type IN ('confirmation','pass','reminder') AND b.status='active' AND b.whatsapp_consent=TRUE AND b.created_at>=? AND q.updated_at>=? AND q.next_attempt_at<=UTC_TIMESTAMP(3) ORDER BY q.next_attempt_at,q.id LIMIT 1 FOR UPDATE",[cutoff,cutoff]);if(!rows.length)return null;if(rows[0].booking_id){await db.execute('SELECT id FROM ayambil_bookings WHERE id=? FOR UPDATE',[rows[0].booking_id]);if(!await keepSingleReminder(db,rows[0]))return {...rows[0],skipDuplicate:true,duplicateReason:'duplicate_reminder'};if(!await keepSingleConfirmation(db,rows[0]))return {...rows[0],skipDuplicate:true};if(!await keepSinglePassMessage(db,rows[0]))return {...rows[0],skipDuplicate:true,duplicateReason:'duplicate_booking_pass'};}await db.execute("UPDATE ayambil_message_queue SET status='preparing',attempts=attempts+1,updated_at=UTC_TIMESTAMP(3) WHERE id=?",[rows[0].id]);return rows[0];});
+  const job=await transaction(pool,async db=>{if(env.AYAMBIL_LOCAL_PROVIDER_REHEARSAL==='true'&&env.AYAMBIL_LOCAL_QUEUE_OWNER_VERSION)await requireQueueOwnership(db,'legacy',Number(env.AYAMBIL_LOCAL_QUEUE_OWNER_VERSION));const [rows]=testId?await db.execute("SELECT * FROM ayambil_message_queue WHERE id=? AND notification_type='test' AND booking_id IS NULL AND provider_id IS NULL AND attempts=0 AND status='queued' AND next_attempt_at<=UTC_TIMESTAMP(3) LIMIT 1 FOR UPDATE",[testId]):await db.execute("SELECT q.* FROM ayambil_message_queue q JOIN ayambil_bookings b ON b.id=q.booking_id WHERE q.status='queued' AND q.attempts=0 AND q.provider_id IS NULL AND q.notification_type IN ('confirmation','pass','reminder') AND b.status='active' AND b.whatsapp_consent=TRUE AND b.created_at>=? AND q.updated_at>=? AND q.next_attempt_at<=UTC_TIMESTAMP(3) ORDER BY q.next_attempt_at,q.id LIMIT 1 FOR UPDATE",[cutoff,cutoff]);if(!rows.length)return null;if(rows[0].booking_id){await db.execute('SELECT id FROM ayambil_bookings WHERE id=? FOR UPDATE',[rows[0].booking_id]);if(!await keepSingleReminder(db,rows[0]))return {...rows[0],skipDuplicate:true,duplicateReason:'duplicate_reminder'};if(!await keepSingleConfirmation(db,rows[0]))return {...rows[0],skipDuplicate:true};if(!await keepSinglePassMessage(db,rows[0]))return {...rows[0],skipDuplicate:true,duplicateReason:'duplicate_booking_pass'};}await db.execute("UPDATE ayambil_message_queue SET status='preparing',attempts=attempts+1,updated_at=UTC_TIMESTAMP(3) WHERE id=?",[rows[0].id]);return rows[0];});
   if(!job)return {processed:false};
   if(job.skipDuplicate)return {processed:true,status:'cancelled',reason:job.duplicateReason||'duplicate_confirmation'};
   return submitJob(job,testId);
  },
 
- async reconcile(id){const [rows]=await pool.execute('SELECT provider_id,status FROM ayambil_message_queue WHERE id=?',[id]);if(!canVerifyProviderStatus(rows[0]))throw new ApiError(409,'No reconcilable provider reference; not submitted or manual reconciliation required');const result=await flow.messageStatus(rows[0].provider_id);const ranks={accepted:0,sent:1,delivered:2,read:3};if(result.status==='failed'&&['delivered','read'].includes(rows[0].status))return {status:rows[0].status};if(result.status!=='failed'&&(ranks[result.status]??-1)<(ranks[rows[0].status]??-1))return {status:rows[0].status};await pool.execute('UPDATE ayambil_message_queue SET status=?,updated_at=UTC_TIMESTAMP(3) WHERE id=?',[result.status,id]);return {status:result.status};}
+ async reconcile(id){
+  const [rows]=await pool.execute('SELECT provider_id,status FROM ayambil_message_queue WHERE id=?',[id]);
+  if(!canVerifyProviderStatus(rows[0]))throw new ApiError(409,'No reconcilable provider reference; not submitted or manual reconciliation required');
+  const reference=rows[0].provider_id;const result=await flow.messageStatus(reference);
+  return transaction(pool,async db=>{const [current]=await db.execute('SELECT provider_id,status FROM ayambil_message_queue WHERE id=? FOR UPDATE',[id]);
+   if(current.length!==1||current[0].provider_id!==reference||!canVerifyProviderStatus(current[0]))throw new ApiError(409,'Provider reference changed; refresh status');
+   const status=nextDeliveryStatus(current[0].status,result.status);
+   if(status!==current[0].status)await db.execute('UPDATE ayambil_message_queue SET status=?,updated_at=UTC_TIMESTAMP(3) WHERE id=?',[status,id]);
+   return {status};
+  });
+ }
  };
 }
