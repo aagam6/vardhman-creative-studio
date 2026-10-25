@@ -1,0 +1,446 @@
+[
+  {
+    "purpose": "booking_confirmed",
+    "name": "ayambil_booking_confirmed_bilingual",
+    "templateId": "2276793280386064",
+    "languageDisplay": "English",
+    "languageCode": "en",
+    "languageCodeEvidence": {
+      "verified": true,
+      "templateId": "2276793280386064",
+      "name": "ayambil_booking_confirmed_bilingual",
+      "code": "en",
+      "source": "https://vardhmanflow.com/templates",
+      "sourceType": "provider_template_preview_field",
+      "fieldLabel": "Language",
+      "observedAt": "2026-10-25T08:21:30.814Z",
+      "identitySource": "https://business.facebook.com/latest/whatsapp_manager/template_details/?business_id=906898325266547&tab=template-details&childRoute=CAPI&id=2276793280386064&nav_ref=whatsapp_manager&asset_id=246138645255399",
+      "evidenceFile": "tmp/template-language-provider-20261025/provider-previews.json",
+      "screenshot": "tmp/template-language-provider-20261025/ayambil_booking_confirmed_bilingual.png"
+    },
+    "categorySnapshot": "Utility",
+    "statusSnapshot": "In review",
+    "snapshotDate": "2026-10-25",
+    "header": "નોંધણીની પુષ્ટિ | Booking confirmed",
+    "body": "નમસ્તે {{1}},\n{{2}} કાર્યક્રમ માટે આપની નોંધણી પુષ્ટિ થયેલ છે.\nનોંધણી નંબર: {{3}}\nતારીખ: {{4}}\nસભ્યોની સંખ્યા: {{5}}\nનીચેની લિંક પરથી આપના પાસ મેળવી શકો છો.\n\nHello {{6}},\nYour booking for {{7}} is confirmed.\nBooking reference: {{8}}\nDate: {{9}}\nNumber of attendees: {{10}}\nAccess your passes using the link below.",
+    "parameters": [
+      {
+        "position": 1,
+        "field": "contactName"
+      },
+      {
+        "position": 2,
+        "field": "eventLabel"
+      },
+      {
+        "position": 3,
+        "field": "bookingReference"
+      },
+      {
+        "position": 4,
+        "field": "eventDate"
+      },
+      {
+        "position": 5,
+        "field": "attendeeCount"
+      },
+      {
+        "position": 6,
+        "field": "contactName"
+      },
+      {
+        "position": 7,
+        "field": "eventLabel"
+      },
+      {
+        "position": 8,
+        "field": "bookingReference"
+      },
+      {
+        "position": 9,
+        "field": "eventDate"
+      },
+      {
+        "position": 10,
+        "field": "attendeeCount"
+      }
+    ],
+    "button": "View passes",
+    "dynamicUrl": "https://vardhmancreativestudio.com/500-akhand-ayambil-vijayollas/{{1}}",
+    "sourceSHA256": "56a7f3dd93bbaa99109dd106b33fcb84c13a7359da1c4ae55c85a328ac7c5449",
+    "approvalEvidence": {
+      "verified": true,
+      "templateId": "2276793280386064",
+      "status": "APPROVED",
+      "category": "UTILITY",
+      "source": "https://vardhmanflow.com/templates",
+      "observedAt": "2026-10-25T08:21:30.814Z"
+    }
+  },
+  {
+    "purpose": "waiting_received",
+    "name": "ayambil_waiting_received_bilingual",
+    "templateId": "1691018582657166",
+    "languageDisplay": "English",
+    "languageCode": "en",
+    "languageCodeEvidence": {
+      "verified": true,
+      "templateId": "1691018582657166",
+      "name": "ayambil_waiting_received_bilingual",
+      "code": "en",
+      "source": "https://vardhmanflow.com/templates",
+      "sourceType": "provider_template_preview_field",
+      "fieldLabel": "Language",
+      "observedAt": "2026-10-25T08:21:17.529Z",
+      "identitySource": "https://business.facebook.com/latest/whatsapp_manager/template_details/?business_id=906898325266547&tab=template-details&childRoute=CAPI&id=1691018582657166&nav_ref=whatsapp_manager&asset_id=246138645255399",
+      "evidenceFile": "tmp/template-language-provider-20261025/provider-previews.json",
+      "screenshot": "tmp/template-language-provider-20261025/ayambil_waiting_received_bilingual.png"
+    },
+    "categorySnapshot": "Utility",
+    "statusSnapshot": "Active â€“ Quality pending",
+    "snapshotDate": "2026-10-25",
+    "header": "વેઇટિંગ નોંધણી | Waiting list",
+    "body": "નમસ્તે {{1}},\n{{2}} માટે આપની નોંધણી વેઇટિંગમાં છે.\nનોંધણી નંબર: {{3}}\nતારીખ: {{4}} · સભ્યો: {{5}}\nહજી પ્રવેશની પુષ્ટિ થઈ નથી અને પાસ ઉપલબ્ધ નથી. મંજૂરી મળ્યા બાદ આ WhatsApp નંબર પર જાણ કરવામાં આવશે.\n\nHello {{6}},\nYour registration for {{7}} is on the waiting list.\nReference: {{8}}\nDate: {{9}} · Attendees: {{10}}\nAdmission is not yet confirmed and passes are unavailable. We will notify you on this WhatsApp number once approved.",
+    "parameters": [
+      {
+        "position": 1,
+        "field": "contactName"
+      },
+      {
+        "position": 2,
+        "field": "eventLabel"
+      },
+      {
+        "position": 3,
+        "field": "waitingReference"
+      },
+      {
+        "position": 4,
+        "field": "eventDate"
+      },
+      {
+        "position": 5,
+        "field": "attendeeCount"
+      },
+      {
+        "position": 6,
+        "field": "contactName"
+      },
+      {
+        "position": 7,
+        "field": "eventLabel"
+      },
+      {
+        "position": 8,
+        "field": "waitingReference"
+      },
+      {
+        "position": 9,
+        "field": "eventDate"
+      },
+      {
+        "position": 10,
+        "field": "attendeeCount"
+      }
+    ],
+    "button": null,
+    "dynamicUrl": null,
+    "sourceSHA256": "56a7f3dd93bbaa99109dd106b33fcb84c13a7359da1c4ae55c85a328ac7c5449",
+    "approvalEvidence": {
+      "verified": true,
+      "templateId": "1691018582657166",
+      "status": "APPROVED",
+      "category": "UTILITY",
+      "source": "https://vardhmanflow.com/templates",
+      "observedAt": "2026-10-25T08:21:17.529Z"
+    }
+  },
+  {
+    "purpose": "waiting_approved",
+    "name": "ayambil_waiting_approved_bilingual",
+    "templateId": "2183150272578259",
+    "languageDisplay": "English",
+    "languageCode": "en",
+    "languageCodeEvidence": {
+      "verified": true,
+      "templateId": "2183150272578259",
+      "name": "ayambil_waiting_approved_bilingual",
+      "code": "en",
+      "source": "https://vardhmanflow.com/templates",
+      "sourceType": "provider_template_preview_field",
+      "fieldLabel": "Language",
+      "observedAt": "2026-10-25T08:21:31.905Z",
+      "identitySource": "https://business.facebook.com/latest/whatsapp_manager/template_details/?business_id=906898325266547&tab=template-details&childRoute=CAPI&id=2183150272578259&nav_ref=whatsapp_manager&asset_id=246138645255399",
+      "evidenceFile": "tmp/template-language-provider-20261025/provider-previews.json",
+      "screenshot": "tmp/template-language-provider-20261025/ayambil_waiting_approved_bilingual.png"
+    },
+    "categorySnapshot": "Utility",
+    "statusSnapshot": "Active â€“ Quality pending",
+    "snapshotDate": "2026-10-25",
+    "header": "નોંધણી મંજૂર | Booking approved",
+    "body": "નમસ્તે {{1}},\n{{2}} માટે આપની વેઇટિંગ નોંધણી મંજૂર થઈ છે.\nનોંધણી નંબર: {{3}}\nતારીખ: {{4}} · મંજૂર સભ્યો: {{5}}\nનીચેની લિંક પરથી આપના પાસ મેળવી શકો છો.\n\nHello {{6}},\nYour waiting-list registration for {{7}} has been approved.\nBooking reference: {{8}}\nDate: {{9}} · Approved attendees: {{10}}\nAccess your passes using the link below.",
+    "parameters": [
+      {
+        "position": 1,
+        "field": "contactName"
+      },
+      {
+        "position": 2,
+        "field": "eventLabel"
+      },
+      {
+        "position": 3,
+        "field": "bookingReference"
+      },
+      {
+        "position": 4,
+        "field": "eventDate"
+      },
+      {
+        "position": 5,
+        "field": "approvedAttendeeCount"
+      },
+      {
+        "position": 6,
+        "field": "contactName"
+      },
+      {
+        "position": 7,
+        "field": "eventLabel"
+      },
+      {
+        "position": 8,
+        "field": "bookingReference"
+      },
+      {
+        "position": 9,
+        "field": "eventDate"
+      },
+      {
+        "position": 10,
+        "field": "approvedAttendeeCount"
+      }
+    ],
+    "button": "View passes",
+    "dynamicUrl": "https://vardhmancreativestudio.com/500-akhand-ayambil-vijayollas/{{1}}",
+    "sourceSHA256": "56a7f3dd93bbaa99109dd106b33fcb84c13a7359da1c4ae55c85a328ac7c5449",
+    "approvalEvidence": {
+      "verified": true,
+      "templateId": "2183150272578259",
+      "status": "APPROVED",
+      "category": "UTILITY",
+      "source": "https://vardhmanflow.com/templates",
+      "observedAt": "2026-10-25T08:21:31.905Z"
+    }
+  },
+  {
+    "purpose": "booking_verify",
+    "name": "ayambil_booking_verify_bilingual",
+    "templateId": "2897889977233776",
+    "languageDisplay": "English",
+    "languageCode": "en",
+    "languageCodeEvidence": {
+      "verified": true,
+      "templateId": "2897889977233776",
+      "name": "ayambil_booking_verify_bilingual",
+      "code": "en",
+      "source": "https://vardhmanflow.com/templates",
+      "sourceType": "provider_template_preview_field",
+      "fieldLabel": "Language",
+      "observedAt": "2026-10-25T08:21:33.766Z",
+      "identitySource": "https://business.facebook.com/latest/whatsapp_manager/template_details/?business_id=906898325266547&tab=template-details&childRoute=CAPI&id=2897889977233776&nav_ref=whatsapp_manager&asset_id=246138645255399",
+      "evidenceFile": "tmp/template-language-provider-20261025/provider-previews.json",
+      "screenshot": "tmp/template-language-provider-20261025/ayambil_booking_verify_bilingual.png"
+    },
+    "categorySnapshot": "Utility",
+    "statusSnapshot": "In review",
+    "snapshotDate": "2026-10-25",
+    "header": "વિગતો ચકાસો | Verify bookings",
+    "body": "નમસ્તે {{1}},\n{{2}} કાર્યક્રમ, તારીખ {{3}}, માટે આ મોબાઇલ નંબર સાથે એકથી વધુ નોંધણીઓ મળી છે.\nનીચેની લિંક પરથી યોગ્ય નોંધણી, આવનાર સભ્યોનાં અંતિમ નામ અને સંખ્યા જણાવશો.\nજવાબ આપવાથી હાલની નોંધણી કે પાસ આપમેળે રદ થશે નહીં.\n\nHello {{4}},\nWe found multiple registrations linked to this mobile number for {{5}} on {{6}}.\nPlease use the link below to confirm the correct booking, final attendee names and count.\nSubmitting your response will not automatically cancel any existing booking or pass.",
+    "parameters": [
+      {
+        "position": 1,
+        "field": "contactName"
+      },
+      {
+        "position": 2,
+        "field": "eventLabel"
+      },
+      {
+        "position": 3,
+        "field": "eventDate"
+      },
+      {
+        "position": 4,
+        "field": "contactName"
+      },
+      {
+        "position": 5,
+        "field": "eventLabel"
+      },
+      {
+        "position": 6,
+        "field": "eventDate"
+      }
+    ],
+    "button": "Review bookings",
+    "dynamicUrl": "https://vardhmancreativestudio.com/500-akhand-ayambil-vijayollas/{{1}}",
+    "sourceSHA256": "56a7f3dd93bbaa99109dd106b33fcb84c13a7359da1c4ae55c85a328ac7c5449",
+    "approvalEvidence": {
+      "verified": true,
+      "templateId": "2897889977233776",
+      "status": "APPROVED",
+      "category": "UTILITY",
+      "source": "https://vardhmanflow.com/templates",
+      "observedAt": "2026-10-25T08:21:33.766Z"
+    }
+  },
+  {
+    "purpose": "attendance",
+    "name": "ayambil_attendance_bilingual",
+    "templateId": "1153591113984435",
+    "languageDisplay": "English",
+    "languageCode": "en",
+    "languageCodeEvidence": {
+      "verified": true,
+      "templateId": "1153591113984435",
+      "name": "ayambil_attendance_bilingual",
+      "code": "en",
+      "source": "https://vardhmanflow.com/templates",
+      "sourceType": "provider_template_preview_field",
+      "fieldLabel": "Language",
+      "observedAt": "2026-10-25T08:21:36.145Z",
+      "identitySource": "https://business.facebook.com/latest/whatsapp_manager/template_details/?business_id=906898325266547&tab=template-details&childRoute=CAPI&id=1153591113984435&nav_ref=whatsapp_manager&asset_id=246138645255399",
+      "evidenceFile": "tmp/template-language-provider-20261025/provider-previews.json",
+      "screenshot": "tmp/template-language-provider-20261025/ayambil_attendance_bilingual.png"
+    },
+    "categorySnapshot": "Utility",
+    "statusSnapshot": "In review",
+    "snapshotDate": "2026-10-25",
+    "header": "હાજરીની પુષ્ટિ | Attendance check",
+    "body": "નમસ્તે {{1}},\nનોંધણી {{2}} હેઠળ {{3}} કાર્યક્રમ માટે {{4}} સભ્યો નોંધાયેલા છે.\nતારીખ: {{5}}\nકૃપા કરીને નીચેની લિંક પરથી આવવાના છો કે નહીં અને આવનાર સભ્યોની અંતિમ સંખ્યા જણાવશો.\n\nHello {{6}},\nBooking {{7}} has {{8}} registered attendees for {{9}}.\nDate: {{10}}\nPlease use the link below to confirm whether you will attend and the final number of attendees.",
+    "parameters": [
+      {
+        "position": 1,
+        "field": "contactName"
+      },
+      {
+        "position": 2,
+        "field": "bookingReference"
+      },
+      {
+        "position": 3,
+        "field": "eventLabel"
+      },
+      {
+        "position": 4,
+        "field": "attendeeCount"
+      },
+      {
+        "position": 5,
+        "field": "eventDate"
+      },
+      {
+        "position": 6,
+        "field": "contactName"
+      },
+      {
+        "position": 7,
+        "field": "bookingReference"
+      },
+      {
+        "position": 8,
+        "field": "attendeeCount"
+      },
+      {
+        "position": 9,
+        "field": "eventLabel"
+      },
+      {
+        "position": 10,
+        "field": "eventDate"
+      }
+    ],
+    "button": "Confirm attendance",
+    "dynamicUrl": "https://vardhmancreativestudio.com/500-akhand-ayambil-vijayollas/{{1}}",
+    "sourceSHA256": "56a7f3dd93bbaa99109dd106b33fcb84c13a7359da1c4ae55c85a328ac7c5449",
+    "approvalEvidence": {
+      "verified": true,
+      "templateId": "1153591113984435",
+      "status": "APPROVED",
+      "category": "UTILITY",
+      "source": "https://vardhmanflow.com/templates",
+      "observedAt": "2026-10-25T08:21:36.145Z"
+    }
+  },
+  {
+    "purpose": "entry_timing",
+    "name": "ayambil_entry_timing_bilingual",
+    "templateId": "1438899548384628",
+    "languageDisplay": "English",
+    "languageCode": "en",
+    "languageCodeEvidence": {
+      "verified": true,
+      "templateId": "1438899548384628",
+      "name": "ayambil_entry_timing_bilingual",
+      "code": "en",
+      "source": "https://vardhmanflow.com/templates",
+      "sourceType": "provider_template_preview_field",
+      "fieldLabel": "Language",
+      "observedAt": "2026-10-25T08:21:38.526Z",
+      "identitySource": "https://business.facebook.com/latest/whatsapp_manager/template_details/?business_id=906898325266547&tab=template-details&childRoute=CAPI&id=1438899548384628&nav_ref=whatsapp_manager&asset_id=246138645255399",
+      "evidenceFile": "tmp/template-language-provider-20261025/provider-previews.json",
+      "screenshot": "tmp/template-language-provider-20261025/ayambil_entry_timing_bilingual.png"
+    },
+    "categorySnapshot": "Utility",
+    "statusSnapshot": "In review",
+    "snapshotDate": "2026-10-25",
+    "header": "પ્રવેશ સમય | Entry timing",
+    "body": "નમસ્તે {{1}},\nનોંધણી નંબર: {{2}}\nકાર્યક્રમ: {{3}} · તારીખ: {{4}}\nપ્રવેશદ્વાર રાત્રે 9:00 વાગ્યે બંધ થશે. કૃપા કરીને રાત્રે 9:00 વાગ્યા પહેલાં સ્થળ પર પહોંચી જશો અને પ્રવેશ માટે આપનો પાસ સાથે રાખશો.\n\nHello {{5}},\nBooking reference: {{6}}\nEvent: {{7}} · Date: {{8}}\nEntry gates will close at 9:00 PM IST. Please arrive before 9:00 PM IST and keep your pass ready for entry.",
+    "parameters": [
+      {
+        "position": 1,
+        "field": "contactName"
+      },
+      {
+        "position": 2,
+        "field": "bookingReference"
+      },
+      {
+        "position": 3,
+        "field": "eventLabel"
+      },
+      {
+        "position": 4,
+        "field": "eventDate"
+      },
+      {
+        "position": 5,
+        "field": "contactName"
+      },
+      {
+        "position": 6,
+        "field": "bookingReference"
+      },
+      {
+        "position": 7,
+        "field": "eventLabel"
+      },
+      {
+        "position": 8,
+        "field": "eventDate"
+      }
+    ],
+    "button": null,
+    "dynamicUrl": null,
+    "sourceSHA256": "56a7f3dd93bbaa99109dd106b33fcb84c13a7359da1c4ae55c85a328ac7c5449",
+    "approvalEvidence": {
+      "verified": true,
+      "templateId": "1438899548384628",
+      "status": "APPROVED",
+      "category": "UTILITY",
+      "source": "https://vardhmanflow.com/templates",
+      "observedAt": "2026-10-25T08:21:38.526Z"
+    }
+  }
+]

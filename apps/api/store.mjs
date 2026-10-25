@@ -1,3 +1,4 @@
+import {attachBookingControls} from './booking-controls.mjs';
 import {maintenanceStatus} from './maintenance.mjs';
 import {randomUUID} from 'node:crypto';
 import {ApiError,bookingInput,programme} from './config.mjs';
@@ -40,7 +41,7 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
     const whatsapp=privileged?(queue?queueSummary(await rows(db,'SELECT notification_type,status,attempts,updated_at FROM ayambil_message_queue WHERE booking_id=? ORDER BY updated_at',[id])):{status:'Queue not loaded (sending disabled)',attempts:null,history:[]}):undefined;
     return {...(privileged?{id:b.id,contactName:b.contact_name,mobile:b.mobile,occupation:b.occupation||'',referralSource:b.referral_source||''}:{}),number:b.number,status:b.status,eventDate:b.event_date,created:b.created_at,attendees,...(privileged?{whatsapp}: {})};
   };
-  return {
+  const store = {
     localTrashPurge:createLocalTrashPurge(pool,config),
     async ready(){const versions=await rows(pool,'SELECT version FROM ayambil_schema_version ORDER BY version');const events=await rows(pool,'SELECT event_date,snapshot FROM ayambil_events ORDER BY event_date');return ['[1,2]','[1,2,3]'].includes(JSON.stringify(versions.map(v=>Number(v.version))))&&events.length===2&&programme.sessions.every((s,index)=>events[index].event_date===s.date&&isDeepStrictEqual(json(events[index].snapshot),s));},
     async enqueueReminder(queue,bookingId){return transaction(pool,async db=>{
@@ -70,9 +71,9 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
       return {authenticated:true,csrfToken:csrf};
     },
     async logout(token){await rows(pool,'DELETE FROM ayambil_admin_sessions WHERE token_hash=?',[hash(token)]);},
-    async register(input){
+    async register(input,transactionDb){
       const body=bookingInput(input),requestHash=hash(body.requestKey);const {requestKey:ignored,...payload}=body;void ignored;const payloadHash=hash(JSON.stringify(payload));
-      return transaction(pool,async db=>{
+      const execute=async db=>{
         if(!config.registrationOpen)throw new ApiError(403,'Registration closed');
         await rows(db,'INSERT INTO ayambil_idempotency(key_hash,payload_hash) VALUES(?,?) ON DUPLICATE KEY UPDATE key_hash=key_hash',[requestHash,payloadHash]);
         const previous=await one(db,'SELECT * FROM ayambil_idempotency WHERE key_hash=? FOR UPDATE',[requestHash]);
@@ -95,14 +96,15 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
         // Raw links are returned only once, never stored. Same-key retries return
         // saved PDFs without rotating capabilities or issuing duplicate passes.
         const receipt={...await booking(db,id),downloadKeys:links};
-        if(queue){
+        if(queue&&!(config.bookingControls&&config.disposable!==true)){
           const session=json(event.snapshot),context={eventName:programme.eventName,eventDate:session.date,time:session.time,performer:session.performer,programme:session.programme,venue:session.venue,contactName:body.contactName,attendeeCount:String(body.attendees.length),attendeeNames:body.attendees.map(a=>a.fullName).join(', ')};
           await queue.enqueue(db,{bookingId:id,type:'confirmation',dedupe:id,context:attendeeContext(session,body.contactName,body.mobile)});
           await queue.enqueue(db,{bookingId:id,type:'pass',dedupe:'booking:'+id,context:{...attendeeContext(session,body.contactName,body.mobile),bookingPasses:true}});
           for(const to of adminRecipients)await queue.enqueue(db,{bookingId:id,type:'admin',dedupe:id+':'+to,context:{...context,to}});
         }
         return receipt;
-      });
+      };
+      return transactionDb?execute(transactionDb):transaction(pool,execute);
     },
     async downloadBooking(key){
       let id;try{id=queue?.verifyBookingLink(key);}catch{throw new ApiError(404,'Booking download unavailable');}
@@ -217,6 +219,7 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
       }); } catch(error) { error.ayambilStage=stage; throw error; }
     }
   };
+  return config.bookingControls?attachBookingControls(store,pool,config):store;
 }
 
 

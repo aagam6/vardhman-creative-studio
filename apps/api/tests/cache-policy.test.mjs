@@ -43,7 +43,7 @@ test('Hostinger edge exception covers dynamic/private routes while static assets
   const pattern=source.match(/SetEnvIf Request_URI "([^"]+)" AYAMBIL_NOSTORE=1/);
   assert.ok(pattern,'Classify the original URI before the SPA/Passenger rewrite');
   const dynamic=new RegExp(pattern[1]);
-  for(const url of ['/api','/api/ayambil/status','/api/ayambil/admin/bookings','/api/ayambil/pass-download','/api/leads','/hcgi/platform/api/collections/leads/records','/admin/ayambil','/500-akhand-ayambil-vijayollas/passes'])assert.ok(dynamic.test(url),url);
+  for(const url of ['/api','/api/ayambil/status','/api/ayambil/admin/bookings','/api/ayambil/pass-download','/api/leads','/hcgi/platform/api/collections/leads/records','/admin/ayambil','/500-akhand-ayambil-vijayollas/passes','/500-akhand-ayambil-vijayollas/respond'])assert.ok(dynamic.test(url),url);
   for(const url of ['/','/apiary','/assets/app.js','/500-akhand-ayambil-vijayollas/manan-sanghvi'])assert.equal(dynamic.test(url),false,url);
   assert.match(source,/Header always set Cache-Control "private, no-store, max-age=0, must-revalidate"/);
   assert.match(source,/Header set Cache-Control "public, s-maxage=604800, max-age=0" env=!AYAMBIL_NOSTORE/);

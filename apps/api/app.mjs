@@ -1,3 +1,6 @@
+import {templateMappingSummary,buildBilingualMockPayload} from './bilingual-template-adapter.mjs';
+import {readFile} from 'node:fs/promises';
+import {join} from 'node:path';
 import {requestLogging} from './request-logging.mjs';
 import express from 'express';
 import {publicSeo} from './public-seo.mjs';
@@ -11,9 +14,10 @@ const cookieName='__Host-ayambil';
 export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirectory,flow,queue,testRecipient,isInitialized=()=>true,getQueueWorkerStatus=()=>({enabled:false,active:false})}) {
   const app=express();app.disable('x-powered-by');app.set('trust proxy',false);
   // Also protect early failures and other API namespaces, before routing/auth.
-  app.use(['/api','/hcgi/platform','/admin/ayambil','/500-akhand-ayambil-vijayollas/passes'],(req,res,next)=>{
+  app.use(['/api','/hcgi/platform','/admin/ayambil','/500-akhand-ayambil-vijayollas/passes','/500-akhand-ayambil-vijayollas/respond'],(req,res,next)=>{
     res.set({'Cache-Control':'private, no-store, max-age=0, must-revalidate','CDN-Cache-Control':'no-store','Surrogate-Control':'no-store','Pragma':'no-cache','Expires':'0'});next();
   });
+  app.use('/api/ayambil',(req,res,next)=>{if(config.bookingControls&&req.method!=='GET'&&/^(\/admin\/messages\/|\/admin\/whatsapp-retry)/.test(req.path))return res.status(403).json({error:'Messaging operations disabled during booking-controls release'});next();});
   const testSendingAvailable = config.stagingBuild === true && config.origin === 'https://white-reindeer-590806.hostingersite.com' && Boolean(testRecipient && queue && flow);
   const testOnly = (req,res,next) => testSendingAvailable ? next() : res.status(403).json({error:'Test sending is available only on authorized staging',errorCode:'STAGING_TEST_ONLY'});
   const api=express.Router();
@@ -30,6 +34,22 @@ export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirect
   const limited=(operation,max)=>async(req,res,next)=>{try{const bucket=rateHash(config.rateSecret,operation+':'+req.socket.remoteAddress);if(!await store.limit(bucket,max))throw new ApiError(429,'Too many requests');next();}catch(error){next(error);}};
   api.get('/health',route(async(req,res)=>{try{if(!await store.ready())throw new Error();res.json({ready:true});}catch{res.status(503).json({ready:false});}}));
   api.get('/status',route(async(req,res)=>{try{res.json(await store.status());}catch{res.status(503).json({ready:false,open:false,whatsapp:'disabled'});}}));
+  // Feature is absent unless explicitly enabled by the guarded store.
+  if(store.bookingControls){
+    const controls=store.bookingControls;
+    api.get('/booking-availability',route(async(req,res)=>res.json({events:await controls.availability()})));
+    api.get('/admin/booking-controls/templates',admin,route(async(req,res)=>res.json({items:templateMappingSummary(),sendingDisabled:true})));
+    api.post('/admin/booking-controls/template-preview',admin,route(async(req,res)=>res.json(buildBilingualMockPayload(req.body.purpose,req.body.data))));
+    api.get('/admin/booking-controls/dashboard',admin,route(async(req,res)=>res.json(await controls.dashboard(req.query))));
+    api.get('/admin/booking-controls',admin,route(async(req,res)=>res.json(config.disposable?await controls.workspace():await controls.dashboard(req.query))));
+    for(const [path,handler] of [
+      ['event',b=>controls.update(b.actor,b.body)],['approve',b=>controls.approve(b.actor,b.body.id)],
+      ['review-create',b=>controls.createReview(b.actor,b.body)],['review-link',b=>controls.link(b.actor,b.body.id)],
+      ['review-revoke',b=>controls.revoke(b.actor,b.body.id)],['follow-up-preview',b=>controls.prepareFollowUp(b.actor,b.body)],['review-decision',b=>controls.review(b.actor,b.body)]
+    ])api.post('/admin/booking-controls/'+path,admin,route(async(req,res)=>res.json(await handler(req))));
+    api.get('/family-review',limited('family-review',30),route(async(req,res)=>res.json(await controls.family(req.headers['x-review-token']))));
+    api.post('/family-review',limited('family-review-response',10),route(async(req,res)=>res.json(await controls.respond(req.headers['x-review-token'],req.body))));
+  }
   api.post('/register',limited('register',10),route(async(req,res)=>res.json(await store.register(req.body))));
   api.post('/pass-download',limited('download',30),route(async(req,res)=>res.json(await store.download(req.body?.key))));
   api.post('/booking-pass-download',limited('download',30),route(async(req,res)=>res.json(await store.downloadBooking(req.body?.key))));
@@ -113,7 +133,8 @@ export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirect
   if(legacyLeadRouter)app.use('/hcgi/platform/api/collections/leads/records',legacyLeadRouter);
   app.use('/api',(req,res)=>res.set('Cache-Control','no-store').status(404).json({error:'API unavailable'}));
   app.use('/hcgi/platform',(req,res)=>res.set('Cache-Control','no-store').status(503).json({error:'Legacy backend routing requires separate configuration'}));
-  app.use(['/admin/ayambil','/500-akhand-ayambil-vijayollas/passes'],(req,res,next)=>{res.set({'Cache-Control':'no-store','Referrer-Policy':'no-referrer'});next();});
+  app.use(['/admin/ayambil','/500-akhand-ayambil-vijayollas/passes','/500-akhand-ayambil-vijayollas/respond'],(req,res,next)=>{res.set({'Cache-Control':'no-store','Referrer-Policy':'no-referrer'});next();});
+  app.get('/500-akhand-ayambil-vijayollas/respond',async(req,res,next)=>{try{const html=await readFile(join(staticDirectory,'index.html'),'utf8');res.set('X-Robots-Tag','noindex, nofollow').type('html').send(html.replace(/<!-- Meta Pixel Code -->[\s\S]*?<!-- End Meta Pixel Code -->/g,'').replace(/<noscript>[\s\S]*?<\/noscript>/g,''));}catch(e){next(e);}});
   app.use(publicSeo);
   for(const route of ['/500-akhand-ayambil-vijayollas','/500-akhand-ayambil-vijayollas/manan-sanghvi','/500-akhand-ayambil-vijayollas/sairam-dave']) app.get(route,(req,res)=>res.sendFile(route.slice(1)+'/index.html',{root:staticDirectory}));
   app.use(express.static(staticDirectory,{index:false}));

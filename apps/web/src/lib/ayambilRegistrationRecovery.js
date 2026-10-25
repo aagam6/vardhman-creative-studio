@@ -3,7 +3,7 @@
 export async function submitRegistration(request, payload, onRecover = () => {}) {
   const attempt = async () => {
     const saved = await request('register', { method: 'POST', body: payload });
-    if (!saved?.number || !Array.isArray(saved.attendees) || saved.attendees.length !== payload.attendees.length || saved.attendees.some(a => !Array.isArray(a.passes) || !a.passes.length)) throw new Error('Incomplete registration response');
+    if (!saved?.number || !Array.isArray(saved.attendees) || saved.attendees.length !== payload.attendees.length || saved.attendees.some(a => !Array.isArray(a.passes) || (saved.status==='waiting'?a.passes.length!==0:!a.passes.length))) throw new Error('Incomplete registration response');
     return saved;
   };
   try { return await attempt(); }

@@ -1,6 +1,8 @@
 import { fetchAyambilJson, validatePassDownload } from './ayambilApiResponse.js';
 
 export const supportedOperations = Object.freeze({
+  'admin/booking-controls/dashboard':['GET'],'admin/booking-controls/templates':['GET'],
+  ...Object.fromEntries(['event','approve','review-create','review-link','review-revoke','review-decision','follow-up-preview','template-preview'].map(key=>['admin/booking-controls/'+key,['POST']])),
   'admin/trash/empty-preview':['GET'], 'admin/trash/empty':['POST'],
   health: ['GET'], status: ['GET'], register: ['POST'], 'pass-download': ['POST'], 'booking-pass-download':['POST'],
   'admin/login': ['POST'], 'admin/session': ['GET', 'POST'], 'admin/logout': ['POST'],
@@ -91,6 +93,10 @@ export function validateResponse(path, data) {
   }
   if (path === 'status' && (typeof data?.ready !== 'boolean' || typeof data.open !== 'boolean' || !['disabled', 'configured'].includes(data.whatsapp))) throw new Error('Invalid availability response');
   if (path === 'register') {
+    if(data?.status==='waiting'){
+      if(typeof data.number!=='string'||!data.number.startsWith('WAIT26-')||!Array.isArray(data.attendees)||!data.attendees.length||data.attendees.some(a=>!Array.isArray(a.passes)||a.passes.length)||data.downloadKeys!==undefined)throw new Error('Invalid waiting receipt');
+      return;
+    }
     booking(data);
     if (data.downloadKeys !== undefined && (!Array.isArray(data.downloadKeys) || data.downloadKeys.length !== data.attendees.length || data.downloadKeys.some(key => !/^[a-f0-9]{64}$/.test(key)))) throw new Error('Invalid private links');
   }
@@ -106,7 +112,9 @@ export function validateResponse(path, data) {
   }
 }
 
-export function registrationAvailability(data) {
+export function registrationAvailability(data,eventDate) {
   validateResponse('status', data);
+  const event=data.events?.find(e=>e.event_date===eventDate);
+  if(data.ready&&data.open&&event)return event.mode==='closed'?'closed':'open';
   return data.ready ? (data.open ? 'open' : 'closed') : 'unavailable';
 }
