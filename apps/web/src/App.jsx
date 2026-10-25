@@ -9,6 +9,7 @@ const AboutPage = lazy(() => import('@/pages/AboutPage.jsx'));
 const ServicesPage = lazy(() => import('@/pages/ServicesPage.jsx'));
 const ParamVirChakraPage = lazy(() => import('@/pages/ParamVirChakraPage.jsx'));
 const AyambilPage = lazy(() => import('@/pages/AyambilPage.jsx'));
+const AyambilFamilyResponsePage=lazy(()=>import('@/pages/AyambilFamilyResponsePage.jsx'));
 const AyambilAdminPage = lazy(() => import('@/pages/AyambilAdminPage.jsx'));
 const AyambilEveningPage = lazy(() => import('@/pages/AyambilEveningPage.jsx'));
 const AyambilPassDownloadPage = lazy(() => import('@/pages/AyambilPassDownloadPage.jsx'));
@@ -40,6 +41,7 @@ function App() {
                     <Route path="/param-vir-chakra" element={<ParamVirChakraPage />} />
                     <Route path="/500-akhand-ayambil-vijayollas" element={<AyambilPage />} />
                     <Route path="/admin/ayambil" element={<AyambilAdminPage />} />
+                    <Route path="/500-akhand-ayambil-vijayollas/respond" element={<AyambilFamilyResponsePage/>}/>
                     <Route path="/500-akhand-ayambil-vijayollas/manan-sanghvi" element={<AyambilEveningPage eventDate="2026-11-02" />} />
                     <Route path="/500-akhand-ayambil-vijayollas/sairam-dave" element={<AyambilEveningPage eventDate="2026-11-03" />} />
                     <Route path="/500-akhand-ayambil-vijayollas/passes" element={<AyambilPassDownloadPage />} />

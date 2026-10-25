@@ -35,8 +35,9 @@ try {
     initializationStage='queue-schema';if(queue){const [versions]=await pool.query('SELECT version FROM ayambil_schema_version WHERE version=2');if(!versions.length)throw Error();}
     initializationStage='readiness';
     if(!await store.ready())throw Error();
-    worker=startQueueWorker(queue,process.env,{log:message=>console.error(message)});
-    try{reminderWorker=startReminderScheduler(queue,process.env,{log:message=>console.error(message)});console.log('Ayambil reminder scheduler: '+(reminderWorker.enabled?'enabled; previous-day 18:00 IST; one per booking.':'disabled.'));}catch{console.error('Ayambil reminder scheduler unavailable; booking API remains available.');}
+    const workerEnv=config.bookingControls?{...process.env,AYAMBIL_WHATSAPP_AUTO_WORKER_ENABLED:'false',AYAMBIL_WHATSAPP_REMINDER_SCHEDULER_ENABLED:'false'}:process.env;
+    worker=startQueueWorker(queue,workerEnv,{log:message=>console.error(message)});
+    try{reminderWorker=startReminderScheduler(queue,workerEnv,{log:message=>console.error(message)});console.log('Ayambil reminder scheduler: '+(reminderWorker.enabled?'enabled; previous-day 18:00 IST; one per booking.':'disabled.'));}catch{console.error('Ayambil reminder scheduler unavailable; booking API remains available.');}
     initialized=true;
     console.log(bootstrap.requested?'Ayambil initialization verified; remove stored bootstrap approval and password variables.':'Ayambil API readiness verified.');
   }catch(error){console.error('Ayambil initialization unavailable. '+startupDiagnostic(initializationStage,error));}})();

@@ -16,3 +16,6 @@
 @media(max-width:700px){.ay-guest-reservation form fieldset{padding:20px 16px!important}.ay-guest-reservation .ay-form-grid{gap:20px}}
 
 .ay-registration .ay-companion-event{margin:0 0 20px;font-size:14px;line-height:1.7;color:#7d7166}.ay-companion-list{display:grid;gap:20px}.ay-companion-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:12px}.ay-companion-row label{min-width:0}.ay-companion-row button{margin:0;white-space:nowrap}@media(max-width:700px){.ay-companion-row{grid-template-columns:minmax(0,1fr);gap:8px}.ay-companion-row button{justify-self:start}.ay-companion-row+.ay-companion-row{padding-top:18px;border-top:1px solid #e9dfd0}}
+
+/* Waiting admission is explicit before review and after submission. */
+.ay-registration .ay-waiting-notice{background:#fff3cd;color:#513b0b;border:2px solid #a76b10;border-left-width:6px;border-radius:12px;padding:20px;margin-block:24px;overflow-wrap:anywhere}.ay-waiting-notice strong,.ay-waiting-notice h3{color:#513b0b;font-size:clamp(18px,3vw,24px);line-height:1.6}.ay-waiting-notice strong span,.ay-waiting-notice h3 span{display:block}.ay-waiting-notice p{font-size:15px;line-height:1.8;margin-top:10px}.ay-registration .ay-form-actions button{white-space:normal;max-width:100%;overflow-wrap:anywhere}

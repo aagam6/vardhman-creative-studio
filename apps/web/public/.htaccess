@@ -17,7 +17,7 @@
 
 <IfModule mod_setenvif.c>
 	# Use the original request path before the SPA/Passenger rewrite.
-	SetEnvIf Request_URI "^/(api(/|$)|hcgi/platform(/|$)|admin/ayambil(/|$)|500-akhand-ayambil-vijayollas/passes(/|$))" AYAMBIL_NOSTORE=1
+	SetEnvIf Request_URI "^/(api(/|$)|hcgi/platform(/|$)|admin/ayambil(/|$)|500-akhand-ayambil-vijayollas/(passes|respond)(/|$))" AYAMBIL_NOSTORE=1
 </IfModule>
 
 <IfModule mod_headers.c>
