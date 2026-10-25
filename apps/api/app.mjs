@@ -11,7 +11,7 @@ import {normalizePhone} from './vardhmanflow.mjs';
 import {ApiError,programme} from './config.mjs';
 import {hash,rateHash} from './security.mjs';
 const cookieName='__Host-ayambil';
-export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirectory,flow,queue,testRecipient,isInitialized=()=>true,getQueueWorkerStatus=()=>({enabled:false,active:false})}) {
+export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirectory,flow,queue,notifications,testRecipient,isInitialized=()=>true,getQueueWorkerStatus=()=>({enabled:false,active:false})}) {
   const app=express();app.disable('x-powered-by');app.set('trust proxy',false);
   // Also protect early failures and other API namespaces, before routing/auth.
   app.use(['/api','/hcgi/platform','/admin/ayambil','/500-akhand-ayambil-vijayollas/passes','/500-akhand-ayambil-vijayollas/respond'],(req,res,next)=>{
@@ -32,6 +32,14 @@ export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirect
   const token=req=>{const match=(req.headers.cookie||'').split(';').map(s=>s.trim()).find(s=>s.startsWith(cookieName+'='));return match?match.slice(cookieName.length+1):'';};
   const admin=async(req,res,next)=>{try{req.actor=await store.session(token(req));if(req.method==='POST'&&hash(String(req.headers['x-csrf-token']||''))!==req.actor.csrf_hash)throw new ApiError(403,'Session confirmation required');next();}catch(error){next(error);}};
   const limited=(operation,max)=>async(req,res,next)=>{try{const bucket=rateHash(config.rateSecret,operation+':'+req.socket.remoteAddress);if(!await store.limit(bucket,max))throw new ApiError(429,'Too many requests');next();}catch(error){next(error);}};
+  if(notifications){
+   api.get('/admin/notification-outbox',admin,route(async(req,res)=>res.json({dispatchEnabled:config.notificationDispatch===true,owner:await notifications.owner(),...await notifications.list(req.query.page||1),intents:await notifications.intents(req.query.page||1)})));
+   api.post('/admin/notification-outbox/notice',admin,limited('notification-notice',4),route(async(req,res)=>res.json(await notifications.prepareEntryNotice(req.body,req.actor))));
+   api.post('/admin/notification-outbox/prepare',admin,limited('notification-prepare',10),route(async(req,res)=>res.json({id:await notifications.enqueueHeldIntent(req.body.id,{token:req.body.token}),sent:false})));
+   api.post('/admin/notification-outbox/owner',admin,route(async(req,res)=>res.json(await notifications.handover(req.body,req.actor))));
+   api.post('/admin/notification-outbox/reconcile',admin,limited('notification-status',10),route(async(req,res)=>res.json(await notifications.reconcile(req.body.id,req.actor))));
+   api.post('/admin/notification-outbox/send',admin,limited('notification-dispatch',4),route(async(req,res)=>{if(config.notificationDispatch!==true)throw new ApiError(403,'Notification dispatch disabled');if(req.body.confirmation!=='SEND ONE REVIEWED MESSAGE')throw new ApiError(400,'Exact single-message confirmation required');res.json(await notifications.runOne(req.body.id,{ownershipVersion:req.body.version,actor:req.actor.admin_id}));}));
+  }
   api.get('/health',route(async(req,res)=>{try{if(!await store.ready())throw new Error();res.json({ready:true});}catch{res.status(503).json({ready:false});}}));
   api.get('/status',route(async(req,res)=>{try{res.json(await store.status());}catch{res.status(503).json({ready:false,open:false,whatsapp:'disabled'});}}));
   // Feature is absent unless explicitly enabled by the guarded store.

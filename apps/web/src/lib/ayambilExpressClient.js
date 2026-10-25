@@ -1,6 +1,7 @@
 import { fetchAyambilJson, validatePassDownload } from './ayambilApiResponse.js';
 
 export const supportedOperations = Object.freeze({
+  'admin/notification-outbox':['GET'],...Object.fromEntries(['prepare','owner','reconcile','send','notice'].map(key=>['admin/notification-outbox/'+key,['POST']])),
   'admin/booking-controls/dashboard':['GET'],'admin/booking-controls/templates':['GET'],
   ...Object.fromEntries(['event','approve','review-create','review-link','review-revoke','review-decision','follow-up-preview','template-preview'].map(key=>['admin/booking-controls/'+key,['POST']])),
   'admin/trash/empty-preview':['GET'], 'admin/trash/empty':['POST'],
