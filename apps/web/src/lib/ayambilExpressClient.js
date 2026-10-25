@@ -39,6 +39,13 @@ export function createAyambilApi(transport = fetchAyambilJson) {
         ...(method !== 'GET' ? { body: JSON.stringify(options.body || {}) } : {}),
       });
       if (!response.ok) {
+        if (response.status === 403 && path.startsWith('admin/messages/')) {
+          let failure; try { failure = await response.clone().json(); } catch { /* Do not display arbitrary response bodies. */ }
+          if (failure?.errorCode === 'BOOKING_CONTROLS_SEND_DISABLED') {
+            const error = new Error('Sending is disabled during the booking-controls release. This request was blocked before provider submission.');
+            error.status = 403; error.code = failure.errorCode; throw error;
+          }
+        }
         if (response.status === 403 && ['admin/messages/test', 'admin/messages/process-test'].includes(path)) {
           let failure; try { failure = await response.json(); } catch { /* Never echo raw error bodies. */ }
           if (failure?.errorCode === 'STAGING_TEST_ONLY') {

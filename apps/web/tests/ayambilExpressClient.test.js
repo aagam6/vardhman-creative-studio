@@ -72,3 +72,9 @@ test('response boundary rejects seven attendees while accepting six and checking
  await api.request('admin/session');await api.request('admin/session');
  assert.notEqual(calls[1].url,calls[2].url);assert.match(calls[1].url,/_fresh=/);
  });
+
+
+test('release guard has a safe specific error rather than an expired-session diagnosis',async()=>{
+ const api=createAyambilApi(async()=>Response.json({errorCode:'BOOKING_CONTROLS_SEND_DISABLED',error:'do not echo arbitrary server text'},{status:403}));
+ await assert.rejects(api.request('admin/messages/send-selected',{method:'POST'}),e=>e.status===403&&e.code==='BOOKING_CONTROLS_SEND_DISABLED'&&e.message.includes('before provider submission')&&!e.message.includes('arbitrary'));
+});

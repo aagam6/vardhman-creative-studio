@@ -16,7 +16,7 @@ export async function runReviewedBatch({preview,request,shouldStop,onResult,wait
     // Stop/pause never cancels an in-flight provider request or retries it.
     let result;
     try { result=await request('admin/messages/send-selected',{method:'POST',body:{id:job.id,bookingId:job.booking_id,type:job.notification_type,...(preview.reviewedLegacy?{reviewedLegacy:true}:{})}}); }
-    catch(error) { onResult(job,{status:'unconfirmed',httpStatus:error?.status});return {submitted,stopped:true}; }
+    catch(error) { onResult(job,{status:error?.code==='BOOKING_CONTROLS_SEND_DISABLED'?'blocked - sending disabled':'unconfirmed',httpStatus:error?.status});return {submitted,stopped:true}; }
     submitted++;onResult(job,result);
     if(!['accepted','sent','delivered','read'].includes(result?.status))return {submitted,stopped:true};
     if(submitted<preview.items.length&&!shouldStop())await wait(BATCH_INTERVAL_MS);

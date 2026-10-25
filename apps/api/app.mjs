@@ -17,11 +17,11 @@ export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirect
   app.use(['/api','/hcgi/platform','/admin/ayambil','/500-akhand-ayambil-vijayollas/passes','/500-akhand-ayambil-vijayollas/respond'],(req,res,next)=>{
     res.set({'Cache-Control':'private, no-store, max-age=0, must-revalidate','CDN-Cache-Control':'no-store','Surrogate-Control':'no-store','Pragma':'no-cache','Expires':'0'});next();
   });
-  app.use('/api/ayambil',(req,res,next)=>{if(config.bookingControls&&req.method!=='GET'&&/^(\/admin\/messages\/|\/admin\/whatsapp-retry)/.test(req.path))return res.status(403).json({error:'Messaging operations disabled during booking-controls release'});next();});
+  app.use('/api/ayambil',requestLogging);
+  app.use('/api/ayambil',(req,res,next)=>{if(config.bookingControls&&req.method!=='GET'&&/^(\/admin\/messages\/|\/admin\/whatsapp-retry)/.test(req.path))return res.status(403).json({error:'Messaging operations disabled during booking-controls release',errorCode:'BOOKING_CONTROLS_SEND_DISABLED'});next();});
   const testSendingAvailable = config.stagingBuild === true && config.origin === 'https://white-reindeer-590806.hostingersite.com' && Boolean(testRecipient && queue && flow);
   const testOnly = (req,res,next) => testSendingAvailable ? next() : res.status(403).json({error:'Test sending is available only on authorized staging',errorCode:'STAGING_TEST_ONLY'});
   const api=express.Router();
-  api.use(requestLogging);
   api.use((req,res,next)=>{res.set({'Cache-Control':'no-store','Referrer-Policy':'no-referrer','X-Content-Type-Options':'nosniff'});next();});
   api.use((req,res,next)=>{if(!isInitialized())return res.status(503).json({ready:false,open:false,whatsapp:'disabled',error:'API initialization unavailable'});next();});
   api.use(express.json({limit:'32kb'}));

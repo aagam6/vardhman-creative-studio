@@ -20,3 +20,10 @@ test('uncertainty, rejection, throttle and cancellation stop without advancing o
  let calls=0;await runReviewedBatch({preview,request:async()=>{calls++;throw {status:429};},shouldStop:()=>false,onResult:()=>{}});assert.equal(calls,1);
  let stop=false;calls=0;await runReviewedBatch({preview,request:async()=>{calls++;stop=true;return {status:'accepted'};},shouldStop:()=>stop,onResult:()=>{}});assert.equal(calls,1);
 });
+
+
+test('explicit release send block stops with zero submitted and no retry',async()=>{
+ let calls=0;const results=[];
+ const outcome=await runReviewedBatch({preview,request:async()=>{calls++;throw {status:403,code:'BOOKING_CONTROLS_SEND_DISABLED'};},shouldStop:()=>false,onResult:(job,result)=>results.push(result),wait:async()=>assert.fail('blocked batch must not advance')});
+ assert.equal(calls,1);assert.equal(outcome.submitted,0);assert.equal(outcome.stopped,true);assert.equal(results[0].status,'blocked - sending disabled');
+});
