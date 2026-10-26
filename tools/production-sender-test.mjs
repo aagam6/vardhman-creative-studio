@@ -11,7 +11,8 @@ import {createApp} from '../apps/api/app.mjs';
 import {notificationSettings} from '../apps/api/notification-settings.mjs';
 const f=await startBookingFixture(),calls=[],outcomes=[];let assertions=0,templateMutation=false;
 const ok=(a,b)=>{assert.deepEqual(a,b);assertions++;};
-const templates=()=>bilingualCatalog.map(t=>({id:t.templateId,name:t.name,language:t.languageCode,status:'APPROVED',category:templateMutation?'MARKETING':'UTILITY',components:[{type:'HEADER',format:'TEXT',text:t.header},{type:'BODY',text:t.body},...(t.button?[{type:'BUTTONS',buttons:[{type:'URL',text:t.button,url:t.dynamicUrl}]}]:[])]}));
+const providerTemplateIds=new Map(bilingualCatalog.map(t=>[t.name,randomUUID()]));
+const templates=()=>bilingualCatalog.map(t=>({id:providerTemplateIds.get(t.name),name:t.name,language:t.languageCode,status:'APPROVED',category:templateMutation?'MARKETING':'UTILITY',components:[{type:'HEADER',format:'TEXT',text:t.header},{type:'BODY',text:t.body},...(t.button?[{type:'BUTTONS',buttons:[{type:'URL',text:t.button,url:t.dynamicUrl}]}]:[])]}));
 const flow=createFlow({VARDHMAN_FLOW_API_KEY:'synthetic',VARDHMAN_FLOW_API_SECRET:'synthetic',AYAMBIL_WHATSAPP_ENABLED:'true'},async(url,options)=>{
  calls.push({url,method:options.method});let data;
  if(url.endsWith('/account'))data={channel:{id:'synthetic',isActive:true,healthStatus:'healthy'}};
@@ -46,7 +47,8 @@ try{
  await f.store.bookingControls.approve(f.actor,waiting.id);const approval=await service.enqueue({purpose:'waiting_approved',subject:waiting.id});ok((await service.runOne(approval,{ownershipVersion:2})).status,'accepted');
  const dup=await f.store.bookingControls.createReview(f.actor,{purpose:'duplicate',bookingIds:[book.id,book2.id]});const dupLink=await f.store.bookingControls.link(f.actor,dup.id);
  const dupId=await service.enqueue({purpose:'booking_verify',subject:dup.id,token:dupLink.path.split('#')[1]});ok((await service.runOne(dupId,{ownershipVersion:2})).status,'accepted');
- const att=await f.store.bookingControls.createReview(f.actor,{purpose:'attendance',bookingIds:[book.id]});const attLink=await f.store.bookingControls.link(f.actor,att.id);
+ await assert.rejects(f.store.bookingControls.createReview(f.actor,{purpose:'attendance',bookingIds:[book.id]}),/unresolved_duplicate_review/);assertions++;
+ const att=await f.store.bookingControls.createReview(f.actor,{purpose:'attendance',bookingIds:[books.find(b=>b.number===preMigration.number).id]});const attLink=await f.store.bookingControls.link(f.actor,att.id);
  const attId=await service.enqueue({purpose:'attendance',subject:att.id,token:attLink.path.split('#')[1]});
  await f.store.bookingControls.respond(attLink.path.split('#')[1],{attending:'no',count:0,names:[]});ok((await service.runOne(attId,{ownershipVersion:2})).status,'not_claimed');
  const notice=await service.prepareEntryNotice({bookingIds:[book.id],round:'gate-v1'},f.actor);ok(notice.sent,false);ok((await service.prepareEntryNotice({bookingIds:[book.id],round:'gate-v1'},f.actor)).ids[0],notice.ids[0]);await assert.rejects(service.prepareEntryNotice({bookingIds:[book.id,book.id],round:'gate-v1'},f.actor));assertions++;

@@ -2,6 +2,7 @@ import {assertControlsConfiguration,assertControlsReady} from './booking-control
 import {normalizeMobile,potentialDuplicates} from './booking-review-analysis.mjs';
 import {normalizeName} from './booking-review-analysis.mjs';
 import {createControlsDashboard} from './booking-controls-dashboard.mjs';
+import {attendanceEligibility} from './attendance-eligibility.mjs';
 import {randomUUID,randomBytes,createHash} from 'node:crypto';
 import {ApiError,bookingInput} from './config.mjs';
 const hash=s=>createHash('sha256').update(s).digest('hex');
@@ -58,6 +59,8 @@ export function attachBookingControls(base,pool,config){
   });},
   async duplicates(){const bookings=await snapshots();return {bookings,pairs:potentialDuplicates(bookings)};},
   async createReview(actor,{purpose,bookingIds,round='initial',unansweredOnly=false}){if(!/^[a-zA-Z0-9_-]{1,64}$/.test(round)||!['duplicate','attendance'].includes(purpose)||!Array.isArray(bookingIds)||bookingIds.length<1||bookingIds.length>10||new Set(bookingIds).size!==bookingIds.length)throw new ApiError(400,'Invalid family review');return tx(async db=>{
+   // Event first, like registration/approval, serializes contact-event preparation.
+   const event=await one(db,'SELECT event_date FROM ayambil_bookings WHERE id=?',[bookingIds[0]]);if(!event)throw new ApiError(400,'Same-event family bookings required');await control(db,event.event_date);
    // Lock source bookings to capture a consistent, active snapshot. No mutation.
    for(const id of [...bookingIds].sort())await query(db,'SELECT id FROM ayambil_bookings WHERE id=? FOR UPDATE',[id]);
    const all=await snapshots(db);let items=bookingIds.map(id=>all.find(b=>b.id===id));if(items.some(x=>!x)||new Set(items.map(x=>x.eventDate)).size!==1||new Set(items.map(x=>normalizeMobile(x.mobile))).size!==1)throw new ApiError(400,'Same-event family bookings required');
@@ -67,6 +70,7 @@ export function attachBookingControls(base,pool,config){
    // Event lock serializes concurrent create requests with the same purpose/round.
    await control(db,items[0].eventDate);
    if(purpose==='attendance'&&unansweredOnly){const answered=await one(db,"SELECT id FROM ayambil_family_reviews WHERE purpose='attendance' AND event_date=? AND response IS NOT NULL AND (contact_key=? OR REGEXP_REPLACE(JSON_UNQUOTE(JSON_EXTRACT(snapshot,'$[0].mobile')),'[^0-9]','')=?) LIMIT 1",[items[0].eventDate,contactKey,contactKey]);if(answered)throw new ApiError(409,'This contact has already answered; excluded from unanswered follow-up');}
+   if(purpose==='attendance'){const reviews=await query(db,'SELECT purpose,event_date,contact_key,snapshot,response,decision FROM ayambil_family_reviews WHERE event_date=?',[items[0].eventDate]);const eligibility=attendanceEligibility({bookings:all,reviews,eventDate:items[0].eventDate,mobile:items[0].mobile});if(!eligibility.eligible)throw new ApiError(409,'Attendance held: '+eligibility.reasons.join(', '));}
    const prior=await one(db,'SELECT id FROM ayambil_family_reviews WHERE communication_key=?',[communicationKey]);if(prior)return {id:prior.id,reused:true};
    const id=randomUUID();await query(db,'INSERT INTO ayambil_family_reviews(id,purpose,event_date,snapshot,review_round,contact_key,communication_key,created_at) VALUES(?,?,?,?,?,?,?,UTC_TIMESTAMP(3))',[id,purpose,items[0].eventDate,JSON.stringify(items),round,contactKey,communicationKey]);await intent(db,id,purpose==='duplicate'?'booking_verify':'attendance',{bookingIds:items.map(b=>b.id),contactKey,round},null,round);await audit(db,actor,id,'review_created',{purpose,bookingIds,round,sendingDisabled:true});return {id};
   });},

@@ -4,6 +4,7 @@ import {bookingPassToken} from './booking-pass-link.mjs';
 import {queueCrypto} from './message-queue.mjs';
 import {createBilingualMockAdapter,bilingualCatalog} from './bilingual-template-adapter.mjs';
 import {nextDeliveryStatus} from './delivery-status-policy.mjs';
+import {loadAttendanceEligibility,lockAttendanceEvent,assertAttendanceEligible} from './attendance-eligibility.mjs';
 const purposeNeedsPass=p=>['booking_confirmed','waiting_approved'].includes(p);
 const digest=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 export function createProductionNotificationSender({pool,config,key,provider,catalog=bilingualCatalog}){
@@ -12,7 +13,7 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
  if(!config.disposable&&(config.origin!=='https://vardhmancreativestudio.com'||config.bookingControlsProduction!==true||actual.database.startsWith('ayambil_test_')))throw Error('Explicit canonical production mode required');
  const crypto=queueCrypto(key),build=createBilingualMockAdapter(catalog);
  const one=async(db,sql,args=[])=> (await db.execute(sql,args))[0][0];
- const tx=async fn=>{const db=await pool.getConnection();try{await db.beginTransaction();const r=await fn(db);await db.commit();return r;}catch(e){await db.rollback();throw e;}finally{db.release();}};
+ const tx=async fn=>{const db=await pool.getConnection();try{await db.query('SET TRANSACTION ISOLATION LEVEL READ COMMITTED');await db.beginTransaction();const r=await fn(db);await db.commit();return r;}catch(e){await db.rollback();throw e;}finally{db.release();}};
  async function source(db,purpose,subject,token){
   if(!/^[a-f0-9-]{36}$/.test(subject))throw Error('Invalid subject');
   let b,w,review;
@@ -22,10 +23,12 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
    if(purpose==='waiting_received'){const p=typeof w.payload==='string'?JSON.parse(w.payload):w.payload;return {canonicalSubject:w.id,mobile:p.mobile,eventDate:w.event_date,contactName:p.contactName,waitingReference:w.number,attendeeCount:p.attendees.length,identity:[w.number,w.status,p]};}
   }
   if(['booking_verify','attendance'].includes(purpose)){
+   if(purpose==='attendance'){const meta=await one(db,'SELECT event_date FROM ayambil_family_reviews WHERE id=?',[subject]);if(!meta)throw Error('Review unavailable');await lockAttendanceEvent(db,meta.event_date);}
    review=await one(db,'SELECT * FROM ayambil_family_reviews WHERE id=? FOR UPDATE',[subject]);
    if(!review||review.decision||review.purpose!==(purpose==='booking_verify'?'duplicate':'attendance')||review.response||!review.token_hash||review.token_hash!==createHash('sha256').update(token||'').digest('hex')||Date.parse(review.expires_at+'Z')<=Date.now())throw Error('Review link expired, revoked or answered');
    if(purpose==='attendance'){const answered=await one(db,"SELECT id FROM ayambil_family_reviews WHERE purpose='attendance' AND event_date=? AND contact_key=? AND response IS NOT NULL LIMIT 1",[review.event_date,review.contact_key]);if(answered)throw Error('Contact already answered');}
    const snapshots=typeof review.snapshot==='string'?JSON.parse(review.snapshot):review.snapshot;
+   if(purpose==='attendance'){const eligibility=await loadAttendanceEligibility(db,{eventDate:review.event_date,mobile:review.contact_key||snapshots[0]?.mobile});assertAttendanceEligible(eligibility);if(JSON.stringify(eligibility.bookingIds)!==JSON.stringify(snapshots.map(b=>b.id).sort()))throw Error('Attendance contact snapshot stale');}
    const books=[];
    for(const snap of snapshots){const saved=await booking(db,snap.id);if(saved.mobile!==snap.mobile||saved.names.join('\n')!==snap.names.join('\n'))throw Error('Review snapshot stale');books.push(saved);}
    const first=books[0];if(!first)throw Error('Empty review');
@@ -54,14 +57,14 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
  }
  const lockName='ayambil-dispatch-'+digest(actual.database).slice(0,32);
  async function withLease(fn){const db=await pool.getConnection();try{const [[r]]=await db.query('SELECT GET_LOCK(?,0) acquired',[lockName]);if(r.acquired!==1)throw Error('Dispatch busy; no retry was performed');try{return await fn();}finally{await db.query('SELECT RELEASE_LOCK(?)',[lockName]);}}finally{db.release();}}
- async function gate(db,version){const c=await one(db,'SELECT * FROM ayambil_notification_owner WHERE id=1 FOR UPDATE');if(!c||c.owner!=='bilingual'||c.version!==version)throw Error('Paused or stale queue ownership');const inFlight=await one(db,"SELECT id FROM ayambil_message_queue WHERE status IN ('preparing','sending','uncertain') LIMIT 1");if(inFlight)throw Error('Legacy queue requires reconciliation');const modern=await one(db,"SELECT id FROM ayambil_notification_outbox WHERE state IN ('processing','uncertain') LIMIT 1");if(modern)throw Error('Notification queue requires reconciliation');}
+ async function gate(db,version,ownClaim=null){const c=await one(db,'SELECT * FROM ayambil_notification_owner WHERE id=1 FOR UPDATE');if(!c||c.owner!=='bilingual'||c.version!==version)throw Error('Paused or stale queue ownership');const inFlight=await one(db,"SELECT id FROM ayambil_message_queue WHERE status IN ('preparing','sending','uncertain') LIMIT 1");if(inFlight)throw Error('Legacy queue requires reconciliation');const modern=await one(db,"SELECT id FROM ayambil_notification_outbox WHERE state IN ('processing','uncertain')"+(ownClaim?' AND id<>?':'')+' LIMIT 1',ownClaim?[ownClaim]:[]);if(modern)throw Error('Notification queue requires reconciliation');}
  return {
   async ready(){const state=await this.owner();if(!state||!['paused','bilingual'].includes(state.owner)||!Number.isSafeInteger(state.version))throw Error('Notification owner schema unavailable');await pool.query('SELECT provider_id,state FROM ayambil_notification_outbox LIMIT 0');await pool.query('SELECT actor,action,detail FROM ayambil_notification_audit LIMIT 0');await this.recover();return true;},
   async owner(){return one(pool,'SELECT owner,version FROM ayambil_notification_owner WHERE id=1');},
   async handover({owner,version},actor){if(!actor?.admin_id||!['paused','bilingual'].includes(owner))throw Error('Admin and supported owner required');return withLease(()=>tx(async db=>{const c=await one(db,'SELECT * FROM ayambil_notification_owner WHERE id=1 FOR UPDATE');if(c.version!==version)throw Error('Stale ownership revision');if(owner==='bilingual'){const legacy=await one(db,"SELECT id FROM ayambil_message_queue WHERE status IN ('preparing','sending','uncertain') LIMIT 1");const modern=await one(db,"SELECT id FROM ayambil_notification_outbox WHERE state IN ('processing','uncertain') LIMIT 1");if(legacy||modern)throw Error('In-flight or uncertain jobs block activation');}await db.execute('UPDATE ayambil_notification_owner SET owner=?,version=version+1 WHERE id=1',[owner]);await db.execute('INSERT INTO ayambil_notification_audit VALUES(?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),actor.admin_id,'owner_changed',JSON.stringify({owner,version:version+1})]);return {owner,version:version+1};}));},
   async reconcile(id,actor){if(!actor?.admin_id)throw Error('Administrator required');const row=await one(pool,'SELECT id,state,provider_id FROM ayambil_notification_outbox WHERE id=?',[id]);if(!row?.provider_id||!['accepted','sent','delivered','read','failed','uncertain'].includes(row.state))throw Error('Known provider reference required; no resend');const result=await provider.status(row.provider_id);return tx(async db=>{const current=await one(db,'SELECT * FROM ayambil_notification_outbox WHERE id=? FOR UPDATE',[id]);if(current.provider_id!==row.provider_id)throw Error('Provider reference changed');const state=nextDeliveryStatus(current.state,result.status);await db.execute('UPDATE ayambil_notification_outbox SET last_checked_at=UTC_TIMESTAMP(3) WHERE id=?',[id]);if(state!==current.state){await db.execute('UPDATE ayambil_notification_outbox SET state=?,updated_at=UTC_TIMESTAMP(3) WHERE id=?',[state,id]);await db.execute('INSERT INTO ayambil_notification_audit VALUES(?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),actor.admin_id,'status_reconciled',JSON.stringify({id,previous:current.state,state})]);}return {status:state};});},
   async prepareEntryNotice({bookingIds,round},actor){
-   if(!actor?.admin_id||!Array.isArray(bookingIds)||!bookingIds.length||bookingIds.length>20||new Set(bookingIds).size!==bookingIds.length||!/^[a-zA-Z0-9_-]{1,64}$/.test(round||''))throw Error('Select 1–20 distinct bookings and an explicit notice round');
+   if(!actor?.admin_id||!Array.isArray(bookingIds)||!bookingIds.length||bookingIds.length>20||new Set(bookingIds).size!==bookingIds.length||!/^[a-zA-Z0-9_-]{1,64}$/.test(round||''))throw Error('Select 1-20 distinct bookings and an explicit notice round');
    const items=[];for(const id of bookingIds){const outbox=await this.enqueue({purpose:'entry_timing',subject:id,round});items.push(outbox);}
    await pool.execute('INSERT INTO ayambil_notification_audit VALUES(?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),actor.admin_id,'notice_prepared',JSON.stringify({ids:items,round})]);return {ids:items,sent:false};
   },
@@ -87,14 +90,20 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
   async runOne(id,{ownershipVersion,actor='worker'}={}){
    if(config.notificationDispatch!==true)throw Error('Notification dispatch disabled');
    return withLease(async()=>{
-   const candidate=await one(pool,'SELECT purpose FROM ayambil_notification_outbox WHERE id=?',[id]);if(!candidate)return {status:'not_claimed'};
+   const candidate=await one(pool,'SELECT purpose,subject FROM ayambil_notification_outbox WHERE id=?',[id]);if(!candidate)return {status:'not_claimed'};
    try{await provider.validate(candidate.purpose);}catch{await pool.execute("UPDATE ayambil_notification_outbox SET state='blocked',error_code='provider_preflight' WHERE id=? AND state IN ('held','ready')",[id]);return {status:'blocked'};}
    let claimed;
-   await tx(async db=>{const row=await one(db,'SELECT * FROM ayambil_notification_outbox WHERE id=? FOR UPDATE',[id]);if(!row||!['held','ready'].includes(row.state))return;await gate(db,ownershipVersion);
+   const lockEvent=async db=>{if(candidate.purpose==='attendance'){const meta=await one(db,'SELECT event_date FROM ayambil_family_reviews WHERE id=?',[candidate.subject]);if(meta)await lockAttendanceEvent(db,meta.event_date);}};
+   await tx(async db=>{await lockEvent(db);const row=await one(db,'SELECT * FROM ayambil_notification_outbox WHERE id=? FOR UPDATE',[id]);if(!row||!['held','ready'].includes(row.state))return;await gate(db,ownershipVersion);
     let e;try{e=await envelope(db,crypto.open(row.envelope));if(e.hash!==row.revision_hash)throw Error('Stale revision');}catch{await db.execute("UPDATE ayambil_notification_outbox SET state='blocked',error_code='eligibility_or_mapping',updated_at=UTC_TIMESTAMP(3) WHERE id=?",[id]);return;}
     const claim=randomUUID();await db.execute("UPDATE ayambil_notification_outbox SET state='processing',claim_id=?,attempts=attempts+1,updated_at=UTC_TIMESTAMP(3) WHERE id=?",[claim,id]);await db.execute('INSERT INTO ayambil_notification_audit VALUES(?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),actor,'claim_committed',JSON.stringify({id})]);claimed={claim,payload:e.payload};
    });
    if(!claimed)return {status:'not_claimed'};
+   // Re-read after durable claiming, immediately before the provider boundary.
+   if(candidate.purpose==='attendance'){
+    try{await tx(async db=>{await lockEvent(db);const row=await one(db,'SELECT * FROM ayambil_notification_outbox WHERE id=? FOR UPDATE',[id]);if(!row||row.state!=='processing'||row.claim_id!==claimed.claim)throw Error('Stale claim');await gate(db,ownershipVersion,id);const current=await envelope(db,crypto.open(row.envelope));if(current.hash!==row.revision_hash)throw Error('Stale revision');claimed.payload=current.payload;});}
+    catch{await pool.execute("UPDATE ayambil_notification_outbox SET state='blocked',error_code='eligibility_changed_before_submit',updated_at=UTC_TIMESTAMP(3) WHERE id=? AND claim_id=? AND state='processing'",[id,claimed.claim]);return {status:'blocked'};}
+   }
    let result;try{result=await provider.submit(claimed.payload);}catch{result={status:'uncertain'};}
 
    const validId=typeof result?.providerId==='string'&&/^[^\s\x00-\x1f\x7f]{1,200}$/.test(result.providerId);
