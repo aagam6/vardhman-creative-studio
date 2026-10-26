@@ -1,3 +1,4 @@
+import {reviewedBilingualDefinition} from './bilingual-snapshot-policy.mjs';
 import {ApiError} from './config.mjs';
 import {notificationTemplates} from './notification-context.mjs';
 import {reviewedTemplateBodies} from './reviewed-template-bodies.mjs';
@@ -22,7 +23,7 @@ export function bilingualDefinitionMetadata(templates,expected){
   check((buttonComponents.length===0?0:Array.isArray(buttons)?buttons.length:-1)===(expected.button?1:0),'CTA.count');
   if(expected.button){check(String(buttons?.[0]?.type).toUpperCase()==='URL','CTA.type');check(buttons?.[0]?.text===expected.button,'CTA.text');check(buttons?.[0]?.url===expected.dynamicUrl,'CTA.url');}
  }
- return {name:expected.name,templateId:expected.templateId,language:t?.language===expected.languageCode?expected.languageCode:null,status:['APPROVED','PENDING','REJECTED','PAUSED','DISABLED'].includes(t?.status)?t.status:null,category:String(t?.category).toUpperCase()==='UTILITY'?'UTILITY':null,verified:issues.length===0,issues,source:'authenticated_provider_definition'};
+ return {providerIdStatus:!t||!Object.hasOwn(t,'id')?'missing':String(t.id)===expected.templateId?'matched':'conflicting',providerComponentsAvailable:Array.isArray(t?.components),name:expected.name,templateId:expected.templateId,language:t?.language===expected.languageCode?expected.languageCode:null,status:['APPROVED','PENDING','REJECTED','PAUSED','DISABLED'].includes(t?.status)?t.status:null,category:String(t?.category).toUpperCase()==='UTILITY'?'UTILITY':null,verified:issues.length===0,issues,source:'authenticated_provider_definition'};
 }
 export function normalizePhone(value){const digits=String(value||'').replace(/[+\s()-]/g,'');const number=/^[6-9]\d{9}$/.test(digits)?'91'+digits:digits;if(!/^[1-9]\d{7,14}$/.test(number))throw new ApiError(400,'Valid international WhatsApp number required');return number;}
 export function testBodyOverrideApproved(env){
@@ -93,9 +94,9 @@ export function createFlow(env,fetcher=fetch){
    const account=await request('account');const channel=account.channel;
    if(!channel?.id||channel.isActive!==true||channel.healthStatus!=='healthy'||(env.VARDHMAN_FLOW_CHANNEL_ID&&env.VARDHMAN_FLOW_CHANNEL_ID!==channel.id))throw new ApiError(503,'Healthy channel required');
    const templates=await request('templates?status=APPROVED');
-   const diagnostic=bilingualDefinitionMetadata(templates,template);
+   const diagnostic=reviewedBilingualDefinition(templates,template,env,bilingualDefinitionMetadata(templates,template));
    if(!diagnostic.verified)throw new ApiError(503,'Bilingual provider definition failed: '+diagnostic.issues.join(', '));
-   return {verified:true,templateId:template.templateId,status:'APPROVED',category:'UTILITY',observedAt:new Date().toISOString(),source:'authenticated_provider_definition'};
+   return {verified:true,templateId:template.templateId,status:'APPROVED',category:'UTILITY',observedAt:new Date().toISOString(),source:diagnostic.source,...(diagnostic.snapshotPolicy?{snapshotPolicy:diagnostic.snapshotPolicy,providerComponentsVerified:false}:{providerComponentsVerified:true})};
   },
   async sendPrepared(payload){
    if(env.AYAMBIL_WHATSAPP_ENABLED!=='true')throw new ApiError(403,'Sending not enabled');
@@ -117,7 +118,7 @@ export function createFlow(env,fetcher=fetch){
     if(metadata.verified&&!applicable.every(m=>templateMetadata(t,m,metadataOptions).verified))Object.assign(metadata,{verified:false,componentsVerified:false,verification:'mapping_mismatch'});
    return {name:t.name,language:t.language,...metadata,...(productionSnapshotsApproved(env)&&metadata.bodySource==='operator_reviewed_snapshot'?{policyVersion:productionTemplatePolicy.version}:{} )};
    });
-   return {...this.configuration(),accountVerified:true,channel:{active:true,health:'healthy',configuredIdMatched:env.VARDHMAN_FLOW_CHANNEL_ID?true:null,phoneConfigured:!!normalizePhone(channel.phoneNumber)},templates:approved,...(templateDefinitions?{bilingualTemplates:bilingualCatalog.map(t=>bilingualDefinitionMetadata(templates,t)),definitionObservedAt:new Date().toISOString()}:{}),usage:{requestCount:Number.isFinite(account.usage?.requestCount)?account.usage.requestCount:null,monthlyRequestCount:Number.isFinite(account.usage?.monthlyRequestCount)?account.usage.monthlyRequestCount:null}};
+   return {...this.configuration(),accountVerified:true,channel:{active:true,health:'healthy',configuredIdMatched:env.VARDHMAN_FLOW_CHANNEL_ID?true:null,phoneConfigured:!!normalizePhone(channel.phoneNumber)},templates:approved,...(templateDefinitions?{bilingualTemplates:bilingualCatalog.map(t=>reviewedBilingualDefinition(templates,t,env,bilingualDefinitionMetadata(templates,t))),definitionObservedAt:new Date().toISOString()}:{}),usage:{requestCount:Number.isFinite(account.usage?.requestCount)?account.usage.requestCount:null,monthlyRequestCount:Number.isFinite(account.usage?.monthlyRequestCount)?account.usage.monthlyRequestCount:null}};
   }
  };
 }
