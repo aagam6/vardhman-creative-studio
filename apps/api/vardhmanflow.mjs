@@ -2,6 +2,28 @@ import {ApiError} from './config.mjs';
 import {notificationTemplates} from './notification-context.mjs';
 import {reviewedTemplateBodies} from './reviewed-template-bodies.mjs';
 import {productionSnapshotsApproved,productionTemplatePolicy} from './production-template-policy.mjs';
+import bilingualCatalog from './bilingual-template-catalog.json' with {type:'json'};
+export function bilingualDefinitionMetadata(templates,expected){
+ const candidates=Array.isArray(templates)?templates.filter(t=>String(t?.id)===expected.templateId||t?.name===expected.name):[];
+ const t=candidates.find(t=>String(t.id)===expected.templateId&&t.name===expected.name&&t.language===expected.languageCode)||candidates[0];
+ const issues=[];const check=(ok,field)=>{if(!ok)issues.push(field);};
+ check(!!t,'template.missing');
+ if(t){
+  check(String(t.id)===expected.templateId,'id');check(t.name===expected.name,'name');check(t.language===expected.languageCode,'language');check(t.status==='APPROVED','status');check(String(t.category).toUpperCase()==='UTILITY','category');
+  const c=Array.isArray(t.components)?t.components:[];
+  check(Array.isArray(t.components),'components.missing');
+  const ofType=type=>c.filter(x=>String(x?.type).toUpperCase()===type);
+  const bodies=ofType('BODY'),headers=ofType('HEADER'),buttonComponents=ofType('BUTTONS');
+  check(bodies.length===1,'BODY.count');check(bodies[0]?.text===expected.body,'BODY.text');
+  check(headers.length===1,'HEADER.count');check(headers[0]?.text===expected.header,'HEADER.text');
+  check(c.every(x=>['BODY','HEADER','BUTTONS'].includes(String(x?.type).toUpperCase())),'components.unsupported');
+  const buttons=buttonComponents[0]?.buttons;
+  check(buttonComponents.length<2,'CTA.count');
+  check((buttonComponents.length===0?0:Array.isArray(buttons)?buttons.length:-1)===(expected.button?1:0),'CTA.count');
+  if(expected.button){check(String(buttons?.[0]?.type).toUpperCase()==='URL','CTA.type');check(buttons?.[0]?.text===expected.button,'CTA.text');check(buttons?.[0]?.url===expected.dynamicUrl,'CTA.url');}
+ }
+ return {name:expected.name,templateId:expected.templateId,language:t?.language===expected.languageCode?expected.languageCode:null,status:['APPROVED','PENDING','REJECTED','PAUSED','DISABLED'].includes(t?.status)?t.status:null,category:String(t?.category).toUpperCase()==='UTILITY'?'UTILITY':null,verified:issues.length===0,issues,source:'authenticated_provider_definition'};
+}
 export function normalizePhone(value){const digits=String(value||'').replace(/[+\s()-]/g,'');const number=/^[6-9]\d{9}$/.test(digits)?'91'+digits:digits;if(!/^[1-9]\d{7,14}$/.test(number))throw new ApiError(400,'Valid international WhatsApp number required');return number;}
 export function testBodyOverrideApproved(env){
  if(env.AYAMBIL_WHATSAPP_TEST_BODY_OVERRIDE!=='true')return false;
@@ -71,10 +93,8 @@ export function createFlow(env,fetcher=fetch){
    const account=await request('account');const channel=account.channel;
    if(!channel?.id||channel.isActive!==true||channel.healthStatus!=='healthy'||(env.VARDHMAN_FLOW_CHANNEL_ID&&env.VARDHMAN_FLOW_CHANNEL_ID!==channel.id))throw new ApiError(503,'Healthy channel required');
    const templates=await request('templates?status=APPROVED');
-   const t=Array.isArray(templates)&&templates.find(x=>String(x.id)===template.templateId&&x.name===template.name&&x.language===template.languageCode);
-   if(!t||t.status!=='APPROVED'||String(t.category).toUpperCase()!=='UTILITY')throw new ApiError(503,'Exact approved Utility template identity required');
-   const c=t.components;const body=c?.find(x=>String(x.type).toUpperCase()==='BODY');const header=c?.find(x=>String(x.type).toUpperCase()==='HEADER');const buttons=c?.find(x=>String(x.type).toUpperCase()==='BUTTONS')?.buttons||[];
-   if(!Array.isArray(c)||body?.text!==template.body||header?.text!==template.header||c.some(x=>!['BODY','HEADER','BUTTONS'].includes(String(x.type).toUpperCase()))||buttons.length!==(template.button?1:0)||template.button&&(buttons[0].type?.toUpperCase()!=='URL'||buttons[0].text!==template.button||buttons[0].url!==template.dynamicUrl))throw new ApiError(503,'Provider full definition missing or differs from reviewed bilingual template');
+   const diagnostic=bilingualDefinitionMetadata(templates,template);
+   if(!diagnostic.verified)throw new ApiError(503,'Bilingual provider definition failed: '+diagnostic.issues.join(', '));
    return {verified:true,templateId:template.templateId,status:'APPROVED',category:'UTILITY',observedAt:new Date().toISOString(),source:'authenticated_provider_definition'};
   },
   async sendPrepared(payload){
@@ -97,7 +117,7 @@ export function createFlow(env,fetcher=fetch){
     if(metadata.verified&&!applicable.every(m=>templateMetadata(t,m,metadataOptions).verified))Object.assign(metadata,{verified:false,componentsVerified:false,verification:'mapping_mismatch'});
    return {name:t.name,language:t.language,...metadata,...(productionSnapshotsApproved(env)&&metadata.bodySource==='operator_reviewed_snapshot'?{policyVersion:productionTemplatePolicy.version}:{} )};
    });
-   return {...this.configuration(),accountVerified:true,channel:{active:true,health:'healthy',phoneConfigured:!!normalizePhone(channel.phoneNumber)},templates:approved,usage:{requestCount:Number.isFinite(account.usage?.requestCount)?account.usage.requestCount:null,monthlyRequestCount:Number.isFinite(account.usage?.monthlyRequestCount)?account.usage.monthlyRequestCount:null}};
+   return {...this.configuration(),accountVerified:true,channel:{active:true,health:'healthy',configuredIdMatched:env.VARDHMAN_FLOW_CHANNEL_ID?true:null,phoneConfigured:!!normalizePhone(channel.phoneNumber)},templates:approved,...(templateDefinitions?{bilingualTemplates:bilingualCatalog.map(t=>bilingualDefinitionMetadata(templates,t)),definitionObservedAt:new Date().toISOString()}:{}),usage:{requestCount:Number.isFinite(account.usage?.requestCount)?account.usage.requestCount:null,monthlyRequestCount:Number.isFinite(account.usage?.monthlyRequestCount)?account.usage.monthlyRequestCount:null}};
   }
  };
 }
