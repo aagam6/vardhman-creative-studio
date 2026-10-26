@@ -50,9 +50,12 @@ try{
  await assert.rejects(c.respond(token,{...response,count:5}),e=>e.status===400);await assert.rejects(c.respond(token,{...response,names:['Different'],count:1}),e=>e.status===409);
  ok(await metric('ayambil_passes'),beforePasses);ok(await metric('ayambil_message_queue'),beforeQueue);await store.download(a.downloadKeys[0]);
  await c.review(actor,{id:review.id,action:'follow_up',note:'LOCAL proposal only, no booking changes'});await assert.rejects(c.respond(token,response),e=>e.status===404);
- const attendance=await c.createReview(actor,{purpose:'attendance',bookingIds:[ids[0]]});const link=await c.link(actor,attendance.id);await c.respond(link.path.split('#')[1],{attending:'no',count:0,names:[]});ok(await metric('ayambil_passes'),beforePasses);await store.download(a.downloadKeys[0]);
+ await assert.rejects(c.createReview(actor,{purpose:'attendance',bookingIds:[ids[0]]}),/unresolved_duplicate_review/);assertions++;
+ const attendanceBooking=await store.register(fixtureInput(['Attendance only guest'],'2026-11-02','+12025550124')),attendanceId=(await c.duplicates()).bookings.find(b=>b.number===attendanceBooking.number).id;
+ const attendance=await c.createReview(actor,{purpose:'attendance',bookingIds:[attendanceId]});const link=await c.link(actor,attendance.id);await c.respond(link.path.split('#')[1],{attending:'no',count:0,names:[]});ok(await metric('ayambil_passes'),beforePasses+1);await store.download(a.downloadKeys[0]);
  await c.revoke(actor,attendance.id);await assert.rejects(c.family(link.path.split('#')[1]),e=>e.status===404);
- const exp=await c.createReview(actor,{purpose:'attendance',bookingIds:[ids[0]],round:'expiry-test'});const expLink=await c.link(actor,exp.id);await pool.execute('UPDATE ayambil_family_reviews SET expires_at=DATE_SUB(UTC_TIMESTAMP(3),INTERVAL 1 SECOND) WHERE id=?',[exp.id]);await assert.rejects(c.family(expLink.path.split('#')[1]),e=>e.status===404);
+ const expiryBooking=await store.register(fixtureInput(['Expiry-only guest'],'2026-11-02','+12025550129'));
+ const exp=await c.createReview(actor,{purpose:'attendance',bookingIds:[(await c.duplicates()).bookings.find(b=>b.number===expiryBooking.number).id],round:'expiry-test'});const expLink=await c.link(actor,exp.id);await pool.execute('UPDATE ayambil_family_reviews SET expires_at=DATE_SUB(UTC_TIMESTAMP(3),INTERVAL 1 SECOND) WHERE id=?',[exp.id]);await assert.rejects(c.family(expLink.path.split('#')[1]),e=>e.status===404);
  const [[attempts]]=await pool.query('SELECT SUM(attempts) n FROM ayambil_message_queue');ok(Number(attempts.n),0);
  const [[dedup]]=await pool.query('SELECT COUNT(*) n FROM (SELECT dedupe_hash FROM ayambil_message_queue GROUP BY dedupe_hash HAVING COUNT(*)>1) d');ok(dedup.n,0);
  const app=createApp({store,config:f.config,staticDirectory:process.cwd()+'/dist/apps/web'});const server=app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));const origin='http://127.0.0.1:'+server.address().port;
