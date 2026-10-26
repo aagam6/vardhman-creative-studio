@@ -11,10 +11,9 @@ export function reviewedBilingualDefinition(templates,expected,env,strict){
  const matches=Array.isArray(templates)?templates.filter(t=>t?.name===expected.name&&t.language===expected.languageCode):[];
  if(matches.length!==1)return strict;
  const t=matches[0];
- if(t.status!=='APPROVED'||String(t.category).toUpperCase()!=='UTILITY')return strict;
- // Only absent fields can use pinned operator evidence. A conflicting supplied ID
- // or partial/mismatched components array is never hidden by a snapshot.
- if(Object.hasOwn(t,'id')&&String(t.id)!==expected.templateId)return strict;
+ if(!strict.identityVerified)return strict;
+ // The documented id is a provider UUID. Meta identity comes from the pinned
+ // reviewed catalog; supplied component definitions must still compare exactly.
  if(Object.hasOwn(t,'components'))return strict;
- return {...strict,verified:true,issues:[],source:'operator_reviewed_snapshot',providerComponentsVerified:false,providerIdVerified:Object.hasOwn(t,'id'),snapshotPolicy:bilingualSnapshotPolicy.version,snapshotHash:bilingualSnapshotPolicy.hash,limitations:['Full definition supplied by reviewed operator snapshot, not provider API']};
+ return {...strict,verified:true,issues:[],source:'operator_reviewed_snapshot',providerComponentsVerified:false,providerIdVerified:true,snapshotPolicy:bilingualSnapshotPolicy.version,snapshotHash:bilingualSnapshotPolicy.hash,limitations:['Meta ID and full definition supplied by reviewed operator snapshot, not provider API']};
 }

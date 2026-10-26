@@ -5,12 +5,15 @@ import {reviewedTemplateBodies} from './reviewed-template-bodies.mjs';
 import {productionSnapshotsApproved,productionTemplatePolicy} from './production-template-policy.mjs';
 import bilingualCatalog from './bilingual-template-catalog.json' with {type:'json'};
 export function bilingualDefinitionMetadata(templates,expected){
- const candidates=Array.isArray(templates)?templates.filter(t=>String(t?.id)===expected.templateId||t?.name===expected.name):[];
- const t=candidates.find(t=>String(t.id)===expected.templateId&&t.name===expected.name&&t.language===expected.languageCode)||candidates[0];
+ // /templates.id is the provider's UUID, never the numeric Meta template ID.
+ const candidates=Array.isArray(templates)?templates.filter(t=>t?.name===expected.name):[];
+ const matches=candidates.filter(t=>t.language===expected.languageCode);
+ const t=matches[0]||candidates[0];
+ const uuid=typeof t?.id==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(t.id);
  const issues=[];const check=(ok,field)=>{if(!ok)issues.push(field);};
  check(!!t,'template.missing');
  if(t){
-  check(String(t.id)===expected.templateId,'id');check(t.name===expected.name,'name');check(t.language===expected.languageCode,'language');check(t.status==='APPROVED','status');check(String(t.category).toUpperCase()==='UTILITY','category');
+  check(uuid,'id');check(matches.length===1,'template.unique');check(!uuid||templates.filter(x=>x?.id===t.id).length===1,'providerId.unique');check(t.name===expected.name,'name');check(t.language===expected.languageCode,'language');check(t.status==='APPROVED','status');check(String(t.category).toUpperCase()==='UTILITY','category');
   const c=Array.isArray(t.components)?t.components:[];
   check(Array.isArray(t.components),'components.missing');
   const ofType=type=>c.filter(x=>String(x?.type).toUpperCase()===type);
@@ -23,7 +26,7 @@ export function bilingualDefinitionMetadata(templates,expected){
   check((buttonComponents.length===0?0:Array.isArray(buttons)?buttons.length:-1)===(expected.button?1:0),'CTA.count');
   if(expected.button){check(String(buttons?.[0]?.type).toUpperCase()==='URL','CTA.type');check(buttons?.[0]?.text===expected.button,'CTA.text');check(buttons?.[0]?.url===expected.dynamicUrl,'CTA.url');}
  }
- return {providerIdStatus:!t||!Object.hasOwn(t,'id')?'missing':String(t.id)===expected.templateId?'matched':'conflicting',providerComponentsAvailable:Array.isArray(t?.components),name:expected.name,templateId:expected.templateId,language:t?.language===expected.languageCode?expected.languageCode:null,status:['APPROVED','PENDING','REJECTED','PAUSED','DISABLED'].includes(t?.status)?t.status:null,category:String(t?.category).toUpperCase()==='UTILITY'?'UTILITY':null,verified:issues.length===0,issues,source:'authenticated_provider_definition'};
+ return {providerIdStatus:!t||!Object.hasOwn(t,'id')?'missing':uuid?'valid_uuid':'invalid_uuid',providerTemplateId:uuid?t.id:null,metaTemplateId:expected.templateId,metaIdSource:'reviewed_catalog',identityVerified:!!t&&uuid&&matches.length===1&&templates.filter(x=>x?.id===t.id).length===1&&t.language===expected.languageCode&&t.status==='APPROVED'&&String(t.category).toUpperCase()==='UTILITY',providerComponentsAvailable:Array.isArray(t?.components),name:expected.name,templateId:expected.templateId,language:t?.language===expected.languageCode?expected.languageCode:null,status:['APPROVED','PENDING','REJECTED','PAUSED','DISABLED'].includes(t?.status)?t.status:null,category:String(t?.category).toUpperCase()==='UTILITY'?'UTILITY':null,verified:issues.length===0,issues,source:'authenticated_provider_definition'};
 }
 export function normalizePhone(value){const digits=String(value||'').replace(/[+\s()-]/g,'');const number=/^[6-9]\d{9}$/.test(digits)?'91'+digits:digits;if(!/^[1-9]\d{7,14}$/.test(number))throw new ApiError(400,'Valid international WhatsApp number required');return number;}
 export function testBodyOverrideApproved(env){
