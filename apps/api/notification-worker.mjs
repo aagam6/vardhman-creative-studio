@@ -12,6 +12,6 @@ export function startNotificationWorker(service,config,env,{schedule=setInterval
   lastStage='prepare';const id=pending[0].outbox_id||await service.enqueueHeldIntent(pending[0].id);lastStage='submit';const r=await service.runOne(id,{ownershipVersion:owner.version,automaticSince:since,actor:'transactional-worker'});
   lastOutcome=['accepted','sent','delivered','read','deferred','uncertain','failed','blocked','not_claimed'].includes(r.status)?r.status:'unconfirmed';
   if(!['accepted','sent','delivered','read','deferred'].includes(r.status))stop('submission_requires_review');
- }catch(error){if(error?.code==='DISPATCH_BUSY')lastOutcome='lease_busy';else{lastOutcome='error';lastErrorCode=/^(?:ER_[A-Z0-9_]+|ETIMEDOUT|ECONNRESET|DISPATCH_BUSY)$/.test(error?.code||'')?error.code:'REVIEW_REQUIRED';stop('operation_requires_review');}}finally{running=false;}};
+ }catch(error){if(error?.code==='DISPATCH_BUSY')lastOutcome='lease_busy';else{lastOutcome='error';lastErrorCode=/^(?:ER_[A-Z0-9_]+|PROVIDER_HTTP_[0-9]{3}|PROVIDER_(?:INVALID_JSON|TRANSPORT_UNAVAILABLE|STATUS_MISMATCH)|ETIMEDOUT|ECONNRESET|DISPATCH_BUSY)$/.test(error?.code||'')?error.code:'REVIEW_REQUIRED';stop('operation_requires_review');}}finally{running=false;}};
  const timer=schedule(tick,15000);return {enabled:true,get active(){return !stopped;},status:()=>({enabled:true,active:!stopped,cutoff:since,lastTickAt,lastOutcome,stopReason,lastStage,lastErrorCode}),stop};
 }

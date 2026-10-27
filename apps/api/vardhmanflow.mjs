@@ -63,12 +63,13 @@ export function createFlow(env,fetcher=fetch){
    if(!response.ok){
     const messages={400:'Provider rejected parameters; verify template count and format',401:'Provider rejected authentication; verify private credentials',403:'Provider rejected permission or channel access',404:'Provider route or template unavailable',409:'Provider resource conflict; do not retry blindly',429:'Provider rate limit exceeded; no automatic send retry'};
     const error=new ApiError(response.status===429?429:503,messages[response.status]||'Provider request failed; acceptance not confirmed');
+    error.code='PROVIDER_HTTP_'+response.status;
     if(body&&messages[response.status])error.providerRejected=response.status;
     throw error;
    }
-   if(!/application\/json/i.test(response.headers.get('content-type')||''))throw new Error();
+   if(!/application\/json/i.test(response.headers.get('content-type')||''))throw Object.assign(new ApiError(503,'Provider JSON unavailable'),{code:'PROVIDER_INVALID_JSON'});
    const parsed=await response.json();if(parsed.success!==true||!parsed.data)throw new Error();return parsed.data;
-  }catch(error){if(error instanceof ApiError)throw error;throw new ApiError(503,'Provider request unavailable; acceptance not confirmed');}
+  }catch(error){if(error instanceof ApiError)throw error;throw Object.assign(new ApiError(503,'Provider request unavailable; acceptance not confirmed'),{code:'PROVIDER_TRANSPORT_UNAVAILABLE'});}
  };
  return {
   configuration(){return {ready:false,configured:missing.length===0,missing,sending:env.AYAMBIL_WHATSAPP_ENABLED==='true',testBodyOverride:env.AYAMBIL_WHATSAPP_TEST_BODY_OVERRIDE==='true'&&env.AYAMBIL_STAGING_BUILD==='true'&&env.AYAMBIL_SITE_ORIGIN==='https://white-reindeer-590806.hostingersite.com'&&env.AYAMBIL_WHATSAPP_NORMAL_PROCESSING_APPROVED!=='true',reason:'Outbound workflow and approved template mappings require verification'};},
@@ -119,7 +120,7 @@ export function createFlow(env,fetcher=fetch){
    const data=await request('messages/template',payload);if(typeof data.messageId!=='string'||!data.messageId||data.messageId.length>200)throw new ApiError(503,'Provider acceptance unknown');
    const status=data.status==='queued'?'accepted':data.status;if(!['accepted','sent','delivered','read','failed'].includes(status))throw new ApiError(503,'Provider status unknown');return {id:data.messageId,status:['delivered','read'].includes(status)?'accepted':status};
   },
-  async messageStatus(id){if(typeof id!=='string'||!id||id.length>200)throw new ApiError(400,'Invalid provider reference');const data=await request('messages/status/'+encodeURIComponent(id));if(data.id!==id||!['queued','sent','delivered','read','failed'].includes(data.status))throw new ApiError(503,'Provider status not verified');return {status:data.status==='queued'?'accepted':data.status};},
+  async messageStatus(id){if(typeof id!=='string'||!id||id.length>200)throw new ApiError(400,'Invalid provider reference');const data=await request('messages/status/'+encodeURIComponent(id));if(data.id!==id||!['queued','sent','delivered','read','failed'].includes(data.status))throw Object.assign(new ApiError(503,'Provider status not verified'),{code:'PROVIDER_STATUS_MISMATCH'});return {status:data.status==='queued'?'accepted':data.status};},
   async inspect({templateDefinitions=false}={}){
    const account=await request('account');const channel=account.channel;
    if(!channel?.id||channel.isActive!==true||channel.healthStatus!=='healthy'||(env.VARDHMAN_FLOW_CHANNEL_ID&&env.VARDHMAN_FLOW_CHANNEL_ID!==channel.id))throw new ApiError(503,'Active healthy channel not verified');
