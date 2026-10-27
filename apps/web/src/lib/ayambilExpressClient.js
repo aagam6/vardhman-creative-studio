@@ -87,6 +87,10 @@ export function createAyambilApi(transport = fetchAyambilJson) {
 }
 
 function booking(data, privileged = false) {
+  if(privileged&&data?.status==='waiting'){
+    if(typeof data.id!=='string'||!data.id||typeof data.number!=='string'||!data.number.startsWith('WAIT26-')||!Array.isArray(data.attendees)||data.attendees.length<1||data.attendees.length>6||data.attendees.some(a=>typeof a.fullName!=='string'||a.status!=='waiting'||!Array.isArray(a.dates)||a.dates.length!==1||a.dates[0]!==data.eventDate||!Array.isArray(a.passes)||a.passes.length)||data.downloadKeys!==undefined)throw new Error('Invalid waiting dashboard record');
+    return;
+  }
   if (!data || typeof data.number !== 'string' || !data.number || !['active', 'cancelled'].includes(data.status) || !Array.isArray(data.attendees) || data.attendees.length < 1 || data.attendees.length > 6 || (privileged && typeof data.id !== 'string')) throw new Error('Invalid booking response');
   for (const attendee of data.attendees) {
     if (typeof attendee.fullName !== 'string' || !Array.isArray(attendee.dates) || attendee.dates.length !== 1 || !Array.isArray(attendee.passes) || (!attendee.passes.length && !(privileged && attendee.passHistoryPurged===true)) || (privileged && typeof attendee.id !== 'string')) throw new Error('Invalid attendee response');

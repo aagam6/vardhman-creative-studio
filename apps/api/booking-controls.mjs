@@ -3,6 +3,7 @@ import {normalizeMobile,potentialDuplicates} from './booking-review-analysis.mjs
 import {normalizeName} from './booking-review-analysis.mjs';
 import {createControlsDashboard} from './booking-controls-dashboard.mjs';
 import {attendanceEligibility} from './attendance-eligibility.mjs';
+import {familyResponsePlan} from './family-response-plan.mjs';
 import {randomUUID,randomBytes,createHash} from 'node:crypto';
 import {ApiError,bookingInput} from './config.mjs';
 const hash=s=>createHash('sha256').update(s).digest('hex');
@@ -76,15 +77,38 @@ export function attachBookingControls(base,pool,config){
   });},
   async link(actor,id){return tx(async db=>{const r=await one(db,'SELECT * FROM ayambil_family_reviews WHERE id=? FOR UPDATE',[id]);if(!r||r.response||r.decision)throw new ApiError(409,'Review unavailable or already answered');const token=randomBytes(32).toString('hex');await query(db,'UPDATE ayambil_family_reviews SET token_hash=?,expires_at=DATE_ADD(UTC_TIMESTAMP(3),INTERVAL 7 DAY) WHERE id=?',[hash(token),id]);await audit(db,actor,id,'link_replaced');return {path:'/500-akhand-ayambil-vijayollas/respond#'+token,expiresInDays:7};});},
   async revoke(actor,id){await query(pool,'UPDATE ayambil_family_reviews SET token_hash=NULL WHERE id=?',[id]);await audit(pool,actor,id,'link_revoked');return {ok:true};},
-  async family(token){if(!/^[a-f0-9]{64}$/.test(token||''))throw new ApiError(404,'Private link unavailable');const r=await one(pool,'SELECT * FROM ayambil_family_reviews WHERE token_hash=? AND expires_at>UTC_TIMESTAMP(3)',[hash(token)]);if(!r)throw new ApiError(404,'Private link expired or revoked');return {id:r.id,purpose:r.purpose,eventDate:r.event_date,bookings:parse(r.snapshot).map(({id,number,names})=>({id,number,names})),response:parse(r.response),closed:!!r.decision};},
+  async family(token){if(!/^[a-f0-9]{64}$/.test(token||''))throw new ApiError(404,'Private link unavailable');const r=await one(pool,'SELECT * FROM ayambil_family_reviews WHERE token_hash=? AND expires_at>UTC_TIMESTAMP(3)',[hash(token)]);if(!r)throw new ApiError(404,'Private link expired or revoked');return {id:r.id,purpose:r.purpose,eventDate:r.event_date,bookings:parse(r.snapshot).map(({id,number,names})=>({id,number,names})),response:parse(r.response),applied:parse(r.decision)?.action==='applied',directApply:config.directFamilyResponses===true,closed:!!r.decision};},
   async respond(token,input){return tx(async db=>{
-   if(!/^[a-f0-9]{64}$/.test(token||''))throw new ApiError(404,'Private link unavailable');const r=await one(db,'SELECT * FROM ayambil_family_reviews WHERE token_hash=? AND expires_at>UTC_TIMESTAMP(3) FOR UPDATE',[hash(token)]);if(!r||r.decision)throw new ApiError(404,'Private review unavailable');
+   if(!/^[a-f0-9]{64}$/.test(token||''))throw new ApiError(404,'Private link unavailable');const found=await one(db,'SELECT event_date FROM ayambil_family_reviews WHERE token_hash=?',[hash(token)]);if(!found)throw new ApiError(404,'Private review unavailable');await control(db,found.event_date);const r=await one(db,'SELECT * FROM ayambil_family_reviews WHERE token_hash=? AND expires_at>UTC_TIMESTAMP(3) FOR UPDATE',[hash(token)]);if(!r)throw new ApiError(404,'Private review unavailable');
    const maximum=r.purpose==='attendance'?Math.min(60,parse(r.snapshot).reduce((n,b)=>n+b.names.length,0)):6;
    if(!['yes','no'].includes(input.attending)||!Array.isArray(input.names)||input.names.length>maximum||input.count!==input.names.length||(input.attending==='yes'&&!input.names.length)||(input.attending==='no'&&input.names.length)||input.names.some(n=>typeof n!=='string'||n.trim().length<2||n.trim().length>120||/[\x00-\x1f<>]/.test(n)))throw new ApiError(400,'Enter matching names and a count within the registered family scope');
    const names=input.names.map(n=>n.trim().replace(/\s+/g,' '));if(new Set(names.map(normalizeName)).size!==names.length)throw new ApiError(400,'Repeated participant name; contact organiser');
    const selected=input.finalBookingId||null;if(selected&&!parse(r.snapshot).some(b=>b.id===selected))throw new ApiError(400,'Invalid final booking');
    const response={attending:input.attending,names,count:names.length,finalBookingId:selected},digest=hash(JSON.stringify(response));
-   if(r.response){if(r.response_hash!==digest)throw new ApiError(409,'Response already saved; ask organiser for correction');return {ok:true,proposal:parse(r.response),bookingChanges:0};}
+   if(r.decision&&parse(r.decision).action!=='applied')throw new ApiError(404,'Private review unavailable');
+   if(r.response){if(r.response_hash!==digest)throw new ApiError(409,'Response already saved; ask organiser for correction');return {ok:true,proposal:parse(r.response),applied:parse(r.decision)?.action==='applied',bookingChanges:0};}
+   if(r.decision)throw new ApiError(404,'Private review unavailable');
+   if(config.directFamilyResponses===true){
+    const scope=parse(r.snapshot),current=[];
+    for(const b of [...scope].sort((a,b)=>a.id.localeCompare(b.id))){
+     const saved=await one(db,'SELECT id,status,event_date,mobile FROM ayambil_bookings WHERE id=? FOR UPDATE',[b.id]);
+     if(!saved||saved.status!=='active'||saved.event_date!==r.event_date||normalizeMobile(saved.mobile)!==normalizeMobile(b.mobile))throw new ApiError(409,'Booking changed; contact the organiser');
+     const attendees=await query(db,'SELECT id,booking_id,full_name,status FROM ayambil_attendees WHERE booking_id=? ORDER BY ordinal FOR UPDATE',[b.id]);
+     for(const a of attendees){const passes=await query(db,"SELECT p.id FROM ayambil_passes p JOIN ayambil_capabilities c ON c.pass_id=p.id WHERE p.attendee_id=? AND p.status='active' AND p.trashed_at IS NULL AND c.revoked_at IS NULL AND c.expires_at>UTC_TIMESTAMP(3) FOR UPDATE",[a.id]);current.push({...a,valid_passes:passes.length});}
+     const active=attendees.filter(a=>a.status==='active').map(a=>normalizeName(a.full_name)).sort();
+     if(JSON.stringify(active)!==JSON.stringify(b.names.map(normalizeName).sort()))throw new ApiError(409,'Booking participants changed; contact the organiser');
+    }
+    const plan=familyResponsePlan(scope,current,response,r.purpose);
+    for(const id of plan.cancelIds){
+     await query(db,"UPDATE ayambil_capabilities c JOIN ayambil_passes p ON p.id=c.pass_id SET c.revoked_at=COALESCE(c.revoked_at,UTC_TIMESTAMP(3)) WHERE p.attendee_id=? AND p.status='active' AND p.trashed_at IS NULL",[id]);
+     await query(db,"UPDATE ayambil_passes SET status='cancelled' WHERE attendee_id=? AND status='active' AND trashed_at IS NULL",[id]);
+     await query(db,"UPDATE ayambil_attendees SET status='cancelled' WHERE id=?",[id]);
+    }
+    for(const b of scope){const active=await one(db,"SELECT COUNT(*) n FROM ayambil_attendees WHERE booking_id=? AND status='active'",[b.id]);if(!Number(active.n))await query(db,"UPDATE ayambil_bookings SET status='cancelled' WHERE id=?",[b.id]);}
+    await query(db,'UPDATE ayambil_family_reviews SET response=?,response_hash=?,decision=? WHERE id=?',[JSON.stringify(response),digest,JSON.stringify({action:'applied',actor:'family',note:'Reduction-only response applied atomically'}),r.id]);
+    await audit(db,null,r.id,'family_response_applied',{...response,cancelledAttendeeIds:plan.cancelIds});
+    return {ok:true,response,applied:true,bookingChanges:plan.cancelIds.length};
+   }
    await query(db,'UPDATE ayambil_family_reviews SET response=?,response_hash=? WHERE id=?',[JSON.stringify(response),digest,r.id]);await audit(db,null,r.id,'family_proposal_saved',response);return {ok:true,proposal:response,bookingChanges:0};
   });},
   async review(actor,{id,action,note}){if(!['reviewed','follow_up'].includes(action)||typeof note!=='string'||!note.trim()||note.length>1000)throw new ApiError(400,'Review action and note required');return tx(async db=>{const r=await one(db,'SELECT * FROM ayambil_family_reviews WHERE id=? FOR UPDATE',[id]);if(!r?.response||r.decision)throw new ApiError(409,'No pending proposal');const decision={action,note:note.trim(),actor:actor.admin_id};await query(db,'UPDATE ayambil_family_reviews SET decision=? WHERE id=?',[JSON.stringify(decision),id]);await audit(db,actor,id,'admin_review',decision);return {ok:true,bookingChanges:0};});},
@@ -95,7 +119,7 @@ export function attachBookingControls(base,pool,config){
   async workspace(){const reviews=await query(pool,'SELECT id,purpose,event_date,snapshot,response,decision,created_at,expires_at FROM ayambil_family_reviews ORDER BY created_at DESC');return {controls:await this.availability(),waiting:await this.waiting(),...await this.duplicates(),reviews:reviews.map(r=>({...r,snapshot:parse(r.snapshot),response:parse(r.response),decision:parse(r.decision)})),audit:await query(pool,'SELECT * FROM ayambil_control_audit ORDER BY created_at DESC,id DESC LIMIT 200'),previews:await query(pool,'SELECT subject,kind,body,created_at FROM ayambil_notification_previews ORDER BY created_at DESC'),localOnly:!production,messagesSent:0};}
  };
  const originalOverview=base.overview.bind(base);
- base.overview=async()=>({...await originalOverview(),bookingControlsAvailable:true,localOnly:!production});
+ base.overview=async()=>{const summary=await originalOverview(),waiting=(await controls.waiting()).filter(w=>w.status==='waiting');return {...summary,totals:{...summary.totals,waitingForms:waiting.length,waitingPersons:waiting.reduce((n,w)=>n+w.groupSize,0)},bookingControlsAvailable:true,localOnly:!production};};
  const originalStatus=base.status.bind(base);
  base.status=async()=>({...await originalStatus(),events:await controls.availability()});
  const originalReady=base.ready.bind(base);

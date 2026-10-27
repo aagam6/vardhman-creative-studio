@@ -14,3 +14,8 @@ test('unavailable history is not described as not queued; trashed passes are ine
  assert.equal(bookingMessageStates({status:'active'})[0].text,'Status unavailable');
  assert.equal(bookingMessageStates({...booking,attendees:[{status:'active',passes:[{status:'active',trashedAt:'2026-10-18'}]}]})[1].pending,0);
 });
+
+test('waiting acknowledgement and additional campaign states are explicit',()=>{
+ const states=bookingMessageStates({status:'waiting',attendees:[],whatsapp:{history:[{type:'waiting_received',status:'held',attempts:0},{type:'attendance',status:'delivered',attempts:1}]}});
+ assert.equal(states[0].label,'Waiting acknowledgement');assert.equal(states[0].pending,1);assert.equal(states[0].blocked,false);assert.equal(states[1].label,'Attendance response');
+});

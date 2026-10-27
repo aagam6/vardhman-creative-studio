@@ -39,7 +39,12 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
       attendees.push({...(privileged?{id:a.id,...(removed?{passHistoryPurged:true}:{})}:{}),fullName:a.full_name,status:a.status,dates:[b.event_date],passes});
     }
     const whatsapp=privileged?(queue?queueSummary(await rows(db,'SELECT notification_type,status,attempts,updated_at FROM ayambil_message_queue WHERE booking_id=? ORDER BY updated_at',[id])):{status:'Queue not loaded (sending disabled)',attempts:null,history:[]}):undefined;
-    return {...(privileged?{id:b.id,contactName:b.contact_name,mobile:b.mobile,occupation:b.occupation||'',referralSource:b.referral_source||''}:{}),number:b.number,status:b.status,eventDate:b.event_date,created:b.created_at,attendees,...(privileged?{whatsapp}: {})};
+    if(privileged&&config.notificationService){
+      const notifications=await rows(db,'SELECT purpose,state,attempts,updated_at FROM ayambil_notification_outbox WHERE subject=? ORDER BY created_at',[id]);
+      whatsapp.history.push(...notifications.flatMap(n=>(['booking_confirmed','waiting_approved'].includes(n.purpose)?['confirmation','pass']:[({pass_link:'pass'})[n.purpose]||n.purpose]).map(type=>({type,status:n.state,attempts:n.attempts,at:n.updated_at,source:'notification_outbox'}))));
+    }
+    const familyResponse=privileged&&config.bookingControls?await one(db,"SELECT response,decision FROM ayambil_family_reviews WHERE response IS NOT NULL AND JSON_CONTAINS(snapshot,JSON_OBJECT('id',?)) ORDER BY created_at DESC,id DESC LIMIT 1",[id]):null;
+    return {...(familyResponse?{familyResponse:{...json(familyResponse.response),applied:json(familyResponse.decision)?.action==='applied'}}:{}),...(privileged?{id:b.id,contactName:b.contact_name,mobile:b.mobile,occupation:b.occupation||'',referralSource:b.referral_source||''}:{}),number:b.number,status:b.status,eventDate:b.event_date,created:b.created_at,attendees,...(privileged?{whatsapp}: {})};
   };
   const store = {
     localTrashPurge:createLocalTrashPurge(pool,config),
@@ -124,6 +129,7 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
       const bookings=await one(pool,"SELECT COUNT(*) AS bookings,COALESCE(SUM(status='active'),0) AS activeBookings,COALESCE(SUM(status='cancelled'),0) AS cancelledBookings FROM ayambil_bookings");
       const passes=await one(pool,"SELECT COALESCE(SUM(p.status='active' AND a.status='active' AND b.status='active'),0) AS activePasses,COALESCE(SUM(p.status='cancelled' AND p.trashed_at IS NULL),0) AS cancelledPasses,COALESCE(SUM(p.trashed_at IS NOT NULL),0) AS trashedPasses FROM ayambil_passes p JOIN ayambil_attendees a ON a.id=p.attendee_id JOIN ayambil_bookings b ON b.id=a.booking_id");
       const messages=await one(pool,`SELECT COALESCE(SUM(mq.status IN ('queued','preparing','sending','uncertain') AND ${pendingMessageEligibility}),0) AS pendingMessages,COALESCE(SUM(mq.status='failed'),0) AS failedMessages FROM ayambil_message_queue mq LEFT JOIN ayambil_bookings b ON CONVERT(mq.booking_id USING utf8mb4) COLLATE utf8mb4_unicode_ci=CONVERT(b.id USING utf8mb4) COLLATE utf8mb4_unicode_ci WHERE mq.booking_id IS NOT NULL AND mq.notification_type IN ('confirmation','pass','reminder')`);
+      const notificationTotals=config.notificationService?await one(pool,"SELECT COALESCE(SUM(state IN ('held','ready','processing','uncertain')),0) pendingNotifications,COALESCE(SUM(state IN ('failed','blocked')),0) failedNotifications FROM ayambil_notification_outbox"):{};
       const activity=await rows(pool,'SELECT au.id,au.action,au.created_at AS created,b.number AS bookingNumber,b.contact_name AS contactName,ad.email AS actor FROM ayambil_audit au JOIN ayambil_bookings b ON b.id=au.booking_id JOIN ayambil_admins ad ON ad.id=au.admin_id ORDER BY au.created_at DESC,au.id DESC LIMIT 30');
       const evenings=[];
       for(const session of programme.sessions){
@@ -131,7 +137,7 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
         const passTotals=await one(pool,"SELECT COUNT(*) AS totalPasses,COALESCE(SUM(p.status='active' AND a.status='active' AND b.status='active'),0) AS activePasses,COALESCE(SUM(p.status='cancelled' AND p.trashed_at IS NULL),0) AS cancelledPasses,COALESCE(SUM(p.trashed_at IS NOT NULL),0) AS trashedPasses FROM ayambil_passes p JOIN ayambil_attendees a ON a.id=p.attendee_id JOIN ayambil_bookings b ON b.id=a.booking_id WHERE b.event_date=?",[session.date]);
         evenings.push({date:session.date,...Object.fromEntries(Object.entries({...bookingTotals,...passTotals}).map(([key,value])=>[key,Number(value)]))});
       }
-      return {scope:'event',totals:Object.fromEntries(Object.entries({...bookings,...passes,...messages}).map(([key,value])=>[key,Number(value)])),evenings,activity};
+      return {scope:'event',totals:Object.fromEntries(Object.entries({...bookings,...passes,...messages,...notificationTotals}).map(([key,value])=>[key,Number(value)])),evenings,activity};
     },
     async trash(query={}){
       const page=Number(query.page??1),date=String(query.date||'');
@@ -144,12 +150,15 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
     },
     async list(query){
       let stage='bookings.filters';try {
-      const date=String(query.date||''),status=String(query.status||''),search=String(query.search||'');const page=Number(query.page||1);const message=String(query.message||'');
+      const date=String(query.date||''),status=String(query.status||''),search=String(query.search||'');const page=Number(query.page||1);const message=String(query.message||''),messageType=String(query.messageType||'');
+      const purposes={confirmation:['booking_confirmed','waiting_approved'],pass:['pass_link','booking_confirmed','waiting_approved'],reminder:['reminder'],waiting_received:['waiting_received'],booking_verify:['booking_verify'],attendance:['attendance']};
+      if(messageType&&!purposes[messageType])throw new ApiError(400,'Invalid message type');
       if(!['','pending','failed'].includes(message))throw new ApiError(400,'Invalid message filter');
-      if(!['','2026-11-02','2026-11-03'].includes(date)||!['','active','cancelled'].includes(status)||search.length>120||!Number.isInteger(page)||page<1||page>100000)throw new ApiError(400,'Invalid filters');
+      if(!['','2026-11-02','2026-11-03'].includes(date)||!['','active','cancelled',...(config.bookingControls?['waiting']:[])].includes(status)||search.length>120||!Number.isInteger(page)||page<1||page>100000)throw new ApiError(400,'Invalid filters');
       // Normalize each operand before CONCAT, not just its result: imported
       // column and connection collations can differ without a schema change.
-      stage='bookings.select';const ids=await rows(pool,`SELECT b.id FROM ayambil_bookings b
+      const outboxFilter=alias=>config.notificationService?`EXISTS(SELECT 1 FROM ayambil_notification_outbox nox WHERE nox.subject=${alias}.id ${alias==='b'&&message==='pending'?"AND b.status='active' AND EXISTS(SELECT 1 FROM ayambil_attendees na JOIN ayambil_passes np ON np.attendee_id=na.id WHERE na.booking_id=b.id AND na.status='active' AND np.status='active' AND np.trashed_at IS NULL)":''} AND ${message==='failed'?"nox.state IN ('failed','blocked')":message==='pending'?"nox.state IN ('held','ready','processing','uncertain')":'TRUE'} ${messageType?"AND nox.purpose IN ('"+purposes[messageType].join("','")+"')":''})`:'FALSE';
+      stage='bookings.select';const ids=await rows(pool,`SELECT b.id,'booking' AS kind,b.created_at AS created FROM ayambil_bookings b
         WHERE (CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci=_utf8mb4'' COLLATE utf8mb4_unicode_ci OR CONVERT(b.event_date USING utf8mb4) COLLATE utf8mb4_unicode_ci=CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci)
         AND (CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci=_utf8mb4'' COLLATE utf8mb4_unicode_ci OR CONVERT(b.status USING utf8mb4) COLLATE utf8mb4_unicode_ci=CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci)
         ${status==='cancelled'?"AND EXISTS (SELECT 1 FROM ayambil_attendees ca JOIN ayambil_passes cp ON cp.attendee_id=ca.id WHERE ca.booking_id=b.id AND cp.status='cancelled' AND cp.trashed_at IS NULL)":''}
@@ -160,12 +169,13 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
           OR EXISTS(SELECT 1 FROM ayambil_attendees a WHERE a.booking_id=b.id
             AND LOCATE(CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci,
               CONVERT(a.full_name USING utf8mb4) COLLATE utf8mb4_unicode_ci)>0))
-        ${message ? `AND EXISTS(SELECT 1 FROM ayambil_message_queue mq WHERE CONVERT(mq.booking_id USING utf8mb4) COLLATE utf8mb4_unicode_ci=CONVERT(b.id USING utf8mb4) COLLATE utf8mb4_unicode_ci AND ${message==='pending'?`mq.status IN ('queued','preparing','sending','uncertain') AND ${pendingMessageEligibility}`:"mq.status='failed'"})` : ''}
-        ORDER BY b.created_at DESC,b.id LIMIT 51 OFFSET ?`,[date,date,status,status,search,search,search,(page-1)*50]);
+        ${message||messageType ? `AND (${outboxFilter('b')} OR EXISTS(SELECT 1 FROM ayambil_message_queue mq WHERE CONVERT(mq.booking_id USING utf8mb4) COLLATE utf8mb4_unicode_ci=CONVERT(b.id USING utf8mb4) COLLATE utf8mb4_unicode_ci AND ${message==='pending'?`mq.status IN ('queued','preparing','sending','uncertain') AND ${pendingMessageEligibility}`:message==='failed'?"mq.status='failed'":'TRUE'} ${messageType?(['confirmation','pass','reminder'].includes(messageType)?"AND mq.notification_type='"+messageType+"'":'AND FALSE'):''}))` : ''}
+        ${config.bookingControls&&!['active','cancelled'].includes(status)?`UNION ALL SELECT w.id,'waiting' AS kind,w.created_at AS created FROM ayambil_waiting w WHERE w.status='waiting' AND (?='' OR w.event_date=?) AND (?='' OR LOCATE(?,CONCAT(w.number,' ',JSON_UNQUOTE(JSON_EXTRACT(w.payload,'$.contactName')),' ',JSON_UNQUOTE(JSON_EXTRACT(w.payload,'$.mobile')),' ',JSON_EXTRACT(w.payload,'$.attendees')))>0) ${message||messageType?'AND '+outboxFilter('w'):''}`:''}
+        ORDER BY created DESC,id LIMIT 51 OFFSET ?`,[date,date,status,status,search,search,search,...(config.bookingControls&&!['active','cancelled'].includes(status)?[date,date,search,search]:[]),(page-1)*50]);
       stage='bookings.hydrate';const items=[];
       // Bound each page to the pool's five connections. Concurrent dashboard
       // and export requests must not enqueue fifty hydration chains apiece.
-      for(let offset=0;offset<Math.min(ids.length,50);offset+=5)items.push(...await Promise.all(ids.slice(offset,Math.min(offset+5,50)).map(b=>booking(pool,b.id,true))));
+      for(let offset=0;offset<Math.min(ids.length,50);offset+=5)items.push(...await Promise.all(ids.slice(offset,Math.min(offset+5,50)).map(async b=>{if(b.kind!=='waiting')return booking(pool,b.id,true);const w=await one(pool,'SELECT * FROM ayambil_waiting WHERE id=?',[b.id]);const payload=json(w.payload);const notifications=config.notificationService?await rows(pool,'SELECT purpose,state,attempts,updated_at FROM ayambil_notification_outbox WHERE subject=? ORDER BY created_at',[w.id]):[];return {id:w.id,number:w.number,status:'waiting',contactName:payload.contactName,mobile:payload.mobile,eventDate:w.event_date,created:w.created_at,attendees:payload.attendees.map(a=>({...a,status:'waiting',passes:[]})),whatsapp:{status:'Waiting acknowledgement only',attempts:notifications.reduce((n,x)=>n+Number(x.attempts),0),history:notifications.map(n=>({type:n.purpose,status:n.state,attempts:n.attempts,at:n.updated_at,source:'notification_outbox'}))}};})));
       return {items,page,hasMore:ids.length>50,integration:{ready:false,missing:queue?['Provider channel and template validation required']:['WhatsApp sending disabled']}};
       }catch(error){error.ayambilStage=stage;throw error;}
     },
