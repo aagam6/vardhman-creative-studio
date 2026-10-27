@@ -20,7 +20,9 @@ try{
  const results=await Promise.allSettled([sender.runOne(newJob,{ownershipVersion:2,automaticSince:cutoff}),sender.runOne(newJob,{ownershipVersion:2,actor:'manual-admin'})]);ok(results.filter(r=>r.status==='fulfilled'&&r.value.status==='accepted').length,1);ok(posts,1);
  const next=await sender.pending(cutoff);ok(next.length,1);ok(next[0].outbox_id,null);const nextJob=await sender.enqueueHeldIntent(next[0].id);ok((await sender.runOne(nextJob,{ownershipVersion:2,automaticSince:cutoff})).status,'deferred');ok(posts,1);ok(Number((await f.pool.query('SELECT attempts FROM ayambil_notification_outbox WHERE id=?',[nextJob]))[0][0].attempts),0);
  // Disposable fixture advances only the pacing timestamp, never a production row.
- await f.pool.execute('UPDATE ayambil_notification_outbox SET updated_at=DATE_SUB(UTC_TIMESTAMP(3),INTERVAL 20 SECOND) WHERE id=?',[newJob]);
+ await f.pool.query("UPDATE ayambil_notification_audit SET created_at=DATE_SUB(UTC_TIMESTAMP(3),INTERVAL 20 SECOND) WHERE action='claim_committed'");
+ // A provider receipt update is not a new submission and must not defer the next record.
+ await f.pool.execute('UPDATE ayambil_notification_outbox SET updated_at=UTC_TIMESTAMP(3) WHERE id=?',[newJob]);
  ok((await sender.pending(cutoff))[0].outbox_id,nextJob);ok((await sender.runOne(nextJob,{ownershipVersion:2,automaticSince:cutoff})).status,'accepted');ok(posts,2);ok((await sender.pending(cutoff)).length,0);
  const old=await f.pool.query('SELECT attempts,provider_id FROM ayambil_notification_outbox WHERE id IN (?,?)',[oldJob,equalJob]);ok(old[0].every(r=>r.attempts===0&&!r.provider_id),true);await sender.handover({owner:'paused',version:2},f.actor);ok((await sender.owner()).owner,'paused');ok(f.telemetry.providerCalls,0);
  console.log(JSON.stringify({passed:true,assertions,mockProviderPosts:posts,realNetworkCalls:0,strictCutoff:true,restartPreparedRecovery:true,sharedLeaseDedup:true,sharedDurablePacing:true}));
