@@ -6,6 +6,7 @@ import {createBilingualMockAdapter,bilingualCatalog} from './bilingual-template-
 import {nextDeliveryStatus} from './delivery-status-policy.mjs';
 import {loadAttendanceEligibility,lockAttendanceEvent,assertAttendanceEligible} from './attendance-eligibility.mjs';
 import {combinedPassPayload} from './combined-pass-notification.mjs';
+const eligibilityReasons=new Map([['Notification source unavailable','source_unavailable'],['Waiting transition no longer eligible','waiting_transition_changed'],['Waiting WhatsApp consent required','consent_missing'],['Active booking required','booking_inactive_or_no_consent'],['Active passes required','no_active_passes'],['Legacy confirmation already attempted','prior_legacy_confirmation'],['Confirmed notification held for duplicate/name review','duplicate_or_name_hold']]);
 const purposeNeedsPass=p=>['booking_confirmed','waiting_approved','pass_link'].includes(p);
 const digest=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 export function createProductionNotificationSender({pool,config,key,provider,catalog=bilingualCatalog}){
@@ -93,7 +94,7 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
    const row=await one(pool,"SELECT * FROM ayambil_notification_intents WHERE id=? AND state='held'",[id]);
    if(!row)throw Error('Held intent required');
    // Re-read authoritative source instead of trusting stored recipient/attendee context.
-   return this.enqueue({purpose:row.purpose,subject:row.subject,round:row.review_round,token});
+   try{return await this.enqueue({purpose:row.purpose,subject:row.subject,round:row.review_round,token});}catch(error){const reason=eligibilityReasons.get(error?.message);if(reason){error.code='NOTIFICATION_INELIGIBLE';error.holdReason=reason;}throw error;}
   },
   async prepareSubject({purpose,subject},actor,controls){
    if(!actor?.admin_id||!['booking_confirmed','waiting_received','pass_link','attendance'].includes(purpose)||!/^[a-f0-9-]{36}$/.test(subject||''))throw Error('Reviewed notification subject required');
@@ -159,9 +160,11 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
   },
   async reconcileNext(){const row=await one(pool,"SELECT id FROM ayambil_notification_outbox WHERE state IN ('accepted','sent') AND provider_id IS NOT NULL AND (last_checked_at IS NULL OR last_checked_at<DATE_SUB(UTC_TIMESTAMP(3),INTERVAL 1 MINUTE)) ORDER BY COALESCE(last_checked_at,created_at),id LIMIT 1");return row?this.reconcile(row.id,{admin_id:'scheduler'}):{processed:false};},
   async recover(){await pool.execute("UPDATE ayambil_notification_outbox SET state='uncertain',error_code='interrupted_claim',updated_at=UTC_TIMESTAMP(3) WHERE state='processing' AND updated_at<DATE_SUB(UTC_TIMESTAMP(3),INTERVAL 5 MINUTE)");},
-  async pending(since){
+  async pending(since,{excludeIntentIds=[]}={}){
    if(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(since||''))throw Error('Explicit activation cutoff required');
-   const [r]=await pool.execute("SELECT i.id,o.id outbox_id FROM ayambil_notification_intents i LEFT JOIN ayambil_notification_outbox o ON o.subject=i.subject AND (o.purpose=i.purpose OR o.purpose IN ('booking_confirmed','waiting_approved') AND i.purpose IN ('booking_confirmed','waiting_approved')) WHERE i.state='held' AND i.review_round='initial' AND i.purpose IN ('booking_confirmed','waiting_received','waiting_approved') AND i.created_at>? AND (o.id IS NULL OR o.purpose=i.purpose AND o.state IN ('held','ready') AND o.attempts=0 AND o.provider_id IS NULL) ORDER BY i.created_at,i.id LIMIT 1",[since.replace('T',' ').replace('Z','')]);return r;
+   if(!Array.isArray(excludeIntentIds)||excludeIntentIds.length>1000||excludeIntentIds.some(id=>!/^[-a-f0-9]{36}$/.test(id)))throw Error('Invalid held-intent exclusion');
+   const exclude=excludeIntentIds.length?' AND i.id NOT IN ('+excludeIntentIds.map(()=>'?').join(',')+')':'';
+   const [r]=await pool.execute("SELECT i.id,o.id outbox_id FROM ayambil_notification_intents i LEFT JOIN ayambil_notification_outbox o ON o.subject=i.subject AND (o.purpose=i.purpose OR o.purpose IN ('booking_confirmed','waiting_approved') AND i.purpose IN ('booking_confirmed','waiting_approved')) WHERE i.state='held' AND i.review_round='initial' AND i.purpose IN ('booking_confirmed','waiting_received','waiting_approved') AND i.created_at>? AND (o.id IS NULL OR o.purpose=i.purpose AND o.state IN ('held','ready') AND o.attempts=0 AND o.provider_id IS NULL)"+exclude+" ORDER BY i.created_at,i.id LIMIT 1",[since.replace('T',' ').replace('Z',''),...excludeIntentIds]);return r;
   },
   async list(page=1){page=Number(page);if(!Number.isInteger(page)||page<1||page>100000)throw Error('Invalid page');const [r]=await pool.query('SELECT id,purpose,round_name,state,attempts,provider_id,error_code,created_at FROM ayambil_notification_outbox ORDER BY created_at DESC,id LIMIT 21 OFFSET ?',[20*(page-1)]);return {items:r.slice(0,20),hasMore:r.length>20,page};},
   async intents(page=1){page=Number(page);if(!Number.isInteger(page)||page<1||page>100000)throw Error('Invalid page');const [r]=await pool.query("SELECT i.id,i.subject,i.purpose,i.review_round,i.state,i.created_at FROM ayambil_notification_intents i ORDER BY i.created_at DESC,i.id LIMIT 20 OFFSET ?",[20*(page-1)]);return r;}
