@@ -15,17 +15,22 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
  const crypto=queueCrypto(key),build=createBilingualMockAdapter(catalog);
  const one=async(db,sql,args=[])=> (await db.execute(sql,args))[0][0];
  const tx=async fn=>{const db=await pool.getConnection();try{await db.query('SET TRANSACTION ISOLATION LEVEL READ COMMITTED');await db.beginTransaction();const r=await fn(db);await db.commit();return r;}catch(e){await db.rollback();throw e;}finally{db.release();}};
+ async function lockSourceEvent(db,purpose,subject){
+  let meta;if(['booking_verify','attendance'].includes(purpose))meta=await one(db,'SELECT event_date FROM ayambil_family_reviews WHERE id=?',[subject]);
+  else if(['waiting_received','waiting_approved'].includes(purpose))meta=await one(db,'SELECT event_date FROM ayambil_waiting WHERE id=? OR booking_id=?',[subject,subject]);
+  else meta=await one(db,'SELECT event_date FROM ayambil_bookings WHERE id=?',[subject]);
+  if(!meta)throw Error('Notification source unavailable');await lockAttendanceEvent(db,meta.event_date);
+ }
  async function source(db,purpose,subject,token){
   if(!/^[a-f0-9-]{36}$/.test(subject))throw Error('Invalid subject');
-  if(purposeNeedsPass(purpose)){const meta=await one(db,purpose==='waiting_approved'?'SELECT event_date FROM ayambil_waiting WHERE id=? OR booking_id=?':'SELECT event_date FROM ayambil_bookings WHERE id=?',purpose==='waiting_approved'?[subject,subject]:[subject]);if(!meta)throw Error('Confirmed source unavailable');await lockAttendanceEvent(db,meta.event_date);}
+  await lockSourceEvent(db,purpose,subject);
   let b,w,review;
   if(purpose==='waiting_received'||purpose==='waiting_approved'){
    w=await one(db,'SELECT * FROM ayambil_waiting WHERE id=? OR booking_id=? FOR UPDATE',[subject,subject]);
    if(!w||(purpose==='waiting_received'?w.status!=='waiting':w.status!=='approved'))throw Error('Waiting transition no longer eligible');
-   if(purpose==='waiting_received'){const p=typeof w.payload==='string'?JSON.parse(w.payload):w.payload;return {canonicalSubject:w.id,mobile:p.mobile,eventDate:w.event_date,contactName:p.contactName,waitingReference:w.number,attendeeCount:p.attendees.length,identity:[w.number,w.status,p]};}
+   if(purpose==='waiting_received'){const p=typeof w.payload==='string'?JSON.parse(w.payload):w.payload;if(p.whatsappConsent!==true)throw Error('Waiting WhatsApp consent required');return {canonicalSubject:w.id,mobile:p.mobile,eventDate:w.event_date,contactName:p.contactName,waitingReference:w.number,attendeeCount:p.attendees.length,identity:[w.number,w.status,p]};}
   }
   if(['booking_verify','attendance'].includes(purpose)){
-   if(purpose==='attendance'){const meta=await one(db,'SELECT event_date FROM ayambil_family_reviews WHERE id=?',[subject]);if(!meta)throw Error('Review unavailable');await lockAttendanceEvent(db,meta.event_date);}
    review=await one(db,'SELECT * FROM ayambil_family_reviews WHERE id=? FOR UPDATE',[subject]);
    if(!review||review.decision||review.purpose!==(purpose==='booking_verify'?'duplicate':'attendance')||review.response||!review.token_hash||review.token_hash!==createHash('sha256').update(token||'').digest('hex')||Date.parse(review.expires_at+'Z')<=Date.now())throw Error('Review link expired, revoked or answered');
    if(purpose==='attendance'){const answered=await one(db,"SELECT id FROM ayambil_family_reviews WHERE purpose='attendance' AND event_date=? AND contact_key=? AND response IS NOT NULL LIMIT 1",[review.event_date,review.contact_key]);if(answered)throw Error('Contact already answered');}
@@ -123,14 +128,14 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
    const candidate=await one(pool,'SELECT purpose,subject FROM ayambil_notification_outbox WHERE id=?',[id]);if(!candidate)return {status:'not_claimed'};
    try{await provider.validate(candidate.purpose);}catch{await pool.execute("UPDATE ayambil_notification_outbox SET state='blocked',error_code='provider_preflight' WHERE id=? AND state IN ('held','ready')",[id]);return {status:'blocked'};}
    let claimed;
-   const lockEvent=async db=>{let meta;if(candidate.purpose==='attendance')meta=await one(db,'SELECT event_date FROM ayambil_family_reviews WHERE id=?',[candidate.subject]);else if(purposeNeedsPass(candidate.purpose))meta=await one(db,candidate.purpose==='waiting_approved'?'SELECT event_date FROM ayambil_waiting WHERE id=? OR booking_id=?':'SELECT event_date FROM ayambil_bookings WHERE id=?',candidate.purpose==='waiting_approved'?[candidate.subject,candidate.subject]:[candidate.subject]);if(meta)await lockAttendanceEvent(db,meta.event_date);};
+   const lockEvent=db=>lockSourceEvent(db,candidate.purpose,candidate.subject);
    await tx(async db=>{await lockEvent(db);const row=await one(db,'SELECT * FROM ayambil_notification_outbox WHERE id=? FOR UPDATE',[id]);if(!row||!['held','ready'].includes(row.state))return;await gate(db,ownershipVersion);
     let e;try{e=await envelope(db,crypto.open(row.envelope));if(e.hash!==row.revision_hash)throw Error('Stale revision');}catch{await db.execute("UPDATE ayambil_notification_outbox SET state='blocked',error_code='eligibility_or_mapping',updated_at=UTC_TIMESTAMP(3) WHERE id=?",[id]);return;}
     const claim=randomUUID();await db.execute("UPDATE ayambil_notification_outbox SET state='processing',claim_id=?,attempts=attempts+1,updated_at=UTC_TIMESTAMP(3) WHERE id=?",[claim,id]);await db.execute('INSERT INTO ayambil_notification_audit VALUES(?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),actor,'claim_committed',JSON.stringify({id})]);claimed={claim,payload:e.payload};
    });
    if(!claimed)return {status:'not_claimed'};
    // Re-read after durable claiming, immediately before the provider boundary.
-   if(candidate.purpose==='attendance'||purposeNeedsPass(candidate.purpose)){
+   {
     try{await tx(async db=>{await lockEvent(db);const row=await one(db,'SELECT * FROM ayambil_notification_outbox WHERE id=? FOR UPDATE',[id]);if(!row||row.state!=='processing'||row.claim_id!==claimed.claim)throw Error('Stale claim');await gate(db,ownershipVersion,id);const current=await envelope(db,crypto.open(row.envelope));if(current.hash!==row.revision_hash)throw Error('Stale revision');claimed.payload=current.payload;});}
     catch{await pool.execute("UPDATE ayambil_notification_outbox SET state='blocked',error_code='eligibility_changed_before_submit',updated_at=UTC_TIMESTAMP(3) WHERE id=? AND claim_id=? AND state='processing'",[id,claimed.claim]);return {status:'blocked'};}
    }
