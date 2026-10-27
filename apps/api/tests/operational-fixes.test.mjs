@@ -16,7 +16,7 @@ test('queue summaries do not invent delivery or attempts and do not expose provi
 });
 test('privileged booking summaries use parameterized queue records and sending-disabled summary is explicit',async()=>{
  const db={execute:async(sql,args)=>{
-  if(sql.startsWith('SELECT b.id'))return [[{id:'synthetic-id'}]];
+  if(sql.startsWith('SELECT CONVERT(b.id USING utf8mb4)'))return [[{id:'synthetic-id'}]];
   if(sql.startsWith('SELECT * FROM ayambil_bookings'))return [[{id:'synthetic-id',number:'synthetic',status:'active',event_date:'2026-11-02'}]];
   if(sql.includes('FROM ayambil_message_queue')){assert.deepEqual(args,['synthetic-id']);return [[{notification_type:'pass',status:'uncertain',attempts:2,updated_at:'synthetic'}]];}
   return [[]];
@@ -28,3 +28,4 @@ test('production telemetry is development-only and UI does not render channel nu
  const vite=readFileSync(new URL('../../web/vite.config.js',import.meta.url),'utf8');assert.match(vite,/const tags = isDev \? \[/);assert.match(vite,/\] : \[\];/);
  const ui=readFileSync(new URL('../../web/src/pages/AyambilAdminPage.jsx',import.meta.url),'utf8');assert.doesNotMatch(ui,/integration\.channel\.phone/);assert.match(ui,/exact delivery timestamps are not recorded/);
 });
+
