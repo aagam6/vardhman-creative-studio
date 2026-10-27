@@ -6,7 +6,7 @@ export function startNotificationWorker(service,config,env,{schedule=setInterval
  let running=false,stopped=false,lastTickAt=null,lastOutcome='idle',stopReason=null;
  const stop=(reason='operator_stop')=>{stopped=true;stopReason=reason;cancel(timer);};
  const tick=async()=>{if(running||stopped)return;running=true;lastTickAt=new Date().toISOString();try{
-  const owner=await service.owner();if(owner.owner!=='bilingual'){lastOutcome='paused';stop('owner_paused');return;}
+  const owner=await service.owner();if(owner.owner!=='bilingual'){lastOutcome='paused';return;}
   if(service.reconcileNext)await service.reconcileNext();
   const pending=await service.pending(since);if(!pending.length){lastOutcome='idle';return;}
   const id=pending[0].outbox_id||await service.enqueueHeldIntent(pending[0].id);const r=await service.runOne(id,{ownershipVersion:owner.version,automaticSince:since,actor:'transactional-worker'});

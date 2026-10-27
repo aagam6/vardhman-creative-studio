@@ -155,7 +155,7 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
    const status=validId&&['accepted','sent','delivered','read'].includes(result.status)?result.status:result?.status==='rejected'?'failed':result?.status==='rate_limited'?'failed':'uncertain';
    try{await pool.execute('UPDATE ayambil_notification_outbox SET state=?,provider_id=?,error_code=?,updated_at=UTC_TIMESTAMP(3) WHERE id=? AND claim_id=? AND state=\'processing\'',[status,validId?result.providerId:null,result?.status==='rate_limited'?'rate_limited':null,id,claimed.claim]);}catch{await pool.execute("UPDATE ayambil_notification_outbox SET state='uncertain',error_code='receipt_persist_failed' WHERE id=? AND claim_id=?",[id,claimed.claim]);return {status:'uncertain'};}
    return {status};
-   });
+   }).catch(error=>{if(error?.code==='DISPATCH_BUSY')return {status:'deferred'};throw error;});
   },
   async reconcileNext(){const row=await one(pool,"SELECT id FROM ayambil_notification_outbox WHERE state IN ('accepted','sent') AND provider_id IS NOT NULL AND (last_checked_at IS NULL OR last_checked_at<DATE_SUB(UTC_TIMESTAMP(3),INTERVAL 1 MINUTE)) ORDER BY COALESCE(last_checked_at,created_at),id LIMIT 1");return row?this.reconcile(row.id,{admin_id:'scheduler'}):{processed:false};},
   async recover(){await pool.execute("UPDATE ayambil_notification_outbox SET state='uncertain',error_code='interrupted_claim',updated_at=UTC_TIMESTAMP(3) WHERE state='processing' AND updated_at<DATE_SUB(UTC_TIMESTAMP(3),INTERVAL 5 MINUTE)");},

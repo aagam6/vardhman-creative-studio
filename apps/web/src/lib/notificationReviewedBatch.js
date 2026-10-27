@@ -12,8 +12,17 @@ export async function runNotificationBatch({preview,request,shouldStop,onResult,
  for(let n=0;n<preview.items.length;n++){
   if(shouldStop())return {submitted,stopped:true};
   const item=preview.items[n];let result;
-  try{result=await request('admin/notification-outbox/send',{method:'POST',body:{id:item.id,version:preview.version,confirmation:'SEND ONE REVIEWED MESSAGE'}});}
-  catch(e){await onResult(item,{status:'unconfirmed',httpStatus:Number.isInteger(e?.status)?e.status:null,requestId:uuid(e?.requestId)?e.requestId:null});return {submitted,stopped:true};}
+  for(let deferrals=0;;deferrals++){
+   if(shouldStop())return {submitted,stopped:true};
+   try{result=await request('admin/notification-outbox/send',{method:'POST',body:{id:item.id,version:preview.version,confirmation:'SEND ONE REVIEWED MESSAGE'}});}
+   catch(e){await onResult(item,{status:'unconfirmed',httpStatus:Number.isInteger(e?.status)?e.status:null,requestId:uuid(e?.requestId)?e.requestId:null});return {submitted,stopped:true};}
+   if(result?.status!=='deferred')break;
+   // Only this explicit server result proves no claim/provider call occurred.
+   // Timeout, unknown, rejection and uncertainty never enter this wait path.
+   await onResult(item,{status:'deferred'});
+   if(deferrals>=2||shouldStop())return {submitted,stopped:true};
+   await wait(NOTIFICATION_BATCH_INTERVAL_MS);
+  }
   await onResult(item,{status:result?.status||'unconfirmed'});
   if(!['accepted','sent','delivered','read'].includes(result?.status))return {submitted,stopped:true};
   submitted++;
@@ -21,3 +30,4 @@ export async function runNotificationBatch({preview,request,shouldStop,onResult,
  }
  return {submitted,stopped:false};
 }
+export const shouldPauseNotificationOwner=(result,worker)=>result?.stopped!==false||worker?.enabled!==true||worker?.active!==true;
