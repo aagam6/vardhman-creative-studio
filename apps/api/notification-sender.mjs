@@ -69,7 +69,7 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
   const payload=input.purpose==='pass_link'?combinedPassPayload({session,source:s,subject:passSubject,key,origin:config.origin}):build(input.purpose,data);return {s,payload:{...payload,to:s.mobile},hash:digest([s.identity,s.mobile,payload])};
  }
  const lockName='ayambil-dispatch-'+digest(actual.database).slice(0,32);
- async function withLease(fn){const db=await pool.getConnection();try{const [[r]]=await db.query('SELECT GET_LOCK(?,0) acquired',[lockName]);if(r.acquired!==1)throw Error('Dispatch busy; no retry was performed');try{return await fn();}finally{await db.query('SELECT RELEASE_LOCK(?)',[lockName]);}}finally{db.release();}}
+ async function withLease(fn){const db=await pool.getConnection();try{const [[r]]=await db.query('SELECT GET_LOCK(?,0) acquired',[lockName]);if(r.acquired!==1){const error=Error('Dispatch busy; no retry was performed');error.code='DISPATCH_BUSY';throw error;}try{return await fn();}finally{await db.query('SELECT RELEASE_LOCK(?)',[lockName]);}}finally{db.release();}}
  async function gate(db,version,ownClaim=null){const c=await one(db,'SELECT * FROM ayambil_notification_owner WHERE id=1 FOR UPDATE');if(!c||c.owner!=='bilingual'||c.version!==version)throw Error('Paused or stale queue ownership');const inFlight=await one(db,"SELECT id FROM ayambil_message_queue WHERE status IN ('preparing','sending','uncertain') LIMIT 1");if(inFlight)throw Error('Legacy queue requires reconciliation');const modern=await one(db,"SELECT id FROM ayambil_notification_outbox WHERE state IN ('processing','uncertain')"+(ownClaim?' AND id<>?':'')+' LIMIT 1',ownClaim?[ownClaim]:[]);if(modern)throw Error('Notification queue requires reconciliation');}
  async function persist(db,input,round){
   const e=await envelope(db,input);if(e.s.sourceRound&&e.s.sourceRound!==round)throw Error('Review round mismatch');
@@ -134,7 +134,7 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
    }
    // Durable pacing is shared by foreground and worker, inside the same lease.
    // A deferred job has never been claimed/submitted and may be selected later.
-   const recent=await one(pool,"SELECT id FROM ayambil_notification_outbox WHERE attempts>0 AND updated_at>DATE_SUB(UTC_TIMESTAMP(3),INTERVAL 17 SECOND) LIMIT 1");
+   const recent=await one(pool,"SELECT id FROM ayambil_notification_audit WHERE action='claim_committed' AND created_at>DATE_SUB(UTC_TIMESTAMP(3),INTERVAL 17 SECOND) LIMIT 1");
    if(recent)return {status:'deferred'};
    try{await provider.validate(candidate.purpose);}catch{await pool.execute("UPDATE ayambil_notification_outbox SET state='blocked',error_code='provider_preflight' WHERE id=? AND state IN ('held','ready')",[id]);return {status:'blocked'};}
    let claimed;
