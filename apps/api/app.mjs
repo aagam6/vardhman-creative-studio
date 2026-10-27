@@ -11,7 +11,7 @@ import {normalizePhone} from './vardhmanflow.mjs';
 import {ApiError,programme} from './config.mjs';
 import {hash,rateHash} from './security.mjs';
 const cookieName='__Host-ayambil';
-export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirectory,flow,queue,notifications,testRecipient,isInitialized=()=>true,getQueueWorkerStatus=()=>({enabled:false,active:false})}) {
+export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirectory,flow,queue,notifications,testRecipient,isInitialized=()=>true,getQueueWorkerStatus=()=>({enabled:false,active:false}),getNotificationWorkerStatus=()=>({enabled:false,active:false})}) {
   const app=express();app.disable('x-powered-by');app.set('trust proxy',false);
   // Also protect early failures and other API namespaces, before routing/auth.
   app.use(['/api','/hcgi/platform','/admin/ayambil','/500-akhand-ayambil-vijayollas/passes','/500-akhand-ayambil-vijayollas/respond'],(req,res,next)=>{
@@ -33,7 +33,7 @@ export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirect
   const admin=async(req,res,next)=>{try{req.actor=await store.session(token(req));if(req.method==='POST'&&hash(String(req.headers['x-csrf-token']||''))!==req.actor.csrf_hash)throw new ApiError(403,'Session confirmation required');next();}catch(error){next(error);}};
   const limited=(operation,max)=>async(req,res,next)=>{try{const bucket=rateHash(config.rateSecret,operation+':'+req.socket.remoteAddress);if(!await store.limit(bucket,max))throw new ApiError(429,'Too many requests');next();}catch(error){next(error);}};
   if(notifications){
-   api.get('/admin/notification-outbox',admin,route(async(req,res)=>res.json({dispatchEnabled:config.notificationDispatch===true,owner:await notifications.owner(),...await notifications.list(req.query.page||1),intents:await notifications.intents(req.query.page||1)})));
+   api.get('/admin/notification-outbox',admin,route(async(req,res)=>res.json({dispatchEnabled:config.notificationDispatch===true,owner:await notifications.owner(),transactionalWorker:getNotificationWorkerStatus(),...await notifications.list(req.query.page||1),intents:await notifications.intents(req.query.page||1)})));
    api.post('/admin/notification-outbox/notice',admin,limited('notification-notice',4),route(async(req,res)=>res.json(await notifications.prepareEntryNotice(req.body,req.actor))));
    api.post('/admin/notification-outbox/prepare',admin,limited('notification-prepare',10),route(async(req,res)=>res.json({id:await notifications.enqueueHeldIntent(req.body.id,{token:req.body.token}),sent:false})));
    api.post('/admin/notification-outbox/prepare-subject',admin,limited('notification-prepare',10),route(async(req,res)=>{if(!req.body||Object.keys(req.body).some(k=>!['purpose','subject'].includes(k)))throw new ApiError(400,'Only exact notification purpose and subject permitted');res.json(await notifications.prepareSubject(req.body,req.actor,store.bookingControls));}));

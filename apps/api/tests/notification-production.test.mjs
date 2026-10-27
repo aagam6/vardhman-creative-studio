@@ -28,5 +28,5 @@ test('restart reuses prepared transactional outbox and deferred pacing never ret
 test('shared lease busy is a pre-claim deferral, while other errors stop without retry',async()=>{
  let tick,cancelled=0,calls=0;const service={owner:async()=>({owner:'bilingual',version:1}),pending:async()=>[{id:'intent',outbox_id:'ready'}],runOne:async()=>{calls++;if(calls===1)throw Object.assign(Error('busy'),{code:'DISPATCH_BUSY'});throw Error('unknown failure');}};
  const worker=startNotificationWorker(service,{notificationDispatch:true},{AYAMBIL_BILINGUAL_WORKER_ENABLED:'true',AYAMBIL_BILINGUAL_ACTIVATION_AT:'2026-10-27T07:28:06.000Z'},{schedule(fn){tick=fn;return 1;},cancel(){cancelled++;}});
- await tick();assert.equal(worker.active,true);assert.equal(cancelled,0);await tick();await tick();assert.equal(calls,2);assert.equal(cancelled,1);assert.equal(worker.active,false);
+ await tick();assert.equal(worker.active,true);assert.equal(worker.status().lastOutcome,'lease_busy');assert.equal(cancelled,0);await tick();await tick();assert.equal(calls,2);assert.equal(cancelled,1);assert.equal(worker.active,false);assert.equal(worker.status().stopReason,'operation_requires_review');assert.doesNotMatch(JSON.stringify(worker.status()),/unknown failure/);
 });
