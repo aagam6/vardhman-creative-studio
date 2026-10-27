@@ -1,0 +1,13 @@
+# Reviewed foreground notification batches
+
+The existing authenticated `/admin/ayambil` Event settings outbox now supports an explicit list of 1–20 outbox IDs, one purpose and initial campaign round per action. The operator reviews their current zero-attempt/no-provider-reference state and exact ownership revision before starting. This calls the existing CSRF/Origin-protected single-message endpoint, not the legacy queue or an unattended worker. Every submission retains its existing transactional eligibility, unique dedup key, provider definition verification and shared ownership lease.
+
+Requests are sequential, separated by 17 seconds, below the unchanged four-per-minute dispatch limit. A failed, blocked, not-claimed, uncertain or unconfirmed result stops immediately. There is no retry or automatic resume after refresh/restart. Closing/navigating away stops future requests; an in-flight request must be reconciled using durable state. Local progress stores only outbox IDs, purpose, round, sanitized outcome, HTTP status/request correlation and time. Provider IDs, contacts, payloads and private links are not stored there. The server outbox remains authoritative.
+
+At batch end the client attempts to pause only the ownership revision it started with, then refreshes the outbox. A failed pause is an explicit error requiring live verification. The hosting dispatch flag is a separate control and must be turned off by the release operator after the authorized campaign run. Worker/reminder/legacy controls are untouched.
+
+The previous browser timeout was 15 seconds even though two provider preflight requests and one submission each permit 10 seconds on the server. Notification mutations now allow 45 seconds. A timeout still does not establish failure or authorize a resend. Safe HTTP status and generated request ID are retained in the UI instead of discarding all diagnostic context. No arbitrary provider response text is displayed. This corrects a demonstrated timeout-window defect; it does not prove the cause of a historical request whose network/runtime record is unavailable.
+
+Local checks: reviewed ID/purpose/round/attempt/ownership validation; sequential/paced exact-ID submission; immediate progress callback; stop on rejection/429/timeout/uncertainty; no second request after stop; safe HTTP correlation and 45-second timeout. No real provider call is used by these tests. A successful build is not live delivery verification.
+
+This change adds no campaign audience generation, standalone-pass template mapping, automatic activation cutoff or background dispatch. Those remain separate reviewed operations. It must never be used to replay a previously submitted ID or to bypass a server eligibility hold.
