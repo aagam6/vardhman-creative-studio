@@ -17,7 +17,7 @@ try{
  const oldJob=await sender.enqueue({purpose:'waiting_received',subject:ids[0]}),equalJob=await sender.enqueue({purpose:'waiting_received',subject:ids[1]}),newJob=await sender.enqueue({purpose:'waiting_received',subject:ids[2]});
  const pending=await sender.pending(cutoff);ok(pending.length,1);ok(pending[0].outbox_id,newJob);
  for(const job of [oldJob,equalJob]){await assert.rejects(sender.runOne(job,{ownershipVersion:2,automaticSince:cutoff}),/Outside automatic/);assertions++;}ok(posts,0);
- const results=await Promise.allSettled([sender.runOne(newJob,{ownershipVersion:2,automaticSince:cutoff}),sender.runOne(newJob,{ownershipVersion:2,actor:'manual-admin'})]);ok(results.filter(r=>r.status==='fulfilled'&&r.value.status==='accepted').length,1);ok(posts,1);
+ const results=await Promise.allSettled([sender.runOne(newJob,{ownershipVersion:2,automaticSince:cutoff}),sender.runOne(newJob,{ownershipVersion:2,actor:'manual-admin'})]);ok(results.filter(r=>r.status==='fulfilled'&&r.value.status==='accepted').length,1);ok(results.every(r=>r.status==='fulfilled'),true);ok(posts,1);
  const next=await sender.pending(cutoff);ok(next.length,1);ok(next[0].outbox_id,null);const nextJob=await sender.enqueueHeldIntent(next[0].id);ok((await sender.runOne(nextJob,{ownershipVersion:2,automaticSince:cutoff})).status,'deferred');ok(posts,1);ok(Number((await f.pool.query('SELECT attempts FROM ayambil_notification_outbox WHERE id=?',[nextJob]))[0][0].attempts),0);
  // Disposable fixture advances only the pacing timestamp, never a production row.
  await f.pool.query("UPDATE ayambil_notification_audit SET created_at=DATE_SUB(UTC_TIMESTAMP(3),INTERVAL 20 SECOND) WHERE action='claim_committed'");

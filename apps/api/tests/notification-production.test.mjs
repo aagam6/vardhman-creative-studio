@@ -30,3 +30,8 @@ test('shared lease busy is a pre-claim deferral, while other errors stop without
  const worker=startNotificationWorker(service,{notificationDispatch:true},{AYAMBIL_BILINGUAL_WORKER_ENABLED:'true',AYAMBIL_BILINGUAL_ACTIVATION_AT:'2026-10-27T07:28:06.000Z'},{schedule(fn){tick=fn;return 1;},cancel(){cancelled++;}});
  await tick();assert.equal(worker.active,true);assert.equal(worker.status().lastOutcome,'lease_busy');assert.equal(cancelled,0);await tick();await tick();assert.equal(calls,2);assert.equal(cancelled,1);assert.equal(worker.active,false);assert.equal(worker.status().stopReason,'operation_requires_review');assert.doesNotMatch(JSON.stringify(worker.status()),/unknown failure/);
 });
+test('paused ownership never dispatches; explicit owner resume can wake the configured transactional worker',async()=>{
+ let tick,owner='paused',calls=0,cancelled=0;const service={owner:async()=>({owner,version:2}),pending:async()=>[{id:'intent',outbox_id:'job'}],runOne:async()=>{calls++;return {status:calls===1?'accepted':'uncertain'};}};
+ const worker=startNotificationWorker(service,{notificationDispatch:true},{AYAMBIL_BILINGUAL_WORKER_ENABLED:'true',AYAMBIL_BILINGUAL_ACTIVATION_AT:'2026-10-27T07:28:06.000Z'},{schedule(fn){tick=fn;return 1;},cancel(){cancelled++;}});
+ await tick();assert.equal(calls,0);assert.equal(worker.status().lastOutcome,'paused');assert.equal(worker.active,true);owner='bilingual';await tick();assert.equal(calls,1);await tick();await tick();assert.equal(calls,2);assert.equal(worker.active,false);assert.equal(cancelled,1);
+});

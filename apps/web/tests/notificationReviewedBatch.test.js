@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {reviewedNotificationBatch,runNotificationBatch,NOTIFICATION_BATCH_INTERVAL_MS} from '../src/lib/notificationReviewedBatch.js';
+import {reviewedNotificationBatch,runNotificationBatch,NOTIFICATION_BATCH_INTERVAL_MS,shouldPauseNotificationOwner} from '../src/lib/notificationReviewedBatch.js';
 import {createAyambilApi} from '../src/lib/ayambilExpressClient.js';
 const row=n=>({id:`00000000-0000-4000-8000-${String(n).padStart(12,'0')}`,purpose:'booking_verify',round_name:'initial',state:'held',attempts:0,provider_id:null});
 const owner={owner:'bilingual',version:16};
@@ -32,4 +32,16 @@ test('notification transport covers three bounded provider calls and preserves s
  const api=createAyambilApi(async()=>new Response(JSON.stringify({error:'SECRET RAW PROVIDER ERROR MUST NEVER APPEAR'}),{status:429,headers:{'content-type':'application/json','x-request-id':reference}}));
  await assert.rejects(api.request('admin/notification-outbox/send',{method:'POST',body:{id:row(1).id}}),e=>e.status===429&&e.requestId===reference&&!e.message.includes('SECRET')&&!e.message.includes('Please retry'));
  assert.deepEqual(delays,[45000]);
+});
+test('only explicit no-claim deferral is paced and bounded; unknown acceptance never repeats',async()=>{
+ let calls=0;const saved=[],waits=[];const preview=reviewedNotificationBatch([row(1)],owner);
+ let r=await runNotificationBatch({preview,request:async()=>({status:++calls===1?'deferred':'accepted'}),shouldStop:()=>false,onResult:async(i,r)=>saved.push(r.status),wait:async ms=>waits.push(ms)});
+ assert.equal(calls,2);assert.deepEqual(saved,['deferred','accepted']);assert.deepEqual(waits,[17000]);assert.equal(r.submitted,1);assert.equal(r.stopped,false);
+ calls=0;r=await runNotificationBatch({preview,request:async()=>{calls++;return {status:'deferred'};},shouldStop:()=>false,onResult:async()=>{},wait:async()=>{}});assert.equal(calls,3);assert.equal(r.submitted,0);assert.equal(r.stopped,true);
+ calls=0;r=await runNotificationBatch({preview,request:async()=>{calls++;throw Error('unknown acceptance');},shouldStop:()=>false,onResult:async()=>{},wait:async()=>assert.fail('must not wait')});assert.equal(calls,1);assert.equal(r.stopped,true);
+});
+test('successful foreground batch preserves verified active automatic owner; every stop/error pauses',()=>{
+ assert.equal(shouldPauseNotificationOwner({stopped:false},{enabled:true,active:true}),false);
+ for(const r of [undefined,{stopped:true}])assert.equal(shouldPauseNotificationOwner(r,{enabled:true,active:true}),true);
+ for(const w of [undefined,{enabled:false,active:false},{enabled:true,active:false}])assert.equal(shouldPauseNotificationOwner({stopped:false},w),true);
 });
