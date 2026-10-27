@@ -40,6 +40,7 @@ try{
  await reject(()=>sender.prepareSubject({purpose:'attendance',subject:dupA.booking.id},f.actor,c),/unresolved_duplicate_review/);
  await reject(()=>sender.prepareSubject({purpose:'attendance',subject:repeated.booking.id},f.actor,c),/repeated_name_hold/);
  await reject(()=>sender.prepareSubject({purpose:'attendance',subject:existing.booking.id},f.actor,c),/original secure escrow/);ok((await f.pool.query('SELECT token_hash FROM ayambil_family_reviews WHERE id=?',[er.id]))[0][0].token_hash,oldHash);ok((await c.family(el.path.split('#')[1])).id,er.id);
+ await c.revoke(f.actor,er.id);await reject(()=>sender.prepareSubject({purpose:'attendance',subject:existing.booking.id},f.actor,c),/original secure escrow/);ok((await f.pool.query('SELECT token_hash FROM ayambil_family_reviews WHERE id=?',[er.id]))[0][0].token_hash,null);
  const prepared=await Promise.all(Array.from({length:8},()=>sender.prepareSubject({purpose:'attendance',subject:attend.booking.id},f.actor,c)));ok(new Set(prepared.map(r=>r.id)).size,1);
  const saved=(await f.pool.query('SELECT * FROM ayambil_notification_outbox WHERE id=?',[prepared[0].id]))[0][0],secret=queueCrypto(f.fixtureQueueKey).open(saved.envelope);ok(saved.envelope.includes(secret.token),false);ok((await c.family(secret.token)).bookings.length,2);
  ok((await sender.runOne(saved.id,{ownershipVersion:2})).status,'accepted');ok(payloads.length,2);ok(payloads[1].components[0].parameters.length,10);

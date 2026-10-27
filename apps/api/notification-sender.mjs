@@ -102,7 +102,7 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
     const old=await one(db,"SELECT id FROM ayambil_notification_outbox WHERE purpose='attendance' AND subject=?",[review.id]);if(old)return old.id;
     // Never replace a previously issued link. Its escrow must be supplied through
     // the existing intent preparation route if it is not already encrypted here.
-    if(r.token_hash)throw Error('Existing private link requires original secure escrow; no link replaced');
+    if(r.token_hash||r.expires_at)throw Error('Existing private link requires original secure escrow; no link replaced');
     const token=randomBytes(32).toString('hex');await db.execute('UPDATE ayambil_family_reviews SET token_hash=?,expires_at=DATE_ADD(UTC_TIMESTAMP(3),INTERVAL 7 DAY) WHERE id=?',[createHash('sha256').update(token).digest('hex'),review.id]);
     await db.execute('INSERT INTO ayambil_control_audit VALUES(?,?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),actor.admin_id,review.id,'initial_link_created',JSON.stringify({purpose:'attendance',encryptedOutbox:true})]);
     // Initial token and encrypted envelope commit together; a failed preparation
