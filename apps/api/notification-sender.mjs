@@ -1,11 +1,12 @@
 // Production-capable durable sender. No import-time network, migration or worker.
-import {randomUUID,createHash} from 'node:crypto';
+import {randomUUID,randomBytes,createHash} from 'node:crypto';
 import {bookingPassToken} from './booking-pass-link.mjs';
 import {queueCrypto} from './message-queue.mjs';
 import {createBilingualMockAdapter,bilingualCatalog} from './bilingual-template-adapter.mjs';
 import {nextDeliveryStatus} from './delivery-status-policy.mjs';
 import {loadAttendanceEligibility,lockAttendanceEvent,assertAttendanceEligible} from './attendance-eligibility.mjs';
-const purposeNeedsPass=p=>['booking_confirmed','waiting_approved'].includes(p);
+import {combinedPassPayload} from './combined-pass-notification.mjs';
+const purposeNeedsPass=p=>['booking_confirmed','waiting_approved','pass_link'].includes(p);
 const digest=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 export function createProductionNotificationSender({pool,config,key,provider,catalog=bilingualCatalog}){
  const actual=pool?.pool?.config?.connectionConfig;
@@ -16,6 +17,7 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
  const tx=async fn=>{const db=await pool.getConnection();try{await db.query('SET TRANSACTION ISOLATION LEVEL READ COMMITTED');await db.beginTransaction();const r=await fn(db);await db.commit();return r;}catch(e){await db.rollback();throw e;}finally{db.release();}};
  async function source(db,purpose,subject,token){
   if(!/^[a-f0-9-]{36}$/.test(subject))throw Error('Invalid subject');
+  if(purposeNeedsPass(purpose)){const meta=await one(db,purpose==='waiting_approved'?'SELECT event_date FROM ayambil_waiting WHERE id=? OR booking_id=?':'SELECT event_date FROM ayambil_bookings WHERE id=?',purpose==='waiting_approved'?[subject,subject]:[subject]);if(!meta)throw Error('Confirmed source unavailable');await lockAttendanceEvent(db,meta.event_date);}
   let b,w,review;
   if(purpose==='waiting_received'||purpose==='waiting_approved'){
    w=await one(db,'SELECT * FROM ayambil_waiting WHERE id=? OR booking_id=? FOR UPDATE',[subject,subject]);
@@ -44,20 +46,34 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
   if(!rows.length)throw Error('Active passes required');
   // A prior provider submission or uncertain attempt makes a new initial confirmation unsafe.
   const prior=await one(db,"SELECT id FROM ayambil_message_queue WHERE booking_id=? AND notification_type='confirmation' AND (attempts>0 OR provider_id IS NOT NULL OR status IN ('preparing','sending','uncertain','accepted','sent','delivered','read')) LIMIT 1",[id]);
-  return {mobile:b.mobile,eventDate:b.event_date,contactName:b.contact_name,bookingReference:b.number,attendeeCount:rows.length,approvedAttendeeCount:rows.length,names:rows.map(x=>x.full_name),legacyConfirmation:!!prior,identity:[b.id,b.status,rows]};
+  const passPrior=await one(db,"SELECT id FROM ayambil_message_queue WHERE booking_id=? AND notification_type='pass' AND (attempts>0 OR provider_id IS NOT NULL OR status IN ('preparing','sending','uncertain','accepted','sent','delivered','read')) LIMIT 1",[id]);
+  return {mobile:b.mobile,eventDate:b.event_date,contactName:b.contact_name,bookingReference:b.number,attendeeCount:rows.length,approvedAttendeeCount:rows.length,names:rows.map(x=>x.full_name),legacyConfirmation:!!prior,legacyPass:!!passPrior,identity:[b.id,b.status,rows]};
  }
  async function envelope(db,input){
   const s=await source(db,input.purpose,input.subject,input.token);
-  if(purposeNeedsPass(input.purpose)&&s.legacyConfirmation)throw Error('Legacy confirmation already attempted');
+  if(['booking_confirmed','waiting_approved'].includes(input.purpose)&&s.legacyConfirmation)throw Error('Legacy confirmation already attempted');
+  if(purposeNeedsPass(input.purpose)){const eligibility=await loadAttendanceEligibility(db,{eventDate:s.eventDate,mobile:s.mobile});if(eligibility.reasons.some(r=>['unresolved_duplicate_review','repeated_name_hold'].includes(r)))throw Error('Confirmed notification held for duplicate/name review');}
+  if(input.purpose==='pass_link'){
+   if(s.legacyPass)throw Error('Legacy pass link already attempted');
+   const modern=await one(db,"SELECT id FROM ayambil_notification_outbox WHERE subject=? AND purpose IN ('booking_confirmed','waiting_approved') AND (attempts>0 OR provider_id IS NOT NULL OR state IN ('processing','uncertain','accepted','sent','delivered','read')) LIMIT 1",[s.canonicalSubject||input.subject]);if(modern)throw Error('Combined pass CTA already submitted or uncertain');
+  }
   const event=await one(db,'SELECT snapshot FROM ayambil_events WHERE event_date=?',[s.eventDate]);
   const session=typeof event?.snapshot==='string'?JSON.parse(event.snapshot):event?.snapshot;if(!session)throw Error('Event unavailable');
   const passSubject=purposeNeedsPass(input.purpose)?(input.purpose==='waiting_approved'?(await one(db,'SELECT booking_id FROM ayambil_waiting WHERE id=? OR booking_id=?',[input.subject,input.subject]))?.booking_id:input.subject):null;
   const data={...s,eventLabel:session.performer,eventDate:session.label,urlSuffix:s.urlSuffix||(passSubject?'passes#'+bookingPassToken(key,passSubject,session):undefined)};
-  const payload=build(input.purpose,data);return {s,payload:{...payload,to:s.mobile},hash:digest([s.identity,s.mobile,payload])};
+  const payload=input.purpose==='pass_link'?combinedPassPayload({session,source:s,subject:passSubject,key,origin:config.origin}):build(input.purpose,data);return {s,payload:{...payload,to:s.mobile},hash:digest([s.identity,s.mobile,payload])};
  }
  const lockName='ayambil-dispatch-'+digest(actual.database).slice(0,32);
  async function withLease(fn){const db=await pool.getConnection();try{const [[r]]=await db.query('SELECT GET_LOCK(?,0) acquired',[lockName]);if(r.acquired!==1)throw Error('Dispatch busy; no retry was performed');try{return await fn();}finally{await db.query('SELECT RELEASE_LOCK(?)',[lockName]);}}finally{db.release();}}
  async function gate(db,version,ownClaim=null){const c=await one(db,'SELECT * FROM ayambil_notification_owner WHERE id=1 FOR UPDATE');if(!c||c.owner!=='bilingual'||c.version!==version)throw Error('Paused or stale queue ownership');const inFlight=await one(db,"SELECT id FROM ayambil_message_queue WHERE status IN ('preparing','sending','uncertain') LIMIT 1");if(inFlight)throw Error('Legacy queue requires reconciliation');const modern=await one(db,"SELECT id FROM ayambil_notification_outbox WHERE state IN ('processing','uncertain')"+(ownClaim?' AND id<>?':'')+' LIMIT 1',ownClaim?[ownClaim]:[]);if(modern)throw Error('Notification queue requires reconciliation');}
+ async function persist(db,input,round){
+  const e=await envelope(db,input);if(e.s.sourceRound&&e.s.sourceRound!==round)throw Error('Review round mismatch');
+  const unit=['booking_verify','attendance'].includes(input.purpose)?[e.s.eventDate,e.s.contactUnit]:e.s.canonicalSubject||input.subject;
+  const dedupe=digest([['booking_confirmed','waiting_approved'].includes(input.purpose)?'admission_confirmation':input.purpose,unit,round]);
+  const previous=await one(db,'SELECT id,revision_hash FROM ayambil_notification_outbox WHERE dedupe_hash=? FOR UPDATE',[dedupe]);
+  if(previous){if(previous.revision_hash!==e.hash)throw Error('Existing intent revision conflict');return previous.id;}
+  const id=randomUUID();await db.execute('INSERT INTO ayambil_notification_outbox(id,dedupe_hash,revision_hash,purpose,subject,round_name,envelope,created_at,updated_at) VALUES(?,?,?,?,?,?,?,UTC_TIMESTAMP(3),UTC_TIMESTAMP(3))',[id,dedupe,e.hash,input.purpose,e.s.canonicalSubject||input.subject,round,crypto.seal(input)]);await db.execute('INSERT INTO ayambil_notification_audit VALUES(?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),'system','prepared',JSON.stringify({id,purpose:input.purpose})]);return id;
+ }
  return {
   async ready(){const state=await this.owner();if(!state||!['paused','bilingual'].includes(state.owner)||!Number.isSafeInteger(state.version))throw Error('Notification owner schema unavailable');await pool.query('SELECT provider_id,state FROM ayambil_notification_outbox LIMIT 0');await pool.query('SELECT actor,action,detail FROM ayambil_notification_audit LIMIT 0');await this.recover();return true;},
   async owner(){return one(pool,'SELECT owner,version FROM ayambil_notification_owner WHERE id=1');},
@@ -74,18 +90,32 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
    // Re-read authoritative source instead of trusting stored recipient/attendee context.
    return this.enqueue({purpose:row.purpose,subject:row.subject,round:row.review_round,token});
   },
+  async prepareSubject({purpose,subject},actor,controls){
+   if(!actor?.admin_id||!['booking_confirmed','waiting_received','pass_link','attendance'].includes(purpose)||!/^[a-f0-9-]{36}$/.test(subject||''))throw Error('Reviewed notification subject required');
+   if(purpose!=='attendance')return {id:await this.enqueue({purpose,subject,round:'initial'}),sent:false};
+   await provider.validate('attendance');
+   const review=await controls.createReview(actor,{purpose:'attendance',bookingIds:[subject],round:'initial',unansweredOnly:true});
+   const id=await tx(async db=>{
+    const meta=await one(db,'SELECT event_date FROM ayambil_family_reviews WHERE id=?',[review.id]);if(!meta)throw Error('Review unavailable');await lockAttendanceEvent(db,meta.event_date);
+    const r=await one(db,'SELECT * FROM ayambil_family_reviews WHERE id=? FOR UPDATE',[review.id]);
+    if(!r||r.response||r.decision)throw Error('Review answered or unavailable');
+    const old=await one(db,"SELECT id FROM ayambil_notification_outbox WHERE purpose='attendance' AND subject=?",[review.id]);if(old)return old.id;
+    // Never replace a previously issued link. Its escrow must be supplied through
+    // the existing intent preparation route if it is not already encrypted here.
+    if(r.token_hash||r.expires_at)throw Error('Existing private link requires original secure escrow; no link replaced');
+    const token=randomBytes(32).toString('hex');await db.execute('UPDATE ayambil_family_reviews SET token_hash=?,expires_at=DATE_ADD(UTC_TIMESTAMP(3),INTERVAL 7 DAY) WHERE id=?',[createHash('sha256').update(token).digest('hex'),review.id]);
+    await db.execute('INSERT INTO ayambil_control_audit VALUES(?,?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),actor.admin_id,review.id,'initial_link_created',JSON.stringify({purpose:'attendance',encryptedOutbox:true})]);
+    // Initial token and encrypted envelope commit together; a failed preparation
+    // rolls the token back, so no unrecoverable active link can be orphaned.
+    return persist(db,{purpose:'attendance',subject:review.id,round:'initial',token},'initial');
+   });return {id,sent:false};
+  },
   async enqueue(input){
    await provider.validate(input.purpose);
-   if(!catalog.some(t=>t.purpose===input.purpose)||!['booking_confirmed','waiting_received','waiting_approved','booking_verify','attendance','entry_timing'].includes(input.purpose))throw Error('Unknown purpose');
+   if(input.purpose!=='pass_link'&&!catalog.some(t=>t.purpose===input.purpose)||!['booking_confirmed','waiting_received','waiting_approved','booking_verify','attendance','entry_timing','pass_link'].includes(input.purpose))throw Error('Unknown purpose');
    const round=input.round||'initial';if(!/^[a-zA-Z0-9_-]{1,64}$/.test(round))throw Error('Invalid round');
-   if(['booking_confirmed','waiting_received','waiting_approved'].includes(input.purpose)&&round!=='initial')throw Error('Initial transactional message cannot be repeated');
-   return tx(async db=>{const e=await envelope(db,input);if(e.s.sourceRound&&e.s.sourceRound!==round)throw Error('Review round mismatch');
-    const unit=['booking_verify','attendance'].includes(input.purpose)?[e.s.eventDate,e.s.contactUnit]:e.s.canonicalSubject||input.subject;
-    const dedupe=digest([purposeNeedsPass(input.purpose)?'admission_confirmation':input.purpose,unit,round]);
-    const previous=await one(db,'SELECT id,revision_hash FROM ayambil_notification_outbox WHERE dedupe_hash=? FOR UPDATE',[dedupe]);
-    if(previous){if(previous.revision_hash!==e.hash)throw Error('Existing intent revision conflict');return previous.id;}
-    const id=randomUUID();await db.execute('INSERT INTO ayambil_notification_outbox(id,dedupe_hash,revision_hash,purpose,subject,round_name,envelope,created_at,updated_at) VALUES(?,?,?,?,?,?,?,UTC_TIMESTAMP(3),UTC_TIMESTAMP(3))',[id,dedupe,e.hash,input.purpose,e.s.canonicalSubject||input.subject,round,crypto.seal(input)]);await db.execute('INSERT INTO ayambil_notification_audit VALUES(?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),'system','prepared',JSON.stringify({id,purpose:input.purpose})]);return id;
-   });
+   if(['booking_confirmed','waiting_received','waiting_approved','pass_link'].includes(input.purpose)&&round!=='initial')throw Error('Initial transactional message cannot be repeated');
+   return tx(db=>persist(db,input,round));
   },
   async runOne(id,{ownershipVersion,actor='worker'}={}){
    if(config.notificationDispatch!==true)throw Error('Notification dispatch disabled');
@@ -93,14 +123,14 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
    const candidate=await one(pool,'SELECT purpose,subject FROM ayambil_notification_outbox WHERE id=?',[id]);if(!candidate)return {status:'not_claimed'};
    try{await provider.validate(candidate.purpose);}catch{await pool.execute("UPDATE ayambil_notification_outbox SET state='blocked',error_code='provider_preflight' WHERE id=? AND state IN ('held','ready')",[id]);return {status:'blocked'};}
    let claimed;
-   const lockEvent=async db=>{if(candidate.purpose==='attendance'){const meta=await one(db,'SELECT event_date FROM ayambil_family_reviews WHERE id=?',[candidate.subject]);if(meta)await lockAttendanceEvent(db,meta.event_date);}};
+   const lockEvent=async db=>{let meta;if(candidate.purpose==='attendance')meta=await one(db,'SELECT event_date FROM ayambil_family_reviews WHERE id=?',[candidate.subject]);else if(purposeNeedsPass(candidate.purpose))meta=await one(db,candidate.purpose==='waiting_approved'?'SELECT event_date FROM ayambil_waiting WHERE id=? OR booking_id=?':'SELECT event_date FROM ayambil_bookings WHERE id=?',candidate.purpose==='waiting_approved'?[candidate.subject,candidate.subject]:[candidate.subject]);if(meta)await lockAttendanceEvent(db,meta.event_date);};
    await tx(async db=>{await lockEvent(db);const row=await one(db,'SELECT * FROM ayambil_notification_outbox WHERE id=? FOR UPDATE',[id]);if(!row||!['held','ready'].includes(row.state))return;await gate(db,ownershipVersion);
     let e;try{e=await envelope(db,crypto.open(row.envelope));if(e.hash!==row.revision_hash)throw Error('Stale revision');}catch{await db.execute("UPDATE ayambil_notification_outbox SET state='blocked',error_code='eligibility_or_mapping',updated_at=UTC_TIMESTAMP(3) WHERE id=?",[id]);return;}
     const claim=randomUUID();await db.execute("UPDATE ayambil_notification_outbox SET state='processing',claim_id=?,attempts=attempts+1,updated_at=UTC_TIMESTAMP(3) WHERE id=?",[claim,id]);await db.execute('INSERT INTO ayambil_notification_audit VALUES(?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),actor,'claim_committed',JSON.stringify({id})]);claimed={claim,payload:e.payload};
    });
    if(!claimed)return {status:'not_claimed'};
    // Re-read after durable claiming, immediately before the provider boundary.
-   if(candidate.purpose==='attendance'){
+   if(candidate.purpose==='attendance'||purposeNeedsPass(candidate.purpose)){
     try{await tx(async db=>{await lockEvent(db);const row=await one(db,'SELECT * FROM ayambil_notification_outbox WHERE id=? FOR UPDATE',[id]);if(!row||row.state!=='processing'||row.claim_id!==claimed.claim)throw Error('Stale claim');await gate(db,ownershipVersion,id);const current=await envelope(db,crypto.open(row.envelope));if(current.hash!==row.revision_hash)throw Error('Stale revision');claimed.payload=current.payload;});}
     catch{await pool.execute("UPDATE ayambil_notification_outbox SET state='blocked',error_code='eligibility_changed_before_submit',updated_at=UTC_TIMESTAMP(3) WHERE id=? AND claim_id=? AND state='processing'",[id,claimed.claim]);return {status:'blocked'};}
    }
