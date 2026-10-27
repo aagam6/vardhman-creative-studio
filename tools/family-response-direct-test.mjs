@@ -35,5 +35,10 @@ try{
  equal(JSON.stringify(await store.download(old.downloadKeys[0])),oldJson);
  // Registration itself creates fixture legacy jobs; direct responses create none and never modify prior rows.
  const beforeRows=JSON.parse(legacyBefore),afterRows=(await pool.query('SELECT * FROM ayambil_message_queue ORDER BY id'))[0];for(const row of beforeRows)equal(JSON.stringify(afterRows.find(r=>r.id===row.id)),JSON.stringify(row));
+ // Imported live tables can retain a different default collation from additive tables.
+ await pool.query('ALTER TABLE ayambil_waiting MODIFY id CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL, MODIFY number VARCHAR(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL');
+ equal((await store.list({})).items.some(b=>b.status==='waiting'),true);
+ equal((await store.list({status:'waiting',search:'Waiting Guest',date:'2026-11-03'})).items.length,1);
+ equal((await store.list({message:'pending',messageType:'waiting_received'})).items.length,1);
  equal(f.telemetry.providerCalls,0);console.log(JSON.stringify({checks,providerCalls:0,scope:'fresh disposable MySQL only'}));
 }finally{await f.close();}
