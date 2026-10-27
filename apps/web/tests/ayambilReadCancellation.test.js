@@ -1,0 +1,8 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createAyambilApi} from '../src/lib/ayambilExpressClient.js';
+const stalled=(_,o)=>new Promise((resolve,reject)=>o.signal.addEventListener('abort',()=>reject(o.signal.reason),{once:true}));
+test('read timeout is actionable and performs no mutation/retry',async()=>{let calls=0;const api=createAyambilApi((...a)=>{calls++;return stalled(...a);},{requestTimeoutMs:5});await assert.rejects(api.request('admin/booking-controls/dashboard'),e=>e.code==='READ_TIMEOUT'&&e.operation==='admin/booking-controls/dashboard'&&e.message.includes('Retry loading'));assert.equal(calls,1);});
+test('tab/unmount cancellation is distinguishable from timeout',async()=>{const c=new AbortController();let calls=0;const api=createAyambilApi((...a)=>{calls++;return stalled(...a);});const p=api.request('admin/notification-outbox',{signal:c.signal});c.abort();await assert.rejects(p,e=>e.code==='READ_CANCELLED');assert.equal(calls,1);});
+test('send timeout never retries and cannot claim no submission',async()=>{let calls=0;const api=createAyambilApi((...a)=>{calls++;return stalled(...a);},{requestTimeoutMs:5});await assert.rejects(api.request('admin/notification-outbox/send',{method:'POST'}),e=>e.code==='MUTATION_UNCONFIRMED'&&!e.message.includes('no send was requested'));assert.equal(calls,1);});
+test('already cancelled read never reaches transport',async()=>{const c=new AbortController();c.abort();await assert.rejects(createAyambilApi(()=>assert.fail()).request('admin/notification-outbox',{signal:c.signal}),e=>e.code==='READ_CANCELLED');});
