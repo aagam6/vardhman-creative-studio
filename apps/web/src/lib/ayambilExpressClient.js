@@ -27,7 +27,9 @@ export function createAyambilApi(transport = fetchAyambilJson) {
     const method = options.method || 'GET';
     if (!Object.hasOwn(supportedOperations, path) || !supportedOperations[path].includes(method)) throw new Error('Invalid API operation');
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000);
+    // Two authenticated provider preflights plus submission each have a 10s
+    // server timeout. Do not abort their normal 30s window at the old 15s mark.
+    const timeout = setTimeout(() => controller.abort(), path.startsWith('admin/notification-outbox/') ? 45000 : 15000);
     const queryParams = new URLSearchParams(options.query || {});
     if (path.startsWith('admin/') && method === 'GET') queryParams.set('_fresh', globalThis.crypto.randomUUID());
     const query = queryParams.toString();
@@ -54,10 +56,11 @@ export function createAyambilApi(transport = fetchAyambilJson) {
             error.status = 403; throw error;
           }
         }
-        const error = new Error([401, 403].includes(response.status) ? 'Administrator authentication or session confirmation required' : `Ayambil API request failed (HTTP ${response.status}). Please retry.`);
+        const notification = path.startsWith('admin/notification-outbox/');
+        const error = new Error([401, 403].includes(response.status) ? 'Administrator authentication or session confirmation required' : notification ? `Notification request stopped (HTTP ${response.status}). Reconcile durable status before any further action; do not retry a send blindly.` : `Ayambil API request failed (HTTP ${response.status}). Please retry.`);
         error.status = response.status;
         const requestId=response.headers.get('x-request-id');
-        if (/^[a-f0-9-]{36}$/.test(requestId || '')) error.message += ` Reference: ${requestId}`;
+        if (/^[a-f0-9-]{36}$/.test(requestId || '')) {error.message += ` Reference: ${requestId}`;error.requestId=requestId;}
         if (response.status === 401) csrf = '';
         throw error;
       }
