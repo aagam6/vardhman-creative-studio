@@ -52,14 +52,22 @@ export function createFlow(env,fetcher=fetch){
  const base=env.VARDHMAN_FLOW_BASE_URL||'https://vardhmanflow.com/api/v1';
  const missing=['VARDHMAN_FLOW_API_KEY','VARDHMAN_FLOW_API_SECRET'].filter(k=>!env[k]);
  if(base!=='https://vardhmanflow.com/api/v1')missing.push('VARDHMAN_FLOW_BASE_URL');
- let calls=[];
+ let calls=[],recentRequests=[],lastResponse=null,cooldownUntil=0;
+ const operation=suffix=>suffix==='account'?'account':suffix.startsWith('templates')?'templates':suffix.startsWith('messages/status/')?'message_status':suffix==='messages/template'?'message_submit':'other';
+ const budget=()=>({scope:'this createFlow instance/process; provider key is shared beyond this process',localLimitPerMinute:50,documentedProviderLimitPerMinutePerKey:60,recentRequests:recentRequests.filter(r=>r.at>Date.now()-60000).reduce((a,r)=>(a[r.operation]=(a[r.operation]||0)+1,a),{}),cooldownUntil:cooldownUntil?new Date(cooldownUntil).toISOString():null,lastResponse:lastResponse?structuredClone(lastResponse):null});
  const request=async (suffix,body)=>{
   if(missing.length)throw new ApiError(503,'Vardhman Flow configuration required');
-  calls=calls.filter(t=>Date.now()-t<60000);if(calls.length>=50)throw new ApiError(429,'Provider check rate limit reached');calls.push(Date.now());
+  if(Date.now()<cooldownUntil)throw Object.assign(new ApiError(429,'Provider cooldown active; no request made'),{code:'PROVIDER_COOLDOWN'});
+  calls=calls.filter(t=>Date.now()-t<60000);if(calls.length>=50)throw Object.assign(new ApiError(429,'Provider check rate limit reached'),{code:'LOCAL_FLOW_BUDGET'});calls.push(Date.now());recentRequests=recentRequests.filter(r=>r.at>Date.now()-60000);recentRequests.push({at:Date.now(),operation:operation(suffix)});
   const headers={'X-API-Key':env.VARDHMAN_FLOW_API_KEY,'X-API-Secret':env.VARDHMAN_FLOW_API_SECRET};if(env.VARDHMAN_FLOW_CHANNEL_ID)headers['X-Channel-Id']=env.VARDHMAN_FLOW_CHANNEL_ID;
   try{
    if(body)headers['Content-Type']='application/json';
    const response=await fetcher(base+'/'+suffix,{method:body?'POST':'GET',body:body?JSON.stringify(body):undefined,headers,signal:AbortSignal.timeout(10000),redirect:'error'});
+   const observed=Date.now(),retry=response.headers.get('retry-after');
+   const retrySeconds=retry&&/^\d{1,9}$/.test(retry)?Number(retry):retry&&Number.isFinite(Date.parse(retry))?Math.max(0,Math.ceil((Date.parse(retry)-observed)/1000)):null;
+   const providerId=response.headers.get('x-request-id')||response.headers.get('request-id')||response.headers.get('cf-ray');
+   lastResponse={operation:operation(suffix),method:body?'POST':'GET',status:response.status,observedAt:new Date(observed).toISOString(),retryAfterPresent:retry!==null,retryAfterSeconds:retrySeconds,providerRequestId:/^[a-zA-Z0-9_.:-]{1,200}$/.test(providerId||'')?providerId:null};
+   if(response.status===429){cooldownUntil=observed+Math.max(60,retrySeconds??60)*1000;lastResponse.cooldownBasis=retrySeconds===null?'local conservative minimum; provider reset unknown':'provider Retry-After with local minimum60s';}
    if(!response.ok){
     const messages={400:'Provider rejected parameters; verify template count and format',401:'Provider rejected authentication; verify private credentials',403:'Provider rejected permission or channel access',404:'Provider route or template unavailable',409:'Provider resource conflict; do not retry blindly',429:'Provider rate limit exceeded; no automatic send retry'};
     const error=new ApiError(response.status===429?429:503,messages[response.status]||'Provider request failed; acceptance not confirmed');
@@ -72,7 +80,8 @@ export function createFlow(env,fetcher=fetch){
   }catch(error){if(error instanceof ApiError)throw error;throw Object.assign(new ApiError(503,'Provider request unavailable; acceptance not confirmed'),{code:'PROVIDER_TRANSPORT_UNAVAILABLE'});}
  };
  return {
-  configuration(){return {ready:false,configured:missing.length===0,missing,sending:env.AYAMBIL_WHATSAPP_ENABLED==='true',testBodyOverride:env.AYAMBIL_WHATSAPP_TEST_BODY_OVERRIDE==='true'&&env.AYAMBIL_STAGING_BUILD==='true'&&env.AYAMBIL_SITE_ORIGIN==='https://white-reindeer-590806.hostingersite.com'&&env.AYAMBIL_WHATSAPP_NORMAL_PROCESSING_APPROVED!=='true',reason:'Outbound workflow and approved template mappings require verification'};},
+  async rateProbe(){try{const account=await request('account');return {recovered:true,providerStatus:200,budget:budget(),usage:{requestCount:Number.isFinite(account.usage?.requestCount)?account.usage.requestCount:null,monthlyRequestCount:Number.isFinite(account.usage?.monthlyRequestCount)?account.usage.monthlyRequestCount:null},channelHealthy:account.channel?.isActive===true&&account.channel?.healthStatus==='healthy'};}catch(e){return {recovered:false,providerStatus:e.code==='PROVIDER_COOLDOWN'||e.code==='LOCAL_FLOW_BUDGET'?null:budget().lastResponse?.status||null,blockedLocally:['PROVIDER_COOLDOWN','LOCAL_FLOW_BUDGET'].includes(e.code),code:/^(?:PROVIDER_[A-Z0-9_]+|LOCAL_FLOW_BUDGET)$/.test(e.code||'')?e.code:'PROBE_UNAVAILABLE',budget:budget()};}},
+  configuration(){return {providerBudget:budget(),ready:false,configured:missing.length===0,missing,sending:env.AYAMBIL_WHATSAPP_ENABLED==='true',testBodyOverride:env.AYAMBIL_WHATSAPP_TEST_BODY_OVERRIDE==='true'&&env.AYAMBIL_STAGING_BUILD==='true'&&env.AYAMBIL_SITE_ORIGIN==='https://white-reindeer-590806.hostingersite.com'&&env.AYAMBIL_WHATSAPP_NORMAL_PROCESSING_APPROVED!=='true',reason:'Outbound workflow and approved template mappings require verification'};},
   compatibilityContext(eventDate){return testBodyOverrideApproved(env)?{to:normalizePhone(env.AYAMBIL_WHATSAPP_TEST_RECIPIENT),compatibilityTest:true,testEventDate:eventDate}:null;},
   async prepare(type,context){
    const compatibility=context.compatibilityTest===true;

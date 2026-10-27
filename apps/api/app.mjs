@@ -98,6 +98,7 @@ export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirect
     }
   }));
   api.post('/admin/whatsapp-retry',admin,(req,res)=>res.status(403).json({error:'WhatsApp sending and retries disabled'}));
+  api.get('/admin/whatsapp/rate-probe',admin,limited('flow-recovery-probe',1),route(async(req,res)=>{if(!flow?.rateProbe)throw new ApiError(503,'Provider diagnostic unavailable');res.json(await flow.rateProbe());}));
   api.get('/admin/whatsapp',admin,route(async(req,res)=>{const worker=getQueueWorkerStatus();res.json({...(flow?flow.configuration():{ready:false,configured:false,sending:false,missing:['VARDHMAN_FLOW_API_KEY','VARDHMAN_FLOW_API_SECRET']}),testSendingAvailable,worker:{enabled:worker.enabled===true,active:worker.active===true,reminder:worker.reminder || {enabled:false,active:false}}});}));
   api.get('/admin/messages',admin,route(async(req,res)=>res.json({items:queue?await queue.list():[]})));
   api.get('/admin/messages/batch-preview',admin,route(async(req,res)=>{
