@@ -17,7 +17,7 @@ export const supportedOperations = Object.freeze({
 
 });
 
-export function createAyambilApi(transport = fetchAyambilJson) {
+export function createAyambilApi(transport = fetchAyambilJson, {requestTimeoutMs} = {}) {
   let csrf = '';
   const authenticated = data => {
     if (data?.authenticated !== true || !/^[a-f0-9]{64}$/.test(data.csrfToken || '')) throw new Error('Invalid administrator session');
@@ -29,7 +29,12 @@ export function createAyambilApi(transport = fetchAyambilJson) {
     const controller = new AbortController();
     // Two authenticated provider preflights plus submission each have a 10s
     // server timeout. Do not abort their normal 30s window at the old 15s mark.
-    const timeout = setTimeout(() => controller.abort(), path.startsWith('admin/notification-outbox/') ? 45000 : 15000);
+    const readOnly = method === 'GET';
+    let timedOut = false;
+    const abortRead = () => controller.abort();
+    if (readOnly && options.signal?.aborted) { const error = new Error('Read cancelled'); error.code='READ_CANCELLED'; throw error; }
+    if (readOnly) options.signal?.addEventListener('abort', abortRead, {once:true});
+    const timeout = setTimeout(() => { timedOut=true; controller.abort(); }, requestTimeoutMs ?? (path.startsWith('admin/notification-outbox/') ? 45000 : 15000));
     const queryParams = new URLSearchParams(options.query || {});
     if (path.startsWith('admin/') && method === 'GET') queryParams.set('_fresh', globalThis.crypto.randomUUID());
     const query = queryParams.toString();
@@ -70,7 +75,14 @@ export function createAyambilApi(transport = fetchAyambilJson) {
       validateResponse(path, data);
       if (path === 'register' && data.attendees.some(attendee => attendee.dates[0] !== options.body?.eventDate)) throw new Error('Incorrect registered evening');
       return data;
-    } finally { clearTimeout(timeout); }
+    } catch (error) {
+      if (controller.signal.aborted) {
+        const safe = new Error(timedOut ? (readOnly ? 'Loading timed out. Retry loading; no send was requested.' : 'Request outcome unconfirmed. Reconcile durable status before any further action; do not retry a send.') : 'Read cancelled');
+        safe.code=timedOut?(readOnly?'READ_TIMEOUT':'MUTATION_UNCONFIRMED'):'READ_CANCELLED';
+        safe.operation=path; throw safe;
+      }
+      throw error;
+    } finally { clearTimeout(timeout); if(readOnly) options.signal?.removeEventListener('abort',abortRead); }
   }
   return {
     request,
