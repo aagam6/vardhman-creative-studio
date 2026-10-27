@@ -10,7 +10,8 @@ import {startBookingFixture,fixtureInput} from './booking-controls-fixture.mjs';
 import {createApp} from '../apps/api/app.mjs';
 import {bookingPassToken} from '../apps/api/booking-pass-link.mjs';
 import {programme} from '../apps/api/config.mjs';
-const port=3138,f=await startBookingFixture(port),origin=f.config.origin;
+const port=process.argv.includes('--direct-responses')?3140:3138,f=await startBookingFixture(port),origin=f.config.origin;
+f.config.directFamilyResponses=process.argv.includes('--direct-responses');
 const key=randomBytes(32).toString('hex'),cookie=randomBytes(32).toString('hex');
 const names=['સ્થાનિક પરિવાર એક','સ્થાનિક પરિવાર બે','સ્થાનિક પરિવાર ત્રણ','સ્થાનિક પરિવાર ચાર','સ્થાનિક પરિવાર પાંચ'];
 const update=async(date,mode,capacity)=>{const c=(await f.store.bookingControls.availability()).find(x=>x.event_date===date);await f.store.bookingControls.update(f.actor,{eventDate:date,mode,capacity,version:c.version});};
@@ -30,6 +31,7 @@ await f.store.register(fixtureInput(['શ્રીમતી ચંદ્રિ�
 const seeded=(await f.store.bookingControls.duplicates()).bookings;
 for(const [index,attending] of [[0,'yes'],[1,'no']]){const b=seeded.find(b=>b.mobile==='+1202'+String(5600000+index));const review=await f.store.bookingControls.createReview(f.actor,{purpose:'attendance',bookingIds:[b.id],round:'initial'});const link=await f.store.bookingControls.link(f.actor,review.id);await f.store.bookingControls.respond(link.path.split('#')[1],{attending,names:attending==='yes'?b.names:[],count:attending==='yes'?b.names.length:0});}
 
+const responseBooking=seeded.find(b=>b.mobile==='+12025550888');const responseReview=await f.store.bookingControls.createReview(f.actor,{purpose:'attendance',bookingIds:[responseBooking.id],round:'visual'});const responseLink=await f.store.bookingControls.link(f.actor,responseReview.id);
 const gate=express();gate.use(express.json({limit:'32kb'}));gate.use((req,res,next)=>{
  res.set({'Cache-Control':'no-store','Referrer-Policy':'no-referrer','X-Content-Type-Options':'nosniff','Content-Security-Policy':"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' ws://127.0.0.1:"+port+"; img-src 'self' data: blob:; font-src 'self' data:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"});
  if(req.headers.host!==`127.0.0.1:${port}`||req.method!=='GET'&&req.headers.origin!==origin)return res.sendStatus(403);
@@ -65,5 +67,5 @@ gate.get('/local/booking-controls/family',(req,res)=>res.redirect(307,'/500-akha
 gate.get(['/local/booking-controls','/local/booking-controls/'],(req,res)=>res.redirect(307,'/admin/ayambil'));
 const api=createApp({store:f.store,config:f.config,staticDirectory:resolve('dist/apps/web')});
 const vite=await createServer({configFile:false,envFile:false,root:resolve('apps/web'),esbuild:{target:'esnext'},optimizeDeps:{esbuildOptions:{target:'esnext'}},resolve:{alias:{'@':resolve('apps/web/src')}},css:{postcss:{plugins:[tailwindcss({config:resolve('apps/web/tailwind.config.js'),content:[resolve('apps/web/src/**/*.{js,jsx}'),resolve('apps/web/index.html')]}),autoprefixer()]}},server:{host:'127.0.0.1',port,strictPort:true},plugins:[react(),{name:'local-booking-controls',transformIndexHtml(html){return html.replace(/<!-- Meta Pixel Code -->[\s\S]*?<!-- End Meta Pixel Code -->/g,'').replace(/<noscript>[\s\S]*?<\/noscript>/g,'');},configureServer(server){server.middlewares.use(gate);}}]});
-await vite.listen();console.log(`LOCAL SYNTHETIC MYSQL ONLY — messaging disabled\nAdmin: ${origin}/admin/ayambil#${key}\nPublic: ${origin}/500-akhand-ayambil-vijayollas/sairam-dave#ay-registration\nEngine: ${f.databaseName}`);
+await vite.listen();console.log(`LOCAL SYNTHETIC MYSQL ONLY — messaging disabled\nAdmin: ${origin}/admin/ayambil#${key}\nPublic: ${origin}/500-akhand-ayambil-vijayollas/sairam-dave#ay-registration\nResponse: ${origin}${responseLink.path}\nEngine: ${f.databaseName}`);
 async function close(){await vite.close();await f.close();process.exit(0);}process.on('SIGINT',close);process.on('SIGTERM',close);

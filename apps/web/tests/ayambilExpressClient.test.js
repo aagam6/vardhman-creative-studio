@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createAyambilApi } from '../src/lib/ayambilExpressClient.js';
+import { createAyambilApi, validateResponse } from '../src/lib/ayambilExpressClient.js';
 import { passPage, passImagePlacement } from '../src/lib/ayambilPassLayout.js';
 import {readFileSync} from 'node:fs';
 const programme=JSON.parse(readFileSync(new URL('../../pocketbase/pb_hooks/ayambil/config.json',import.meta.url)));
@@ -77,4 +77,12 @@ test('response boundary rejects seven attendees while accepting six and checking
 test('release guard has a safe specific error rather than an expired-session diagnosis',async()=>{
  const api=createAyambilApi(async()=>Response.json({errorCode:'BOOKING_CONTROLS_SEND_DISABLED',error:'do not echo arbitrary server text'},{status:403}));
  await assert.rejects(api.request('admin/messages/send-selected',{method:'POST'}),e=>e.status===403&&e.code==='BOOKING_CONTROLS_SEND_DISABLED'&&e.message.includes('before provider submission')&&!e.message.includes('arbitrary'));
+});
+
+test('unified waiting list accepts no-pass records but rejects invented entry access',()=>{
+ const row={id:'waiting-id',number:'WAIT26-FIXTURE',status:'waiting',eventDate:'2026-11-03',attendees:[{fullName:'Waiting Guest',status:'waiting',dates:['2026-11-03'],passes:[]}]};
+ const result={items:[row],page:1,hasMore:false,integration:{ready:false,missing:[]}};
+ assert.doesNotThrow(()=>validateResponse('admin/bookings',result));
+ assert.throws(()=>validateResponse('admin/bookings',{...result,items:[{...row,downloadKeys:['invented']}]}));
+ assert.throws(()=>validateResponse('admin/bookings',{...result,items:[{...row,attendees:[{...row.attendees[0],passes:[{}]}]}]}));
 });
