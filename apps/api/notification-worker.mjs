@@ -9,8 +9,8 @@ export function startNotificationWorker(service,config,env,{schedule=setInterval
   const owner=await service.owner();if(owner.owner!=='bilingual'){stop();return;}
   if(service.reconcileNext)await service.reconcileNext();
   const pending=await service.pending(since);if(!pending.length)return;
-  const id=await service.enqueueHeldIntent(pending[0].id);const r=await service.runOne(id,{ownershipVersion:owner.version});
-  if(!['accepted','sent','delivered','read'].includes(r.status))stop();
+  const id=pending[0].outbox_id||await service.enqueueHeldIntent(pending[0].id);const r=await service.runOne(id,{ownershipVersion:owner.version,automaticSince:since,actor:'transactional-worker'});
+  if(!['accepted','sent','delivered','read','deferred'].includes(r.status))stop();
  }catch{stop();}finally{running=false;}};
  const timer=schedule(tick,15000);return {enabled:true,get active(){return !stopped;},stop};
 }
