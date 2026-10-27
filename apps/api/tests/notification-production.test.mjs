@@ -19,3 +19,9 @@ test('worker handles one reviewed new intent, honors owner/cutoff and stops on u
  const worker=startNotificationWorker(service,{notificationDispatch:true},{AYAMBIL_BILINGUAL_WORKER_ENABLED:'true',AYAMBIL_BILINGUAL_ACTIVATION_AT:'2026-10-25T00:00:00.000Z'},{schedule(fn){tick=fn;return 1;},cancel(){cancelled++;}});
  assert.equal(calls,0);await tick();await tick();assert.equal(calls,1);assert.equal(cancelled,1);assert.equal(worker.active,false);assert.equal(cutoff,'2026-10-25T00:00:00.000Z');
 });
+test('restart reuses prepared transactional outbox and deferred pacing never retries a submission',async()=>{
+ let tick,calls=0,prepares=0,cancelled=0;const cutoff='2026-10-27T07:28:06.000Z';
+ const service={owner:async()=>({owner:'bilingual',version:28}),pending:async s=>{assert.equal(s,cutoff);return [{id:'intent',outbox_id:'prepared'}];},enqueueHeldIntent:async()=>{prepares++;},runOne:async(id,o)=>{assert.equal(id,'prepared');assert.equal(o.automaticSince,cutoff);assert.equal(o.ownershipVersion,28);assert.equal(o.actor,'transactional-worker');calls++;return {status:calls===1?'deferred':'uncertain'};}};
+ const worker=startNotificationWorker(service,{notificationDispatch:true},{AYAMBIL_BILINGUAL_WORKER_ENABLED:'true',AYAMBIL_BILINGUAL_ACTIVATION_AT:cutoff},{schedule(fn){tick=fn;return 1;},cancel(){cancelled++;}});
+ await tick();assert.equal(worker.active,true);assert.equal(calls,1);assert.equal(prepares,0);await tick();await tick();assert.equal(calls,2);assert.equal(cancelled,1);assert.equal(worker.active,false);
+});

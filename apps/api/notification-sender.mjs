@@ -122,10 +122,20 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
    if(['booking_confirmed','waiting_received','waiting_approved','pass_link'].includes(input.purpose)&&round!=='initial')throw Error('Initial transactional message cannot be repeated');
    return tx(db=>persist(db,input,round));
   },
-  async runOne(id,{ownershipVersion,actor='worker'}={}){
+  async runOne(id,{ownershipVersion,actor='worker',automaticSince=null}={}){
    if(config.notificationDispatch!==true)throw Error('Notification dispatch disabled');
    return withLease(async()=>{
    const candidate=await one(pool,'SELECT purpose,subject FROM ayambil_notification_outbox WHERE id=?',[id]);if(!candidate)return {status:'not_claimed'};
+   if(automaticSince){
+    if(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(automaticSince))throw Error('Exact automatic cutoff required');
+    if(!['booking_confirmed','waiting_received','waiting_approved'].includes(candidate.purpose))throw Error('Automatic transactional purpose required');
+    const intent=await one(pool,"SELECT id FROM ayambil_notification_intents WHERE subject=? AND purpose=? AND review_round='initial' AND created_at>? LIMIT 1",[candidate.subject,candidate.purpose,automaticSince.replace('T',' ').replace('Z','')]);
+    if(!intent)throw Error('Outside automatic activation boundary');
+   }
+   // Durable pacing is shared by foreground and worker, inside the same lease.
+   // A deferred job has never been claimed/submitted and may be selected later.
+   const recent=await one(pool,"SELECT id FROM ayambil_notification_outbox WHERE attempts>0 AND updated_at>DATE_SUB(UTC_TIMESTAMP(3),INTERVAL 17 SECOND) LIMIT 1");
+   if(recent)return {status:'deferred'};
    try{await provider.validate(candidate.purpose);}catch{await pool.execute("UPDATE ayambil_notification_outbox SET state='blocked',error_code='provider_preflight' WHERE id=? AND state IN ('held','ready')",[id]);return {status:'blocked'};}
    let claimed;
    const lockEvent=db=>lockSourceEvent(db,candidate.purpose,candidate.subject);
@@ -149,7 +159,10 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
   },
   async reconcileNext(){const row=await one(pool,"SELECT id FROM ayambil_notification_outbox WHERE state IN ('accepted','sent') AND provider_id IS NOT NULL AND (last_checked_at IS NULL OR last_checked_at<DATE_SUB(UTC_TIMESTAMP(3),INTERVAL 1 MINUTE)) ORDER BY COALESCE(last_checked_at,created_at),id LIMIT 1");return row?this.reconcile(row.id,{admin_id:'scheduler'}):{processed:false};},
   async recover(){await pool.execute("UPDATE ayambil_notification_outbox SET state='uncertain',error_code='interrupted_claim',updated_at=UTC_TIMESTAMP(3) WHERE state='processing' AND updated_at<DATE_SUB(UTC_TIMESTAMP(3),INTERVAL 5 MINUTE)");},
-  async pending(since){if(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(since||''))throw Error('Explicit activation cutoff required');const [r]=await pool.execute("SELECT i.id FROM ayambil_notification_intents i WHERE i.state='held' AND i.purpose IN ('booking_confirmed','waiting_received','waiting_approved') AND i.created_at>=? AND NOT EXISTS(SELECT 1 FROM ayambil_notification_outbox o WHERE o.subject=i.subject AND (o.purpose=i.purpose OR o.purpose IN ('booking_confirmed','waiting_approved') AND i.purpose IN ('booking_confirmed','waiting_approved'))) ORDER BY i.created_at,i.id LIMIT 1",[since.replace('T',' ').replace('Z','')]);return r;},
+  async pending(since){
+   if(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(since||''))throw Error('Explicit activation cutoff required');
+   const [r]=await pool.execute("SELECT i.id,o.id outbox_id FROM ayambil_notification_intents i LEFT JOIN ayambil_notification_outbox o ON o.subject=i.subject AND (o.purpose=i.purpose OR o.purpose IN ('booking_confirmed','waiting_approved') AND i.purpose IN ('booking_confirmed','waiting_approved')) WHERE i.state='held' AND i.review_round='initial' AND i.purpose IN ('booking_confirmed','waiting_received','waiting_approved') AND i.created_at>? AND (o.id IS NULL OR o.purpose=i.purpose AND o.state IN ('held','ready') AND o.attempts=0 AND o.provider_id IS NULL) ORDER BY i.created_at,i.id LIMIT 1",[since.replace('T',' ').replace('Z','')]);return r;
+  },
   async list(page=1){page=Number(page);if(!Number.isInteger(page)||page<1||page>100000)throw Error('Invalid page');const [r]=await pool.query('SELECT id,purpose,round_name,state,attempts,provider_id,error_code,created_at FROM ayambil_notification_outbox ORDER BY created_at DESC,id LIMIT 21 OFFSET ?',[20*(page-1)]);return {items:r.slice(0,20),hasMore:r.length>20,page};},
   async intents(page=1){page=Number(page);if(!Number.isInteger(page)||page<1||page>100000)throw Error('Invalid page');const [r]=await pool.query("SELECT i.id,i.subject,i.purpose,i.review_round,i.state,i.created_at FROM ayambil_notification_intents i ORDER BY i.created_at DESC,i.id LIMIT 20 OFFSET ?",[20*(page-1)]);return r;}
 

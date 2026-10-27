@@ -1,0 +1,11 @@
+# Transactional cutoff and restart recovery
+
+Automatic dispatch remains default-off. Its exact reviewed ISO cutoff is not inferred or moved during recovery. A transactional intent must have `created_at > cutoff` and initial round, with purpose `booking_confirmed`, `waiting_received` or `waiting_approved`. Campaigns, standalone pass backlog, reminders and entry notices are excluded. A source created earlier but approved after cutoff is classified by the approval intent timestamp, not the original booking timestamp.
+
+Pending selection now recovers an existing held/ready outbox only when attempts are zero and no provider ID exists. A submitted, uncertain, processing, failed, blocked or cancelled outbox is never resumed or reset by this selection. The final sender checks the automatic purpose/cutoff again inside the shared dispatch lease, rather than trusting the selector alone. The same existing canonical dedup keys and ownership revision apply to foreground and automatic calls.
+
+All dispatches share durable 17-second pacing under the existing MySQL advisory lease. A `deferred` result means no claim/submission occurred; worker may select that never-attempted record on a later tick. It is not a retry of an attempted record. Provider uncertainty still stops the worker and requires review. The existing HTTP four/minute guard stays unchanged. No schema or legacy queue rewrite is introduced.
+
+Restart after preparation recovers the encrypted outbox instead of losing the intent. Paused owner still blocks and stops the worker. Therefore a foreground batch that pauses the owner also stops automatic processing; do not claim simultaneous automatic service remains active after a foreground batch. Activate/restart and verify the worker only after the planned manual campaign stage or a separately reviewed ownership/UI integration.
+
+Local evidence: four worker/settings unit tests; 19 fresh disposable MySQL assertions verify strict before/equal/after cutoff, prepared recovery, manual/worker concurrent ownership/dedup, shared pacing and no old-message replay. Two in-memory mock provider posts; actual provider/network calls zero. Standard regression: 135 API + 89 frontend passed, three existing opt-in suites skipped; build passed. Deployment/production worker activation requires separate current verification and is not implied by these local results.
