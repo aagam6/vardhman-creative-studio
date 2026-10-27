@@ -101,6 +101,19 @@ export function createFlow(env,fetcher=fetch){
    if(!diagnostic.verified)throw new ApiError(503,'Bilingual provider definition failed: '+diagnostic.issues.join(', '));
    return {verified:true,templateId:template.templateId,status:'APPROVED',category:'UTILITY',observedAt:new Date().toISOString(),source:diagnostic.source,...(diagnostic.snapshotPolicy?{snapshotPolicy:diagnostic.snapshotPolicy,providerComponentsVerified:false}:{providerComponentsVerified:true})};
   },
+  async verifyCombinedPass(){
+   const account=await request('account'),channel=account.channel;
+   if(!channel?.id||channel.isActive!==true||channel.healthStatus!=='healthy'||!env.VARDHMAN_FLOW_CHANNEL_ID||env.VARDHMAN_FLOW_CHANNEL_ID!==channel.id)throw new ApiError(503,'Healthy configured channel required');
+   const templates=await request('templates?status=APPROVED');
+   const matches=Array.isArray(templates)?templates.filter(t=>t.name==='ayambil_pass_ready'&&t.language==='en'):[];
+   const t=matches[0],uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+   let mappings;try{mappings=JSON.parse(env.AYAMBIL_FLOW_TEMPLATE_MAPPINGS||'{}');}catch{throw new ApiError(503,'Reviewed pass mapping required');}
+   const mapping={...notificationTemplates.pass,language:'en'};
+   if(matches.length!==1||!uuid.test(t?.id||'')||templates.filter(x=>x.id===t.id).length!==1||t.status!=='APPROVED'||String(t.category).toUpperCase()!=='UTILITY'||!['02','03'].every(day=>{const m=mappings['pass_'+day]||mappings.pass;return m?.name===mapping.name&&m.language==='en'&&JSON.stringify(m.fields)===JSON.stringify(mapping.fields);}))throw new ApiError(503,'Approved Utility pass identity/mapping required');
+   const metadata=templateMetadata(t,mapping,{...metadataOptions,requireReviewedBodies:true});
+   if(!metadata.verified)throw new ApiError(503,'Exact reviewed pass BODY required');
+   return {verified:true,name:t.name,providerTemplateId:t.id,language:'en',status:'APPROVED',category:'UTILITY',source:metadata.bodySource,observedAt:new Date().toISOString()};
+  },
   async sendPrepared(payload){
    if(env.AYAMBIL_WHATSAPP_ENABLED!=='true')throw new ApiError(403,'Sending not enabled');
    const data=await request('messages/template',payload);if(typeof data.messageId!=='string'||!data.messageId||data.messageId.length>200)throw new ApiError(503,'Provider acceptance unknown');
