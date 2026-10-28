@@ -198,6 +198,34 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
    return rows[0]||null;
   },
   async list(page=1){page=Number(page);if(!Number.isInteger(page)||page<1||page>100000)throw Error('Invalid page');const [r]=await pool.query('SELECT id,purpose,round_name,state,attempts,provider_id,error_code,created_at FROM ayambil_notification_outbox ORDER BY created_at DESC,id LIMIT 21 OFFSET ?',[20*(page-1)]);return {items:r.slice(0,20),hasMore:r.length>20,page};},
+  async pendingAudit(){
+   // Read-only source validation. Never refresh provider evidence, prepare,
+   // claim, reconcile receipts, or modify a queued record from this audit.
+   const [rows]=await pool.query("SELECT id,purpose,subject,round_name,state,attempts,provider_id,claim_id,error_code,envelope,revision_hash,created_at FROM ayambil_notification_outbox WHERE state IN ('held','ready','processing','uncertain') ORDER BY created_at,id LIMIT 1001");
+   if(rows.length>1000)throw Error('Pending audit exceeds bounded scope');
+   const items=[];
+   const reasons={'Active booking required':'booking_inactive_or_no_consent','Active passes required':'no_active_passes','Notification source unavailable':'source_unavailable','Waiting transition no longer eligible':'waiting_transition_changed','Waiting WhatsApp consent required':'consent_missing','Legacy confirmation already attempted':'prior_legacy_confirmation','Confirmed notification held for duplicate/name review':'duplicate_or_name_hold','Legacy pass link already attempted':'prior_legacy_pass','Combined pass CTA already submitted or uncertain':'combined_pass_cta_already_attempted','Legacy reminder already attempted':'prior_legacy_reminder','Reminder or entry notice already attempted':'prior_reminder_or_entry_attempt','Reminder outside previous-day 18:00 IST window':'scheduled_window_not_due','Review snapshot stale':'review_snapshot_stale','Attendance contact snapshot stale':'attendance_contact_snapshot_stale','Contact already answered':'contact_already_answered','Existing intent revision conflict':'source_revision_changed'};
+   for(const row of rows){
+    let reason=row.state==='uncertain'?'acceptance_uncertain':row.state==='processing'?'in_flight':row.attempts||row.provider_id||row.claim_id?'prior_attempt_or_claim':null;
+    if(!reason)try{
+     const input=crypto.open(row.envelope);
+     reason=await tx(async db=>{
+      if(['attendance','booking_verify'].includes(row.purpose)){
+       const review=await one(db,'SELECT response,decision,token_hash,expires_at FROM ayambil_family_reviews WHERE id=?',[row.subject]);
+       if(!review)return 'review_unavailable';if(review.response)return 'review_already_answered';if(review.decision)return 'review_decided';
+       if(!review.token_hash||review.token_hash!==createHash('sha256').update(input.token||'').digest('hex'))return 'review_link_revoked';
+       if(Date.parse(review.expires_at+'Z')<=Date.now())return 'review_link_expired';
+      }
+      const current=await envelope(db,input,{ownOutboxId:row.id});
+      if(current.hash!==row.revision_hash)return 'source_revision_changed';
+      return 'source_eligible_requires_provider_preflight';
+     });
+    }catch(e){reason=reasons[e.message]||(/approved Utility|language code|parameter mapping|private URL/.test(e.message)?'template_or_mapping_preflight_required':'source_review_required');}
+    items.push({id:row.id,purpose:row.purpose,subject:row.subject,round:row.round_name,state:row.state,attempts:Number(row.attempts),providerReferencePresent:Boolean(row.provider_id),claimPresent:Boolean(row.claim_id),errorCode:row.error_code,createdAt:row.created_at,reason});
+   }
+   const byReason={},byPurpose={},byState={};for(const i of items){byReason[i.reason]=(byReason[i.reason]||0)+1;byPurpose[i.purpose]=(byPurpose[i.purpose]||0)+1;byState[i.state]=(byState[i.state]||0)+1;}
+   return {items,total:items.length,byReason,byPurpose,byState,noSend:true,providerCalls:0,sourceChecksOnly:true};
+  },
   async intents(page=1){page=Number(page);if(!Number.isInteger(page)||page<1||page>100000)throw Error('Invalid page');const [r]=await pool.query("SELECT i.id,i.subject,i.purpose,i.review_round,i.state,i.created_at FROM ayambil_notification_intents i ORDER BY i.created_at DESC,i.id LIMIT 20 OFFSET ?",[20*(page-1)]);return r;}
 
  };
