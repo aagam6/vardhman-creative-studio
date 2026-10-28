@@ -129,7 +129,7 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
       const bookings=await one(pool,"SELECT COUNT(*) AS bookings,COALESCE(SUM(status='active'),0) AS activeBookings,COALESCE(SUM(status='cancelled'),0) AS cancelledBookings FROM ayambil_bookings");
       const passes=await one(pool,"SELECT COALESCE(SUM(p.status='active' AND a.status='active' AND b.status='active'),0) AS activePasses,COALESCE(SUM(p.status='cancelled' AND p.trashed_at IS NULL),0) AS cancelledPasses,COALESCE(SUM(p.trashed_at IS NOT NULL),0) AS trashedPasses FROM ayambil_passes p JOIN ayambil_attendees a ON a.id=p.attendee_id JOIN ayambil_bookings b ON b.id=a.booking_id");
       const messages=await one(pool,`SELECT COALESCE(SUM(mq.status IN ('queued','preparing','sending','uncertain') AND ${pendingMessageEligibility}),0) AS pendingMessages,COALESCE(SUM(mq.status='failed'),0) AS failedMessages FROM ayambil_message_queue mq LEFT JOIN ayambil_bookings b ON CONVERT(mq.booking_id USING utf8mb4) COLLATE utf8mb4_unicode_ci=CONVERT(b.id USING utf8mb4) COLLATE utf8mb4_unicode_ci WHERE mq.booking_id IS NOT NULL AND mq.notification_type IN ('confirmation','pass','reminder')`);
-      const notificationTotals=config.notificationService?await one(pool,"SELECT COALESCE(SUM(state IN ('held','ready','processing','uncertain')),0) pendingNotifications,COALESCE(SUM(state IN ('failed','blocked')),0) failedNotifications FROM ayambil_notification_outbox"):{};
+      const notificationTotals=config.notificationService?await one(pool,"SELECT COALESCE(SUM(state IN ('held','ready','processing','uncertain')),0) pendingNotifications,COALESCE(SUM(state='failed'),0) failedNotifications,COALESCE(SUM(state='blocked'),0) blockedNotifications FROM ayambil_notification_outbox"):{};
       const activity=await rows(pool,'SELECT au.id,au.action,au.created_at AS created,b.number AS bookingNumber,b.contact_name AS contactName,ad.email AS actor FROM ayambil_audit au JOIN ayambil_bookings b ON b.id=au.booking_id JOIN ayambil_admins ad ON ad.id=au.admin_id ORDER BY au.created_at DESC,au.id DESC LIMIT 30');
       const evenings=[];
       for(const session of programme.sessions){
@@ -231,6 +231,3 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
   };
   return config.bookingControls?attachBookingControls(store,pool,config):store;
 }
-
-
-
