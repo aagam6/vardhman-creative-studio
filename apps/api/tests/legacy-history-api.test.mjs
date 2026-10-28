@@ -1,0 +1,9 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {createApp} from '../app.mjs';import {ApiError} from '../config.mjs';import {hash} from '../security.mjs';
+test('legacy history is authenticated, CSRF protected, no-send and rejects arbitrary fields',async()=>{
+ let resolutions=0;const id='11111111-2222-4333-8444-555555555555';
+ const store={session:async t=>{if(t!=='fixture')throw new ApiError(401,'Sign in required');return{admin_id:'synthetic-admin',csrf_hash:hash('csrf')};},limit:async()=>true};
+ const notifications={legacyHistory:{list:async()=>({items:[],noSend:true}),resolve:async(ids,actor)=>{assert.deepEqual(ids,[id]);assert.equal(actor.admin_id,'synthetic-admin');resolutions++;return{noSend:true,originalQueueUnchanged:true};}}};
+ const config={origin:'https://vardhmancreativestudio.com',rateSecret:'a'.repeat(64)};const server=createApp({store,notifications,config,staticDirectory:process.cwd()}).listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));const url=`http://127.0.0.1:${server.address().port}/api/ayambil/admin/legacy-history`;const headers={origin:config.origin,cookie:'__Host-ayambil=fixture','x-csrf-token':'csrf','content-type':'application/json'};
+ try{assert.equal((await fetch(url)).status,401);assert.deepEqual(await (await fetch(url,{headers})).json(),{items:[],noSend:true});for(const patch of [{origin:'https://example.invalid'},{cookie:''},{'x-csrf-token':''}])assert.ok([401,403].includes((await fetch(url+'/resolve',{method:'POST',headers:{...headers,...patch},body:JSON.stringify({ids:[id]})})).status));assert.equal(resolutions,0);assert.equal((await fetch(url+'/resolve',{method:'POST',headers,body:JSON.stringify({ids:[id],send:true})})).status,400);assert.equal(resolutions,0);assert.equal((await fetch(url+'/resolve',{method:'POST',headers,body:JSON.stringify({ids:[id]})})).status,200);assert.equal(resolutions,1);}finally{await new Promise(r=>server.close(r));}
+});
