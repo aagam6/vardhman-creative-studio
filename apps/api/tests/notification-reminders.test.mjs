@@ -4,6 +4,7 @@ import {reminderPayload,assertReminderWindow} from '../notification-reminders.mj
 import {startNotificationWorker} from '../notification-worker.mjs';
 import {programme} from '../config.mjs';
 import {createFlow} from '../vardhmanflow.mjs';
+import {createBilingualMockAdapter,bilingualCatalog} from '../bilingual-template-adapter.mjs';
 import {notificationTemplates} from '../notification-context.mjs';
 import {reviewedTemplateBodies} from '../reviewed-template-bodies.mjs';
 test('reminder preflight requires exact approved Utility/en UUID, BODY and configured mapping',async()=>{
@@ -13,8 +14,8 @@ test('reminder preflight requires exact approved Utility/en UUID, BODY and confi
  assert.equal((await flow(def).verifyReminder()).verified,true);const omitted={...def};delete omitted.components;assert.equal((await flow(omitted).verifyReminder()).source,'operator_reviewed_snapshot');
  for(const d of [{...def,language:'gu'},{...def,category:'MARKETING'},{...def,status:'PAUSED'},{...def,components:[{type:'BODY',text:'wrong'}]}])await assert.rejects(flow(d).verifyReminder());
 });
-test('new sender reminders retain both exact prior-day IST windows and approved five-field template',()=>{
- for(const session of programme.sessions){const start=Date.parse(session.date+'T00:00:00+05:30')-6*3600000;assert.throws(()=>assertReminderWindow(session.date,new Date(start-1)));assertReminderWindow(session.date,new Date(start));assert.throws(()=>assertReminderWindow(session.date,new Date(start+6*3600000)));const p=reminderPayload({session,source:{contactName:'Synthetic family',mobile:'12025550123'}});assert.equal(p.name,'ayambil_event_reminder');assert.equal(p.components[0].parameters.length,5);assert.equal(p.components[0].parameters[0].text,'Synthetic family');}
+test('scheduled entry timing retains both prior-day IST windows with one exact eight-field bilingual template',()=>{
+ for(const session of programme.sessions){const start=Date.parse(session.date+'T00:00:00+05:30')-6*3600000;assert.throws(()=>assertReminderWindow(session.date,new Date(start-1)));assertReminderWindow(session.date,new Date(start));assert.throws(()=>assertReminderWindow(session.date,new Date(start+6*3600000)));const catalog=structuredClone(bilingualCatalog);catalog.find(t=>t.purpose==='entry_timing').approvalEvidence.observedAt=new Date().toISOString();const p=reminderPayload({session,source:{contactName:'Synthetic family',bookingReference:'BOOK26-SYNTHETIC',mobile:'12025550123'},build:createBilingualMockAdapter(catalog)});assert.equal(p.name,'ayambil_entry_timing_bilingual');assert.equal(p.purpose,'reminder');assert.equal(p.language.code,'en');assert.deepEqual(p.components[0].parameters.map(p=>p.text),['Synthetic family','BOOK26-SYNTHETIC',session.performer,session.label,'Synthetic family','BOOK26-SYNTHETIC',session.performer,session.label]);assert.match(p.renderedBody,/9:00 PM IST/);assert.equal(p.components.length,1);}
 });
 test('new reminder opt-in shares transactional owner and never runs before an eligible selection',async()=>{
  let tick,calls=0,select=0;const service={owner:async()=>({owner:'bilingual',version:7}),pending:async()=>[],nextReminder:async()=>{select++;return select===1?null:{id:'subject',outbox_id:'saved'};},runOne:async(id,o)=>{assert.equal(id,'saved');assert.equal(o.automaticReminder,true);assert.equal(o.ownershipVersion,7);assert.equal(o.automaticSince,undefined);calls++;return {status:'sent'};}};
