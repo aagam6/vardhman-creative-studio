@@ -6,10 +6,12 @@ import {createBilingualMockAdapter,bilingualCatalog} from './bilingual-template-
 import {nextDeliveryStatus} from './delivery-status-policy.mjs';
 import {loadAttendanceEligibility,lockAttendanceEvent,assertAttendanceEligible} from './attendance-eligibility.mjs';
 import {combinedPassPayload} from './combined-pass-notification.mjs';
+import {reminderPayload,assertReminderWindow} from './notification-reminders.mjs';
+import {dueReminderSession} from './reminder-schedule.mjs';
 const eligibilityReasons=new Map([['Notification source unavailable','source_unavailable'],['Waiting transition no longer eligible','waiting_transition_changed'],['Waiting WhatsApp consent required','consent_missing'],['Active booking required','booking_inactive_or_no_consent'],['Active passes required','no_active_passes'],['Legacy confirmation already attempted','prior_legacy_confirmation'],['Confirmed notification held for duplicate/name review','duplicate_or_name_hold']]);
 const purposeNeedsPass=p=>['booking_confirmed','waiting_approved','pass_link'].includes(p);
 const digest=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
-export function createProductionNotificationSender({pool,config,key,provider,catalog=bilingualCatalog}){
+export function createProductionNotificationSender({pool,config,key,provider,catalog=bilingualCatalog,now=()=>new Date()}){
  const actual=pool?.pool?.config?.connectionConfig;
  if(config.notificationService!==true||!config.bookingControls||!actual||actual.host!==config.database.host||actual.database!==config.database.database||(config.database.port&&actual.port!==config.database.port)||!['127.0.0.1','localhost'].includes(actual.host)||!/^https:\/\//.test(config.origin)&&!config.disposable)throw Error('Explicit notification service and matching pool/origin required');
  if(!config.disposable&&(config.origin!=='https://vardhmancreativestudio.com'||config.bookingControlsProduction!==true||actual.database.startsWith('ayambil_test_')))throw Error('Explicit canonical production mode required');
@@ -57,8 +59,13 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
  }
  async function envelope(db,input){
   const s=await source(db,input.purpose,input.subject,input.token);
+  if(input.purpose==='reminder'){
+   assertReminderWindow(s.eventDate,now());
+   const prior=await one(db,"SELECT id FROM ayambil_message_queue WHERE booking_id=? AND notification_type='reminder' AND (attempts>0 OR provider_id IS NOT NULL OR status IN ('preparing','sending','uncertain','accepted','sent','delivered','read','failed')) LIMIT 1",[s.canonicalSubject||input.subject]);
+   if(prior)throw Error('Legacy reminder already attempted');
+  }
   if(['booking_confirmed','waiting_approved'].includes(input.purpose)&&s.legacyConfirmation)throw Error('Legacy confirmation already attempted');
-  if(purposeNeedsPass(input.purpose)){const eligibility=await loadAttendanceEligibility(db,{eventDate:s.eventDate,mobile:s.mobile});if(eligibility.reasons.some(r=>['unresolved_duplicate_review','repeated_name_hold'].includes(r)))throw Error('Confirmed notification held for duplicate/name review');}
+  if(purposeNeedsPass(input.purpose)||input.purpose==='reminder'){const eligibility=await loadAttendanceEligibility(db,{eventDate:s.eventDate,mobile:s.mobile});if(eligibility.reasons.some(r=>['unresolved_duplicate_review','repeated_name_hold'].includes(r)))throw Error('Confirmed notification held for duplicate/name review');}
   if(input.purpose==='pass_link'){
    if(s.legacyPass)throw Error('Legacy pass link already attempted');
    const modern=await one(db,"SELECT id FROM ayambil_notification_outbox WHERE subject=? AND purpose IN ('booking_confirmed','waiting_approved') AND (attempts>0 OR provider_id IS NOT NULL OR state IN ('processing','uncertain','accepted','sent','delivered','read')) LIMIT 1",[s.canonicalSubject||input.subject]);if(modern)throw Error('Combined pass CTA already submitted or uncertain');
@@ -67,7 +74,7 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
   const session=typeof event?.snapshot==='string'?JSON.parse(event.snapshot):event?.snapshot;if(!session)throw Error('Event unavailable');
   const passSubject=purposeNeedsPass(input.purpose)?(input.purpose==='waiting_approved'?(await one(db,'SELECT booking_id FROM ayambil_waiting WHERE id=? OR booking_id=?',[input.subject,input.subject]))?.booking_id:input.subject):null;
   const data={...s,eventLabel:session.performer,eventDate:session.label,urlSuffix:s.urlSuffix||(passSubject?'passes#'+bookingPassToken(key,passSubject,session):undefined)};
-  const payload=input.purpose==='pass_link'?combinedPassPayload({session,source:s,subject:passSubject,key,origin:config.origin}):build(input.purpose,data);return {s,payload:{...payload,to:s.mobile},hash:digest([s.identity,s.mobile,payload])};
+  const payload=input.purpose==='reminder'?reminderPayload({session,source:s}):input.purpose==='pass_link'?combinedPassPayload({session,source:s,subject:passSubject,key,origin:config.origin}):build(input.purpose,data);return {s,payload:{...payload,to:s.mobile},hash:digest([s.identity,s.mobile,payload])};
  }
  const lockName='ayambil-dispatch-'+digest(actual.database).slice(0,32);
  async function withLease(fn){const db=await pool.getConnection();try{const [[r]]=await db.query('SELECT GET_LOCK(?,0) acquired',[lockName]);if(r.acquired!==1){const error=Error('Dispatch busy; no retry was performed');error.code='DISPATCH_BUSY';throw error;}try{return await fn();}finally{await db.query('SELECT RELEASE_LOCK(?)',[lockName]);}}finally{db.release();}}
@@ -97,7 +104,7 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
    try{return await this.enqueue({purpose:row.purpose,subject:row.subject,round:row.review_round,token});}catch(error){const reason=eligibilityReasons.get(error?.message);if(reason){error.code='NOTIFICATION_INELIGIBLE';error.holdReason=reason;}throw error;}
   },
   async prepareSubject({purpose,subject},actor,controls){
-   if(!actor?.admin_id||!['booking_confirmed','waiting_received','pass_link','attendance'].includes(purpose)||!/^[a-f0-9-]{36}$/.test(subject||''))throw Error('Reviewed notification subject required');
+   if(!actor?.admin_id||!['booking_confirmed','waiting_received','waiting_approved','pass_link','attendance','reminder'].includes(purpose)||!/^[a-f0-9-]{36}$/.test(subject||''))throw Error('Reviewed notification subject required');
    if(purpose!=='attendance')return {id:await this.enqueue({purpose,subject,round:'initial'}),sent:false};
    await provider.validate('attendance');
    const review=await controls.createReview(actor,{purpose:'attendance',bookingIds:[subject],round:'initial',unansweredOnly:true});
@@ -116,17 +123,29 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
     return persist(db,{purpose:'attendance',subject:review.id,round:'initial',token},'initial');
    });return {id,sent:false};
   },
+  async reviewSelection({subjects,purpose},actor){
+   if(!actor?.admin_id||!Array.isArray(subjects)||subjects.length<1||subjects.length>20||new Set(subjects).size!==subjects.length||subjects.some(id=>!/^[a-f0-9-]{36}$/.test(id))||!['booking_confirmed','waiting_received','waiting_approved','pass_link','reminder'].includes(purpose))throw Error('Select 1–20 distinct registrations and an exact supported message type');
+   const items=[];
+   for(const subject of subjects){
+    try{const e=await tx(db=>envelope(db,{purpose,subject,round:'initial'}));const [old]=await pool.execute("SELECT id,state,attempts,provider_id,purpose,round_name FROM ayambil_notification_outbox WHERE subject=? AND (purpose=? OR ? IN ('booking_confirmed','waiting_approved','pass_link') AND purpose IN ('booking_confirmed','waiting_approved')) ORDER BY created_at LIMIT 1",[e.s.canonicalSubject||subject,purpose,purpose]);
+     const existing=old[0],eligible=!existing||existing.purpose===purpose&&['held','ready'].includes(existing.state)&&existing.attempts===0&&!existing.provider_id;
+     items.push({subject,contactName:e.s.contactName,purpose,eligible,reason:eligible?'ready_for_preparation':'already_recorded_no_resend',existing:existing?{id:existing.id,state:existing.state,attempts:existing.attempts}:null});
+    }catch(error){const reason=eligibilityReasons.get(error.message)||({'Legacy pass link already attempted':'prior_legacy_pass','Combined pass CTA already submitted or uncertain':'pass_cta_already_submitted','Legacy reminder already attempted':'prior_legacy_reminder','Reminder outside previous-day 18:00 IST window':'reminder_not_due'})[error.message]||'eligibility_requires_review';items.push({subject,purpose,eligible:false,reason});}
+   }
+   return {items,sent:false};
+  },
   async enqueue(input){
    await provider.validate(input.purpose);
-   if(input.purpose!=='pass_link'&&!catalog.some(t=>t.purpose===input.purpose)||!['booking_confirmed','waiting_received','waiting_approved','booking_verify','attendance','entry_timing','pass_link'].includes(input.purpose))throw Error('Unknown purpose');
+   if(!['pass_link','reminder'].includes(input.purpose)&&!catalog.some(t=>t.purpose===input.purpose)||!['booking_confirmed','waiting_received','waiting_approved','booking_verify','attendance','entry_timing','pass_link','reminder'].includes(input.purpose))throw Error('Unknown purpose');
    const round=input.round||'initial';if(!/^[a-zA-Z0-9_-]{1,64}$/.test(round))throw Error('Invalid round');
-   if(['booking_confirmed','waiting_received','waiting_approved','pass_link'].includes(input.purpose)&&round!=='initial')throw Error('Initial transactional message cannot be repeated');
+   if(['booking_confirmed','waiting_received','waiting_approved','pass_link','reminder'].includes(input.purpose)&&round!=='initial')throw Error('Initial transactional message cannot be repeated');
    return tx(db=>persist(db,input,round));
   },
-  async runOne(id,{ownershipVersion,actor='worker',automaticSince=null}={}){
+  async runOne(id,{ownershipVersion,actor='worker',automaticSince=null,automaticReminder=false}={}){
    if(config.notificationDispatch!==true)throw Error('Notification dispatch disabled');
    return withLease(async()=>{
    const candidate=await one(pool,'SELECT purpose,subject FROM ayambil_notification_outbox WHERE id=?',[id]);if(!candidate)return {status:'not_claimed'};
+   if(automaticReminder&&candidate.purpose!=='reminder')throw Error('Reminder purpose required');
    if(automaticSince){
     if(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(automaticSince))throw Error('Exact automatic cutoff required');
     if(!['booking_confirmed','waiting_received','waiting_approved'].includes(candidate.purpose))throw Error('Automatic transactional purpose required');
@@ -165,6 +184,13 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
    if(!Array.isArray(excludeIntentIds)||excludeIntentIds.length>1000||excludeIntentIds.some(id=>!/^[-a-f0-9]{36}$/.test(id)))throw Error('Invalid held-intent exclusion');
    const exclude=excludeIntentIds.length?' AND i.id NOT IN ('+excludeIntentIds.map(()=>'?').join(',')+')':'';
    const [r]=await pool.execute("SELECT i.id,o.id outbox_id FROM ayambil_notification_intents i LEFT JOIN ayambil_notification_outbox o ON o.subject=i.subject AND (o.purpose=i.purpose OR o.purpose IN ('booking_confirmed','waiting_approved') AND i.purpose IN ('booking_confirmed','waiting_approved')) WHERE i.state='held' AND i.review_round='initial' AND i.purpose IN ('booking_confirmed','waiting_received','waiting_approved') AND i.created_at>? AND (o.id IS NULL OR o.purpose=i.purpose AND o.state IN ('held','ready') AND o.attempts=0 AND o.provider_id IS NULL)"+exclude+" ORDER BY i.created_at,i.id LIMIT 1",[since.replace('T',' ').replace('Z',''),...excludeIntentIds]);return r;
+  },
+  async nextReminder({excludeSubjects=[]}={}){
+   const due=dueReminderSession(now());if(!due)return null;
+   if(!Array.isArray(excludeSubjects)||excludeSubjects.length>2000||excludeSubjects.some(id=>!/^[-a-f0-9]{36}$/.test(id)))throw Error('Invalid reminder exclusion');
+   const extra=excludeSubjects.length?' AND b.id NOT IN ('+excludeSubjects.map(()=>'?').join(',')+')':'';
+   const [rows]=await pool.execute("SELECT b.id,o.id outbox_id FROM ayambil_bookings b LEFT JOIN ayambil_notification_outbox o ON o.subject=b.id AND o.purpose='reminder' WHERE b.event_date=? AND b.status='active' AND b.whatsapp_consent=1 AND EXISTS(SELECT 1 FROM ayambil_attendees a JOIN ayambil_passes p ON p.attendee_id=a.id WHERE a.booking_id=b.id AND a.status='active' AND p.status='active' AND p.trashed_at IS NULL) AND NOT EXISTS(SELECT 1 FROM ayambil_message_queue q WHERE q.booking_id=b.id AND q.notification_type='reminder' AND (q.attempts>0 OR q.provider_id IS NOT NULL OR q.status IN ('preparing','sending','uncertain','accepted','sent','delivered','read','failed'))) AND (o.id IS NULL OR o.state IN ('held','ready') AND o.attempts=0 AND o.provider_id IS NULL)"+extra+" ORDER BY b.created_at,b.id LIMIT 1",[due.date,...excludeSubjects]);
+   return rows[0]||null;
   },
   async list(page=1){page=Number(page);if(!Number.isInteger(page)||page<1||page>100000)throw Error('Invalid page');const [r]=await pool.query('SELECT id,purpose,round_name,state,attempts,provider_id,error_code,created_at FROM ayambil_notification_outbox ORDER BY created_at DESC,id LIMIT 21 OFFSET ?',[20*(page-1)]);return {items:r.slice(0,20),hasMore:r.length>20,page};},
   async intents(page=1){page=Number(page);if(!Number.isInteger(page)||page<1||page>100000)throw Error('Invalid page');const [r]=await pool.query("SELECT i.id,i.subject,i.purpose,i.review_round,i.state,i.created_at FROM ayambil_notification_intents i ORDER BY i.created_at DESC,i.id LIMIT 20 OFFSET ?",[20*(page-1)]);return r;}
