@@ -59,15 +59,17 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
   const passPrior=await one(db,"SELECT id FROM ayambil_message_queue WHERE booking_id=? AND notification_type='pass' AND (attempts>0 OR provider_id IS NOT NULL OR status IN ('preparing','sending','uncertain','accepted','sent','delivered','read')) LIMIT 1",[id]);
   return {mobile:b.mobile,eventDate:b.event_date,contactName:b.contact_name,bookingReference:b.number,attendeeCount:rows.length,approvedAttendeeCount:rows.length,names:rows.map(x=>x.full_name),legacyConfirmation:!!prior,legacyPass:!!passPrior,identity:[b.id,b.status,rows]};
  }
- async function envelope(db,input){
+ async function envelope(db,input,{ownOutboxId=null}={}){
   const s=await source(db,input.purpose,input.subject,input.token);
-  if(input.purpose==='reminder'){
+  if(['reminder','entry_timing'].includes(input.purpose)){
    assertReminderWindow(s.eventDate,now());
    const prior=await one(db,"SELECT id FROM ayambil_message_queue WHERE booking_id=? AND notification_type='reminder' AND (attempts>0 OR provider_id IS NOT NULL OR status IN ('preparing','sending','uncertain','accepted','sent','delivered','read','failed')) LIMIT 1",[s.canonicalSubject||input.subject]);
    if(prior)throw Error('Legacy reminder already attempted');
+   const notice=await one(db,"SELECT id FROM ayambil_notification_outbox WHERE subject=? AND purpose IN ('reminder','entry_timing') AND (attempts>0 OR provider_id IS NOT NULL OR state IN ('processing','uncertain','accepted','sent','delivered','read','failed')) AND (? IS NULL OR id<>?) LIMIT 1",[s.canonicalSubject||input.subject,ownOutboxId,ownOutboxId]);
+   if(notice)throw Error('Reminder or entry notice already attempted');
   }
   if(['booking_confirmed','waiting_approved'].includes(input.purpose)&&s.legacyConfirmation)throw Error('Legacy confirmation already attempted');
-  if(purposeNeedsPass(input.purpose)||input.purpose==='reminder'){const eligibility=await loadAttendanceEligibility(db,{eventDate:s.eventDate,mobile:s.mobile});if(eligibility.reasons.some(r=>['unresolved_duplicate_review','repeated_name_hold'].includes(r)))throw Error('Confirmed notification held for duplicate/name review');}
+  if(purposeNeedsPass(input.purpose)||['reminder','entry_timing'].includes(input.purpose)){const eligibility=await loadAttendanceEligibility(db,{eventDate:s.eventDate,mobile:s.mobile});if(eligibility.reasons.some(r=>['unresolved_duplicate_review','repeated_name_hold'].includes(r)))throw Error('Confirmed notification held for duplicate/name review');}
   if(input.purpose==='pass_link'){
    if(s.legacyPass)throw Error('Legacy pass link already attempted');
    const modern=await one(db,"SELECT id FROM ayambil_notification_outbox WHERE subject=? AND purpose IN ('booking_confirmed','waiting_approved') AND (attempts>0 OR provider_id IS NOT NULL OR state IN ('processing','uncertain','accepted','sent','delivered','read')) LIMIT 1",[s.canonicalSubject||input.subject]);if(modern)throw Error('Combined pass CTA already submitted or uncertain');
@@ -76,7 +78,7 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
   const session=typeof event?.snapshot==='string'?JSON.parse(event.snapshot):event?.snapshot;if(!session)throw Error('Event unavailable');
   const passSubject=purposeNeedsPass(input.purpose)?(input.purpose==='waiting_approved'?(await one(db,'SELECT booking_id FROM ayambil_waiting WHERE id=? OR booking_id=?',[input.subject,input.subject]))?.booking_id:input.subject):null;
   const data={...s,eventLabel:session.performer,eventDate:session.label,urlSuffix:s.urlSuffix||(passSubject?'passes#'+bookingPassToken(key,passSubject,session):undefined)};
-  const payload=input.purpose==='reminder'?reminderPayload({session,source:s}):input.purpose==='pass_link'?combinedPassPayload({session,source:s,subject:passSubject,key,origin:config.origin}):build(input.purpose,data);return {s,payload:{...payload,to:s.mobile},hash:digest([s.identity,s.mobile,payload])};
+  const payload=input.purpose==='reminder'?reminderPayload({session,source:s,build}):input.purpose==='pass_link'?combinedPassPayload({session,source:s,subject:passSubject,key,origin:config.origin}):build(input.purpose,data);return {s,payload:{...payload,to:s.mobile},hash:digest([s.identity,s.mobile,payload])};
  }
  const lockName='ayambil-dispatch-'+digest(actual.database).slice(0,32);
  async function withLease(fn){const db=await pool.getConnection();try{const [[r]]=await db.query('SELECT GET_LOCK(?,0) acquired',[lockName]);if(r.acquired!==1){const error=Error('Dispatch busy; no retry was performed');error.code='DISPATCH_BUSY';throw error;}try{return await fn();}finally{await db.query('SELECT RELEASE_LOCK(?)',[lockName]);}}finally{db.release();}}
@@ -163,13 +165,13 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
    let claimed;
    const lockEvent=db=>lockSourceEvent(db,candidate.purpose,candidate.subject);
    await tx(async db=>{await lockEvent(db);const row=await one(db,'SELECT * FROM ayambil_notification_outbox WHERE id=? FOR UPDATE',[id]);if(!row||!['held','ready'].includes(row.state))return;await gate(db,ownershipVersion);
-    let e;try{e=await envelope(db,crypto.open(row.envelope));if(e.hash!==row.revision_hash)throw Error('Stale revision');}catch{await db.execute("UPDATE ayambil_notification_outbox SET state='blocked',error_code='eligibility_or_mapping',updated_at=UTC_TIMESTAMP(3) WHERE id=?",[id]);return;}
+    let e;try{e=await envelope(db,crypto.open(row.envelope),{ownOutboxId:id});if(e.hash!==row.revision_hash)throw Error('Stale revision');}catch{await db.execute("UPDATE ayambil_notification_outbox SET state='blocked',error_code='eligibility_or_mapping',updated_at=UTC_TIMESTAMP(3) WHERE id=?",[id]);return;}
     const claim=randomUUID();await db.execute("UPDATE ayambil_notification_outbox SET state='processing',claim_id=?,attempts=attempts+1,updated_at=UTC_TIMESTAMP(3) WHERE id=?",[claim,id]);await db.execute('INSERT INTO ayambil_notification_audit VALUES(?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),actor,'claim_committed',JSON.stringify({id})]);claimed={claim,payload:e.payload};
    });
    if(!claimed)return {status:'not_claimed'};
    // Re-read after durable claiming, immediately before the provider boundary.
    {
-    try{await tx(async db=>{await lockEvent(db);const row=await one(db,'SELECT * FROM ayambil_notification_outbox WHERE id=? FOR UPDATE',[id]);if(!row||row.state!=='processing'||row.claim_id!==claimed.claim)throw Error('Stale claim');await gate(db,ownershipVersion,id);const current=await envelope(db,crypto.open(row.envelope));if(current.hash!==row.revision_hash)throw Error('Stale revision');claimed.payload=current.payload;});}
+    try{await tx(async db=>{await lockEvent(db);const row=await one(db,'SELECT * FROM ayambil_notification_outbox WHERE id=? FOR UPDATE',[id]);if(!row||row.state!=='processing'||row.claim_id!==claimed.claim)throw Error('Stale claim');await gate(db,ownershipVersion,id);const current=await envelope(db,crypto.open(row.envelope),{ownOutboxId:id});if(current.hash!==row.revision_hash)throw Error('Stale revision');claimed.payload=current.payload;});}
     catch{await pool.execute("UPDATE ayambil_notification_outbox SET state='blocked',error_code='eligibility_changed_before_submit',updated_at=UTC_TIMESTAMP(3) WHERE id=? AND claim_id=? AND state='processing'",[id,claimed.claim]);return {status:'blocked'};}
    }
    let result;try{result=await provider.submit(claimed.payload);}catch{result={status:'uncertain'};}
@@ -192,7 +194,7 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
    const due=dueReminderSession(now());if(!due)return null;
    if(!Array.isArray(excludeSubjects)||excludeSubjects.length>2000||excludeSubjects.some(id=>!/^[-a-f0-9]{36}$/.test(id)))throw Error('Invalid reminder exclusion');
    const extra=excludeSubjects.length?' AND b.id NOT IN ('+excludeSubjects.map(()=>'?').join(',')+')':'';
-   const [rows]=await pool.execute("SELECT b.id,o.id outbox_id FROM ayambil_bookings b LEFT JOIN ayambil_notification_outbox o ON o.subject=b.id AND o.purpose='reminder' WHERE b.event_date=? AND b.status='active' AND b.whatsapp_consent=1 AND EXISTS(SELECT 1 FROM ayambil_attendees a JOIN ayambil_passes p ON p.attendee_id=a.id WHERE a.booking_id=b.id AND a.status='active' AND p.status='active' AND p.trashed_at IS NULL) AND NOT EXISTS(SELECT 1 FROM ayambil_message_queue q WHERE q.booking_id=b.id AND q.notification_type='reminder' AND (q.attempts>0 OR q.provider_id IS NOT NULL OR q.status IN ('preparing','sending','uncertain','accepted','sent','delivered','read','failed'))) AND (o.id IS NULL OR o.state IN ('held','ready') AND o.attempts=0 AND o.provider_id IS NULL)"+extra+" ORDER BY b.created_at,b.id LIMIT 1",[due.date,...excludeSubjects]);
+   const [rows]=await pool.execute("SELECT b.id,o.id outbox_id FROM ayambil_bookings b LEFT JOIN ayambil_notification_outbox o ON o.subject=b.id AND o.purpose='reminder' WHERE b.event_date=? AND b.status='active' AND b.whatsapp_consent=1 AND EXISTS(SELECT 1 FROM ayambil_attendees a JOIN ayambil_passes p ON p.attendee_id=a.id WHERE a.booking_id=b.id AND a.status='active' AND p.status='active' AND p.trashed_at IS NULL) AND NOT EXISTS(SELECT 1 FROM ayambil_message_queue q WHERE q.booking_id=b.id AND q.notification_type='reminder' AND (q.attempts>0 OR q.provider_id IS NOT NULL OR q.status IN ('preparing','sending','uncertain','accepted','sent','delivered','read','failed'))) AND NOT EXISTS(SELECT 1 FROM ayambil_notification_outbox n WHERE n.subject=b.id AND n.purpose IN ('reminder','entry_timing') AND (n.attempts>0 OR n.provider_id IS NOT NULL OR n.state IN ('processing','uncertain','accepted','sent','delivered','read','failed'))) AND (o.id IS NULL OR o.state IN ('held','ready') AND o.attempts=0 AND o.provider_id IS NULL)"+extra+" ORDER BY b.created_at,b.id LIMIT 1",[due.date,...excludeSubjects]);
    return rows[0]||null;
   },
   async list(page=1){page=Number(page);if(!Number.isInteger(page)||page<1||page>100000)throw Error('Invalid page');const [r]=await pool.query('SELECT id,purpose,round_name,state,attempts,provider_id,error_code,created_at FROM ayambil_notification_outbox ORDER BY created_at DESC,id LIMIT 21 OFFSET ?',[20*(page-1)]);return {items:r.slice(0,20),hasMore:r.length>20,page};},

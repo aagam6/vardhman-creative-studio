@@ -1,7 +1,7 @@
 import React,{useRef,useState} from 'react';
 import {registrationApi} from '@/lib/ayambilRegistration';
 import {reviewedNotificationBatch,runNotificationBatch,shouldPauseNotificationOwner} from '@/lib/notificationReviewedBatch';
-const options=[['booking_confirmed','Confirmation + all passes in one link'],['waiting_received','Waiting acknowledgement'],['waiting_approved','Approval + all passes in one link'],['pass_link','Missing combined-pass link only'],['reminder','Event reminder · previous day after 6 PM IST']];
+const options=[['booking_confirmed','Confirmation + all passes in one link'],['waiting_received','Waiting acknowledgement'],['waiting_approved','Approval + all passes in one link'],['pass_link','Missing combined-pass link only'],['reminder','Entry timing reminder · previous day after 6 PM IST']];
 export default function SelectedNotificationMessages({selectedBookingIds=[],data,externalBusy,onBusy,onFinished}){
  const [purpose,setPurpose]=useState('booking_confirmed'),[review,setReview]=useState(null),[prepared,setPrepared]=useState(null),[confirmed,setConfirmed]=useState(false),[results,setResults]=useState([]),[error,setError]=useState(''),[busy,setBusy]=useState(false);const stopped=useRef(false),locked=useRef(false);
  const selectionKey=selectedBookingIds.join(','),current=review?.selectionKey===selectionKey&&review?.purpose===purpose;
