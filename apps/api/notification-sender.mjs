@@ -8,6 +8,7 @@ import {loadAttendanceEligibility,lockAttendanceEvent,assertAttendanceEligible} 
 import {combinedPassPayload} from './combined-pass-notification.mjs';
 import {reminderPayload,assertReminderWindow} from './notification-reminders.mjs';
 import {dueReminderSession} from './reminder-schedule.mjs';
+import {createLegacyHistoryReconciliation} from './legacy-history-reconciliation.mjs';
 const eligibilityReasons=new Map([['Notification source unavailable','source_unavailable'],['Waiting transition no longer eligible','waiting_transition_changed'],['Waiting WhatsApp consent required','consent_missing'],['Active booking required','booking_inactive_or_no_consent'],['Active passes required','no_active_passes'],['Legacy confirmation already attempted','prior_legacy_confirmation'],['Confirmed notification held for duplicate/name review','duplicate_or_name_hold']]);
 const purposeNeedsPass=p=>['booking_confirmed','waiting_approved','pass_link'].includes(p);
 const digest=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
@@ -16,6 +17,7 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
  if(config.notificationService!==true||!config.bookingControls||!actual||actual.host!==config.database.host||actual.database!==config.database.database||(config.database.port&&actual.port!==config.database.port)||!['127.0.0.1','localhost'].includes(actual.host)||!/^https:\/\//.test(config.origin)&&!config.disposable)throw Error('Explicit notification service and matching pool/origin required');
  if(!config.disposable&&(config.origin!=='https://vardhmancreativestudio.com'||config.bookingControlsProduction!==true||actual.database.startsWith('ayambil_test_')))throw Error('Explicit canonical production mode required');
  const crypto=queueCrypto(key),build=createBilingualMockAdapter(catalog);
+ const legacyHistory=createLegacyHistoryReconciliation({pool,crypto});
  const one=async(db,sql,args=[])=> (await db.execute(sql,args))[0][0];
  const tx=async fn=>{const db=await pool.getConnection();try{await db.query('SET TRANSACTION ISOLATION LEVEL READ COMMITTED');await db.beginTransaction();const r=await fn(db);await db.commit();return r;}catch(e){await db.rollback();throw e;}finally{db.release();}};
  async function lockSourceEvent(db,purpose,subject){
@@ -88,6 +90,7 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
   const id=randomUUID();await db.execute('INSERT INTO ayambil_notification_outbox(id,dedupe_hash,revision_hash,purpose,subject,round_name,envelope,created_at,updated_at) VALUES(?,?,?,?,?,?,?,UTC_TIMESTAMP(3),UTC_TIMESTAMP(3))',[id,dedupe,e.hash,input.purpose,e.s.canonicalSubject||input.subject,round,crypto.seal(input)]);await db.execute('INSERT INTO ayambil_notification_audit VALUES(?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),'system','prepared',JSON.stringify({id,purpose:input.purpose})]);return id;
  }
  return {
+  legacyHistory,
   async ready(){const state=await this.owner();if(!state||!['paused','bilingual'].includes(state.owner)||!Number.isSafeInteger(state.version))throw Error('Notification owner schema unavailable');await pool.query('SELECT provider_id,state FROM ayambil_notification_outbox LIMIT 0');await pool.query('SELECT actor,action,detail FROM ayambil_notification_audit LIMIT 0');await this.recover();return true;},
   async owner(){return one(pool,'SELECT owner,version FROM ayambil_notification_owner WHERE id=1');},
   async handover({owner,version},actor){if(!actor?.admin_id||!['paused','bilingual'].includes(owner))throw Error('Admin and supported owner required');return withLease(()=>tx(async db=>{const c=await one(db,'SELECT * FROM ayambil_notification_owner WHERE id=1 FOR UPDATE');if(c.version!==version)throw Error('Stale ownership revision');if(owner==='bilingual'){const legacy=await one(db,"SELECT id FROM ayambil_message_queue WHERE status IN ('preparing','sending','uncertain') LIMIT 1");const modern=await one(db,"SELECT id FROM ayambil_notification_outbox WHERE state IN ('processing','uncertain') LIMIT 1");if(legacy||modern)throw Error('In-flight or uncertain jobs block activation');}await db.execute('UPDATE ayambil_notification_owner SET owner=?,version=version+1 WHERE id=1',[owner]);await db.execute('INSERT INTO ayambil_notification_audit VALUES(?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),actor.admin_id,'owner_changed',JSON.stringify({owner,version:version+1})]);return {owner,version:version+1};}));},

@@ -33,6 +33,8 @@ export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirect
   const admin=async(req,res,next)=>{try{req.actor=await store.session(token(req));if(req.method==='POST'&&hash(String(req.headers['x-csrf-token']||''))!==req.actor.csrf_hash)throw new ApiError(403,'Session confirmation required');next();}catch(error){next(error);}};
   const limited=(operation,max)=>async(req,res,next)=>{try{const bucket=rateHash(config.rateSecret,operation+':'+req.socket.remoteAddress);if(!await store.limit(bucket,max))throw new ApiError(429,'Too many requests');next();}catch(error){next(error);}};
   if(notifications){
+   api.get('/admin/legacy-history',admin,route(async(req,res)=>res.json(await notifications.legacyHistory.list())));
+   api.post('/admin/legacy-history/resolve',admin,limited('legacy-history-resolve',4),route(async(req,res)=>{if(!req.body||Object.keys(req.body).some(k=>k!=='ids'))throw new ApiError(400,'Only exact reviewed legacy IDs permitted');res.json(await notifications.legacyHistory.resolve(req.body.ids,req.actor));}));
    api.get('/admin/notification-outbox',admin,route(async(req,res)=>res.json({directFamilyResponsesEnabled:config.directFamilyResponses===true,dispatchEnabled:config.notificationDispatch===true,owner:await notifications.owner(),transactionalWorker:getNotificationWorkerStatus(),...await notifications.list(req.query.page||1),intents:await notifications.intents(req.query.page||1)})));
    api.post('/admin/notification-outbox/notice',admin,limited('notification-notice',4),route(async(req,res)=>res.json(await notifications.prepareEntryNotice(req.body,req.actor))));
    api.post('/admin/notification-outbox/prepare',admin,limited('notification-prepare',10),route(async(req,res)=>res.json({id:await notifications.enqueueHeldIntent(req.body.id,{token:req.body.token}),sent:false})));
@@ -74,7 +76,7 @@ export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirect
   api.get('/admin/trash',admin,route(async(req,res)=>res.json(await store.trash(req.query))));
   api.get('/admin/trash/empty-preview',admin,route(async(req,res)=>res.json(await store.localTrashPurge.preview())));
   api.post('/admin/trash/empty',admin,route(async(req,res)=>res.json(await store.localTrashPurge.empty(req.actor,req.body))));
-  api.get('/admin/overview',admin,route(async(req,res)=>res.json(await store.overview())));
+  api.get('/admin/overview',admin,route(async(req,res)=>{const result=await store.overview();if(notifications?.legacyHistory){const {counts}=await notifications.legacyHistory.list();Object.assign(result.totals,{legacyHistoryRows:counts.history,legacyHistoryResolved:counts.resolved,legacyHistoryUnresolved:counts.history-counts.resolved,legacyActionablePending:counts.actionable,legacyHistoryHeld:counts.held});}res.json(result);}));
   api.get('/admin/bookings',admin,route(async(req,res)=>{
     const requestId=res.getHeader('X-Request-Id')||randomUUID();res.set('X-Request-Id',requestId);
     try {res.json(await store.list(req.query));}
