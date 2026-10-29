@@ -1,0 +1,43 @@
+{
+  "name": "ayambil_entry_timing_bilingual",
+  "header": "પ્રવેશ સમય | Entry timing",
+  "body": "જય જિનેન્દ્ર {{1}},\n\nકાર્યક્રમ | Event: {{2}}\nતારીખ | Date: {{3}}\nનોંધણી નંબર | Booking ID: {{4}}\nનોંધાયેલા સભ્યો | Registered persons: {{5}} \n\nપ્રવેશ શરૂ | Entry opens: *8:00 PM*\nપ્રવેશ બંધ | Entry closes: *9:15 PM*\nકૃપા કરીને *9:15* પહેલાં સ્થળ પર પહોંચી જશો.\nPlease arrive before *9:15 PM*.\n\nપ્રવેશ માટે તમારા ડિજિટલ પાસ તૈયાર રાખશો.\nKeep your digital passes ready for entry.\n\nબેઠક વ્યવસ્થા | Seating\nબેઠકોને સીટ નંબર આપવામાં આવ્યા નથી.\n\nSeats are not numbered.\nબેઠક વહેલા તે પહેલા — *First come, first served* મુજબ મળશે. \n\nઆપના સહકાર બદલ આભાર.\nThank you for your cooperation.",
+  "footer": "Vardhman Creative Studio",
+  "button": "પાસ જુઓ | View passes",
+  "revision": "meta-2026-10-28-five-body-pass-button",
+  "purpose": "entry_timing",
+  "templateId": "1438899548384628",
+  "languageCode": "en",
+  "dynamicUrl": "https://vardhmancreativestudio.com/500-akhand-ayambil-vijayollas/passes#{{1}}",
+  "parameters": [
+    {
+      "position": 1,
+      "field": "contactName"
+    },
+    {
+      "position": 2,
+      "field": "eventLabel"
+    },
+    {
+      "position": 3,
+      "field": "eventDate"
+    },
+    {
+      "position": 4,
+      "field": "bookingReference"
+    },
+    {
+      "position": 5,
+      "field": "attendeeCount"
+    }
+  ],
+  "provenance": {
+    "metaObservedAt": "2026-10-29T04:34:23.174Z",
+    "metaStatus": "Active – Quality pending",
+    "languageCodeSource": "Explicit en from authenticated provider Preview, 2026-10-29; current API identity pending",
+    "providerRevisionMatches": false,
+    "providerUIRevisionMatches": true,
+    "providerUIEvidence": "tmp/entry-flow-refresh-20261029/current-ui/definition-comparison.json"
+  },
+  "dispatchApproved": false
+}

@@ -39,7 +39,7 @@ try {
     initializationStage='readiness';
     if(!await store.ready())throw Error();
     if(notifications)await notifications.ready();
-    notificationWorker=startNotificationWorker(notifications,config,process.env);
+    notificationWorker=startNotificationWorker(notifications,config,process.env,{controls:store.bookingControls});
     const workerEnv=config.bookingControls?{...process.env,AYAMBIL_WHATSAPP_AUTO_WORKER_ENABLED:'false',AYAMBIL_WHATSAPP_REMINDER_SCHEDULER_ENABLED:'false'}:process.env;
     worker=startQueueWorker(queue,workerEnv,{log:message=>console.error(message)});
     try{reminderWorker=startReminderScheduler(queue,workerEnv,{log:message=>console.error(message)});console.log('Ayambil reminder scheduler: '+(reminderWorker.enabled?'enabled; previous-day 18:00 IST; one per booking.':'disabled.'));}catch{console.error('Ayambil reminder scheduler unavailable; booking API remains available.');}
