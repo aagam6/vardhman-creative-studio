@@ -4,6 +4,19 @@ import { createAyambilApi, validateResponse } from '../src/lib/ayambilExpressCli
 import { passPage, passImagePlacement } from '../src/lib/ayambilPassLayout.js';
 import {readFileSync} from 'node:fs';
 const programme=JSON.parse(readFileSync(new URL('../../pocketbase/pb_hooks/ayambil/config.json',import.meta.url)));
+
+test('held entry review and status-only audit use explicit POST routes once with CSRF and no send',async()=>{
+ const calls=[];const api=createAyambilApi(async(url,options)=>{calls.push({url,options});return Response.json(url.includes('admin/session')?{authenticated:true,csrfToken:'a'.repeat(64)}:{items:[],writes:0,newSubmissions:0});});
+ await api.restore();
+ for(const operation of ['entry-revision-preview','entry-revision-refresh','observe-receipts']){
+  const path='admin/notification-outbox/'+operation;
+  const body=operation==='observe-receipts'?{after:'',limit:20}:{ids:['synthetic-held-id'],...(operation==='entry-revision-refresh'?{confirmation:'REFRESH HELD ENTRY REVISION ONLY'}:{})};
+  await api.request(path,{method:'POST',body});
+  const call=calls.at(-1);assert.equal(call.url,'/api/ayambil/'+path);assert.equal(call.options.method,'POST');assert.equal(call.options.headers['X-CSRF-Token'],'a'.repeat(64));assert.equal(call.options.body,JSON.stringify(body));assert.equal(call.options.cache,'no-store');
+  await assert.rejects(api.request(path),/Invalid API operation/);
+ }
+ assert.equal(calls.length,4);assert.ok(calls.every(c=>!c.url.endsWith('/send')));
+});
 test('staging-only denial has actionable safe text and preserves administrator CSRF',async()=>{
  const calls=[];
  const api=createAyambilApi(async(url,options)=>{
