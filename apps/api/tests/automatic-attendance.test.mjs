@@ -1,0 +1,9 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {startNotificationWorker} from '../notification-worker.mjs';
+const env={AYAMBIL_BILINGUAL_WORKER_ENABLED:'true',AYAMBIL_BILINGUAL_ACTIVATION_AT:'2026-10-27T07:28:06.000Z',AYAMBIL_BILINGUAL_ATTENDANCE_ENABLED:'true',AYAMBIL_BILINGUAL_REMINDERS_ENABLED:'true'};
+test('delayed Attendance shares worker owner, leaves cutoff and reminder priority intact',async()=>{
+ let tick;const calls=[],controls={};const service={owner:async()=>({owner:'bilingual',version:54}),pending:async()=>[],nextReminder:async()=>null,nextAttendance:async since=>{assert.equal(since,env.AYAMBIL_BILINGUAL_ACTIVATION_AT);return {id:'eligible'};},prepareSubject:async(input,actor,c)=>{calls.push(input.purpose);assert.equal(c,controls);return {id:'existing-dedup'};},runOne:async(id,o)=>{assert.equal(id,'existing-dedup');assert.equal(o.actor,'attendance-worker');calls.push('submit');return {status:'sent'};}};
+ const worker=startNotificationWorker(service,{notificationDispatch:true},env,{controls,schedule:f=>{tick=f;return 1;},cancel:()=>{}});await tick();assert.deepEqual(calls,['attendance','submit']);assert.equal(worker.status().attendance.delayHours,48);assert.equal(worker.active,true);
+ service.nextReminder=async()=>({id:'due-reminder',outbox_id:'reminder'});service.runOne=async(id,o)=>{assert.equal(id,'reminder');assert.equal(o.automaticReminder,true);return {status:'sent'};};await tick();assert.deepEqual(calls,['attendance','submit']);worker.stop();
+});
+test('no eligible delayed subject means no prepare/send; automation remains opt-in',async()=>{let tick,calls=0;const worker=startNotificationWorker({owner:async()=>({owner:'bilingual'}),pending:async()=>[],nextReminder:async()=>null,nextAttendance:async()=>null,prepareSubject:async()=>calls++},{notificationDispatch:true},env,{controls:{},schedule:f=>{tick=f;return 1;},cancel:()=>{}});await tick();assert.equal(calls,0);worker.stop();});

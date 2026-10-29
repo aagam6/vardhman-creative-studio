@@ -1,9 +1,11 @@
+import {selectEntryRuntimeCatalog,reviewedEntryRuntimeDefinition} from './entry-runtime-revision.mjs';
 import {reviewedBilingualDefinition} from './bilingual-snapshot-policy.mjs';
 import {ApiError} from './config.mjs';
 import {notificationTemplates} from './notification-context.mjs';
 import {reviewedTemplateBodies} from './reviewed-template-bodies.mjs';
 import {productionSnapshotsApproved,productionTemplatePolicy} from './production-template-policy.mjs';
 import bilingualCatalog from './bilingual-template-catalog.json' with {type:'json'};
+import {verifyEntryRevision as verifyEntryRevisionDefinition,entryRevisionPolicy} from './entry-timing-revision-policy.mjs';
 export function bilingualDefinitionMetadata(templates,expected){
  // /templates.id is the provider's UUID, never the numeric Meta template ID.
  const candidates=Array.isArray(templates)?templates.filter(t=>t?.name===expected.name):[];
@@ -20,7 +22,8 @@ export function bilingualDefinitionMetadata(templates,expected){
   const bodies=ofType('BODY'),headers=ofType('HEADER'),buttonComponents=ofType('BUTTONS');
   check(bodies.length===1,'BODY.count');check(bodies[0]?.text===expected.body,'BODY.text');
   check(headers.length===1,'HEADER.count');check(headers[0]?.text===expected.header,'HEADER.text');
-  check(c.every(x=>['BODY','HEADER','BUTTONS'].includes(String(x?.type).toUpperCase())),'components.unsupported');
+  if(expected.footer){const footer=ofType('FOOTER');check(footer.length===1&&footer[0].text===expected.footer,'FOOTER.text');}
+  check(c.every(x=>(expected.footer?['BODY','HEADER','FOOTER','BUTTONS']:['BODY','HEADER','BUTTONS']).includes(String(x?.type).toUpperCase())),'components.unsupported');
   const buttons=buttonComponents[0]?.buttons;
   check(buttonComponents.length<2,'CTA.count');
   check((buttonComponents.length===0?0:Array.isArray(buttons)?buttons.length:-1)===(expected.button?1:0),'CTA.count');
@@ -107,9 +110,16 @@ export function createFlow(env,fetcher=fetch){
    const account=await request('account');const channel=account.channel;
    if(!channel?.id||channel.isActive!==true||channel.healthStatus!=='healthy'||(env.VARDHMAN_FLOW_CHANNEL_ID&&env.VARDHMAN_FLOW_CHANNEL_ID!==channel.id))throw new ApiError(503,'Healthy channel required');
    const templates=await request('templates?status=APPROVED');
-   const diagnostic=reviewedBilingualDefinition(templates,template,env,bilingualDefinitionMetadata(templates,template));
+   const diagnostic=reviewedEntryRuntimeDefinition(templates,template,env,reviewedBilingualDefinition(templates,template,env,bilingualDefinitionMetadata(templates,template)));
    if(!diagnostic.verified)throw new ApiError(503,'Bilingual provider definition failed: '+diagnostic.issues.join(', '));
    return {verified:true,templateId:template.templateId,status:'APPROVED',category:'UTILITY',observedAt:new Date().toISOString(),source:diagnostic.source,...(diagnostic.snapshotPolicy?{snapshotPolicy:diagnostic.snapshotPolicy,providerComponentsVerified:false}:{providerComponentsVerified:true})};
+  },
+  // Explicit opt-in verification seam for a future reviewed revision rollout.
+  // This does not select a catalog, prepare an intent, or activate dispatch.
+  async verifyEntryRevision({uiEvidence}={}){
+   if(env.AYAMBIL_SITE_ORIGIN!=='https://vardhmancreativestudio.com'||env.AYAMBIL_ENTRY_REVISION_POLICY!==entryRevisionPolicy.version||env.AYAMBIL_ENTRY_REVISION_SHA256!==entryRevisionPolicy.definitionHash)throw new ApiError(503,'Explicit versioned entry revision policy required');
+   const account=await request('account'),templates=await request('templates?status=APPROVED');
+   return verifyEntryRevisionDefinition({templates,channel:account.channel,configuredChannelId:env.VARDHMAN_FLOW_CHANNEL_ID,policy:entryRevisionPolicy,uiEvidence,observedAt:new Date().toISOString()});
   },
   async verifyCombinedPass(){return this.verifyLegacyNotification('pass');},
   async verifyReminder(){return this.verifyLegacyNotification('reminder');},
@@ -147,7 +157,7 @@ export function createFlow(env,fetcher=fetch){
     if(metadata.verified&&!applicable.every(m=>templateMetadata(t,m,metadataOptions).verified))Object.assign(metadata,{verified:false,componentsVerified:false,verification:'mapping_mismatch'});
    return {name:t.name,language:t.language,...metadata,...(productionSnapshotsApproved(env)&&metadata.bodySource==='operator_reviewed_snapshot'?{policyVersion:productionTemplatePolicy.version}:{} )};
    });
-   return {...this.configuration(),accountVerified:true,channel:{active:true,health:'healthy',configuredIdMatched:env.VARDHMAN_FLOW_CHANNEL_ID?true:null,phoneConfigured:!!normalizePhone(channel.phoneNumber)},templates:approved,...(templateDefinitions?{bilingualTemplates:bilingualCatalog.map(t=>reviewedBilingualDefinition(templates,t,env,bilingualDefinitionMetadata(templates,t))),definitionObservedAt:new Date().toISOString()}:{}),usage:{requestCount:Number.isFinite(account.usage?.requestCount)?account.usage.requestCount:null,monthlyRequestCount:Number.isFinite(account.usage?.monthlyRequestCount)?account.usage.monthlyRequestCount:null}};
+   return {...this.configuration(),accountVerified:true,channel:{active:true,health:'healthy',configuredIdMatched:env.VARDHMAN_FLOW_CHANNEL_ID?true:null,phoneConfigured:!!normalizePhone(channel.phoneNumber)},templates:approved,...(templateDefinitions?{bilingualTemplates:selectEntryRuntimeCatalog(bilingualCatalog,env).map(t=>reviewedEntryRuntimeDefinition(templates,t,env,reviewedBilingualDefinition(templates,t,env,bilingualDefinitionMetadata(templates,t)))),definitionObservedAt:new Date().toISOString()}:{}),usage:{requestCount:Number.isFinite(account.usage?.requestCount)?account.usage.requestCount:null,monthlyRequestCount:Number.isFinite(account.usage?.monthlyRequestCount)?account.usage.monthlyRequestCount:null}};
   }
  };
 }

@@ -1,0 +1,8 @@
+import React,{useState,useRef} from 'react';
+import {registrationApi} from '@/lib/ayambilRegistration';
+export default function ReceiptObservation(){
+ const [rows,setRows]=useState([]),[cursor,setCursor]=useState(''),[busy,setBusy]=useState(false),[more,setMore]=useState(true),[error,setError]=useState('');const lock=useRef(false);
+ async function check(){if(lock.current||!more)return;lock.current=true;setBusy(true);setError('');try{const r=await registrationApi('admin/notification-outbox/observe-receipts',{method:'POST',body:{after:cursor,limit:20}});setRows(old=>[...old,...r.items]);setCursor(r.next);setMore(r.hasMore);if(r.stopped)setError('Provider check paused. No retry or resend performed. Wait for provider recovery before continuing.');}catch(e){setError(e.message);}finally{lock.current=false;setBusy(false);}}
+ const counts=rows.reduce((a,r)=>(a[r.status]=(a[r.status]||0)+1,a),{});
+ return <details className="ay-notify-advanced"><summary>Pending receipts · status-only audit</summary><p>Reads known provider receipts only. Does not update legacy history or send messages. Up to 20 checks per batch; maximum two batches per minute.</p><button type="button" disabled={busy||!more} onClick={check}>{busy?'Checking…':rows.length?'Check next receipts · no resend':'Check pending receipts · no resend'}</button>{error&&<p role="alert">{error}</p>}<p>{Object.entries(counts).map(([s,n])=>`${s}: ${n}`).join(' · ')||'Not checked in this session'}{!more?' · Audit page scan completed':''}</p><details><summary>Observed receipt records · {rows.length}</summary><pre>{JSON.stringify(rows,null,2)}</pre></details></details>;
+}

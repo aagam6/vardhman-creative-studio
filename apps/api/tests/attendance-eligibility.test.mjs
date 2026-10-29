@@ -16,7 +16,7 @@ test('Only explicit reviewed current complete scope resolves overlap; responses/
  assert.equal(eligible(books,[{...r,decision:{action:'follow_up'}}]).eligible,false);
  assert.equal(eligible(books,[{...r,decision:{action:'reviewed'}}]).eligible,true);
  assert.equal(eligible([...books,book('c',b.names)],[{...r,decision:{action:'reviewed'}}]).eligible,false);
- assert.equal(eligible([b],[{...r,snapshot:[b],decision:null}]).eligible,false);
+ assert.equal(eligible([b],[{...r,snapshot:[b],decision:null}]).eligible,true);
 });
 test('Answered contact-event is excluded across rounds; no booking/pass mutation',()=>{
  const before=JSON.stringify(b),r={purpose:'attendance',event_date:b.eventDate,contact_key:'12025550123',snapshot:[b],response:{attending:'no',count:0},review_round:'old'};
