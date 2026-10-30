@@ -43,5 +43,16 @@ try{
  await f.pool.query("UPDATE ayambil_notification_audit SET created_at=DATE_SUB(UTC_TIMESTAMP(3),INTERVAL 30 SECOND) WHERE action='claim_committed'");
  eq((await sender.runOne(sp.id,{ownershipVersion:2})).status,'not_claimed');eq(calls,1);
  const [[row]]=await f.pool.execute('SELECT attempts,state,provider_id FROM ayambil_notification_outbox WHERE id=?',[sp.id]);eq(row.attempts,0);eq(row.state,'blocked');eq(row.provider_id,null);
+ // Successful follow-up is a separate explicit once-only submission, using the
+ // same review/link; concurrent preparation and submission cannot duplicate it.
+ const fid=await register('+12025550126','Synthetic unanswered guest');await f.pool.execute('UPDATE ayambil_bookings SET created_at=? WHERE id=?',['2026-10-30 14:00:00',fid]);
+ const fp=await sender.prepareSubject({purpose:'attendance',subject:fid},f.actor,f.store.bookingControls);
+ eq((await sender.runOne(fp.id,{ownershipVersion:2})).status,'sent');eq(calls,2);
+ await f.pool.execute("UPDATE ayambil_notification_outbox SET state='read' WHERE id=?",[fp.id]);
+ const concurrent=await Promise.all([sender.prepareSubject({purpose:'attendance_followup',subject:fp.id},f.actor),sender.prepareSubject({purpose:'attendance_followup',subject:fp.id},f.actor)]);eq(concurrent[0].id,concurrent[1].id);
+ await f.pool.query("UPDATE ayambil_notification_audit SET created_at=DATE_SUB(UTC_TIMESTAMP(3),INTERVAL 30 SECOND) WHERE action='claim_committed'");
+ const outcomes=await Promise.all([sender.runOne(concurrent[0].id,{ownershipVersion:2}),sender.runOne(concurrent[0].id,{ownershipVersion:2})]);eq(outcomes.filter(x=>x.status==='sent').length,1);eq(calls,3);
+ const [[sentFollow]]=await f.pool.execute('SELECT attempts,state FROM ayambil_notification_outbox WHERE id=?',[concurrent[0].id]);eq(sentFollow.attempts,1);eq(sentFollow.state,'sent');
+ eq((await sender.prepareSubject({purpose:'attendance_followup',subject:fp.id},f.actor)).id,concurrent[0].id);eq(calls,3);
  console.log(JSON.stringify({checks,mockSubmissions:calls,realProviderCalls:0,lateFamilyBlocked:true,passDataUnchanged:true}));
 }finally{await f.close();}
