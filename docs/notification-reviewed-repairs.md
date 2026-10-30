@@ -20,8 +20,8 @@ Sending remains a separate exact-ID guarded action. No automatic retry.
 
 An explicit admin correction requires the exact saved number, the corrected
 Indian number and identical final ten digits. Documented authenticated provider
-contact-history GETs must be complete; the corrected recipient must have no
-provider history. Each old attempted legacy message requires encrypted recipient
+contact-history GETs must be complete; the corrected recipient must have no template history. Only explicitly typed
+non-template messages are allowed; unknown types and template markers block correction. Each old attempted legacy message requires encrypted recipient
 evidence or membership of the old recipient's provider history. Missing evidence
 blocks correction; no fabricated sent/delivered state or deletion is used.
 
