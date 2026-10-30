@@ -7,7 +7,8 @@ export function createNotificationService({pool,config,flow,key,env=process.env}
  const provider={
   async validate(purpose){if(purpose==='pass_link')return flow.verifyCombinedPass();const t=catalog.find(t=>t.purpose===(purpose==='reminder'?'entry_timing':purpose));if(!t)throw Error('Unknown purpose');t.approvalEvidence=await flow.verifyBilingual(t);},
   async submit(p){try{const r=await flow.sendPrepared({to:normalizePhone(p.to),templateName:p.name,language:p.language.code,components:p.components});return {providerId:r.id,status:r.status==='failed'?'rejected':r.status};}catch(e){if(e.providerRejected)return {status:e.providerRejected===429?'rate_limited':'rejected'};throw e;}},
-  async status(id){return flow.messageStatus(id);}
+  async status(id){return flow.messageStatus(id);},
+  async recipientHistory(mobile){return flow.recipientHistory(mobile);}
  };
  return createProductionNotificationSender({pool,config,key,provider,catalog});
 }
