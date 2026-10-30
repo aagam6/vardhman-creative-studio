@@ -9,7 +9,8 @@ import {queueSummary} from './queue-summary.mjs';
 import {isDeepStrictEqual} from 'node:util';
 import {createLocalTrashPurge} from './empty-trash-local.mjs';
 // Pending work must still belong to a usable booking/pass, not cancelled history.
-const pendingMessageEligibility=`b.status='active' AND mq.notification_type IN ('confirmation','pass','reminder') AND EXISTS (
+const unresolvedLegacyQueue=`NOT EXISTS (SELECT 1 FROM ayambil_notification_audit lhr WHERE lhr.action='legacy_history_superseded' AND CONVERT(JSON_UNQUOTE(JSON_EXTRACT(lhr.detail,'$.legacyId')) USING utf8mb4) COLLATE utf8mb4_unicode_ci=CONVERT(mq.id USING utf8mb4) COLLATE utf8mb4_unicode_ci)`;
+const pendingMessageEligibility=`b.status='active' AND ${unresolvedLegacyQueue} AND mq.notification_type IN ('confirmation','pass','reminder') AND EXISTS (
  SELECT 1 FROM ayambil_attendees pa JOIN ayambil_passes pp ON pp.attendee_id=pa.id
  WHERE pa.booking_id=b.id AND pa.status='active' AND pp.status='active' AND pp.trashed_at IS NULL
  AND (mq.notification_type<>'pass' OR (NOT EXISTS(SELECT 1 FROM ayambil_message_queue previous WHERE previous.booking_id=b.id AND previous.notification_type='pass' AND previous.id<>mq.id AND ((previous.dedupe_hash=SHA2(CONCAT('pass:booking:',b.id),256) AND (mq.dedupe_hash<>previous.dedupe_hash OR previous.attempts>0 OR previous.provider_id IS NOT NULL OR previous.status<>'queued')) OR (previous.status='queued' AND previous.attempts=0 AND previous.provider_id IS NULL AND previous.id<mq.id AND mq.dedupe_hash<>SHA2(CONCAT('pass:booking:',b.id),256)))))))`;
@@ -38,7 +39,7 @@ export function createStore(pool,config,{queue,adminRecipients=[]}={}) {
       const removed=privileged&&!passes.length&&(config.localTrashPurge===true||config.trashPurgeEnabled===true)?await one(db,"SELECT id FROM "+(config.localTrashPurge===true?'ayambil_local_trash_backup':'ayambil_trash_backup')+" WHERE JSON_UNQUOTE(JSON_EXTRACT(payload,'$.pass.attendee_id'))=? LIMIT 1",[a.id]):null;
       attendees.push({...(privileged?{id:a.id,...(removed?{passHistoryPurged:true}:{})}:{}),fullName:a.full_name,status:a.status,dates:[b.event_date],passes});
     }
-    const whatsapp=privileged?(queue?queueSummary(await rows(db,'SELECT notification_type,status,attempts,updated_at FROM ayambil_message_queue WHERE booking_id=? ORDER BY updated_at',[id])):{status:'Queue not loaded (sending disabled)',attempts:null,history:[]}):undefined;
+    const whatsapp=privileged?(queue?queueSummary(await rows(db,`SELECT mq.notification_type,mq.status,mq.attempts,mq.updated_at,NOT (${unresolvedLegacyQueue}) AS history_resolved FROM ayambil_message_queue mq WHERE mq.booking_id=? ORDER BY mq.updated_at`,[id])):{status:'Queue not loaded (sending disabled)',attempts:null,history:[]}):undefined;
     if(privileged&&config.notificationService){
       const notifications=await rows(db,'SELECT purpose,state,attempts,updated_at FROM ayambil_notification_outbox WHERE subject=? ORDER BY created_at',[id]);
       whatsapp.history.push(...notifications.flatMap(n=>(['booking_confirmed','waiting_approved'].includes(n.purpose)?['confirmation','pass']:[({pass_link:'pass'})[n.purpose]||n.purpose]).map(type=>({type,status:n.state,attempts:n.attempts,at:n.updated_at,source:'notification_outbox'}))));
