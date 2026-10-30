@@ -13,3 +13,9 @@ Vardhman Flow signed-in UI: channel aa40827e-8239-49b0-bee4-3045bb3d95d7, active
 Prepared read-only provider key proposal: Vcs channel, account.read and templates.read only. No key has been created without per-action confirmation. Metadata verifier issues only two GETs and fails exact template verification when components/Meta-ID evidence are absent. It never calls a message endpoint.
 
 No hosted credential, environment, database, storage, deployment or live sender change was made by this inspection. A restricted-grant rehearsal already passed in disposable MariaDB; that is not hosted provisioning.
+
+## Authenticated provider follow-up
+User approved read-only key creation. Created updhan-readonly-verification restricted to Vcs, templates.read and account.read only; no send/read-message/contact/campaign/webhook scope. Credential stored Windows-DPAPI encrypted outside the review checkout; plaintext transfer removed. No secret committed.
+Authenticated account and templates GETs verify healthy matching channel and exact approved flat template: provider UUID 49bffc8a-734f-423b-85c8-0a1883732e08, whatsappTemplateId 1858961825552892, hi/UTILITY/APPROVED, exact header/body/footer/static button. Earlier components/Meta-ID blocker is resolved by verified flat schema mapping, not a permissive fallback. Mutated content/identity/media are rejected. Twelve focused tests passed. No real message or sender activation.
+Shared rate reservation and hosted provisioning remain unresolved; UI plan300/min alone does not authorize an independent worker budget. Existing Ayambil key and automation unchanged.
+
