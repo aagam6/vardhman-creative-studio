@@ -12,7 +12,7 @@ for(const confirmationStatus of ['queued','sent','delivered','read'])test(`repea
   if(sql.startsWith('SELECT * FROM ayambil_bookings'))return [[booking]];
   if(sql.startsWith('SELECT * FROM ayambil_attendees'))return [attendees];
   if(sql.startsWith('SELECT snapshot,status,trashed_at'))return [passes.filter(p=>p.attendee_id===args[0])];
-  if(sql.startsWith('SELECT notification_type,status,attempts,updated_at FROM ayambil_message_queue'))return [jobs];
+  if(sql.startsWith('SELECT mq.notification_type,mq.status,mq.attempts,mq.updated_at,') && sql.includes('FROM ayambil_message_queue mq WHERE mq.booking_id=?'))return [jobs];
   if(sql.startsWith('UPDATE ayambil_bookings SET')){writes.push(sql);booking.status=args[0];return [[]];}
   if(sql.startsWith('UPDATE ayambil_attendees SET')){writes.push(sql);attendees.forEach(a=>a.status=args[0]);return [[]];}
   if(sql.startsWith('UPDATE ayambil_passes p')){writes.push(sql);passes.forEach(p=>p.status=args[0]);return [[]];}

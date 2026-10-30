@@ -1,4 +1,6 @@
 import {observeKnownReceipts} from './known-receipt-observation.mjs';
+import {entryPriorBlocksSql,entryFollowupAction} from './entry-followup-policy.mjs';
+import {entryRevisionDefinitionHash} from './entry-timing-revision-preview.mjs';
 // Production-capable durable sender. No import-time network, migration or worker.
 import {randomUUID,randomBytes,createHash} from 'node:crypto';
 import {bookingPassToken} from './booking-pass-link.mjs';
@@ -66,7 +68,7 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
    if(!scheduledPreview)assertReminderWindow(s.eventDate,now());
    const prior=await one(db,"SELECT id FROM ayambil_message_queue WHERE booking_id=? AND notification_type='reminder' AND (attempts>0 OR provider_id IS NOT NULL OR status IN ('preparing','sending','uncertain','accepted','sent','delivered','read','failed')) LIMIT 1",[s.canonicalSubject||input.subject]);
    if(prior)throw Error('Legacy reminder already attempted');
-   const notice=await one(db,"SELECT id FROM ayambil_notification_outbox WHERE subject=? AND purpose IN ('reminder','entry_timing') AND (attempts>0 OR provider_id IS NOT NULL OR state IN ('processing','uncertain','accepted','sent','delivered','read','failed')) AND (? IS NULL OR id<>?) LIMIT 1",[s.canonicalSubject||input.subject,ownOutboxId,ownOutboxId]);
+   const notice=await one(db,`SELECT n.id FROM ayambil_notification_outbox n WHERE n.subject=? AND n.purpose IN ('reminder','entry_timing') AND (n.attempts>0 OR n.provider_id IS NOT NULL OR n.state IN ('processing','uncertain','accepted','sent','delivered','read','failed')) AND (? IS NULL OR n.id<>?) AND ${input.purpose==='reminder'?entryPriorBlocksSql('n'):'TRUE'} LIMIT 1`,[s.canonicalSubject||input.subject,ownOutboxId,ownOutboxId]);
    if(notice)throw Error('Reminder or entry notice already attempted');
   }
   if(['booking_confirmed','waiting_approved'].includes(input.purpose)&&s.legacyConfirmation)throw Error('Legacy confirmation already attempted');
@@ -96,6 +98,22 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
   legacyHistory,
   async ready(){const state=await this.owner();if(!state||!['paused','bilingual'].includes(state.owner)||!Number.isSafeInteger(state.version))throw Error('Notification owner schema unavailable');await pool.query('SELECT provider_id,state FROM ayambil_notification_outbox LIMIT 0');await pool.query('SELECT actor,action,detail FROM ayambil_notification_audit LIMIT 0');await this.recover();return true;},
   async owner(){return one(pool,'SELECT owner,version FROM ayambil_notification_owner WHERE id=1');},
+  async authorizeEntryFollowup(id,actor){
+   if(!actor?.admin_id||!/^[-a-f0-9]{36}$/.test(id)||catalog.find(t=>t.purpose==='entry_timing')?.parameters.length!==5)throw Error('Administrator and reviewed five-field revision required');
+   await provider.validate('entry_timing');
+   return withLease(()=>tx(async db=>{
+    const meta=await one(db,'SELECT subject FROM ayambil_notification_outbox WHERE id=?',[id]);if(!meta)throw Error('Prior entry receipt unavailable');
+    await lockSourceEvent(db,'entry_timing',meta.subject);
+    const old=await one(db,'SELECT * FROM ayambil_notification_outbox WHERE id=? FOR UPDATE',[id]);
+    if(old.purpose!=='entry_timing'||!['delivered','read'].includes(old.state)||!old.provider_id||old.attempts<1)throw Error('Exact delivered prior Entry timing receipt required');
+    const b=await booking(db,old.subject),session=dueReminderSession(new Date(Date.parse(b.eventDate+'T00:00:00+05:30')-6*3600000));
+    const scheduledAt=new Date(Date.parse(b.eventDate+'T00:00:00+05:30')-6*3600000).toISOString();
+    if(!session||new Date(now()).getTime()>=Date.parse(b.eventDate+'T00:00:00+05:30'))throw Error('Future/current scheduled event window required');
+    const prior=await one(db,"SELECT id FROM ayambil_notification_audit WHERE action=? AND BINARY JSON_UNQUOTE(JSON_EXTRACT(detail,'$.subject'))=BINARY ? AND JSON_UNQUOTE(JSON_EXTRACT(detail,'$.definitionHash'))=? LIMIT 1",[entryFollowupAction,old.subject,entryRevisionDefinitionHash]);
+    if(!prior)await db.execute('INSERT INTO ayambil_notification_audit VALUES(?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),actor.admin_id,entryFollowupAction,JSON.stringify({oldId:old.id,subject:old.subject,oldHash:old.revision_hash,providerId:old.provider_id,definitionHash:entryRevisionDefinitionHash,purpose:'reminder',scheduledAt})]);
+    return {authorized:true,unchanged:!!prior,oldId:id,scheduledAt,sent:false,historyPreserved:true};
+   }));
+  },
   async handover({owner,version},actor){if(!actor?.admin_id||!['paused','bilingual'].includes(owner))throw Error('Admin and supported owner required');return withLease(()=>tx(async db=>{const c=await one(db,'SELECT * FROM ayambil_notification_owner WHERE id=1 FOR UPDATE');if(c.version!==version)throw Error('Stale ownership revision');if(owner==='bilingual'){const legacy=await one(db,"SELECT id FROM ayambil_message_queue WHERE status IN ('preparing','sending','uncertain') LIMIT 1");const modern=await one(db,"SELECT id FROM ayambil_notification_outbox WHERE state IN ('processing','uncertain') LIMIT 1");if(legacy||modern)throw Error('In-flight or uncertain jobs block activation');}await db.execute('UPDATE ayambil_notification_owner SET owner=?,version=version+1 WHERE id=1',[owner]);await db.execute('INSERT INTO ayambil_notification_audit VALUES(?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),actor.admin_id,'owner_changed',JSON.stringify({owner,version:version+1})]);return {owner,version:version+1};}));},
   async reconcile(id,actor){if(!actor?.admin_id)throw Error('Administrator required');const row=await one(pool,'SELECT id,state,provider_id FROM ayambil_notification_outbox WHERE id=?',[id]);if(!row?.provider_id||!['accepted','sent','delivered','read','failed','uncertain'].includes(row.state))throw Error('Known provider reference required; no resend');const result=await provider.status(row.provider_id);return tx(async db=>{const current=await one(db,'SELECT * FROM ayambil_notification_outbox WHERE id=? FOR UPDATE',[id]);if(current.provider_id!==row.provider_id)throw Error('Provider reference changed');const state=nextDeliveryStatus(current.state,result.status);await db.execute('UPDATE ayambil_notification_outbox SET last_checked_at=UTC_TIMESTAMP(3) WHERE id=?',[id]);if(state!==current.state){await db.execute('UPDATE ayambil_notification_outbox SET state=?,updated_at=UTC_TIMESTAMP(3) WHERE id=?',[state,id]);await db.execute('INSERT INTO ayambil_notification_audit VALUES(?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),actor.admin_id,'status_reconciled',JSON.stringify({id,previous:current.state,state})]);}return {status:state};});},
   async prepareEntryNotice({bookingIds,round},actor){
@@ -195,7 +213,7 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
    const due=dueReminderSession(now());if(!due)return null;
    if(!Array.isArray(excludeSubjects)||excludeSubjects.length>2000||excludeSubjects.some(id=>!/^[-a-f0-9]{36}$/.test(id)))throw Error('Invalid reminder exclusion');
    const extra=excludeSubjects.length?' AND b.id NOT IN ('+excludeSubjects.map(()=>'?').join(',')+')':'';
-   const [rows]=await pool.execute("SELECT b.id,o.id outbox_id FROM ayambil_bookings b LEFT JOIN ayambil_notification_outbox o ON o.subject=b.id AND o.purpose='reminder' WHERE b.event_date=? AND b.status='active' AND b.whatsapp_consent=1 AND EXISTS(SELECT 1 FROM ayambil_attendees a JOIN ayambil_passes p ON p.attendee_id=a.id WHERE a.booking_id=b.id AND a.status='active' AND p.status='active' AND p.trashed_at IS NULL) AND NOT EXISTS(SELECT 1 FROM ayambil_message_queue q WHERE q.booking_id=b.id AND q.notification_type='reminder' AND (q.attempts>0 OR q.provider_id IS NOT NULL OR q.status IN ('preparing','sending','uncertain','accepted','sent','delivered','read','failed'))) AND NOT EXISTS(SELECT 1 FROM ayambil_notification_outbox n WHERE n.subject=b.id AND n.purpose IN ('reminder','entry_timing') AND (n.attempts>0 OR n.provider_id IS NOT NULL OR n.state IN ('processing','uncertain','accepted','sent','delivered','read','failed'))) AND (o.id IS NULL OR o.state IN ('held','ready') AND o.attempts=0 AND o.provider_id IS NULL)"+extra+" ORDER BY b.created_at,b.id LIMIT 1",[due.date,...excludeSubjects]);
+   const [rows]=await pool.execute(`SELECT b.id,o.id outbox_id FROM ayambil_bookings b LEFT JOIN ayambil_notification_outbox o ON o.subject=b.id AND o.purpose='reminder' WHERE b.event_date=? AND b.status='active' AND b.whatsapp_consent=1 AND EXISTS(SELECT 1 FROM ayambil_attendees a JOIN ayambil_passes p ON p.attendee_id=a.id WHERE a.booking_id=b.id AND a.status='active' AND p.status='active' AND p.trashed_at IS NULL) AND NOT EXISTS(SELECT 1 FROM ayambil_message_queue q WHERE q.booking_id=b.id AND q.notification_type='reminder' AND (q.attempts>0 OR q.provider_id IS NOT NULL OR q.status IN ('preparing','sending','uncertain','accepted','sent','delivered','read','failed'))) AND NOT EXISTS(SELECT 1 FROM ayambil_notification_outbox n WHERE n.subject=b.id AND n.purpose IN ('reminder','entry_timing') AND (n.attempts>0 OR n.provider_id IS NOT NULL OR n.state IN ('processing','uncertain','accepted','sent','delivered','read','failed')) AND ${entryPriorBlocksSql('n')}) AND (o.id IS NULL OR o.state IN ('held','ready') AND o.attempts=0 AND o.provider_id IS NULL)`+extra+" ORDER BY b.created_at,b.id LIMIT 1",[due.date,...excludeSubjects]);
    return rows[0]||null;
   },
   async previewEntryRevision(ids){
