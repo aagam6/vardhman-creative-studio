@@ -1,0 +1,17 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {createApp} from '../app.mjs';import {createFlow} from '../vardhmanflow.mjs';import {ApiError} from '../config.mjs';import {hash} from '../security.mjs';
+test('recipient-history proof uses the documented contact GET only and excludes message contents',async()=>{
+ const calls=[];const flow=createFlow({VARDHMAN_FLOW_API_KEY:'fixture-key',VARDHMAN_FLOW_API_SECRET:'fixture-secret'},async(url,options)=>{calls.push({url,method:options.method});return Response.json({success:true,data:{messages:[{id:'receipt-fixture',body:'private content',token:'private token'}],total:1}});});
+ assert.deepEqual(await flow.recipientHistory('+917001234567'),{ids:['receipt-fixture'],total:1});assert.equal(calls.length,1);assert.match(calls[0].url,/\/messages\/917001234567\?limit=50&offset=0$/);assert.equal(calls[0].method,'GET');
+});
+test('recipient-history proof fails closed for truncated or malformed provider history',async()=>{
+ for(const data of [{messages:[],total:51},{messages:[{}],total:1},{messages:[],total:1},{messages:[],total:'0'}]){const flow=createFlow({VARDHMAN_FLOW_API_KEY:'fixture',VARDHMAN_FLOW_API_SECRET:'fixture'},async()=>Response.json({success:true,data}));await assert.rejects(flow.recipientHistory('+917001234567'));}
+});
+test('contact correction and Attendance repair require admin/Origin/CSRF and reject recipient overrides',async()=>{
+ let writes=0,previews=0;const store={session:async t=>{if(t!=='fixture')throw new ApiError(401,'Sign in required');return{admin_id:'synthetic-admin',csrf_hash:hash('csrf-fixture')};},limit:async()=>true};
+ const notifications={correctContactCountry:async()=>{writes++;return{sent:false};},previewAttendanceRepair:async()=>{previews++;return{sent:false};},repairAttendanceDraft:async()=>{writes++;return{sent:false};}};
+ const origin='https://vardhmancreativestudio.com',server=createApp({store,notifications,config:{origin,rateSecret:'a'.repeat(64)},staticDirectory:process.cwd()}).listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));
+ const base=`http://127.0.0.1:${server.address().port}/api/ayambil/admin/notification-outbox/`,headers={origin,'content-type':'application/json',cookie:'__Host-ayambil=fixture','x-csrf-token':'csrf-fixture'};
+ const bodies={'contact-country-correction':{confirmation:'CORRECT ONE REVIEWED CONTACT COUNTRY CODE'},'attendance-repair':{confirmation:'REPAIR ONE NEVER ATTEMPTED ATTENDANCE DRAFT'},'attendance-repair-preview':{id:'fixture'}};
+ try{for(const [path,body] of Object.entries(bodies)){for(const missing of [{cookie:''},{origin:'https://example.invalid'},{'x-csrf-token':''}])assert.ok([401,403].includes((await fetch(base+path,{method:'POST',headers:{...headers,...missing},body:JSON.stringify(body)})).status));assert.equal((await fetch(base+path,{method:'POST',headers,body:JSON.stringify({...body,to:'forbidden'})})).status,400);}assert.equal(writes,0);assert.equal(previews,0);assert.equal((await fetch(base+'attendance-repair-preview',{method:'POST',headers,body:JSON.stringify(bodies['attendance-repair-preview'])})).status,200);assert.equal(previews,1);assert.equal(writes,0);}finally{await new Promise(r=>server.close(r));}
+});
