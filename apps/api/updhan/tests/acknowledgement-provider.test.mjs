@@ -4,7 +4,7 @@ import {createUpdhanFlowProvider} from '../flow-provider.mjs';
 import {updhanWhatsappTemplate as template,acknowledgementPayload} from '../whatsapp-contract.mjs';
 import {createAcknowledgementWorker} from '../acknowledgement-worker.mjs';
 import {acknowledgementCrypto} from '../acknowledgement-repository.mjs';
-const env={UPDHAN_FLOW_API_KEY:'synthetic',UPDHAN_FLOW_API_SECRET:'synthetic',UPDHAN_FLOW_CHANNEL_ID:'synthetic',UPDHAN_WHATSAPP_ENABLED:'true',UPDHAN_WHATSAPP_ACTIVATION_APPROVED:'true'};
+const env={UPDHAN_FLOW_CREDENTIAL_SOURCE:'verification',UPDHAN_FLOW_API_KEY:'synthetic',UPDHAN_FLOW_API_SECRET:'synthetic',UPDHAN_FLOW_CHANNEL_ID:'synthetic',UPDHAN_WHATSAPP_ENABLED:'true',UPDHAN_WHATSAPP_ACTIVATION_APPROVED:'true'};
 const input={name:'Synthetic Applicant',reference:'UPD-2027-0001',to:'+919999999999'};
 const response=data=>({ok:true,headers:new Headers({'content-type':'application/json'}),json:async()=>({success:true,data})});
 test('network defaults off even with configured credentials',async()=>{let calls=0;const p=createUpdhanFlowProvider({env,fetchImpl:async()=>{calls++;}});await assert.rejects(p.prepare(input),/disabled/);assert.equal(calls,0);});

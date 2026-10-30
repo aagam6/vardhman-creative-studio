@@ -1,5 +1,9 @@
 # Hosted setup inspection — 30 October 2026
 
+## Final provider credential decision (supersedes separate production provider keys)
+
+User confirmed production must reuse existing Hostinger VARDHMAN_FLOW_API_KEY, VARDHMAN_FLOW_API_SECRET and VARDHMAN_FLOW_CHANNEL_ID. Sending adapter now resolves that complete set by default, without copying secrets or requiring new UPDHAN_FLOW_* credentials. Explicit UPDHAN_FLOW_CREDENTIAL_SOURCE=verification selects the temporary read-only testing set only; it is not the production configuration. Existing AYAMBIL_* flags do not activate Updhan. Shared provider budget remains mandatory, with separate Updhan queue, lease, consent checks, encryption and activation gates. This decision does not reuse Ayambil database-wide grants or its queue/worker.
+
 Current Hostinger completed production revision is 5549bed932627313dd42db3c317b392e65835470 (PR40), build 01a18a66-a189-7260-bea3-a04a2da01903, Node24 Express, main auto-deploy enabled. The local review branch base a21832b is now behind: refresh/rebase and rerun before any merge.
 
 Existing database u531246927_vcs remains assigned to the website. Existing principal has broad DDL/DML permissions and must not be repurposed or revoked. The app-side DB host must be 127.0.0.1:3306; srv906.hstgr.io is the external-access address only.
