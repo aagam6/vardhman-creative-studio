@@ -44,7 +44,7 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
    if(!review||review.decision||review.purpose!==(purpose==='booking_verify'?'duplicate':'attendance')||review.response||!review.token_hash||review.token_hash!==createHash('sha256').update(token||'').digest('hex')||Date.parse(review.expires_at+'Z')<=Date.now())throw Error('Review link expired, revoked or answered');
    if(purpose==='attendance'){const answered=await one(db,"SELECT id FROM ayambil_family_reviews WHERE purpose='attendance' AND event_date=? AND contact_key=? AND response IS NOT NULL LIMIT 1",[review.event_date,review.contact_key]);if(answered)throw Error('Contact already answered');}
    const snapshots=reviewSnapshot||(typeof review.snapshot==='string'?JSON.parse(review.snapshot):review.snapshot);
-   if(purpose==='attendance'){const eligibility=await loadAttendanceEligibility(db,{eventDate:review.event_date,mobile:review.contact_key||snapshots[0]?.mobile,now:now()});assertAttendanceEligible(eligibility);if(JSON.stringify(eligibility.bookingIds)!==JSON.stringify(snapshots.map(b=>b.id).sort()))throw Error('Attendance contact snapshot stale');}
+   if(purpose==='attendance'){const eligibility=await loadAttendanceEligibility(db,{eventDate:review.event_date,mobile:review.contact_key||snapshots[0]?.mobile,now:now(),finalCutoff:config.attendanceFinalCutoff});assertAttendanceEligible(eligibility);if(JSON.stringify(eligibility.bookingIds)!==JSON.stringify(snapshots.map(b=>b.id).sort()))throw Error('Attendance contact snapshot stale');}
    const books=[];
    for(const snap of snapshots){const saved=await booking(db,snap.id);if(saved.mobile!==snap.mobile||saved.names.join('\n')!==snap.names.join('\n'))throw Error('Review snapshot stale');books.push(saved);}
    const first=books[0];if(!first)throw Error('Empty review');
@@ -65,6 +65,14 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
   return {mobile:b.mobile,eventDate:b.event_date,contactName:b.contact_name,bookingReference:b.number,attendeeCount:rows.length,approvedAttendeeCount:rows.length,names:rows.map(x=>x.full_name),legacyConfirmation:!!prior&&!await corrected(prior),legacyPass:!!passPrior&&!await corrected(passPrior),identity:[b.id,b.status,rows]};
  }
  async function envelope(db,input,{ownOutboxId=null,scheduledPreview=false,reviewSnapshot=null}={}){
+  if(input.followupOf){
+   const round='response-followup-'+(config.attendanceFinalCutoff||'').slice(0,10).replaceAll('-','');
+   if(input.purpose!=='attendance'||!config.attendanceFinalCutoff||input.round!==round)throw Error('Reviewed final Attendance follow-up required');
+   const prior=await one(db,'SELECT * FROM ayambil_notification_outbox WHERE id=?',[input.followupOf]);
+   if(!prior||prior.purpose!=='attendance'||prior.round_name!=='initial'||prior.subject!==input.subject||!prior.provider_id||prior.attempts<1||!['delivered','read'].includes(prior.state))throw Error('Delivered initial Attendance required; pending or uncertain cannot be followed up');
+   const original=crypto.open(prior.envelope);
+   if(original.followupOf||original.token!==input.token)throw Error('Original private response link required');
+  }
   const s=await source(db,input.purpose,input.subject,input.token,{reviewSnapshot});
   if(['reminder','entry_timing'].includes(input.purpose)){
    if(!scheduledPreview)assertReminderWindow(s.eventDate,now());
@@ -95,7 +103,7 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
   if(input.purpose!=='attendance'||input.subject!==row.subject||input.round!==row.round_name||!r||r.purpose!=='attendance'||r.response||r.decision||!r.token_hash||r.token_hash!==createHash('sha256').update(input.token||'').digest('hex')||Date.parse(r.expires_at+'Z')<=Date.now())throw Error('Existing unanswered valid private link required');
   const prior=await one(db,"SELECT o.id FROM ayambil_notification_outbox o JOIN ayambil_family_reviews r ON r.id=o.subject WHERE o.purpose='attendance' AND r.event_date=? AND r.contact_key=? AND o.id<>? AND (o.attempts>0 OR o.provider_id IS NOT NULL OR o.state IN ('processing','uncertain','accepted','sent','delivered','read','failed')) LIMIT 1",[r.event_date,r.contact_key,id]);
   if(prior)throw Error('Attendance already attempted; no repair or resend');
-  const eligible=await loadAttendanceEligibility(db,{eventDate:r.event_date,mobile:r.contact_key,now:now()});assertAttendanceEligible(eligible);
+  const eligible=await loadAttendanceEligibility(db,{eventDate:r.event_date,mobile:r.contact_key,now:now(),finalCutoff:config.attendanceFinalCutoff});assertAttendanceEligible(eligible);
   const snapshot=[];for(const id of eligible.bookingIds){const b=await booking(db,id);snapshot.push({id,number:b.bookingReference,mobile:b.mobile,contactName:b.contactName,eventDate:b.eventDate,names:b.names});}
   const oldSnapshot=typeof r.snapshot==='string'?JSON.parse(r.snapshot):r.snapshot;
   let reason='historical_eligibility_changed';try{const old=await envelope(db,input,{ownOutboxId:id});if(old.hash!==row.revision_hash)reason='payload_revision_changed';}catch(error){reason=({'Attendance contact snapshot stale':'contact_scope_changed','Review snapshot stale':'participant_snapshot_changed','Stale revision':'payload_revision_changed'})[error.message]||'source_previously_ineligible';}
@@ -106,7 +114,7 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
  async function withLease(fn){const db=await pool.getConnection();try{const [[r]]=await db.query('SELECT GET_LOCK(?,0) acquired',[lockName]);if(r.acquired!==1){const error=Error('Dispatch busy; no retry was performed');error.code='DISPATCH_BUSY';throw error;}try{return await fn();}finally{await db.query('SELECT RELEASE_LOCK(?)',[lockName]);}}finally{db.release();}}
  async function gate(db,version,ownClaim=null){const c=await one(db,'SELECT * FROM ayambil_notification_owner WHERE id=1 FOR UPDATE');if(!c||c.owner!=='bilingual'||c.version!==version)throw Error('Paused or stale queue ownership');const inFlight=await one(db,"SELECT id FROM ayambil_message_queue WHERE status IN ('preparing','sending','uncertain') LIMIT 1");if(inFlight)throw Error('Legacy queue requires reconciliation');const modern=await one(db,"SELECT id FROM ayambil_notification_outbox WHERE state IN ('processing','uncertain')"+(ownClaim?' AND id<>?':'')+' LIMIT 1',ownClaim?[ownClaim]:[]);if(modern)throw Error('Notification queue requires reconciliation');}
  async function persist(db,input,round){
-  const e=await envelope(db,input);if(e.s.sourceRound&&e.s.sourceRound!==round)throw Error('Review round mismatch');
+  const e=await envelope(db,input);if(e.s.sourceRound&&e.s.sourceRound!==round&&!input.followupOf)throw Error('Review round mismatch');
   const unit=['booking_verify','attendance'].includes(input.purpose)?[e.s.eventDate,e.s.contactUnit]:e.s.canonicalSubject||input.subject;
   const dedupe=digest([['booking_confirmed','waiting_approved'].includes(input.purpose)?'admission_confirmation':input.purpose,unit,round]);
   const previous=await one(db,'SELECT id,revision_hash FROM ayambil_notification_outbox WHERE dedupe_hash=? FOR UPDATE',[dedupe]);
@@ -185,6 +193,18 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
    try{return await this.enqueue({purpose:row.purpose,subject:row.subject,round:row.review_round,token});}catch(error){const reason=eligibilityReasons.get(error?.message);if(reason){error.code='NOTIFICATION_INELIGIBLE';error.holdReason=reason;}throw error;}
   },
   async prepareSubject({purpose,subject},actor,controls){
+   if(purpose==='attendance_followup'){
+    if(!actor?.admin_id||!/^[a-f0-9-]{36}$/.test(subject||'')||!config.attendanceFinalCutoff)throw Error('Reviewed final Attendance follow-up required');
+    await provider.validate('attendance');
+    return tx(async db=>{
+     const original=await one(db,"SELECT * FROM ayambil_notification_outbox WHERE id=? AND purpose='attendance' AND round_name='initial'",[subject]);
+     if(!original)throw Error('Exact original initial Attendance outbox required');
+     const input=crypto.open(original.envelope),round='response-followup-'+config.attendanceFinalCutoff.slice(0,10).replaceAll('-','');
+     const id=await persist(db,{...input,round,followupOf:subject},round);
+     await db.execute('INSERT INTO ayambil_notification_audit VALUES(?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),actor.admin_id,'attendance_followup_prepared',JSON.stringify({id,initialId:subject,round,cutoff:config.attendanceFinalCutoff})]);
+     return {id,sent:false};
+    });
+   }
    if(!actor?.admin_id||!['booking_confirmed','waiting_received','waiting_approved','pass_link','attendance','reminder'].includes(purpose)||!/^[a-f0-9-]{36}$/.test(subject||''))throw Error('Reviewed notification subject required');
    if(purpose!=='attendance')return {id:await this.enqueue({purpose,subject,round:'initial'}),sent:false};
    await provider.validate('attendance');
@@ -289,10 +309,10 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
   async nextAttendance(since,{excludeSubjects=[]}={}){
    if(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(since||'')||!Array.isArray(excludeSubjects)||excludeSubjects.length>2000||excludeSubjects.some(id=>!/^[-a-f0-9]{36}$/.test(id)))throw Error('Reviewed attendance cutoff/exclusions required');
    const [prepared]=await pool.execute("SELECT b.id,b.event_date,b.mobile,o.id outbox_id FROM ayambil_notification_outbox o JOIN ayambil_family_reviews r ON r.id=o.subject JOIN ayambil_bookings b ON b.id=JSON_UNQUOTE(JSON_EXTRACT(r.snapshot,'$[0].id')) WHERE o.purpose='attendance' AND o.state IN ('held','ready') AND o.attempts=0 AND o.provider_id IS NULL AND o.claim_id IS NULL AND r.response IS NULL AND r.decision IS NULL AND r.created_at>? ORDER BY o.created_at LIMIT 20",[since.replace('T',' ').replace('Z','')]);
-   for(const row of prepared){if(excludeSubjects.includes(row.id))continue;const eligibility=await loadAttendanceEligibility(pool,{eventDate:row.event_date,mobile:row.mobile,now:now()});if(eligibility.eligible)return row;}
+   for(const row of prepared){if(excludeSubjects.includes(row.id))continue;const eligibility=await loadAttendanceEligibility(pool,{eventDate:row.event_date,mobile:row.mobile,now:now(),finalCutoff:config.attendanceFinalCutoff});if(eligibility.eligible)return row;}
    const extra=excludeSubjects.length?' AND b.id NOT IN ('+excludeSubjects.map(()=>'?').join(',')+')':'';
    const [rows]=await pool.execute("SELECT b.id,b.event_date,b.mobile FROM ayambil_bookings b WHERE b.status='active' AND b.whatsapp_consent=1 AND (b.created_at>? OR EXISTS(SELECT 1 FROM ayambil_waiting w WHERE w.booking_id=b.id AND w.approved_at>?)) AND b.created_at<=DATE_SUB(UTC_TIMESTAMP(3),INTERVAL 48 HOUR) AND NOT EXISTS(SELECT 1 FROM ayambil_family_reviews r WHERE r.purpose='attendance' AND r.event_date=b.event_date AND r.contact_key=REGEXP_REPLACE(b.mobile,'[^0-9]','')) AND EXISTS(SELECT 1 FROM ayambil_notification_outbox o WHERE o.subject=b.id AND o.purpose IN ('booking_confirmed','waiting_approved') AND o.provider_id IS NOT NULL AND o.state IN ('accepted','sent','delivered','read'))"+extra+" ORDER BY b.created_at,b.id LIMIT 20",[since.replace('T',' ').replace('Z',''),since.replace('T',' ').replace('Z',''),...excludeSubjects]);
-   for(const row of rows){const eligibility=await loadAttendanceEligibility(pool,{eventDate:row.event_date,mobile:row.mobile,now:now()});if(eligibility.eligible)return row;}
+   for(const row of rows){const eligibility=await loadAttendanceEligibility(pool,{eventDate:row.event_date,mobile:row.mobile,now:now(),finalCutoff:config.attendanceFinalCutoff});if(eligibility.eligible)return row;}
    return null;
   },
   async list(page=1){page=Number(page);if(!Number.isInteger(page)||page<1||page>100000)throw Error('Invalid page');const [r]=await pool.query('SELECT id,purpose,round_name,state,attempts,provider_id,error_code,created_at FROM ayambil_notification_outbox ORDER BY created_at DESC,id LIMIT 21 OFFSET ?',[20*(page-1)]);return {items:r.slice(0,20),hasMore:r.length>20,page};},
