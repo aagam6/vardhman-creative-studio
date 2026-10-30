@@ -13,7 +13,7 @@ export function UpdhanLanguageButtons(){const {language,setLanguage}=useUpdhanLa
 // handlers, canonical field values, or user-entered review values.
 export function localizeUpdhanTree(node,language){
  if(typeof node==='string')return translateUpdhan(node,language);
- if(Array.isArray(node))return node.map(child=>localizeUpdhanTree(child,language));
+ if(Array.isArray(node))return React.Children.toArray(node).map(child=>localizeUpdhanTree(child,language));
  if(!React.isValidElement(node)||node.props['data-updhan-original']||['script','style'].includes(node.type))return node;
  const props={};for(const name of ['alt','title','aria-label','placeholder','content'])if(typeof node.props[name]==='string')props[name]=translateUpdhan(node.props[name],language);
  if(node.props.lang && ['hi','gu','en'].includes(node.props.lang))props.lang=language;
