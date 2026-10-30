@@ -121,7 +121,7 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
    if(!actor?.admin_id||!/^[a-f0-9-]{36}$/.test(id||'')||!/^\+[1-9]\d{10,12}$/.test(expectedMobile||'')||!/^\+91[6-9]\d{9}$/.test(newMobile||'')||expectedMobile===newMobile||expectedMobile.slice(-10)!==newMobile.slice(-10))throw new ApiError(409,'Reviewed same local number and corrected Indian country code required');
    if(typeof provider.recipientHistory!=='function')throw new ApiError(409,'Authenticated recipient history verification required');
    const oldHistory=await provider.recipientHistory(expectedMobile),newHistory=await provider.recipientHistory(newMobile);
-   if(!Array.isArray(oldHistory.ids)||newHistory.total!==0)throw new ApiError(409,'Corrected recipient already has provider history; separate purpose review required');
+   if(!Array.isArray(oldHistory.ids)||(newHistory.total!==0&&newHistory.nonTemplateOnly!==true))throw new ApiError(409,'Corrected recipient already has provider history; separate purpose review required');
    return withLease(()=>tx(async db=>{await lockSourceEvent(db,'booking_confirmed',id);await gate(db,version);const b=await one(db,'SELECT * FROM ayambil_bookings WHERE id=? FOR UPDATE',[id]);
     if(!b||b.mobile!==expectedMobile||b.status!=='active'||!b.whatsapp_consent)throw new ApiError(409,'Canonical contact changed or booking ineligible');
     const attempted=await one(db,"SELECT id FROM ayambil_notification_outbox WHERE subject=? AND purpose IN ('booking_confirmed','waiting_approved','pass_link') AND (attempts>0 OR provider_id IS NOT NULL OR state IN ('processing','uncertain','accepted','sent','delivered','read','failed')) LIMIT 1",[id]);if(attempted)throw new ApiError(409,'Existing modern admission submission requires separate recipient review');
@@ -134,7 +134,7 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
     for(const r of oldReviews)await db.execute('UPDATE ayambil_family_reviews SET expires_at=UTC_TIMESTAMP(3) WHERE id=? AND response IS NULL AND decision IS NULL',[r.id]);
     // Original queue/receipts remain immutable. Only exact proven wrong-recipient
     // legacy IDs are distinguished from a submission to the corrected contact.
-    await db.execute('INSERT INTO ayambil_notification_audit VALUES(?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),actor.admin_id,'contact_country_corrected',JSON.stringify({bookingId:id,previousMobile:expectedMobile,newMobile,revokedUnansweredReviews:oldReviews.map(r=>({id:r.id,previousExpiry:r.expires_at})),legacy:legacy.map(j=>({id:j.id,purpose:j.notification_type,providerId:j.provider_id,state:j.status}))})]);
+    await db.execute('INSERT INTO ayambil_notification_audit VALUES(?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),actor.admin_id,'contact_country_corrected',JSON.stringify({bookingId:id,previousMobile:expectedMobile,newMobile,reviewedNewRecipientNonTemplateIds:newHistory.ids,revokedUnansweredReviews:oldReviews.map(r=>({id:r.id,previousExpiry:r.expires_at})),legacy:legacy.map(j=>({id:j.id,purpose:j.notification_type,providerId:j.provider_id,state:j.status}))})]);
     return {corrected:true,bookingId:id,sent:false,passesUnchanged:true,legacyHistoryPreserved:true};
    }));
   },
