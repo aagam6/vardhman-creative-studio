@@ -1,3 +1,4 @@
+import {ApiError} from './config.mjs';
 import {observeKnownReceipts} from './known-receipt-observation.mjs';
 import {entryPriorBlocksSql,entryFollowupAction} from './entry-followup-policy.mjs';
 import {entryRevisionDefinitionHash} from './entry-timing-revision-preview.mjs';
@@ -117,19 +118,19 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
   async ready(){const state=await this.owner();if(!state||!['paused','bilingual'].includes(state.owner)||!Number.isSafeInteger(state.version))throw Error('Notification owner schema unavailable');await pool.query('SELECT provider_id,state FROM ayambil_notification_outbox LIMIT 0');await pool.query('SELECT actor,action,detail FROM ayambil_notification_audit LIMIT 0');await this.recover();return true;},
   async owner(){return one(pool,'SELECT owner,version FROM ayambil_notification_owner WHERE id=1');},
   async correctContactCountry({id,expectedMobile,newMobile,version},actor){
-   if(!actor?.admin_id||!/^[a-f0-9-]{36}$/.test(id||'')||!/^\+[1-9]\d{10,12}$/.test(expectedMobile||'')||!/^\+91[6-9]\d{9}$/.test(newMobile||'')||expectedMobile===newMobile||expectedMobile.slice(-10)!==newMobile.slice(-10))throw Error('Reviewed same local number and corrected Indian country code required');
-   if(typeof provider.recipientHistory!=='function')throw Error('Authenticated recipient history verification required');
+   if(!actor?.admin_id||!/^[a-f0-9-]{36}$/.test(id||'')||!/^\+[1-9]\d{10,12}$/.test(expectedMobile||'')||!/^\+91[6-9]\d{9}$/.test(newMobile||'')||expectedMobile===newMobile||expectedMobile.slice(-10)!==newMobile.slice(-10))throw new ApiError(409,'Reviewed same local number and corrected Indian country code required');
+   if(typeof provider.recipientHistory!=='function')throw new ApiError(409,'Authenticated recipient history verification required');
    const oldHistory=await provider.recipientHistory(expectedMobile),newHistory=await provider.recipientHistory(newMobile);
-   if(!Array.isArray(oldHistory.ids)||newHistory.total!==0)throw Error('Corrected recipient already has provider history; separate purpose review required');
+   if(!Array.isArray(oldHistory.ids)||newHistory.total!==0)throw new ApiError(409,'Corrected recipient already has provider history; separate purpose review required');
    return withLease(()=>tx(async db=>{await lockSourceEvent(db,'booking_confirmed',id);await gate(db,version);const b=await one(db,'SELECT * FROM ayambil_bookings WHERE id=? FOR UPDATE',[id]);
-    if(!b||b.mobile!==expectedMobile||b.status!=='active'||!b.whatsapp_consent)throw Error('Canonical contact changed or booking ineligible');
-    const attempted=await one(db,"SELECT id FROM ayambil_notification_outbox WHERE subject=? AND purpose IN ('booking_confirmed','waiting_approved','pass_link') AND (attempts>0 OR provider_id IS NOT NULL OR state IN ('processing','uncertain','accepted','sent','delivered','read','failed')) LIMIT 1",[id]);if(attempted)throw Error('Existing modern admission submission requires separate recipient review');
+    if(!b||b.mobile!==expectedMobile||b.status!=='active'||!b.whatsapp_consent)throw new ApiError(409,'Canonical contact changed or booking ineligible');
+    const attempted=await one(db,"SELECT id FROM ayambil_notification_outbox WHERE subject=? AND purpose IN ('booking_confirmed','waiting_approved','pass_link') AND (attempts>0 OR provider_id IS NOT NULL OR state IN ('processing','uncertain','accepted','sent','delivered','read','failed')) LIMIT 1",[id]);if(attempted)throw new ApiError(409,'Existing modern admission submission requires separate recipient review');
     await booking(db,id);
     const [legacy]=await db.execute("SELECT id,notification_type,status,attempts,provider_id,payload FROM ayambil_message_queue WHERE booking_id=? AND notification_type IN ('confirmation','pass') AND (attempts>0 OR provider_id IS NOT NULL OR status IN ('preparing','sending','uncertain','accepted','sent','delivered','read','failed')) FOR UPDATE",[id]);
-    if(legacy.some(j=>['preparing','sending','uncertain'].includes(j.status)))throw Error('Legacy acceptance unresolved');
-    for(const j of legacy){if(j.payload){let context;try{context=crypto.open(j.payload);}catch{throw Error('Prior recipient evidence unavailable');}if(String(context.to||'').replace(/\D/g,'')!==expectedMobile.replace(/\D/g,''))throw Error('Prior provider recipient does not match reviewed wrong country code');}else if(!j.provider_id||!oldHistory.ids.includes(j.provider_id))throw Error('Prior recipient receipt evidence unavailable');}
+    if(legacy.some(j=>['preparing','sending','uncertain'].includes(j.status)))throw new ApiError(409,'Legacy acceptance unresolved');
+    for(const j of legacy){if(j.payload){let context;try{context=crypto.open(j.payload);}catch{throw new ApiError(409,'Prior recipient evidence unavailable');}if(String(context.to||'').replace(/\D/g,'')!==expectedMobile.replace(/\D/g,''))throw new ApiError(409,'Prior provider recipient does not match reviewed wrong country code');}else if(!j.provider_id||!oldHistory.ids.includes(j.provider_id))throw new ApiError(409,'Prior recipient receipt evidence unavailable');}
     const [oldReviews]=await db.execute("SELECT id,expires_at FROM ayambil_family_reviews WHERE event_date=? AND response IS NULL AND decision IS NULL AND REGEXP_REPLACE(contact_key,'[^0-9]','')=? AND EXISTS(SELECT 1 FROM JSON_TABLE(snapshot,'$[*]' COLUMNS(booking_id VARCHAR(36) PATH '$.id')) j WHERE j.booking_id=?) FOR UPDATE",[b.event_date,expectedMobile.replace(/\D/g,''),id]);
-    const [updated]=await db.execute('UPDATE ayambil_bookings SET mobile=? WHERE id=? AND mobile=?',[newMobile,id,expectedMobile]);if(updated.affectedRows!==1)throw Error('Contact revision conflict');
+    const [updated]=await db.execute('UPDATE ayambil_bookings SET mobile=? WHERE id=? AND mobile=?',[newMobile,id,expectedMobile]);if(updated.affectedRows!==1)throw new ApiError(409,'Contact revision conflict');
     for(const r of oldReviews)await db.execute('UPDATE ayambil_family_reviews SET expires_at=UTC_TIMESTAMP(3) WHERE id=? AND response IS NULL AND decision IS NULL',[r.id]);
     // Original queue/receipts remain immutable. Only exact proven wrong-recipient
     // legacy IDs are distinguished from a submission to the corrected contact.
