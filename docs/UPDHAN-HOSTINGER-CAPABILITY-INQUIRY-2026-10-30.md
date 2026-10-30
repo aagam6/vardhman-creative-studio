@@ -10,3 +10,6 @@ Do not remove runtime least-privilege guards silently. Same shared database + sa
 
 Conversation title: Additional MySQL Users Permissions. Selected Wait for a human review; UI recorded 'I want to continue with a human'. Human response not yet received at capture. Screenshot saved in authoring docs/updhan-hostinger-human-review-2026-10-30.png. No ongoing monitor was configured.
 
+
+Human review resumed: Aisyah (Hosting specialist) asked for full requirements. Replied with exact website/account/database, separate runtime CRUD-only Updhan-table principal and SELECT-only ayambil_admins identity principal. Explicitly requested feasibility/steps only, no live user/grant/password/data/service change, migration, remote access or purchase. Awaiting substantive human feasibility response; earlier AI limitation is not yet human-confirmed.
+
