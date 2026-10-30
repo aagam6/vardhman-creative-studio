@@ -48,6 +48,11 @@ export function createAyambilApi(transport = fetchAyambilJson, {requestTimeoutMs
         ...(method !== 'GET' ? { body: JSON.stringify(options.body || {}) } : {}),
       });
       if (!response.ok) {
+        if(response.status===409&&path==='admin/notification-outbox/contact-country-correction'){
+          let failure;try{failure=await response.clone().json();}catch{/* Never expose arbitrary bodies. */}
+          const safe=new Set(['Corrected recipient already has provider history; separate purpose review required','Prior recipient receipt evidence unavailable','Prior provider recipient does not match reviewed wrong country code','Canonical contact changed or booking ineligible','Existing modern admission submission requires separate recipient review','Legacy acceptance unresolved','Prior recipient evidence unavailable','Contact revision conflict','Authenticated recipient history verification required']);
+          if(safe.has(failure?.error)){const error=new Error(failure.error);error.status=409;throw error;}
+        }
         if (response.status === 403 && path.startsWith('admin/messages/')) {
           let failure; try { failure = await response.clone().json(); } catch { /* Do not display arbitrary response bodies. */ }
           if (failure?.errorCode === 'BOOKING_CONTROLS_SEND_DISABLED') {
