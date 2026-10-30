@@ -4,6 +4,9 @@ import { Toaster } from 'sonner';
 import ScrollToTop from '@/components/ScrollToTop.jsx';
 import WebsiteAnalytics from '@/components/WebsiteAnalytics.jsx';
 
+const UpdhanPage=lazy(()=>import('@/pages/UpdhanPage.jsx'));
+const UpdhanRegistrationPage=lazy(()=>import('@/pages/UpdhanRegistrationPage.jsx'));
+const UpdhanManagement=lazy(()=>import('@/pages/UpdhanManagement.jsx'));
 const HomePage = lazy(() => import('@/pages/HomePage.jsx'));
 const AboutPage = lazy(() => import('@/pages/AboutPage.jsx'));
 const ServicesPage = lazy(() => import('@/pages/ServicesPage.jsx'));
@@ -35,6 +38,9 @@ function App() {
             <ScrollToTop />
             <Suspense fallback={<PageLoader />}>
                 <Routes>
+<Route path="/vijaypataka-updhan-mahotsav" element={<UpdhanPage/>}/>
+<Route path="/vijaypataka-updhan-mahotsav/registration" element={<UpdhanRegistrationPage/>}/>
+<Route path="/admin/updhan" element={<UpdhanManagement/>}/>
                     <Route path="/" element={<HomePage />} />
                     <Route path="/about" element={<AboutPage />} />
                     <Route path="/services" element={<ServicesPage />} />
