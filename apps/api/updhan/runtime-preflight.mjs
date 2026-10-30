@@ -11,12 +11,13 @@ export function checkUpdhanGrants(rows,databaseName,identity=false){
  }
  return identity?seen.has('ayambil_admins'):updhanTables.every(t=>seen.has(t));
 }
-export async function verifyUpdhanRuntime({pool,identityPool,databaseName}){
+export async function verifyUpdhanRuntime({pool,identityPool,databaseName,sharedPrincipal=false}){
  const [[db]]=await pool.query('SELECT DATABASE() AS name,VERSION() AS version');
  const [[identity]]=await identityPool.query('SELECT DATABASE() AS name');
  if(db.name!==databaseName||identity.name!==databaseName||!/^11\.8\.\d+-MariaDB/.test(db.version))throw Error('Updhan database identity/engine mismatch');
  const [tables]=await pool.execute('SELECT TABLE_NAME AS name FROM information_schema.TABLES WHERE TABLE_SCHEMA=?',[databaseName]);
  if(!updhanTables.every(t=>tables.some(r=>r.name===t)))throw Error('Reviewed Updhan schema not installed');
+ if(sharedPrincipal){if(pool!==identityPool)throw Error('Existing shared principal must use the same Updhan-owned pool');return {ready:true,engine:db.version,tables:updhanTables.length,isolation:'reviewed-sql-boundary-shared-principal'};}
  const [runtimeGrants]=await pool.query('SHOW GRANTS'),[identityGrants]=await identityPool.query('SHOW GRANTS');
  if(!checkUpdhanGrants(runtimeGrants,databaseName)||!checkUpdhanGrants(identityGrants,databaseName,true))throw Error('Updhan least-privilege grants required');
  return {ready:true,engine:db.version,tables:updhanTables.length};

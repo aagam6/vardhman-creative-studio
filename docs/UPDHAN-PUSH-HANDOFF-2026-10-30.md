@@ -1,5 +1,7 @@
 # Updhan Git review handoff
 
+> FINAL OVERRIDE: see UPDHAN-FINAL-SHARED-USER-2026-10-30.md. User requires existing DB_* database/principal and VARDHMAN_FLOW_* provider credentials. Separate restricted principals/grants are superseded and must NOT be provisioned. Current base refreshed to main5549bed. Older instructions below about creating users are historical, not rollout requirements.
+
 Review branch: `codex/updhan-registration-review-20261030`
 
 Base: fetched `origin/main`, `a21832bc655899956115a13fd8b6033ff26614d7` (30 October 2026). This is a separate local checkout; unrelated dirty root work and the recent Ayambil checkout were not copied or committed. No push, PR, merge, deploy, live migration or real message was performed.
