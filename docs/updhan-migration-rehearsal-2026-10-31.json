@@ -1,0 +1,35 @@
+{
+  "date": "2026-10-31",
+  "engine": "11.8.9-MariaDB",
+  "isolated": true,
+  "restoredTables": 28,
+  "sourceSha256": "a2b80e6b54623ab236b2d448edec5dab777a6e00c2301fe7c226ed9d2e52f485",
+  "bundleSha256": "80bf799659cc1bb1f3cd6dced78f9b2fc685960f20297686257d3bbdb2d93b7f",
+  "addedTables": 20,
+  "protectedFingerprintUnchanged": true,
+  "migrations": [
+    {
+      "path": "docs/updhan-shared-db-2026-10-28/001_additive_schema.CANDIDATE.sql",
+      "sha256": "9d4f10ae23073128df9bc9227c823c3e7851d203c397e3e6f377131b71239e1b"
+    },
+    {
+      "path": "apps/api/updhan/007_operations.sql",
+      "sha256": "fe629d05dc4545ed31745094f4ba40d52723d70cf9eb4e208a7863eb09289126"
+    },
+    {
+      "path": "apps/api/updhan/008_notification_reviews.sql",
+      "sha256": "c71c9d7e1f3af566985338984edea5c3d092aa1dbbcb833ec5e671be9306ef54"
+    },
+    {
+      "path": "apps/api/updhan/009_worker_ownership.sql",
+      "sha256": "dc836a287e861532fe1352622e4e15c6f6c193997c5ec9c575d3e246ce1dbf64"
+    }
+  ],
+  "productionConnection": false,
+  "sending": false,
+  "liveMigrationVerified": true,
+  "liveAppliedAt": "2026-10-31T05:33:20.306Z",
+  "liveProtectedSchemaUnchanged": true,
+  "backupConsistency": "mariadb-dump --single-transaction --skip-lock-tables; all28 source tables InnoDB",
+  "mediaRestored": "empty updhan-private directory verified"
+}

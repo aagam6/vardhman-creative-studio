@@ -1,0 +1,17 @@
+{
+  "readOnly": true,
+  "requests": 2,
+  "channelMatches": true,
+  "channelActive": true,
+  "channelHealthy": true,
+  "templateFound": true,
+  "templateExact": true,
+  "providerTemplateId": "49bffc8a-734f-423b-85c8-0a1883732e08",
+  "metaIdMatches": true,
+  "language": "hi",
+  "status": "APPROVED",
+  "category": "UTILITY",
+  "componentEvidenceComplete": true,
+  "rateBudgetVerified": false,
+  "sendingEnabled": false
+}

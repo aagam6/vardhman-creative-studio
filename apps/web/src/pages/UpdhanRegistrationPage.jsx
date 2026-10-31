@@ -1,0 +1,25 @@
+import React from 'react';
+import {Helmet} from 'react-helmet';
+import {Link} from 'react-router-dom';
+import UpdhanRegistration from '@/components/UpdhanRegistration';
+import UpdhanMeasurement,{trackUpdhanClick} from '@/components/UpdhanMeasurement';
+import {UpdhanLanguageProvider,UpdhanLanguageButtons,useUpdhanLanguage,localizeUpdhanTree} from '@/components/UpdhanLanguage';
+import './UpdhanDesign.css';
+import './UpdhanPaperForm.css';
+
+export default function UpdhanRegistrationPage(){return <UpdhanLanguageProvider><RegistrationContent /></UpdhanLanguageProvider>;}
+function RegistrationContent(){
+ const {language}=useUpdhanLanguage();
+ return localizeUpdhanTree(<div className="vp-page vp-form-page" lang={language} onClickCapture={trackUpdhanClick}>
+  <Helmet><html lang={language}/><title>आवेदन फॉर्म | विजयपताका उपधान महोत्सव 2027</title><meta name="robots" content="noindex,nofollow"/><meta name="theme-color" content="#183e35"/></Helmet>
+  <a className="vp-skip" href="#application">मुख्य जानकारी पर जाएँ</a>
+  <div className="vp-utility"><div className="vp-topline"><span>॥ श्री वीतरागाय नमः ॥</span><span>अचलगढ़ · राजस्थान · 2027</span></div><UpdhanLanguageButtons/></div>
+  <header className="vp-header"><Link className="vp-brand" to="/vijaypataka-updhan-mahotsav"><span>विजयपताका<small>उपधान महोत्सव · 2027</small></span></Link><Link data-updhan-track="back_programme" className="vp-back-link" to="/vijaypataka-updhan-mahotsav">कार्यक्रम की जानकारी</Link></header>
+  <main id="application" className="vp-application-layout">
+   <section className="vp-paper-intro"><div><p className="vp-kicker">विजयपताका · उपधान महोत्सव 2027</p><h1>{language==='en'?'Your spiritual journey begins here':language==='gu'?'સાધનાની યાત્રાનું પ્રથમ પગલું':'साधना की यात्रा का पहला कदम'}</h1><p className="vp-paper-lead">26 अप्रैल — 14 जून 2027<br/>अचलगढ़, राजस्थान</p><div className="vp-paper-facts"><span>{language==='en'?'Stay & meals · Free':language==='gu'?'આવાસ અને ભોજન · નિઃશુલ્ક':'आवास और भोजन · निःशुल्क'}</span><span>{language==='en'?'Photo · Up to 2 MB':language==='gu'?'ફોટો · 2 MB સુધી':'फोटो · अधिकतम 2 MB'}</span></div><a data-updhan-track="form_anchor" className="vp-btn" href="#registration-sheet">{language==='en'?'Fill application':language==='gu'?'ફોર્મ ભરો':'फॉर्म भरें'}</a><details className="vp-form-before"><summary>भरने से पहले</summary><ul><li>अपना फोटो तैयार रखें — JPG, PNG या WEBP, अधिकतम 2 MB।</li><li>मोबाइल नंबर और पता तैयार रखें।</li><li>रिफ्रेश करने पर बिना भेजी जानकारी मिट जाएगी।</li></ul><p>आवेदन प्राप्त होना प्रवेश की स्वीकृति नहीं है।</p></details></div><figure><img src="/assets/updhan-application-cover.png" alt={language==='en'?'Vijaypataka Updhan programme invitation':language==='gu'?'વિજયપતાકા ઉપધાન કાર્યક્રમનું આમંત્રણ':'विजयपताका उपधान कार्यक्रम का आमंत्रण'} width="834" height="1179"/><figcaption>{language==='en'?'Programme invitation':language==='gu'?'કાર્યક્રમ આમંત્રણ':'कार्यक्रम का आमंत्रण'}</figcaption></figure></section>
+   <div id="registration-sheet"><UpdhanRegistration/></div>
+  </main>
+  <UpdhanMeasurement/>
+  <footer className="vp-footer"><Link to="/vijaypataka-updhan-mahotsav">कार्यक्रम की जानकारी पर वापस जाएँ</Link><p>Vardhman Creative Studio</p></footer>
+ </div>,language);
+}

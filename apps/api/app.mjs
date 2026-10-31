@@ -11,10 +11,10 @@ import {normalizePhone} from './vardhmanflow.mjs';
 import {ApiError,programme} from './config.mjs';
 import {hash,rateHash} from './security.mjs';
 const cookieName='__Host-ayambil';
-export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirectory,flow,queue,notifications,testRecipient,isInitialized=()=>true,getQueueWorkerStatus=()=>({enabled:false,active:false}),getNotificationWorkerStatus=()=>({enabled:false,active:false})}) {
+export function createApp({updhanRouter,leadRouter,legacyLeadRouter,store,config,staticDirectory,flow,queue,notifications,testRecipient,isInitialized=()=>true,getQueueWorkerStatus=()=>({enabled:false,active:false}),getNotificationWorkerStatus=()=>({enabled:false,active:false})}) {
   const app=express();app.disable('x-powered-by');app.set('trust proxy',false);
   // Also protect early failures and other API namespaces, before routing/auth.
-  app.use(['/api','/hcgi/platform','/admin/ayambil','/500-akhand-ayambil-vijayollas/passes','/500-akhand-ayambil-vijayollas/respond'],(req,res,next)=>{
+  app.use(['/api','/hcgi/platform','/admin/ayambil','/admin/updhan','/500-akhand-ayambil-vijayollas/passes','/500-akhand-ayambil-vijayollas/respond'],(req,res,next)=>{
     res.set({'Cache-Control':'private, no-store, max-age=0, must-revalidate','CDN-Cache-Control':'no-store','Surrogate-Control':'no-store','Pragma':'no-cache','Expires':'0'});next();
   });
   app.use('/api/ayambil',requestLogging);
@@ -152,6 +152,7 @@ export function createApp({leadRouter,legacyLeadRouter,store,config,staticDirect
   // unrelated existing /hcgi/platform lead backend.
   if(leadRouter)app.use('/api/leads',leadRouter);
   if(legacyLeadRouter)app.use('/hcgi/platform/api/collections/leads/records',legacyLeadRouter);
+  if(updhanRouter)app.use('/api/updhan',updhanRouter);
   app.use('/api',(req,res)=>res.set('Cache-Control','no-store').status(404).json({error:'API unavailable'}));
   app.use('/hcgi/platform',(req,res)=>res.set('Cache-Control','no-store').status(503).json({error:'Legacy backend routing requires separate configuration'}));
   app.use(['/admin/ayambil','/500-akhand-ayambil-vijayollas/passes','/500-akhand-ayambil-vijayollas/respond'],(req,res,next)=>{res.set({'Cache-Control':'no-store','Referrer-Policy':'no-referrer'});next();});
