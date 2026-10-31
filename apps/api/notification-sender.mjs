@@ -1,3 +1,4 @@
+import {ApiError} from './config.mjs';
 import {observeKnownReceipts} from './known-receipt-observation.mjs';
 import {entryPriorBlocksSql,entryFollowupAction} from './entry-followup-policy.mjs';
 import {entryRevisionDefinitionHash} from './entry-timing-revision-preview.mjs';
@@ -29,7 +30,7 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
   else meta=await one(db,'SELECT event_date FROM ayambil_bookings WHERE id=?',[subject]);
   if(!meta)throw Error('Notification source unavailable');await lockAttendanceEvent(db,meta.event_date);
  }
- async function source(db,purpose,subject,token){
+ async function source(db,purpose,subject,token,{reviewSnapshot=null}={}){
   if(!/^[a-f0-9-]{36}$/.test(subject))throw Error('Invalid subject');
   await lockSourceEvent(db,purpose,subject);
   let b,w,review;
@@ -42,8 +43,8 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
    review=await one(db,'SELECT * FROM ayambil_family_reviews WHERE id=? FOR UPDATE',[subject]);
    if(!review||review.decision||review.purpose!==(purpose==='booking_verify'?'duplicate':'attendance')||review.response||!review.token_hash||review.token_hash!==createHash('sha256').update(token||'').digest('hex')||Date.parse(review.expires_at+'Z')<=Date.now())throw Error('Review link expired, revoked or answered');
    if(purpose==='attendance'){const answered=await one(db,"SELECT id FROM ayambil_family_reviews WHERE purpose='attendance' AND event_date=? AND contact_key=? AND response IS NOT NULL LIMIT 1",[review.event_date,review.contact_key]);if(answered)throw Error('Contact already answered');}
-   const snapshots=typeof review.snapshot==='string'?JSON.parse(review.snapshot):review.snapshot;
-   if(purpose==='attendance'){const eligibility=await loadAttendanceEligibility(db,{eventDate:review.event_date,mobile:review.contact_key||snapshots[0]?.mobile,now:now()});assertAttendanceEligible(eligibility);if(JSON.stringify(eligibility.bookingIds)!==JSON.stringify(snapshots.map(b=>b.id).sort()))throw Error('Attendance contact snapshot stale');}
+   const snapshots=reviewSnapshot||(typeof review.snapshot==='string'?JSON.parse(review.snapshot):review.snapshot);
+   if(purpose==='attendance'){const eligibility=await loadAttendanceEligibility(db,{eventDate:review.event_date,mobile:review.contact_key||snapshots[0]?.mobile,now:now(),finalCutoff:config.attendanceFinalCutoff});assertAttendanceEligible(eligibility);if(JSON.stringify(eligibility.bookingIds)!==JSON.stringify(snapshots.map(b=>b.id).sort()))throw Error('Attendance contact snapshot stale');}
    const books=[];
    for(const snap of snapshots){const saved=await booking(db,snap.id);if(saved.mobile!==snap.mobile||saved.names.join('\n')!==snap.names.join('\n'))throw Error('Review snapshot stale');books.push(saved);}
    const first=books[0];if(!first)throw Error('Empty review');
@@ -60,10 +61,19 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
   // A prior provider submission or uncertain attempt makes a new initial confirmation unsafe.
   const prior=await one(db,"SELECT id FROM ayambil_message_queue WHERE booking_id=? AND notification_type='confirmation' AND (attempts>0 OR provider_id IS NOT NULL OR status IN ('preparing','sending','uncertain','accepted','sent','delivered','read')) LIMIT 1",[id]);
   const passPrior=await one(db,"SELECT id FROM ayambil_message_queue WHERE booking_id=? AND notification_type='pass' AND (attempts>0 OR provider_id IS NOT NULL OR status IN ('preparing','sending','uncertain','accepted','sent','delivered','read')) LIMIT 1",[id]);
-  return {mobile:b.mobile,eventDate:b.event_date,contactName:b.contact_name,bookingReference:b.number,attendeeCount:rows.length,approvedAttendeeCount:rows.length,names:rows.map(x=>x.full_name),legacyConfirmation:!!prior,legacyPass:!!passPrior,identity:[b.id,b.status,rows]};
+  const corrected=async job=>{if(!job)return false;const audits=await one(db,"SELECT detail FROM ayambil_notification_audit WHERE action='contact_country_corrected' AND BINARY JSON_UNQUOTE(JSON_EXTRACT(detail,'$.bookingId'))=BINARY ? ORDER BY created_at DESC LIMIT 1",[id]);const a=typeof audits?.detail==='string'?JSON.parse(audits.detail):audits?.detail,verified=a?.legacy?.find(j=>j.id===job.id);if(a?.newMobile!==b.mobile||!verified)return false;const [history]=await db.execute("SELECT id,provider_id FROM ayambil_message_queue WHERE booking_id=? AND notification_type=? AND (attempts>0 OR provider_id IS NOT NULL OR status IN ('preparing','sending','uncertain','accepted','sent','delivered','read'))",[id,verified.purpose]);return history.length>0&&history.every(j=>a.legacy.some(v=>v.id===j.id&&v.providerId===j.provider_id));};
+  return {mobile:b.mobile,eventDate:b.event_date,contactName:b.contact_name,bookingReference:b.number,attendeeCount:rows.length,approvedAttendeeCount:rows.length,names:rows.map(x=>x.full_name),legacyConfirmation:!!prior&&!await corrected(prior),legacyPass:!!passPrior&&!await corrected(passPrior),identity:[b.id,b.status,rows]};
  }
- async function envelope(db,input,{ownOutboxId=null,scheduledPreview=false}={}){
-  const s=await source(db,input.purpose,input.subject,input.token);
+ async function envelope(db,input,{ownOutboxId=null,scheduledPreview=false,reviewSnapshot=null}={}){
+  if(input.followupOf){
+   const round='response-followup-'+(config.attendanceFinalCutoff||'').slice(0,10).replaceAll('-','');
+   if(input.purpose!=='attendance'||!config.attendanceFinalCutoff||input.round!==round)throw Error('Reviewed final Attendance follow-up required');
+   const prior=await one(db,'SELECT * FROM ayambil_notification_outbox WHERE id=?',[input.followupOf]);
+   if(!prior||prior.purpose!=='attendance'||prior.round_name!=='initial'||prior.subject!==input.subject||!prior.provider_id||prior.attempts<1||!['delivered','read'].includes(prior.state))throw Error('Delivered initial Attendance required; pending or uncertain cannot be followed up');
+   const original=crypto.open(prior.envelope);
+   if(original.followupOf||original.token!==input.token)throw Error('Original private response link required');
+  }
+  const s=await source(db,input.purpose,input.subject,input.token,{reviewSnapshot});
   if(['reminder','entry_timing'].includes(input.purpose)){
    if(!scheduledPreview)assertReminderWindow(s.eventDate,now());
    const prior=await one(db,"SELECT id FROM ayambil_message_queue WHERE booking_id=? AND notification_type='reminder' AND (attempts>0 OR provider_id IS NOT NULL OR status IN ('preparing','sending','uncertain','accepted','sent','delivered','read','failed')) LIMIT 1",[s.canonicalSubject||input.subject]);
@@ -83,11 +93,28 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
   const data={...s,eventLabel:session.performer,eventDate:session.label,urlSuffix:s.urlSuffix||(passSubject?(['reminder','entry_timing'].includes(input.purpose)?'':'passes#')+bookingPassToken(key,passSubject,session):undefined)};
   const payload=input.purpose==='reminder'?reminderPayload({session,source:{...s,urlSuffix:data.urlSuffix},build}):input.purpose==='pass_link'?combinedPassPayload({session,source:s,subject:passSubject,key,origin:config.origin}):build(input.purpose,data);return {s,payload:{...payload,to:s.mobile},hash:digest([s.identity,s.mobile,payload])};
  }
+ async function attendanceRepairPlan(db,id){
+  const meta=await one(db,'SELECT purpose,subject FROM ayambil_notification_outbox WHERE id=?',[id]);
+  if(!meta||meta.purpose!=='attendance')throw Error('Attendance draft required');
+  await lockSourceEvent(db,'attendance',meta.subject);
+  const row=await one(db,'SELECT * FROM ayambil_notification_outbox WHERE id=? FOR UPDATE',[id]);
+  if(row.state!=='blocked'||row.attempts!==0||row.provider_id||row.claim_id)throw Error('Blocked zero-attempt unclaimed draft required');
+  const input=crypto.open(row.envelope),r=await one(db,'SELECT * FROM ayambil_family_reviews WHERE id=? FOR UPDATE',[row.subject]);
+  if(input.purpose!=='attendance'||input.subject!==row.subject||input.round!==row.round_name||!r||r.purpose!=='attendance'||r.response||r.decision||!r.token_hash||r.token_hash!==createHash('sha256').update(input.token||'').digest('hex')||Date.parse(r.expires_at+'Z')<=Date.now())throw Error('Existing unanswered valid private link required');
+  const prior=await one(db,"SELECT o.id FROM ayambil_notification_outbox o JOIN ayambil_family_reviews r ON r.id=o.subject WHERE o.purpose='attendance' AND r.event_date=? AND r.contact_key=? AND o.id<>? AND (o.attempts>0 OR o.provider_id IS NOT NULL OR o.state IN ('processing','uncertain','accepted','sent','delivered','read','failed')) LIMIT 1",[r.event_date,r.contact_key,id]);
+  if(prior)throw Error('Attendance already attempted; no repair or resend');
+  const eligible=await loadAttendanceEligibility(db,{eventDate:r.event_date,mobile:r.contact_key,now:now(),finalCutoff:config.attendanceFinalCutoff});assertAttendanceEligible(eligible);
+  const snapshot=[];for(const id of eligible.bookingIds){const b=await booking(db,id);snapshot.push({id,number:b.bookingReference,mobile:b.mobile,contactName:b.contactName,eventDate:b.eventDate,names:b.names});}
+  const oldSnapshot=typeof r.snapshot==='string'?JSON.parse(r.snapshot):r.snapshot;
+  let reason='historical_eligibility_changed';try{const old=await envelope(db,input,{ownOutboxId:id});if(old.hash!==row.revision_hash)reason='payload_revision_changed';}catch(error){reason=({'Attendance contact snapshot stale':'contact_scope_changed','Review snapshot stale':'participant_snapshot_changed','Stale revision':'payload_revision_changed'})[error.message]||'source_previously_ineligible';}
+  const current=await envelope(db,input,{ownOutboxId:id,reviewSnapshot:snapshot});
+  return {row,r,input,snapshot,revision:current.hash,snapshotHash:digest(oldSnapshot),targetSnapshotHash:digest(snapshot),reason};
+ }
  const lockName='ayambil-dispatch-'+digest(actual.database).slice(0,32);
  async function withLease(fn){const db=await pool.getConnection();try{const [[r]]=await db.query('SELECT GET_LOCK(?,0) acquired',[lockName]);if(r.acquired!==1){const error=Error('Dispatch busy; no retry was performed');error.code='DISPATCH_BUSY';throw error;}try{return await fn();}finally{await db.query('SELECT RELEASE_LOCK(?)',[lockName]);}}finally{db.release();}}
  async function gate(db,version,ownClaim=null){const c=await one(db,'SELECT * FROM ayambil_notification_owner WHERE id=1 FOR UPDATE');if(!c||c.owner!=='bilingual'||c.version!==version)throw Error('Paused or stale queue ownership');const inFlight=await one(db,"SELECT id FROM ayambil_message_queue WHERE status IN ('preparing','sending','uncertain') LIMIT 1");if(inFlight)throw Error('Legacy queue requires reconciliation');const modern=await one(db,"SELECT id FROM ayambil_notification_outbox WHERE state IN ('processing','uncertain')"+(ownClaim?' AND id<>?':'')+' LIMIT 1',ownClaim?[ownClaim]:[]);if(modern)throw Error('Notification queue requires reconciliation');}
  async function persist(db,input,round){
-  const e=await envelope(db,input);if(e.s.sourceRound&&e.s.sourceRound!==round)throw Error('Review round mismatch');
+  const e=await envelope(db,input);if(e.s.sourceRound&&e.s.sourceRound!==round&&!input.followupOf)throw Error('Review round mismatch');
   const unit=['booking_verify','attendance'].includes(input.purpose)?[e.s.eventDate,e.s.contactUnit]:e.s.canonicalSubject||input.subject;
   const dedupe=digest([['booking_confirmed','waiting_approved'].includes(input.purpose)?'admission_confirmation':input.purpose,unit,round]);
   const previous=await one(db,'SELECT id,revision_hash FROM ayambil_notification_outbox WHERE dedupe_hash=? FOR UPDATE',[dedupe]);
@@ -98,6 +125,66 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
   legacyHistory,
   async ready(){const state=await this.owner();if(!state||!['paused','bilingual'].includes(state.owner)||!Number.isSafeInteger(state.version))throw Error('Notification owner schema unavailable');await pool.query('SELECT provider_id,state FROM ayambil_notification_outbox LIMIT 0');await pool.query('SELECT actor,action,detail FROM ayambil_notification_audit LIMIT 0');await this.recover();return true;},
   async owner(){return one(pool,'SELECT owner,version FROM ayambil_notification_owner WHERE id=1');},
+  async reconcileUncertainFailure(id,actor){
+   if(!actor?.admin_id||!/^[a-f0-9-]{36}$/.test(id||'')||typeof provider.recipientReceipts!=='function')throw Error('Exact authenticated uncertainty reconciliation required');
+   const row=await one(pool,'SELECT * FROM ayambil_notification_outbox WHERE id=?',[id]);
+   if(!row||row.purpose!=='attendance'||row.state!=='uncertain'||row.attempts!==1||row.provider_id||!row.claim_id)throw Error('Single uncertain Attendance attempt without provider reference required');
+   const input=crypto.open(row.envelope),review=await one(pool,'SELECT * FROM ayambil_family_reviews WHERE id=?',[row.subject]);
+   if(!review||input.subject!==review.id||input.purpose!=='attendance')throw Error('Original recipient context unavailable');
+   const snapshots=typeof review.snapshot==='string'?JSON.parse(review.snapshot):review.snapshot;
+   const mobile=snapshots?.[0]?.mobile;if(!mobile||snapshots.some(b=>b.mobile!==mobile))throw Error('Exact original contact required');
+   const claim=await one(pool,"SELECT created_at FROM ayambil_notification_audit WHERE action='claim_committed' AND BINARY JSON_UNQUOTE(JSON_EXTRACT(detail,'$.id'))=BINARY ? ORDER BY created_at DESC LIMIT 1",[id]);
+   const started=Date.parse(claim?.created_at+'Z');if(!Number.isFinite(started))throw Error('Claim timestamp unavailable');
+   const receipts=await provider.recipientReceipts(mobile),name=catalog.find(t=>t.purpose==='attendance')?.name;
+   const matches=receipts.filter(r=>r.template===name&&r.status==='failed'&&typeof r.createdAt==='string'&&/(?:Z|[+-]\d\d:\d\d)$/.test(r.createdAt)&&Date.parse(r.createdAt)>=started-1000&&Date.parse(r.createdAt)<=started+15000);
+   if(matches.length!==1)throw Error('Exactly one provider failure matching original contact, template and claim window required');
+   const receipt=matches[0],status=await provider.status(receipt.id);if(status.status!=='failed')throw Error('Authenticated provider terminal failure not confirmed');
+   return withLease(()=>tx(async db=>{const current=await one(db,'SELECT * FROM ayambil_notification_outbox WHERE id=? FOR UPDATE',[id]);
+    if(current.state!=='uncertain'||current.attempts!==1||current.provider_id||current.claim_id!==row.claim_id||current.envelope!==row.envelope)throw Error('Uncertain attempt changed');
+    if(await one(db,'SELECT id FROM ayambil_notification_outbox WHERE provider_id=? AND id<>? LIMIT 1',[receipt.id,id]))throw Error('Provider reference already associated');
+    await db.execute("UPDATE ayambil_notification_outbox SET state='failed',provider_id=?,error_code='provider_failure_reconciled',last_checked_at=UTC_TIMESTAMP(3),updated_at=UTC_TIMESTAMP(3) WHERE id=?",[receipt.id,id]);
+    await db.execute('INSERT INTO ayambil_notification_audit VALUES(?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),actor.admin_id,'uncertain_failure_reconciled',JSON.stringify({id,previous:'uncertain',state:'failed',providerId:receipt.id,source:'authenticated_recipient_history_and_status',noResend:true})]);
+    return {id,state:'failed',providerReferencePresent:true,sent:false,providerSubmissions:0};
+   }));
+  },
+  async correctContactCountry({id,expectedMobile,newMobile,version},actor){
+   if(!actor?.admin_id||!/^[a-f0-9-]{36}$/.test(id||'')||!/^\+[1-9]\d{10,12}$/.test(expectedMobile||'')||!/^\+91[6-9]\d{9}$/.test(newMobile||'')||expectedMobile===newMobile||expectedMobile.slice(-10)!==newMobile.slice(-10))throw new ApiError(409,'Reviewed same local number and corrected Indian country code required');
+   if(typeof provider.recipientHistory!=='function')throw new ApiError(409,'Authenticated recipient history verification required');
+   const oldHistory=await provider.recipientHistory(expectedMobile),newHistory=await provider.recipientHistory(newMobile);
+   if(!Array.isArray(oldHistory.ids)||(newHistory.total!==0&&newHistory.nonTemplateOnly!==true))throw new ApiError(409,'Corrected recipient already has provider history; separate purpose review required');
+   return withLease(()=>tx(async db=>{await lockSourceEvent(db,'booking_confirmed',id);await gate(db,version);const b=await one(db,'SELECT * FROM ayambil_bookings WHERE id=? FOR UPDATE',[id]);
+    if(!b||b.mobile!==expectedMobile||b.status!=='active'||!b.whatsapp_consent)throw new ApiError(409,'Canonical contact changed or booking ineligible');
+    const attempted=await one(db,"SELECT id FROM ayambil_notification_outbox WHERE subject=? AND purpose IN ('booking_confirmed','waiting_approved','pass_link') AND (attempts>0 OR provider_id IS NOT NULL OR state IN ('processing','uncertain','accepted','sent','delivered','read','failed')) LIMIT 1",[id]);if(attempted)throw new ApiError(409,'Existing modern admission submission requires separate recipient review');
+    await booking(db,id);
+    const [legacy]=await db.execute("SELECT id,notification_type,status,attempts,provider_id,payload FROM ayambil_message_queue WHERE booking_id=? AND notification_type IN ('confirmation','pass') AND (attempts>0 OR provider_id IS NOT NULL OR status IN ('preparing','sending','uncertain','accepted','sent','delivered','read','failed')) FOR UPDATE",[id]);
+    if(legacy.some(j=>['preparing','sending','uncertain'].includes(j.status)))throw new ApiError(409,'Legacy acceptance unresolved');
+    for(const j of legacy){if(j.payload){let context;try{context=crypto.open(j.payload);}catch{throw new ApiError(409,'Prior recipient evidence unavailable');}if(String(context.to||'').replace(/\D/g,'')!==expectedMobile.replace(/\D/g,''))throw new ApiError(409,'Prior provider recipient does not match reviewed wrong country code');}else if(!j.provider_id||!oldHistory.ids.includes(j.provider_id))throw new ApiError(409,'Prior recipient receipt evidence unavailable');}
+    const [oldReviews]=await db.execute("SELECT id,expires_at FROM ayambil_family_reviews WHERE event_date=? AND response IS NULL AND decision IS NULL AND REGEXP_REPLACE(contact_key,'[^0-9]','')=? AND EXISTS(SELECT 1 FROM JSON_TABLE(snapshot,'$[*]' COLUMNS(booking_id VARCHAR(36) PATH '$.id')) j WHERE j.booking_id=?) FOR UPDATE",[b.event_date,expectedMobile.replace(/\D/g,''),id]);
+    const [updated]=await db.execute('UPDATE ayambil_bookings SET mobile=? WHERE id=? AND mobile=?',[newMobile,id,expectedMobile]);if(updated.affectedRows!==1)throw new ApiError(409,'Contact revision conflict');
+    for(const r of oldReviews)await db.execute('UPDATE ayambil_family_reviews SET expires_at=UTC_TIMESTAMP(3) WHERE id=? AND response IS NULL AND decision IS NULL',[r.id]);
+    // Original queue/receipts remain immutable. Only exact proven wrong-recipient
+    // legacy IDs are distinguished from a submission to the corrected contact.
+    await db.execute('INSERT INTO ayambil_notification_audit VALUES(?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),actor.admin_id,'contact_country_corrected',JSON.stringify({bookingId:id,previousMobile:expectedMobile,newMobile,reviewedNewRecipientNonTemplateIds:newHistory.ids,revokedUnansweredReviews:oldReviews.map(r=>({id:r.id,previousExpiry:r.expires_at})),legacy:legacy.map(j=>({id:j.id,purpose:j.notification_type,providerId:j.provider_id,state:j.status}))})]);
+    return {corrected:true,bookingId:id,sent:false,passesUnchanged:true,legacyHistoryPreserved:true};
+   }));
+  },
+  async previewAttendanceRepair(id,actor){
+   if(!actor?.admin_id||!/^[a-f0-9-]{36}$/.test(id||''))throw Error('Exact draft and administrator required');
+   await provider.validate('attendance');
+   return tx(async db=>{const p=await attendanceRepairPlan(db,id);return {id,reason:p.reason,previousHash:p.row.revision_hash,snapshotHash:p.snapshotHash,targetHash:p.revision,targetSnapshotHash:p.targetSnapshotHash,bookingCount:p.snapshot.length,persons:p.snapshot.reduce((n,b)=>n+b.names.length,0),sent:false};});
+  },
+  async repairAttendanceDraft({id,previousHash,snapshotHash,targetHash,targetSnapshotHash,version},actor){
+   if(!actor?.admin_id||!/^[a-f0-9-]{36}$/.test(id||'')||[previousHash,snapshotHash,targetHash,targetSnapshotHash].some(h=>!/^[a-f0-9]{64}$/.test(h||'')))throw Error('Exact reviewed repair required');
+   await provider.validate('attendance');
+   return withLease(()=>tx(async db=>{const p=await attendanceRepairPlan(db,id);await gate(db,version);
+    if(p.row.revision_hash!==previousHash||p.snapshotHash!==snapshotHash||p.revision!==targetHash||p.targetSnapshotHash!==targetSnapshotHash)throw Error('Attendance source changed; review again');
+    const [review]=await db.execute('UPDATE ayambil_family_reviews SET snapshot=? WHERE id=? AND response IS NULL AND decision IS NULL',[JSON.stringify(p.snapshot),p.r.id]);if(review.affectedRows!==1)throw Error('Review changed');
+    const e=await envelope(db,p.input,{ownOutboxId:id});if(e.hash!==targetHash)throw Error('Repair revision changed');
+    const [updated]=await db.execute("UPDATE ayambil_notification_outbox SET revision_hash=?,state='held',error_code=NULL,updated_at=UTC_TIMESTAMP(3) WHERE id=? AND state='blocked' AND attempts=0 AND provider_id IS NULL AND claim_id IS NULL AND revision_hash=?",[targetHash,id,previousHash]);if(updated.affectedRows!==1)throw Error('Draft changed');
+    await db.execute('INSERT INTO ayambil_notification_audit VALUES(?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),actor.admin_id,'attendance_draft_repaired',JSON.stringify({id,reviewId:p.r.id,reason:p.reason,previousHash,targetHash,snapshotHash,targetSnapshotHash})]);
+    return {id,state:'held',sent:false,linksUnchanged:true};
+   }));
+  },
   async authorizeEntryFollowup(id,actor){
    if(!actor?.admin_id||!/^[-a-f0-9]{36}$/.test(id)||catalog.find(t=>t.purpose==='entry_timing')?.parameters.length!==5)throw Error('Administrator and reviewed five-field revision required');
    await provider.validate('entry_timing');
@@ -128,6 +215,18 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
    try{return await this.enqueue({purpose:row.purpose,subject:row.subject,round:row.review_round,token});}catch(error){const reason=eligibilityReasons.get(error?.message);if(reason){error.code='NOTIFICATION_INELIGIBLE';error.holdReason=reason;}throw error;}
   },
   async prepareSubject({purpose,subject},actor,controls){
+   if(purpose==='attendance_followup'){
+    if(!actor?.admin_id||!/^[a-f0-9-]{36}$/.test(subject||'')||!config.attendanceFinalCutoff)throw Error('Reviewed final Attendance follow-up required');
+    await provider.validate('attendance');
+    return tx(async db=>{
+     const original=await one(db,"SELECT * FROM ayambil_notification_outbox WHERE id=? AND purpose='attendance' AND round_name='initial'",[subject]);
+     if(!original)throw Error('Exact original initial Attendance outbox required');
+     const input=crypto.open(original.envelope),round='response-followup-'+config.attendanceFinalCutoff.slice(0,10).replaceAll('-','');
+     const id=await persist(db,{...input,round,followupOf:subject},round);
+     await db.execute('INSERT INTO ayambil_notification_audit VALUES(?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),actor.admin_id,'attendance_followup_prepared',JSON.stringify({id,initialId:subject,round,cutoff:config.attendanceFinalCutoff})]);
+     return {id,sent:false};
+    });
+   }
    if(!actor?.admin_id||!['booking_confirmed','waiting_received','waiting_approved','pass_link','attendance','reminder'].includes(purpose)||!/^[a-f0-9-]{36}$/.test(subject||''))throw Error('Reviewed notification subject required');
    if(purpose!=='attendance')return {id:await this.enqueue({purpose,subject,round:'initial'}),sent:false};
    await provider.validate('attendance');
@@ -232,10 +331,10 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
   async nextAttendance(since,{excludeSubjects=[]}={}){
    if(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(since||'')||!Array.isArray(excludeSubjects)||excludeSubjects.length>2000||excludeSubjects.some(id=>!/^[-a-f0-9]{36}$/.test(id)))throw Error('Reviewed attendance cutoff/exclusions required');
    const [prepared]=await pool.execute("SELECT b.id,b.event_date,b.mobile,o.id outbox_id FROM ayambil_notification_outbox o JOIN ayambil_family_reviews r ON r.id=o.subject JOIN ayambil_bookings b ON b.id=JSON_UNQUOTE(JSON_EXTRACT(r.snapshot,'$[0].id')) WHERE o.purpose='attendance' AND o.state IN ('held','ready') AND o.attempts=0 AND o.provider_id IS NULL AND o.claim_id IS NULL AND r.response IS NULL AND r.decision IS NULL AND r.created_at>? ORDER BY o.created_at LIMIT 20",[since.replace('T',' ').replace('Z','')]);
-   for(const row of prepared){if(excludeSubjects.includes(row.id))continue;const eligibility=await loadAttendanceEligibility(pool,{eventDate:row.event_date,mobile:row.mobile,now:now()});if(eligibility.eligible)return row;}
+   for(const row of prepared){if(excludeSubjects.includes(row.id))continue;const eligibility=await loadAttendanceEligibility(pool,{eventDate:row.event_date,mobile:row.mobile,now:now(),finalCutoff:config.attendanceFinalCutoff});if(eligibility.eligible)return row;}
    const extra=excludeSubjects.length?' AND b.id NOT IN ('+excludeSubjects.map(()=>'?').join(',')+')':'';
    const [rows]=await pool.execute("SELECT b.id,b.event_date,b.mobile FROM ayambil_bookings b WHERE b.status='active' AND b.whatsapp_consent=1 AND (b.created_at>? OR EXISTS(SELECT 1 FROM ayambil_waiting w WHERE w.booking_id=b.id AND w.approved_at>?)) AND b.created_at<=DATE_SUB(UTC_TIMESTAMP(3),INTERVAL 48 HOUR) AND NOT EXISTS(SELECT 1 FROM ayambil_family_reviews r WHERE r.purpose='attendance' AND r.event_date=b.event_date AND r.contact_key=REGEXP_REPLACE(b.mobile,'[^0-9]','')) AND EXISTS(SELECT 1 FROM ayambil_notification_outbox o WHERE o.subject=b.id AND o.purpose IN ('booking_confirmed','waiting_approved') AND o.provider_id IS NOT NULL AND o.state IN ('accepted','sent','delivered','read'))"+extra+" ORDER BY b.created_at,b.id LIMIT 20",[since.replace('T',' ').replace('Z',''),since.replace('T',' ').replace('Z',''),...excludeSubjects]);
-   for(const row of rows){const eligibility=await loadAttendanceEligibility(pool,{eventDate:row.event_date,mobile:row.mobile,now:now()});if(eligibility.eligible)return row;}
+   for(const row of rows){const eligibility=await loadAttendanceEligibility(pool,{eventDate:row.event_date,mobile:row.mobile,now:now(),finalCutoff:config.attendanceFinalCutoff});if(eligibility.eligible)return row;}
    return null;
   },
   async list(page=1){page=Number(page);if(!Number.isInteger(page)||page<1||page>100000)throw Error('Invalid page');const [r]=await pool.query('SELECT id,purpose,round_name,state,attempts,provider_id,error_code,created_at FROM ayambil_notification_outbox ORDER BY created_at DESC,id LIMIT 21 OFFSET ?',[20*(page-1)]);return {items:r.slice(0,20),hasMore:r.length>20,page};},

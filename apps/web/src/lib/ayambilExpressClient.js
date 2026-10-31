@@ -2,7 +2,7 @@ import { fetchAyambilJson, validatePassDownload } from './ayambilApiResponse.js'
 
 export const supportedOperations = Object.freeze({
   'admin/legacy-history':['GET'],'admin/legacy-history/resolve':['POST'],
-  'admin/notification-outbox':['GET'],...Object.fromEntries(['prepare','prepare-subject','review-selection','owner','reconcile','send','notice','entry-revision-preview','entry-revision-refresh','entry-followup','observe-receipts'].map(key=>['admin/notification-outbox/'+key,['POST']])),
+  'admin/notification-outbox':['GET'],...Object.fromEntries(['prepare','prepare-subject','review-selection','owner','reconcile','send','notice','entry-revision-preview','entry-revision-refresh','entry-followup','observe-receipts','uncertain-failure-reconcile','attendance-repair-preview','attendance-repair','contact-country-correction'].map(key=>['admin/notification-outbox/'+key,['POST']])),
   'admin/booking-controls/dashboard':['GET'],'admin/booking-controls/templates':['GET'],
   ...Object.fromEntries(['event','approve','review-create','review-link','review-revoke','review-decision','follow-up-preview','template-preview'].map(key=>['admin/booking-controls/'+key,['POST']])),
   'admin/trash/empty-preview':['GET'], 'admin/trash/empty':['POST'],
@@ -48,6 +48,11 @@ export function createAyambilApi(transport = fetchAyambilJson, {requestTimeoutMs
         ...(method !== 'GET' ? { body: JSON.stringify(options.body || {}) } : {}),
       });
       if (!response.ok) {
+        if(response.status===409&&path==='admin/notification-outbox/contact-country-correction'){
+          let failure;try{failure=await response.clone().json();}catch{/* Never expose arbitrary bodies. */}
+          const safe=new Set(['Corrected recipient already has provider history; separate purpose review required','Prior recipient receipt evidence unavailable','Prior provider recipient does not match reviewed wrong country code','Canonical contact changed or booking ineligible','Existing modern admission submission requires separate recipient review','Legacy acceptance unresolved','Prior recipient evidence unavailable','Contact revision conflict','Authenticated recipient history verification required']);
+          if(safe.has(failure?.error)){const error=new Error(failure.error);error.status=409;throw error;}
+        }
         if (response.status === 403 && path.startsWith('admin/messages/')) {
           let failure; try { failure = await response.clone().json(); } catch { /* Do not display arbitrary response bodies. */ }
           if (failure?.errorCode === 'BOOKING_CONTROLS_SEND_DISABLED') {
