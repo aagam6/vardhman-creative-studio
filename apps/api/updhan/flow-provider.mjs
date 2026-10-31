@@ -31,7 +31,8 @@ export function createUpdhanFlowProvider({env={},fetchImpl=fetch,allowNetwork=fa
    const expected=acknowledgementPayload({name:payload?.components?.[0]?.parameters?.[0]?.text,reference:payload?.components?.[0]?.parameters?.[1]?.text,to:payload?.to});if(JSON.stringify(payload)!==JSON.stringify(expected))throw new UpdhanProviderError('unreviewed_payload');
    if(!reservations.has(payload)||reservations.get(payload)<Date.now())throw new UpdhanProviderError('unprepared_payload',{rejected:true});reservations.delete(payload);
    const result=await request('messages/template',payload,true);
-   if(typeof result.messageId!=='string'||!/^[^\s\x00-\x1f\x7f]{1,180}$/.test(result.messageId)||!['queued','accepted','sent','delivered','read','failed'].includes(result.status))throw new UpdhanProviderError('provider_acceptance_unknown',{acceptanceUnknown:true});
+   if(typeof result.messageId!=='string'||!/^[^\s\x00-\x1f\x7f]{1,180}$/.test(result.messageId))throw new UpdhanProviderError('provider_acceptance_unknown',{acceptanceUnknown:true});
+   if(!['queued','accepted','sent','delivered','read','failed'].includes(result.status))return {providerReference:result.messageId,state:'uncertain',failureCode:'provider_acceptance_unknown'};
    // Send response cannot independently prove delivered/read.
    return {providerReference:result.messageId,state:result.status==='failed'?'failed':'submitted'};
   },
