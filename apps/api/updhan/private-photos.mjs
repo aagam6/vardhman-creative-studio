@@ -17,6 +17,7 @@ export function privatePhotoStore({directory,publicDirectory}) {
  }
  async function regular(target){const item=await lstat(target);if(!item.isFile()||item.isSymbolicLink())throw new Error('Private object is not a regular file');return item;}
  return {
+  async verifyWritable(){await verifyRoot();const probe=resolve(root,'.updhan-preflight-'+randomBytes(16).toString('hex'));await writeFile(probe,'private-storage-preflight',{mode:0o600,flag:'wx'});await unlink(probe);return {private:true,writable:true};},
   async stage(preparedJpeg){
    if(!Buffer.isBuffer(preparedJpeg)||preparedJpeg.length>2097152||preparedJpeg[0]!==255||preparedJpeg[1]!==216||preparedJpeg[2]!==255)throw new Error('Invalid prepared JPEG');
    await verifyRoot();const key=randomBytes(32).toString('hex');await writeFile(path(key),preparedJpeg,{flag:'wx',mode:0o600});

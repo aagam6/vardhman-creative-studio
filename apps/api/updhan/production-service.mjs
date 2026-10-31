@@ -18,7 +18,7 @@ export function createUpdhanProductionService({pool,databaseName,photos,decodePh
  const duplicatePredicate=`EXISTS(SELECT 1 FROM updhan_applications d WHERE d.id<>a.id AND d.event_id=a.event_id AND d.status<>'trashed' AND LOWER(TRIM(JSON_UNQUOTE(JSON_EXTRACT(d.applicant,'$.name'))))=LOWER(TRIM(${name})) AND JSON_UNQUOTE(JSON_EXTRACT(d.applicant,'$.whatsappE164'))=${mobile} AND JSON_UNQUOTE(JSON_EXTRACT(d.option_snapshot,'$.id'))=JSON_UNQUOTE(JSON_EXTRACT(a.option_snapshot,'$.id')))`;
  return {
  outbox,operations,
- async register(input){const data=normalizeApplication(input.data),photo=await decodePhoto(input.photo),staged=await photos.stage(photo);try{
+ async register(input){if(photoRetentionDays===null||!privacyVersion)fail(503,'Registration is closed');const data=normalizeApplication(input.data),photo=await decodePhoto(input.photo),staged=await photos.stage(photo);try{
   const receipt=await repository.register({...input,data,photoKey:staged.key,photoHash:staged.hash,photoBytes:staged.bytes});
   const [[stored]]=await pool.execute('SELECT object_key FROM updhan_photos WHERE application_id=?',[receipt.id]);if(stored.object_key!==staged.key)await photos.remove(staged.key);
   return {...receipt,waiting:receipt.status==='waitlisted'};
@@ -28,7 +28,7 @@ export function createUpdhanProductionService({pool,databaseName,photos,decodePh
   try{const [[row]]=await pool.execute('SELECT application_id FROM updhan_photos WHERE object_key=?',[staged.key]);if(!row)await photos.remove(staged.key);}catch{}
   throw error;
  }},
- async status(){const [[e]]=await pool.execute("SELECT e.registration_open,s.mode,s.maintenance_message FROM updhan_events e LEFT JOIN updhan_admission_settings s ON s.event_id=e.id WHERE e.id='achalgarh-2027'");return {registrationOpen:!!e?.registration_open&&!!e.mode&&e.mode!=='closed',mode:e?.mode||'closed',maintenanceMessage:e?.maintenance_message||'',whatsapp:'separate-gated-worker'};},
+ async status(){const [[e]]=await pool.execute("SELECT e.registration_open,s.mode,s.maintenance_message FROM updhan_events e LEFT JOIN updhan_admission_settings s ON s.event_id=e.id WHERE e.id='achalgarh-2027'");const configured=photoRetentionDays!==null&&!!privacyVersion;return {registrationOpen:configured&&!!e?.registration_open&&!!e.mode&&e.mode!=='closed',mode:configured?(e?.mode||'closed'):'closed',maintenanceMessage:e?.maintenance_message||'',whatsapp:'separate-gated-worker'};},
  async list(actor,f={}){authorize(actor);const page=Number(f.page||1);if(!Number.isInteger(page)||page<1||page>10000)fail(400,'Invalid page');const clauses=[],args=[];
   if(f.status){if(!statuses.includes(f.status))fail(400,'Invalid status');clauses.push('a.status=?');args.push(f.status);}
   for(const [key,expression] of [['category',category],['city',city]])if(f[key]){if(typeof f[key]!=='string'||f[key].length>180)fail(400,'Invalid filter');clauses.push(`LOCATE(?,${expression})>0`);args.push(f[key]);}

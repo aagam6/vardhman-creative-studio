@@ -3,7 +3,8 @@
   "engine": "11.8.9-MariaDB",
   "isolated": true,
   "restoredTables": 28,
-  "sourceSha256": "1cf7a4434473aa96876ef254ce8401d1f4682220f84e1a547b8472ace6109800",
+  "sourceSha256": "a2b80e6b54623ab236b2d448edec5dab777a6e00c2301fe7c226ed9d2e52f485",
+  "bundleSha256": "80bf799659cc1bb1f3cd6dced78f9b2fc685960f20297686257d3bbdb2d93b7f",
   "addedTables": 20,
   "protectedFingerprintUnchanged": true,
   "migrations": [
@@ -26,6 +27,9 @@
   ],
   "productionConnection": false,
   "sending": false,
-  "appliedToLive": false,
-  "consistency": "phpMyAdmin export; transactional source snapshot not independently proven"
+  "liveMigrationVerified": true,
+  "liveAppliedAt": "2026-10-31T05:33:20.306Z",
+  "liveProtectedSchemaUnchanged": true,
+  "backupConsistency": "mariadb-dump --single-transaction --skip-lock-tables; all28 source tables InnoDB",
+  "mediaRestored": "empty updhan-private directory verified"
 }

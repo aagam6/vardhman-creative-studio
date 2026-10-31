@@ -19,15 +19,15 @@ export function createUpdhanRuntime({env,staticDirectory,reserveRequestBudget}){
  router.use((req,res,next)=>{res.set({'Cache-Control':'private, no-store','CDN-Cache-Control':'no-store','Referrer-Policy':'no-referrer'});next();});
  if(env.UPDHAN_ENABLED!=='true'){router.use(unavailable);return {router,close,enabled:false};}
  try{
-  const config=updhanSharedDatabaseConfig(env),databaseName=config.database,retention=Number(env.UPDHAN_PHOTO_RETENTION_DAYS);
-  if(!isAbsolute(env.UPDHAN_PRIVATE_PHOTO_DIR||'')||!/^https:\/\/[^/]+$/.test(env.UPDHAN_SITE_ORIGIN||'')||!Number.isInteger(retention)||retention<1||retention>365||!env.UPDHAN_PRIVACY_VERSION)throw Error('Explicit reviewed configuration required');
+  const config=updhanSharedDatabaseConfig(env),databaseName=config.database,retention=env.UPDHAN_PHOTO_RETENTION_DAYS?Number(env.UPDHAN_PHOTO_RETENTION_DAYS):null;
+  if(!isAbsolute(env.UPDHAN_PRIVATE_PHOTO_DIR||'')||!/^https:\/\/[^/]+$/.test(env.UPDHAN_SITE_ORIGIN||'')||(retention!==null&&(!Number.isInteger(retention)||retention<1||retention>365)))throw Error('Explicit reviewed configuration required');
   pool=mysql.createPool(config);
   identityPool=updhanIdentityReader(pool);
   const photos=privatePhotoStore({directory:resolve(env.UPDHAN_PRIVATE_PHOTO_DIR),publicDirectory:staticDirectory});
   const service=createUpdhanProductionService({pool,databaseName,photos,decodePhoto:createPhotoDecoder(require('sharp')),encryptionKey:env.UPDHAN_QUEUE_ENCRYPTION_KEY,keyVersion:env.UPDHAN_QUEUE_KEY_VERSION||'v1',privacyVersion:env.UPDHAN_PRIVACY_VERSION,photoRetentionDays:retention,attributionConsentVersion:env.UPDHAN_ATTRIBUTION_CONSENT_VERSION});
   const api=createUpdhanSharedAdminRouter({identityPool,service,pool,origin:env.UPDHAN_SITE_ORIGIN,rateSecret:env.UPDHAN_RATE_LIMIT_SECRET});
   sender=createUpdhanProductionSender({env,pool,repository:service.outbox,reserveRequestBudget});
-  router.use(async(req,res,next)=>{try{ready ||= verifyUpdhanRuntime({pool,identityPool:pool,databaseName,sharedPrincipal:true});await ready;sender.start();next();}catch{unavailable(req,res);}});
+  router.use(async(req,res,next)=>{try{ready ||= verifyUpdhanRuntime({pool,identityPool:pool,databaseName,sharedPrincipal:true}).then(async result=>{await photos.verifyWritable();return result;});await ready;sender.start();next();}catch{unavailable(req,res);}});
   router.use(api);return {router,close,enabled:true};
  }catch{void close();router.use(unavailable);return {router,close,enabled:false};}
 }

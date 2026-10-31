@@ -9,9 +9,10 @@ const digest=value=>createHash('sha256').update(value).digest('hex');
 // No environment loading, migration, connection creation or startup work. Caller supplies an audited pool.
 // Event-row lock serializes approvals, registration and settings without touching Ayambil.
 export function createUpdhanProductionRepository({pool,databaseName,outbox,privacyVersion,photoRetentionDays,attributionConsentVersion}) {
- if(!/^(u531246927_vcs|updhan_local_[a-z0-9_]+)$/.test(databaseName||'')||!outbox?.enqueue||!Number.isInteger(photoRetentionDays)||photoRetentionDays<1||photoRetentionDays>365||pool?.pool?.config?.connectionConfig?.database!==databaseName)throw Error('Explicit matching pool, retention and encrypted outbox required');
+ if(!/^(u531246927_vcs|updhan_local_[a-z0-9_]+)$/.test(databaseName||'')||!outbox?.enqueue||(photoRetentionDays!==null&&(!Number.isInteger(photoRetentionDays)||photoRetentionDays<1||photoRetentionDays>365))||pool?.pool?.config?.connectionConfig?.database!==databaseName)throw Error('Explicit matching pool, retention and encrypted outbox required');
  const allowDraftOptions=false;
  return {async register({key,data,photoKey,photoHash,photoBytes,attribution}) {
+  if(photoRetentionDays===null)throw new UpdhanError(503,'Registration is closed');
   if(!/^[a-f0-9-]{36}$/i.test(key||'')||!data||!Array.isArray(data.companions)||Object.keys(validateApplication(data,photoKey)).length||!/^[a-f0-9]{64}$/.test(photoKey||'')||!/^[a-f0-9]{64}$/.test(photoHash||'')||!Number.isInteger(photoBytes)||photoBytes<1||photoBytes>2097152)throw new UpdhanError(400,'Invalid application');
   const requestHash=digest(JSON.stringify(data)+photoHash), connection=await pool.getConnection();
   try {
