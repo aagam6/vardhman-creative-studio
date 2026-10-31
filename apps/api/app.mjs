@@ -158,6 +158,13 @@ export function createApp({updhanRouter,leadRouter,legacyLeadRouter,store,config
   app.use(['/admin/ayambil','/500-akhand-ayambil-vijayollas/passes','/500-akhand-ayambil-vijayollas/respond'],(req,res,next)=>{res.set({'Cache-Control':'no-store','Referrer-Policy':'no-referrer'});next();});
   app.get('/500-akhand-ayambil-vijayollas/respond',async(req,res,next)=>{try{const html=await readFile(join(staticDirectory,'index.html'),'utf8');res.set('X-Robots-Tag','noindex, nofollow').type('html').send(html.replace(/<!-- Meta Pixel Code -->[\s\S]*?<!-- End Meta Pixel Code -->/g,'').replace(/<noscript>[\s\S]*?<\/noscript>/g,''));}catch(e){next(e);}});
   app.use(publicSeo);
+  // Hostinger's document root is separate from Node's staticDirectory. Its
+  // slash removal otherwise loops with express.static's directory redirect.
+  app.get(['/vijaypataka-updhan-mahotsav','/vijaypataka-updhan-mahotsav/index.html'],(req,res)=>res.sendFile('vijaypataka-updhan-mahotsav/index.html',{root:staticDirectory}));
+  app.get(['/admin/updhan','/admin/updhan/index.html'],(req,res)=>{
+    res.set({'Cache-Control':'private, no-store, max-age=0, must-revalidate','CDN-Cache-Control':'no-store','Surrogate-Control':'no-store','Referrer-Policy':'no-referrer','X-Robots-Tag':'noindex, nofollow'});
+    res.sendFile('admin/updhan/index.html',{root:staticDirectory});
+  });
   for(const route of ['/500-akhand-ayambil-vijayollas','/500-akhand-ayambil-vijayollas/manan-sanghvi','/500-akhand-ayambil-vijayollas/sairam-dave']) app.get(route,(req,res)=>res.sendFile(route.slice(1)+'/index.html',{root:staticDirectory}));
   app.use(express.static(staticDirectory,{index:false}));
   app.get('/{*path}',(req,res)=>res.sendFile('index.html',{root:staticDirectory}));
