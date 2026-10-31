@@ -16,6 +16,16 @@ Authorization: current-main integration, backup/restore rehearsal, additive Updh
 
 ## Not yet executed
 
+## Continuation evidence
+
+- Review PR created: https://github.com/aagam6/vardhman-creative-studio/pull/48. Current-main integration/fixes pushed at `948be7b`; main is not merged or deployed. Screenshot stored privately as `pr48-open.png` beside backup evidence.
+- Official hPanel files/database backup completed, latest backup time31 October10:26. File archive preparation requested once and last observed23%; download not yet verified. No restore action performed on hosting.
+- Exact four additive migrations rehearsed against the isolated restored28-table backup:20 Updhan tables created, protected existing table DDL/data fingerprint unchanged. Hash manifest: `docs/updhan-migration-rehearsal-2026-10-31.json`. This is a rehearsal, not applied-live evidence.
+- Current-main production contract integration passed on disposable MariaDB: validation, receipt retries,300-seat concurrent boundary, manual statuses, private photos, CSRF/session, duplicate pagination, restore and synthetic Ayambil baseline protection. Log: authoring `tmp/updhan-current-main-contract-20261031.log`.
+- Additional focused nine tests pass, including one-in-flight sender tick, stop/drain and Updhan-only lease release, unchanged Ayambil provider cooldown/budget and existing capability/runtime behavior.
+- Fresh authenticated metadata check again: exact provider UUID/Meta ID, header/body/footer/button,hi,UTILITY,APPROVED; channel matches active/healthy. No POST or message send. Shared provider budget remains unverified.
+- User selected existing SSH login, explicitly declining temporary key creation. hPanel verified SSH host217.21.85.139 port65002 useru531246927; existing local BatchMode authentication denied. Login command supplied to user; no new credential/access added. ED25519 fingerprint `SHA256:H3DmgOhh1Cm/a1vJstHWGzb84eyn0t9WxXoqBF/O0sE`. Waiting for existing authenticated session or existing key path. No maintenance started while access is unavailable.
+
 No maintenance mode, live migration/configuration, main merge, deployment or real send. Need consistent backup and private-media recovery evidence; schema collision/protected-state baseline and20-table manifest; current-base database rehearsal; current provider metadata; secure per-key configuration; hosted private-path verification; PR review and exact deployed-commit acceptance. Sending remains blocked by unverified shared request budget and activation remains unauthorized. Existing photo-retention/privacy configuration requirements need reviewed values; do not invent policy to pass startup.
 
 Rollback remains Updhan-only; retain tables/media/outbox. Never restore the shared database over ongoing Ayambil bookings or resend submitted/uncertain jobs. Preserve Manan1 Nov18:00 IST and Sairam2 Nov18:00 IST reviewed reminders, original cutoff and48-hour Attendance delay.

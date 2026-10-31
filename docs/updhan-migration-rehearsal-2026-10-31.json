@@ -1,0 +1,31 @@
+{
+  "date": "2026-10-31",
+  "engine": "11.8.9-MariaDB",
+  "isolated": true,
+  "restoredTables": 28,
+  "sourceSha256": "1cf7a4434473aa96876ef254ce8401d1f4682220f84e1a547b8472ace6109800",
+  "addedTables": 20,
+  "protectedFingerprintUnchanged": true,
+  "migrations": [
+    {
+      "path": "docs/updhan-shared-db-2026-10-28/001_additive_schema.CANDIDATE.sql",
+      "sha256": "9d4f10ae23073128df9bc9227c823c3e7851d203c397e3e6f377131b71239e1b"
+    },
+    {
+      "path": "apps/api/updhan/007_operations.sql",
+      "sha256": "fe629d05dc4545ed31745094f4ba40d52723d70cf9eb4e208a7863eb09289126"
+    },
+    {
+      "path": "apps/api/updhan/008_notification_reviews.sql",
+      "sha256": "c71c9d7e1f3af566985338984edea5c3d092aa1dbbcb833ec5e671be9306ef54"
+    },
+    {
+      "path": "apps/api/updhan/009_worker_ownership.sql",
+      "sha256": "dc836a287e861532fe1352622e4e15c6f6c193997c5ec9c575d3e246ce1dbf64"
+    }
+  ],
+  "productionConnection": false,
+  "sending": false,
+  "appliedToLive": false,
+  "consistency": "phpMyAdmin export; transactional source snapshot not independently proven"
+}
