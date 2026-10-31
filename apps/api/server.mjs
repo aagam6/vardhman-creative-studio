@@ -1,4 +1,5 @@
 import {createUpdhanRuntime} from './updhan/production-runtime.mjs';
+import {createSharedProviderBudget} from './updhan/shared-provider-budget.mjs';
 import {createNotificationService} from './notification-service.mjs';
 import {startNotificationWorker} from './notification-worker.mjs';
 import {createMessageQueue} from './message-queue.mjs';
@@ -23,12 +24,13 @@ try {
   if(!Number.isInteger(port)||port<1||port>65535)throw new Error('Valid platform PORT required');
   stage='pool';const pool=mysql.createPool(config.database);
   stage='messaging';
-  const flow=createFlow(process.env);
+  const reserveRequestBudget=process.env.UPDHAN_SHARED_PROVIDER_BUDGET_APPROVED==='true'&&process.env.VARDHMAN_FLOW_API_KEY?createSharedProviderBudget({pool,key:process.env.VARDHMAN_FLOW_API_KEY}):undefined;
+  const flow=createFlow(process.env,fetch,{reserveRequestBudget});
   const queue=process.env.AYAMBIL_WHATSAPP_ENABLED==='true'?createMessageQueue(pool,flow,process.env):null;
   const store=createStore(pool,config,{queue,adminRecipients:(process.env.AYAMBIL_WHATSAPP_ADMIN_RECIPIENTS||'').split(',').map(s=>s.trim()).filter(Boolean)});
   const notifications=config.notificationService?createNotificationService({pool,config,flow,key:process.env.AYAMBIL_QUEUE_ENCRYPTION_KEY}):null;
   stage='application';let initialized=false;let worker;let reminderWorker;let notificationWorker;
-  const updhan=createUpdhanRuntime({env:process.env,staticDirectory:fileURLToPath(new URL('../../dist/apps/web',import.meta.url))});
+  const updhan=createUpdhanRuntime({env:process.env,reserveRequestBudget,staticDirectory:fileURLToPath(new URL('../../dist/apps/web',import.meta.url))});
   const app=createApp({updhanRouter:updhan.router,leadRouter:createLeadRouter({pool,store,config,isInitialized:()=>initialized}),legacyLeadRouter:createLeadRouter({pool,store,config,legacy:true,isInitialized:()=>initialized}),store,config,flow,queue,notifications,getNotificationWorkerStatus:()=>notificationWorker?.status?.()||{enabled:false,active:false},isInitialized:()=>initialized,getQueueWorkerStatus:()=>({enabled:worker?.enabled===true,active:worker?.active===true,reminder:{enabled:reminderWorker?.enabled===true,active:reminderWorker?.active===true,time:"18:00",timezone:"Asia/Kolkata",daysBefore:1}}),testRecipient:process.env.AYAMBIL_STAGING_BUILD==='true'&&config.origin==='https://white-reindeer-590806.hostingersite.com'?process.env.AYAMBIL_WHATSAPP_TEST_RECIPIENT:undefined,staticDirectory:fileURLToPath(new URL('../../dist/apps/web',import.meta.url))});
   const host=process.env.AYAMBIL_LISTEN_HOST || '0.0.0.0';
   if(!['0.0.0.0','127.0.0.1'].includes(host))throw new Error('Unsupported listen host');

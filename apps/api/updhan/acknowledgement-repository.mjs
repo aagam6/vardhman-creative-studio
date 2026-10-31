@@ -13,6 +13,7 @@ export function createAcknowledgementRepository({pool,expectedDatabase,crypto}){
  function allowed(row){return row&&row.type==='application_received'&&!!row.whatsapp&&!['cancelled','trashed','rejected'].includes(row.application_status);}
  async function locked(c,id){const [[row]]=await c.execute('SELECT o.*,a.reference,a.status AS application_status,c.whatsapp FROM updhan_outbox o JOIN updhan_applications a ON a.id=o.application_id JOIN updhan_consents c ON c.application_id=a.id WHERE o.id=? FOR UPDATE',[id]);return row;}
  return {
+  async deferPreflight(job){return tx(async c=>{const r=await locked(c,job.id);if(!r||r.state!=='preparing'||r.claim_token!==job.claimToken||r.intent_at)throw Error('Only unsubmitted preflight can defer');await c.execute("UPDATE updhan_outbox SET state='queued',claim_token=NULL,lease_until=DATE_ADD(UTC_TIMESTAMP(),INTERVAL 65 SECOND),failure_code='shared_budget_pending' WHERE id=?",[job.id]);});},
   async enqueue(connection,{applicationId,reference,to,name}){
    const [[selected]]=await connection.query('SELECT DATABASE() AS name');if(selected.name!==expectedDatabase)throw Error('Database mismatch');
    if(!uuid(applicationId))throw Error('Invalid application');acknowledgementPayload({reference,to,name});const id=randomUUID(),aad=`${id}:${reference}`;
