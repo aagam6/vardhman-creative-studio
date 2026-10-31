@@ -8,7 +8,7 @@ export function createSubmissionAttempt(client) {
    payload ||= {key:input.key,data:structuredClone(input.data),photo:input.photo};
    try{const receipt=await client.submit(payload);payload=null;uncertain=false;return receipt;}
    catch(error){
-    const definitelyRejected=[400,401,403,404,413,422,429].includes(error.status);
+    const definitelyRejected=error.definitelyRejected===true||[400,401,403,404,413,422,429].includes(error.status);
     if(uncertain||!definitelyRejected)uncertain=true;else payload=null;
     throw error;
    }

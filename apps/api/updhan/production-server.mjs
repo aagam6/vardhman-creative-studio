@@ -1,12 +1,13 @@
 import express from 'express';
-import {createHash} from 'node:crypto';
+import {createHash,randomUUID} from 'node:crypto';
 import {createSessionStore} from './session-store.mjs';
-import {UpdhanError} from './errors.mjs';
+import {UpdhanError,updhanFailure} from './errors.mjs';
 // Mount only in an independently reviewed composition. No mock endpoints,
 // default identity, environment loading, migration or automatic worker.
 export function createUpdhanProductionRouter({service,pool,origin,authenticate,rateSecret,loopbackStaging=false}){
  if(typeof authenticate!=='function'||typeof rateSecret!=='string'||rateSecret.length<32||!/^https:\/\//.test(origin)&&!(loopbackStaging&&/^http:\/\/127\.0\.0\.1:\d+$/.test(origin)))throw Error('Explicit trusted authentication, origin and rate secret required');
  const api=express.Router(),sessions=createSessionStore(pool),cookie=loopbackStaging?'updhan_staging_session':'__Host-updhan';
+ api.use((req,res,next)=>{req.updhanRequestId=randomUUID();res.set('X-Request-ID',req.updhanRequestId);next();});
  const route=fn=>async(req,res,next)=>{try{await fn(req,res,next);}catch(e){next(e);}};
  api.use((req,res,next)=>{res.set({'Cache-Control':'private, no-store','CDN-Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer'});if(req.headers.origin&&req.headers.origin!==origin||req.method!=='GET'&&req.headers.origin!==origin)return res.status(403).json({error:'Exact origin required'});next();});
  api.use(route(async(req,res,next)=>{const operation=req.path==='/register'?'register':req.path==='/admin/login'?'login':'admin',key=createHash('sha256').update(rateSecret+operation+req.socket.remoteAddress+Math.floor(Date.now()/60000)).digest('hex');await pool.execute('INSERT INTO updhan_rate_limits(bucket_key,hits,expires_at) VALUES (?,1,DATE_ADD(UTC_TIMESTAMP(),INTERVAL 2 MINUTE)) ON DUPLICATE KEY UPDATE hits=hits+1',[key]);const [[r]]=await pool.execute('SELECT hits FROM updhan_rate_limits WHERE bucket_key=?',[key]);if(r.hits>(operation==='login'?5:operation==='register'?20:180))return res.status(429).set('Retry-After','60').json({error:'Try later'});next();}));
@@ -17,6 +18,7 @@ export function createUpdhanProductionRouter({service,pool,origin,authenticate,r
  api.post('/register',route(async(req,res)=>{const {photo,...body}=req.body||{};if(typeof photo?.base64!=='string'||!/^[A-Za-z0-9+/]*={0,2}$/.test(photo.base64))throw new UpdhanError(400,'Invalid photo');res.json(await service.register({...body,photo:{mime:photo.mime,bytes:Buffer.from(photo.base64,'base64')}}));}));
  api.post('/admin/login',route(async(req,res)=>{if(typeof req.body?.email!=='string'||req.body.email.length>254||typeof req.body?.password!=='string'||req.body.password.length>256)throw new UpdhanError(400,'Invalid sign-in');const actor=await authenticate(req.body.email.trim().toLowerCase(),req.body.password);if(!actor?.roles?.includes('updhan_admin'))throw new UpdhanError(401,'Sign-in failed');const s=await sessions.issue(actor);res.cookie(cookie,s.token,{httpOnly:true,secure:!loopbackStaging,sameSite:'strict',path:'/',maxAge:s.lifetimeMs});res.json({authenticated:true,csrfToken:s.csrf});}));
  api.get('/admin/session',admin,(req,res)=>res.json({authenticated:true,csrfToken:req.session.csrf}));
+ api.get('/admin/system',admin,route(async(req,res)=>res.json(service.systemStatus?await service.systemStatus():{sender:{enabled:false,reason:'unavailable'}})));
  api.post('/admin/logout',admin,route(async(req,res)=>{await sessions.revoke(token(req));res.clearCookie(cookie,{path:'/',httpOnly:true,secure:!loopbackStaging,sameSite:'strict'});res.json({authenticated:false});}));
  api.get('/admin/applications',admin,route(async(req,res)=>res.json(await service.list(req.actor,req.query))));
  api.get('/admin/summary',admin,route(async(req,res)=>res.json(await service.summary(req.actor))));
@@ -28,6 +30,6 @@ export function createUpdhanProductionRouter({service,pool,origin,authenticate,r
  // Reviewed-send route is present but service activation defaults off; an exact
  // provider contract, shared budget and separate approval are prerequisites.
  api.use((req,res)=>res.status(404).json({error:'Unknown Updhan route'}));
- api.use((e,req,res,next)=>{void next;const status=e instanceof UpdhanError?e.status:e.type==='entity.too.large'?413:e.type==='entity.parse.failed'?400:503;res.status(status).json({error:e instanceof UpdhanError?e.message:'Updhan unavailable'});});
+ api.use((e,req,res,next)=>{void next;const failure=updhanFailure(e,req.updhanRequestId);if(failure.status>=500)console.error(JSON.stringify({operation:'updhan.failure',requestId:req.updhanRequestId,status:failure.status,code:failure.body.code}));res.status(failure.status).json(failure.body);});
  return api;
 }

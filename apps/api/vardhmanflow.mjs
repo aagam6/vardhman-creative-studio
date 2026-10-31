@@ -50,7 +50,7 @@ export function templateMetadata(template,mapping,{operatorSnapshots=false,requi
  const verified=template.status==='APPROVED'&&template.language==='en'&&formatSupported&&mappingVerified&&reviewedBodyMatches;
  return {bodyAvailable,bodySource:bodyAvailable?(snapshot?'operator_reviewed_snapshot':'provider'):'unavailable',placeholderCount:bodyAvailable?indexes.length:null,placeholderIndexes:indexes,componentsVerified:verified&&!snapshot,verified,verification:template.status!=='APPROVED'||template.language!=='en'?'approval_or_language_mismatch':!bodyAvailable?'approved_body_unavailable':!formatSupported?'unsupported_body_definition':!mappingVerified?'mapping_mismatch':snapshot?'operator_snapshot_mapping_validated':'provider_body_verified'};
 }
-export function createFlow(env,fetcher=fetch){
+export function createFlow(env,fetcher=fetch,{reserveRequestBudget}={}){
  const metadataOptions={operatorSnapshots:(env.AYAMBIL_STAGING_BUILD==='true'&&env.AYAMBIL_SITE_ORIGIN==='https://white-reindeer-590806.hostingersite.com')||productionSnapshotsApproved(env),requireReviewedBodies:productionSnapshotsApproved(env)};
  const base=env.VARDHMAN_FLOW_BASE_URL||'https://vardhmanflow.com/api/v1';
  const missing=['VARDHMAN_FLOW_API_KEY','VARDHMAN_FLOW_API_SECRET'].filter(k=>!env[k]);
@@ -61,6 +61,7 @@ export function createFlow(env,fetcher=fetch){
  const request=async (suffix,body)=>{
   if(missing.length)throw new ApiError(503,'Vardhman Flow configuration required');
   if(Date.now()<cooldownUntil)throw Object.assign(new ApiError(429,'Provider cooldown active; no request made'),{code:'PROVIDER_COOLDOWN'});
+  if(reserveRequestBudget&&await reserveRequestBudget()!==true)throw Object.assign(new ApiError(429,'Shared provider budget unavailable; no request made'),{code:'LOCAL_FLOW_BUDGET',providerRejected:429});
   calls=calls.filter(t=>Date.now()-t<60000);if(calls.length>=50)throw Object.assign(new ApiError(429,'Provider check rate limit reached'),{code:'LOCAL_FLOW_BUDGET'});calls.push(Date.now());recentRequests=recentRequests.filter(r=>r.at>Date.now()-60000);recentRequests.push({at:Date.now(),operation:operation(suffix)});
   const headers={'X-API-Key':env.VARDHMAN_FLOW_API_KEY,'X-API-Secret':env.VARDHMAN_FLOW_API_SECRET};if(env.VARDHMAN_FLOW_CHANNEL_ID)headers['X-Channel-Id']=env.VARDHMAN_FLOW_CHANNEL_ID;
   try{

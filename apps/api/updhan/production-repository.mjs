@@ -1,3 +1,4 @@
+import {retentionExpiry} from './data-retention.mjs';
 import {admissionGate,occupied} from './admission.mjs';
 import {updhanReference} from '../../web/src/lib/updhanReference.js';
 import {randomUUID, createHash} from 'node:crypto';
@@ -8,11 +9,11 @@ const digest=value=>createHash('sha256').update(value).digest('hex');
 // Explicit dependency injection only. No env loading, connection creation or migration.
 // No environment loading, migration, connection creation or startup work. Caller supplies an audited pool.
 // Event-row lock serializes approvals, registration and settings without touching Ayambil.
-export function createUpdhanProductionRepository({pool,databaseName,outbox,privacyVersion,photoRetentionDays,attributionConsentVersion}) {
+export function createUpdhanProductionRepository({pool,databaseName,outbox,privacyVersion,photoRetentionDays,retentionUntil,attributionConsentVersion}) {
  if(!/^(u531246927_vcs|updhan_local_[a-z0-9_]+)$/.test(databaseName||'')||!outbox?.enqueue||(photoRetentionDays!==null&&(!Number.isInteger(photoRetentionDays)||photoRetentionDays<1||photoRetentionDays>365))||pool?.pool?.config?.connectionConfig?.database!==databaseName)throw Error('Explicit matching pool, retention and encrypted outbox required');
  const allowDraftOptions=false;
  return {async register({key,data,photoKey,photoHash,photoBytes,attribution}) {
-  if(photoRetentionDays===null)throw new UpdhanError(503,'Registration is closed');
+  if(photoRetentionDays===null&&!retentionUntil)throw new UpdhanError(503,'Registration is closed');
   if(!/^[a-f0-9-]{36}$/i.test(key||'')||!data||!Array.isArray(data.companions)||Object.keys(validateApplication(data,photoKey)).length||!/^[a-f0-9]{64}$/.test(photoKey||'')||!/^[a-f0-9]{64}$/.test(photoHash||'')||!Number.isInteger(photoBytes)||photoBytes<1||photoBytes>2097152)throw new UpdhanError(400,'Invalid application');
   const requestHash=digest(JSON.stringify(data)+photoHash), connection=await pool.getConnection();
   try {
@@ -34,7 +35,7 @@ export function createUpdhanProductionRepository({pool,databaseName,outbox,priva
    await connection.execute('INSERT INTO updhan_applications (id,request_key,request_hash,reference,event_id,option_snapshot,applicant,health,status) VALUES (?,?,?,?,?,?,?,?,?)',[id,key,requestHash,reference,event.id,JSON.stringify({id:option.id,label:option.label,startsOn:option.starts_on,endsOn:option.ends_on,approved:!!option.approved}),JSON.stringify(applicant),health||null,status]);
    for(const c of companions)await connection.execute('INSERT INTO updhan_companions (application_id,name,form_number) VALUES (?,?,?)',[id,c.name,c.number||null]);
    await connection.execute('INSERT INTO updhan_consents (application_id,rules_version,privacy_version,whatsapp) VALUES (?,?,?,?)',[id,event.rules_version,privacyVersion,!!data.whatsappConsent]);
-   await connection.execute('INSERT INTO updhan_photos (application_id,object_key,sha256,mime,bytes,expires_at) VALUES (?,?,?,?,?,DATE_ADD(UTC_TIMESTAMP(), INTERVAL ? DAY))',[id,photoKey,photoHash,'image/jpeg',photoBytes,photoRetentionDays]);
+   await connection.execute('INSERT INTO updhan_photos (application_id,object_key,sha256,mime,bytes,expires_at) VALUES (?,?,?,?,?,?)',[id,photoKey,photoHash,'image/jpeg',photoBytes,retentionExpiry({retentionUntil,photoRetentionDays})]);
    await connection.execute('INSERT INTO updhan_audit (application_id,actor,action,new_status) VALUES (?,?,?,?)',[id,'applicant','received',status]);
    if(data.whatsappConsent)await outbox.enqueue(connection,{applicationId:id,name:data.name,reference,to:applicant.whatsappE164});
    const campaign=attributionConsentVersion?sanitizeAttribution(attribution):null;if(campaign)await connection.execute('INSERT INTO updhan_attribution (application_id,first_touch,last_touch,consent_version) VALUES (?,?,?,?)',[id,JSON.stringify(campaign.firstTouch),JSON.stringify(campaign.lastTouch),attributionConsentVersion]);

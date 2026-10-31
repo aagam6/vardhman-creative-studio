@@ -4,21 +4,23 @@ import {createAdmissionOperations} from './admission.mjs';
 import {createAcknowledgementRepository,acknowledgementCrypto} from './acknowledgement-repository.mjs';
 import {normalizeApplication} from '../../web/src/lib/updhanRegistration.js';
 import {UpdhanError} from './errors.mjs';
+import {retentionExpiry} from './data-retention.mjs';
 const parse=v=>typeof v==='string'?JSON.parse(v):v;
 const fail=(status,message)=>{throw new UpdhanError(status,message);};
 const statuses=['received','under_review','approved','waitlisted','rejected','cancelled','trashed'];
 const authorize=(a,role='updhan_admin')=>{if(!a?.roles?.includes(role))fail(403,'Updhan role required');};
 // Caller owns an explicit pool and private storage. Import never connects,
 // migrates, reads .env, starts a worker, or mounts into the Ayambil process.
-export function createUpdhanProductionService({pool,databaseName,photos,decodePhoto,encryptionKey,keyVersion='v1',privacyVersion,photoRetentionDays,attributionConsentVersion,reviewedWorker,reviewedSendingEnabled=false}){
+export function createUpdhanProductionService({pool,databaseName,photos,decodePhoto,encryptionKey,keyVersion='v1',privacyVersion,photoRetentionDays,retentionUntil,attributionConsentVersion,reviewedWorker,reviewedSendingEnabled=false}){
+ const policyConfigured=()=>{try{return !!privacyVersion&&retentionExpiry({retentionUntil,photoRetentionDays})>new Date();}catch{return false;}};
  const outbox=createAcknowledgementRepository({pool,expectedDatabase:databaseName,crypto:acknowledgementCrypto(encryptionKey,keyVersion)});
- const repository=createUpdhanProductionRepository({pool,databaseName,outbox,privacyVersion,photoRetentionDays,attributionConsentVersion});
+ const repository=createUpdhanProductionRepository({pool,databaseName,outbox,privacyVersion,photoRetentionDays,retentionUntil,attributionConsentVersion});
  const operations=createAdmissionOperations({pool});
  const name="JSON_UNQUOTE(JSON_EXTRACT(a.applicant,'$.name'))",mobile="JSON_UNQUOTE(JSON_EXTRACT(a.applicant,'$.whatsappE164'))",city="JSON_UNQUOTE(JSON_EXTRACT(a.applicant,'$.city'))",category="JSON_UNQUOTE(JSON_EXTRACT(a.option_snapshot,'$.label'))";
  const duplicatePredicate=`EXISTS(SELECT 1 FROM updhan_applications d WHERE d.id<>a.id AND d.event_id=a.event_id AND d.status<>'trashed' AND LOWER(TRIM(JSON_UNQUOTE(JSON_EXTRACT(d.applicant,'$.name'))))=LOWER(TRIM(${name})) AND JSON_UNQUOTE(JSON_EXTRACT(d.applicant,'$.whatsappE164'))=${mobile} AND JSON_UNQUOTE(JSON_EXTRACT(d.option_snapshot,'$.id'))=JSON_UNQUOTE(JSON_EXTRACT(a.option_snapshot,'$.id')))`;
  return {
  outbox,operations,
- async register(input){if(photoRetentionDays===null||!privacyVersion)fail(503,'Registration is closed');const data=normalizeApplication(input.data),photo=await decodePhoto(input.photo),staged=await photos.stage(photo);try{
+ async register(input){if(!policyConfigured())fail(503,'Registration is closed');const data=normalizeApplication(input.data),photo=await decodePhoto(input.photo),staged=await photos.stage(photo);try{
   const receipt=await repository.register({...input,data,photoKey:staged.key,photoHash:staged.hash,photoBytes:staged.bytes});
   const [[stored]]=await pool.execute('SELECT object_key FROM updhan_photos WHERE application_id=?',[receipt.id]);if(stored.object_key!==staged.key)await photos.remove(staged.key);
   return {...receipt,waiting:receipt.status==='waitlisted'};
@@ -28,7 +30,7 @@ export function createUpdhanProductionService({pool,databaseName,photos,decodePh
   try{const [[row]]=await pool.execute('SELECT application_id FROM updhan_photos WHERE object_key=?',[staged.key]);if(!row)await photos.remove(staged.key);}catch{}
   throw error;
  }},
- async status(){const [[e]]=await pool.execute("SELECT e.registration_open,s.mode,s.maintenance_message FROM updhan_events e LEFT JOIN updhan_admission_settings s ON s.event_id=e.id WHERE e.id='achalgarh-2027'");const configured=photoRetentionDays!==null&&!!privacyVersion;return {registrationOpen:configured&&!!e?.registration_open&&!!e.mode&&e.mode!=='closed',mode:configured?(e?.mode||'closed'):'closed',maintenanceMessage:e?.maintenance_message||'',whatsapp:'separate-gated-worker'};},
+ async status(){const [[e]]=await pool.execute("SELECT e.registration_open,s.mode,s.maintenance_message FROM updhan_events e LEFT JOIN updhan_admission_settings s ON s.event_id=e.id WHERE e.id='achalgarh-2027'");const configured=policyConfigured();return {registrationOpen:configured&&!!e?.registration_open&&!!e.mode&&e.mode!=='closed',mode:configured?(e?.mode||'closed'):'closed',maintenanceMessage:e?.maintenance_message||'',whatsapp:'separate-gated-worker'};},
  async list(actor,f={}){authorize(actor);const page=Number(f.page||1);if(!Number.isInteger(page)||page<1||page>10000)fail(400,'Invalid page');const clauses=[],args=[];
   if(f.status){if(!statuses.includes(f.status))fail(400,'Invalid status');clauses.push('a.status=?');args.push(f.status);}
   for(const [key,expression] of [['category',category],['city',city]])if(f[key]){if(typeof f[key]!=='string'||f[key].length>180)fail(400,'Invalid filter');clauses.push(`LOCATE(?,${expression})>0`);args.push(f[key]);}
@@ -48,7 +50,7 @@ export function createUpdhanProductionService({pool,databaseName,photos,decodePh
  },
  async detail(actor,id){authorize(actor);const [[a]]=await pool.execute('SELECT id,reference,status,previous_status,version,applicant,option_snapshot,created_at FROM updhan_applications WHERE id=?',[id]);if(!a)fail(404,'Not found');const applicant=parse(a.applicant);delete applicant.health;const [companions]=await pool.execute('SELECT name,form_number FROM updhan_companions WHERE application_id=?',[id]);const [history]=await pool.execute('SELECT actor,action,old_status,new_status,created_at FROM updhan_audit WHERE application_id=? ORDER BY id',[id]);const [messages]=await pool.execute('SELECT id,type,state,attempts,failure_code,provider_reference FROM updhan_outbox WHERE application_id=? ORDER BY created_at',[id]);const [[attendance]]=await pool.execute('SELECT checked_in,version FROM updhan_attendance WHERE application_id=?',[id]);return {...a,applicant,option_snapshot:parse(a.option_snapshot),companions,history,messages,attendance:attendance||{checked_in:false,version:0}};},
  async photo(actor,id){authorize(actor);const [[r]]=await pool.execute("SELECT p.object_key FROM updhan_photos p JOIN updhan_applications a ON a.id=p.application_id WHERE a.id=? AND a.status<>'trashed' AND p.expires_at>UTC_TIMESTAMP()",[id]);if(!r)fail(404,'Photo unavailable');return photos.read(r.object_key);},
- async health(actor,id){authorize(actor,'updhan_health');const [[r]]=await pool.execute("SELECT health FROM updhan_applications WHERE id=? AND status<>'trashed'",[id]);if(!r)fail(404,'Not found');await pool.execute("INSERT INTO updhan_operation_audit(actor,subject,action,detail) VALUES (?,?,'health_access','{}')",[actor.id,id]);return {health:r.health};},
+ async health(actor,id){authorize(actor,'updhan_health');const [[r]]=await pool.execute("SELECT a.health FROM updhan_applications a JOIN updhan_photos p ON p.application_id=a.id WHERE a.id=? AND a.status<>'trashed' AND p.expires_at>UTC_TIMESTAMP()",[id]);if(!r)fail(404,'Not found');await pool.execute("INSERT INTO updhan_operation_audit(actor,subject,action,detail) VALUES (?,?,'health_access','{}')",[actor.id,id]);return {health:r.health};},
  async withdrawConsent(actor,id){authorize(actor);await pool.execute('UPDATE updhan_consents SET whatsapp=FALSE WHERE application_id=?',[id]);await pool.execute("INSERT INTO updhan_operation_audit(actor,subject,action,detail) VALUES (?,?,'consent_withdrawn','{}')",[actor.id,id]);return {whatsapp:false};},
  async duplicates(actor,f={}){authorize(actor);const page=Number(f.page||1),pageSize=20;if(!Number.isInteger(page)||page<1||page>10000)fail(400,'Invalid page');
   const where=`a.status<>'trashed' AND ${duplicatePredicate}`;
