@@ -8,7 +8,7 @@ const ScrollToTop = () => {
         window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
         
         // Track page view in Meta Pixel on route change
-        if (typeof window.fbq === 'function') {
+        if (!/^\/(?:admin\/updhan(?:\/|$)|vijaypataka-updhan-mahotsav(?:\/|$))/.test(pathname) && typeof window.fbq === 'function') {
             window.fbq('track', 'PageView');
         }
     }, [pathname]);

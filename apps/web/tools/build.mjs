@@ -10,5 +10,5 @@ process.env.VITE_UPDHAN_PRODUCTION_API='true';
 process.env.VITE_UPDHAN_ANALYTICS_ENABLED='true';
 const result = spawnSync(process.execPath, [vite, 'build', '--outDir', '../../dist/apps/web'], { stdio: 'inherit' });
 if (result.error) console.error('Vite could not start.');
-if(result.status===0){const {generateEventSeo}=await import('./event-seo.mjs');await generateEventSeo(path.resolve('../../dist/apps/web'));const {generateUpdhanPublic}=await import('./generate-updhan-public.mjs');await generateUpdhanPublic(path.resolve('../../dist/apps/web'));}
+if(result.status===0){const {generateEventSeo}=await import('./event-seo.mjs');await generateEventSeo(path.resolve('../../dist/apps/web'));const {generateUpdhanPublic}=await import('./generate-updhan-public.mjs');await generateUpdhanPublic(path.resolve('../../dist/apps/web'));const {generateUpdhanAdmin}=await import('./generate-updhan-admin.mjs');await generateUpdhanAdmin(path.resolve('../../dist/apps/web'));}
 process.exit(result.status ?? 1);

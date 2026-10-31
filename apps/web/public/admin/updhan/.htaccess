@@ -1,0 +1,12 @@
+# This physical directory survives the parent SPA rewrite. Scope: Updhan only.
+<IfModule mod_headers.c>
+  Header unset Cache-Control
+  Header always unset Cache-Control
+  Header always set Cache-Control "private, no-store, max-age=0, must-revalidate"
+  Header always set CDN-Cache-Control "no-store"
+  Header always set Surrogate-Control "no-store"
+  Header always set Pragma "no-cache"
+  Header always set Expires "0"
+  Header always set Referrer-Policy "no-referrer"
+  Header always set X-Robots-Tag "noindex, nofollow"
+</IfModule>
