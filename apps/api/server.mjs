@@ -48,7 +48,7 @@ try {
     initialized=true;
     console.log(bootstrap.requested?'Ayambil initialization verified; remove stored bootstrap approval and password variables.':'Ayambil API readiness verified.');
   }catch(error){console.error('Ayambil initialization unavailable. '+startupDiagnostic(initializationStage,error));}})();
-  for(const signal of ['SIGTERM','SIGINT'])process.on(signal,()=>{worker?.stop();reminderWorker?.stop();notificationWorker?.stop();server.close(()=>updhan.close().then(()=>pool.end()).finally(()=>process.exit(0)));});
+  for(const signal of ['SIGTERM','SIGINT'])process.on(signal,()=>{worker?.stop();reminderWorker?.stop();notificationWorker?.stop();server.close(()=>updhan.close().catch(()=>{}).then(()=>pool.end()).finally(()=>process.exit(0)));});
 } catch(error) {
   // Driver errors can contain connection/user details; never print them.
   console.error('Ayambil API startup failed. '+startupDiagnostic(stage,error));process.exitCode=1;
