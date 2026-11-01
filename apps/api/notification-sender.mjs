@@ -137,6 +137,9 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
     const snapshots=typeof review.snapshot==='string'?JSON.parse(review.snapshot):review.snapshot;
     mobile=snapshots?.[0]?.mobile;if(!mobile||snapshots.some(b=>b.mobile!==mobile))throw Error('Exact original contact required');
    }else{
+    // A process restart loses the in-memory approval evidence. Refresh through
+    // the same strict no-send provider preflight before rebuilding the hash.
+    await provider.validate('reminder');
     // Rebuild only for identity verification, never submit. The original frozen
     // hash binds contact, passes and approved payload even outside the send window.
     const original=await tx(db=>envelope(db,input,{ownOutboxId:id,scheduledPreview:true}));
