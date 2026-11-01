@@ -17,3 +17,10 @@ export function exportRecord(detail){
  };
  return Object.fromEntries(columns.map(([key,label])=>[label,String(value(key)??'')]));
 }
+
+export function exportFailure(error){
+ const message=String(error?.message||'');
+ if(/dynamically imported module|Loading chunk|Importing a module script failed/i.test(message))return 'वेबसाइट का नया अपडेट आया है। पेज Refresh करके export फिर शुरू करें। / Refresh this page to load the latest export tools.';
+ if(error?.name==='TimeoutError'||error?.name==='AbortError'||/Failed to fetch|NetworkError/i.test(message))return 'कनेक्शन पूरा नहीं हुआ। इंटरनेट जाँचें और export फिर शुरू करें। / Check your connection and retry the export.';
+ return message||'Export नहीं हो सका। कृपया फिर कोशिश करें।';
+}
