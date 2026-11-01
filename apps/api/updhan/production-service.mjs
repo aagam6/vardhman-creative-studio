@@ -1,3 +1,4 @@
+import {exportUpdhanApplications} from './export-applications.mjs';
 import {createHash,randomUUID,randomBytes,timingSafeEqual} from 'node:crypto';
 import {createUpdhanProductionRepository} from './production-repository.mjs';
 import {createAdmissionOperations} from './admission.mjs';
@@ -20,6 +21,7 @@ export function createUpdhanProductionService({pool,databaseName,photos,decodePh
  const duplicatePredicate=`EXISTS(SELECT 1 FROM updhan_applications d WHERE d.id<>a.id AND d.event_id=a.event_id AND d.status<>'trashed' AND LOWER(TRIM(JSON_UNQUOTE(JSON_EXTRACT(d.applicant,'$.name'))))=LOWER(TRIM(${name})) AND JSON_UNQUOTE(JSON_EXTRACT(d.applicant,'$.whatsappE164'))=${mobile} AND JSON_UNQUOTE(JSON_EXTRACT(d.option_snapshot,'$.id'))=JSON_UNQUOTE(JSON_EXTRACT(a.option_snapshot,'$.id')))`;
  return {
  outbox,operations,
+ exportApplications:(actor,input)=>exportUpdhanApplications({pool,photos,actor,ids:input.ids,includePhotos:input.includePhotos??false}),
  async register(input){if(!policyConfigured())fail(503,'Registration is closed');const data=normalizeApplication(input.data),photo=await decodePhoto(input.photo),staged=await photos.stage(photo);try{
   const receipt=await repository.register({...input,data,photoKey:staged.key,photoHash:staged.hash,photoBytes:staged.bytes});
   const [[stored]]=await pool.execute('SELECT object_key FROM updhan_photos WHERE application_id=?',[receipt.id]);if(stored.object_key!==staged.key)await photos.remove(staged.key);

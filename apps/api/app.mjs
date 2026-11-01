@@ -161,6 +161,7 @@ export function createApp({updhanRouter,leadRouter,legacyLeadRouter,store,config
   // Hostinger's document root is separate from Node's staticDirectory. Its
   // slash removal otherwise loops with express.static's directory redirect.
   app.get(['/vijaypataka-updhan-mahotsav','/vijaypataka-updhan-mahotsav/index.html'],(req,res)=>res.sendFile('vijaypataka-updhan-mahotsav/index.html',{root:staticDirectory}));
+  app.get(['/vijaypataka-updhan-mahotsav/registration','/vijaypataka-updhan-mahotsav/registration/index.html'],(req,res)=>{res.set({'Cache-Control':'no-store','CDN-Cache-Control':'no-store','X-Robots-Tag':'noindex, follow'});res.sendFile('vijaypataka-updhan-mahotsav/registration/index.html',{root:staticDirectory});});
   app.get(['/admin/updhan','/admin/updhan/index.html'],(req,res)=>{
     res.set({'Cache-Control':'private, no-store, max-age=0, must-revalidate','CDN-Cache-Control':'no-store','Surrogate-Control':'no-store','Referrer-Policy':'no-referrer','X-Robots-Tag':'noindex, nofollow'});
     res.sendFile('admin/updhan/index.html',{root:staticDirectory});
