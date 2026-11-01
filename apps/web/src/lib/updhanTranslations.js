@@ -1,6 +1,15 @@
 import {updhanFormTranslationRows} from './updhanFormTranslations.js';
 // Each row is Hindi, English, Gujarati. Canonical application values are separate.
 export const updhanTranslationRows=[
+ ['रविवार प्रथम प्रवेश · सोमवार मालारोपण','Sunday entry · Monday Malaropan','રવિવારે પ્રથમ પ્રવેશ · સોમવારે માલારોપણ'],
+ ['एक बेहतर अनुभव।','A better experience.','એક બહેતર અનુભવ.'],
+ ['भीतर की एक नई यात्रा।','A new journey within.','અંતરની એક નવી યાત્રા.'],
+ ['Welcome to Achalgarh','Welcome to Achalgarh','અચલગઢમાં આપનું સ્વાગત છે'],
+ ['Best Facility and Better Inner Journey.','Best Facility and Better Inner Journey.','સારી સુવિધાઓ અને અંતરની સુંદર યાત્રા.'],
+ ['Beautiful mode','Beautiful mode','સૌંદર્યનો અનુભવ'],['Adventure mode','Adventure mode','સાહસનો અનુભવ'],
+ ['Inspire mode','Inspire mode','નવી પ્રેરણા'],['Energy mode','Energy mode','ઊર્જાનો અનુભવ'],['Spiritual mode','Spiritual mode','આધ્યાત્મિક યાત્રા'],
+ ['Real Experience · Real Transformation','Real Experience · Real Transformation','વાસ્તવિક અનુભવ · આંતરિક પરિવર્તન'],
+
  ["अचलगढ़, राजस्थान में। प्रथम प्रवेश रविवार, 25 अप्रैल 2027 और मालारोपण सोमवार, 14 जून 2027 है।", "At Achalgarh, Rajasthan. First entry is Sunday, 25 April 2027; Malaropan is Monday, 14 June 2027.", "અચલગઢ, રાજસ્થાનમાં. પ્રથમ પ્રવેશ રવિવાર, 25 એપ્રિલ 2027 અને માલારોપણ સોમવાર, 14 જૂન 2027 છે."],
  ["आवेदन फॉर्म खोलें, अपनी जानकारी और फोटो जोड़ें, फिर जानकारी जाँचकर आवेदन भेजें।", "Open the application form, add your details and photograph, then review and submit.", "અરજી ફોર્મ ખોલો, તમારી માહિતી અને ફોટો ઉમેરો, પછી તપાસીને અરજી મોકલો."],
  ["आपको पंजीकरण नंबर मिलेगा। टीम आवेदन की समीक्षा करेगी और प्रवेश की सूचना अलग से देगी।", "You will receive a registration number. The team will review the application and communicate admission separately.", "તમને નોંધણી ક્રમાંક મળશે. ટીમ અરજીની સમીક્ષા કરીને પ્રવેશની જાણ અલગથી કરશે."],
