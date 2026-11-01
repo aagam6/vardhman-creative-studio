@@ -128,19 +128,30 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
   async reconcileUncertainFailure(id,actor){
    if(!actor?.admin_id||!/^[a-f0-9-]{36}$/.test(id||'')||typeof provider.recipientReceipts!=='function')throw Error('Exact authenticated uncertainty reconciliation required');
    const row=await one(pool,'SELECT * FROM ayambil_notification_outbox WHERE id=?',[id]);
-   if(!row||row.purpose!=='attendance'||row.state!=='uncertain'||row.attempts!==1||row.provider_id||!row.claim_id)throw Error('Single uncertain Attendance attempt without provider reference required');
-   const input=crypto.open(row.envelope),review=await one(pool,'SELECT * FROM ayambil_family_reviews WHERE id=?',[row.subject]);
-   if(!review||input.subject!==review.id||input.purpose!=='attendance')throw Error('Original recipient context unavailable');
-   const snapshots=typeof review.snapshot==='string'?JSON.parse(review.snapshot):review.snapshot;
-   const mobile=snapshots?.[0]?.mobile;if(!mobile||snapshots.some(b=>b.mobile!==mobile))throw Error('Exact original contact required');
+   if(!row||!['attendance','reminder'].includes(row.purpose)||row.state!=='uncertain'||row.attempts!==1||row.provider_id||!row.claim_id)throw Error('Single uncertain supported attempt without provider reference required');
+   const input=crypto.open(row.envelope);let mobile;
+   if(input.subject!==row.subject||input.purpose!==row.purpose)throw Error('Original recipient context unavailable');
+   if(row.purpose==='attendance'){
+    const review=await one(pool,'SELECT * FROM ayambil_family_reviews WHERE id=?',[row.subject]);
+    if(!review)throw Error('Original recipient context unavailable');
+    const snapshots=typeof review.snapshot==='string'?JSON.parse(review.snapshot):review.snapshot;
+    mobile=snapshots?.[0]?.mobile;if(!mobile||snapshots.some(b=>b.mobile!==mobile))throw Error('Exact original contact required');
+   }else{
+    // Rebuild only for identity verification, never submit. The original frozen
+    // hash binds contact, passes and approved payload even outside the send window.
+    const original=await tx(db=>envelope(db,input,{ownOutboxId:id,scheduledPreview:true}));
+    if(original.hash!==row.revision_hash)throw Error('Original reminder context changed; manual review required');
+    mobile=original.s.mobile;
+   }
    const claim=await one(pool,"SELECT created_at FROM ayambil_notification_audit WHERE action='claim_committed' AND BINARY JSON_UNQUOTE(JSON_EXTRACT(detail,'$.id'))=BINARY ? ORDER BY created_at DESC LIMIT 1",[id]);
    const started=Date.parse(claim?.created_at+'Z');if(!Number.isFinite(started))throw Error('Claim timestamp unavailable');
-   const receipts=await provider.recipientReceipts(mobile),name=catalog.find(t=>t.purpose==='attendance')?.name;
+   const receipts=await provider.recipientReceipts(mobile),name=catalog.find(t=>t.purpose===(row.purpose==='reminder'?'entry_timing':'attendance'))?.name;
    const matches=receipts.filter(r=>r.template===name&&r.status==='failed'&&typeof r.createdAt==='string'&&/(?:Z|[+-]\d\d:\d\d)$/.test(r.createdAt)&&Date.parse(r.createdAt)>=started-1000&&Date.parse(r.createdAt)<=started+15000);
    if(matches.length!==1)throw Error('Exactly one provider failure matching original contact, template and claim window required');
    const receipt=matches[0],status=await provider.status(receipt.id);if(status.status!=='failed')throw Error('Authenticated provider terminal failure not confirmed');
-   return withLease(()=>tx(async db=>{const current=await one(db,'SELECT * FROM ayambil_notification_outbox WHERE id=? FOR UPDATE',[id]);
+   return withLease(()=>tx(async db=>{if(row.purpose==='reminder')await lockSourceEvent(db,row.purpose,row.subject);const current=await one(db,'SELECT * FROM ayambil_notification_outbox WHERE id=? FOR UPDATE',[id]);
     if(current.state!=='uncertain'||current.attempts!==1||current.provider_id||current.claim_id!==row.claim_id||current.envelope!==row.envelope)throw Error('Uncertain attempt changed');
+    if(row.purpose==='reminder'&&(await envelope(db,input,{ownOutboxId:id,scheduledPreview:true})).hash!==current.revision_hash)throw Error('Original reminder context changed; manual review required');
     if(await one(db,'SELECT id FROM ayambil_notification_outbox WHERE provider_id=? AND id<>? LIMIT 1',[receipt.id,id]))throw Error('Provider reference already associated');
     await db.execute("UPDATE ayambil_notification_outbox SET state='failed',provider_id=?,error_code='provider_failure_reconciled',last_checked_at=UTC_TIMESTAMP(3),updated_at=UTC_TIMESTAMP(3) WHERE id=?",[receipt.id,id]);
     await db.execute('INSERT INTO ayambil_notification_audit VALUES(?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),actor.admin_id,'uncertain_failure_reconciled',JSON.stringify({id,previous:'uncertain',state:'failed',providerId:receipt.id,source:'authenticated_recipient_history_and_status',noResend:true})]);
