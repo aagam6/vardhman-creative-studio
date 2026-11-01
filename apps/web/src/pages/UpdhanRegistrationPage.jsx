@@ -1,5 +1,5 @@
 import React from 'react';
-import {Helmet} from 'react-helmet';
+import UpdhanSeoHead from '@/components/UpdhanSeoHead';
 import {Link} from 'react-router-dom';
 import UpdhanRegistration from '@/components/UpdhanRegistration';
 import UpdhanMeasurement,{trackUpdhanClick} from '@/components/UpdhanMeasurement';
@@ -11,7 +11,7 @@ export default function UpdhanRegistrationPage(){return <UpdhanLanguageProvider>
 function RegistrationContent(){
  const {language}=useUpdhanLanguage();
  return localizeUpdhanTree(<div className="vp-page vp-form-page" lang={language} onClickCapture={trackUpdhanClick}>
-  <Helmet><html lang={language}/><title>आवेदन फॉर्म | विजयपताका उपधान महोत्सव 2027</title><meta name="robots" content="noindex,nofollow"/><meta name="theme-color" content="#183e35"/></Helmet>
+  <UpdhanSeoHead registration/>
   <a className="vp-skip" href="#application">मुख्य जानकारी पर जाएँ</a>
   <div className="vp-utility"><div className="vp-topline"><span>॥ श्री वीतरागाय नमः ॥</span><span>अचलगढ़ · राजस्थान · 2027</span></div><UpdhanLanguageButtons/></div>
   <header className="vp-header"><Link className="vp-brand" to="/vijaypataka-updhan-mahotsav"><span>विजयपताका<small>उपधान महोत्सव · 2027</small></span></Link><Link data-updhan-track="back_programme" className="vp-back-link" to="/vijaypataka-updhan-mahotsav">कार्यक्रम की जानकारी</Link></header>

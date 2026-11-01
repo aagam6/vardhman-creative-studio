@@ -1,6 +1,8 @@
 import {updhanFormTranslationRows} from './updhanFormTranslations.js';
 // Each row is Hindi, English, Gujarati. Canonical application values are separate.
 export const updhanTranslationRows=[
+ ['अचलगढ़ का परिचय','Discover Achalgarh','અચલગઢનો પરિચય'],['अचलगढ़ को करीब से जानें।','Get to know Achalgarh.','અચલગઢને નજીકથી જાણો.'],['अचलगढ़ तीर्थ का परिचय · YouTube वीडियो','Introduction to Achalgarh tirth · YouTube video','અચલગઢ તીર્થનો પરિચય · YouTube વીડિયો'],
+
  ['रविवार प्रथम प्रवेश · सोमवार मालारोपण','Sunday entry · Monday Malaropan','રવિવારે પ્રથમ પ્રવેશ · સોમવારે માલારોપણ'],
  ['एक बेहतर अनुभव।','A better experience.','એક બહેતર અનુભવ.'],
  ['भीतर की एक नई यात्रा।','A new journey within.','અંતરની એક નવી યાત્રા.'],

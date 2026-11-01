@@ -8,7 +8,7 @@ export default function UpdhanExports({api,selection,filters,total,detail,disabl
   const expected=scope==='single'?1:scope==='selected'?selection.length:total;
   if(!expected||expected>500){setProgress('एक बार में 1–500 आवेदन export करें। Filters से सूची छोटी करें।');return;}
   setPending(null);
-  setRunning(true);setProgress('Export तैयार हो रहा है…');let mount;const imageUrls=[];
+  setRunning(true);setProgress('Export तैयार हो रहा है…');let mount;
   try{
    let ids=scope==='single'?[detail.id]:[...selection];
    if(scope==='filtered'){
@@ -20,7 +20,7 @@ export default function UpdhanExports({api,selection,filters,total,detail,disabl
     if(new Set(ids).size!==expected)throw Error('सूची बदल गई है। Refresh करके फिर export करें।');
    }
    const records=[];
-   for(const id of ids){records.push(await api.detail(id));setProgress(`${records.length}/${ids.length} आवेदन पढ़े गए`);}
+   for(let i=0;i<ids.length;i+=25){const batch=await api.exportBatch(ids.slice(i,i+25));records.push(...batch.items);setProgress(`${records.length}/${ids.length} आवेदन पढ़े गए`);}
    const stamp=new Date().toISOString().slice(0,10),filename=scope==='single'?records[0].reference:`Updhan-${stamp}-${records.length}`;
    if(format==='excel'){
     const XLSX=await import('xlsx');const sheet=XLSX.utils.json_to_sheet(records.map(exportRecord));
@@ -36,19 +36,17 @@ export default function UpdhanExports({api,selection,filters,total,detail,disabl
      const data=await toJpeg(mount,{pixelRatio:1.7,quality:0.9,backgroundColor:'#ffffff',cacheBust:false,style:{position:"static",left:"auto",top:"auto",margin:"0"}});
      if(pageCount++)pdf.addPage();pdf.addImage(data,'JPEG',0,0,210,mount.scrollHeight*210/794);
     };
+    let photoBatch=[];
     for(let i=0;i<records.length;i++){
-     const r=records[i];
+     if(i%10===0)photoBatch=(await api.exportBatch(ids.slice(i,i+10),true)).items;
+     const r=photoBatch[i%10];
      const header=()=>{
       mount.replaceChildren();const title=document.createElement('h1');title.textContent='विजयपताका – उपधान महोत्सव';title.style.cssText='font-size:27px;line-height:1.5;margin:0 0 12px';mount.append(title);
       const subtitle=document.createElement('p');subtitle.textContent=`अचलगढ़, राजस्थान · ${r.reference} · ${r.status}`;mount.append(subtitle);const dates=document.createElement('p');dates.textContent='प्रथम प्रवेश: 25 अप्रैल 2027 · मालारोपण: 14 जून 2027';dates.style.fontSize='13px';mount.append(dates);
      };
      header();
-     if(r.status!=='trashed'){
-      const response=await fetch(`/api/updhan/admin/photo/${encodeURIComponent(r.id)}`,{credentials:'same-origin',cache:'no-store',signal:AbortSignal.timeout(20000)});
-      if(response.status===401)throw Error('Session समाप्त हो गया। फिर login करके export करें।');
-      if(!response.ok)throw Error(`${r.reference}: फोटो उपलब्ध नहीं है (${response.status})। PDF नहीं बनाया गया।`);
-      const blob=await response.blob();const image=document.createElement('img');image.src=URL.createObjectURL(blob);imageUrls.push(image.src);image.style.cssText='width:100px;height:125px;object-fit:contain;display:block;margin:0 0 18px';await image.decode();mount.append(image);
-     }
+     if(!r.photo?.base64)throw Error(`${r.reference}: फोटो उपलब्ध नहीं है। PDF नहीं बनाया गया।`);
+     const image=document.createElement('img');image.src=`data:image/jpeg;base64,${r.photo.base64}`;image.style.cssText='width:100px;height:125px;object-fit:contain;display:block;margin:0 0 18px';await image.decode();mount.append(image);
      const rows=[...Object.entries(exportRecord(r)),['नोट / Note','आवेदन प्राप्ति प्रवेश की स्वीकृति नहीं है। Restricted health details are excluded.']];
      for(const [label,value] of rows){
       const row=document.createElement('div');row.style.cssText='border-bottom:1px solid #d6e1db;padding:9px 0;overflow-wrap:anywhere;line-height:1.6';const strong=document.createElement('strong');strong.textContent=label+': ';row.append(strong,document.createTextNode(value||'—'));mount.append(row);
@@ -59,7 +57,7 @@ export default function UpdhanExports({api,selection,filters,total,detail,disabl
     pdf.save(filename+'.pdf');
    }
    setProgress(`${records.length} आवेदन export हुए। Health details शामिल नहीं हैं।`);
-  }catch(error){setProgress(exportFailure(error));}finally{mount?.remove();for(const url of imageUrls)URL.revokeObjectURL(url);setRunning(false);}
+  }catch(error){setProgress(exportFailure(error));}finally{mount?.remove();setRunning(false);}
  }
  return <section className="um-panel"><h2>फॉर्म Export / Excel & PDF</h2><p>Excel में सभी सामान्य विवरण। PDF में भरा हुआ फॉर्म और फोटो। निजी health details शामिल नहीं हैं। All filtered में सभी pages शामिल हैं (अधिकतम 500)।</p><div className="um-tools">{['excel','pdf'].map(format=><React.Fragment key={format}><button disabled={disabled||running||!detail} onClick={()=>setPending({format,scope:'single',count:1})}>यह फॉर्म · {format.toUpperCase()}</button><button disabled={disabled||running||!selection.length} onClick={()=>setPending({format,scope:'selected',count:selection.length})}>Selected ({selection.length}) · {format.toUpperCase()}</button><button disabled={disabled||running||!total||total>500} onClick={()=>setPending({format,scope:'filtered',count:total})}>All filtered ({total}) · {format.toUpperCase()}</button></React.Fragment>)}</div>{pending&&<div className="um-export-confirm"><p>{pending.count} आवेदन · {pending.format.toUpperCase()} · निजी जानकारी केवल अधिकृत उपयोग के लिए रखें।</p><button disabled={running} onClick={()=>run(pending.format,pending.scope)}>Download export</button><button onClick={()=>setPending(null)}>Cancel</button></div>}<p role="status" aria-live="polite">{progress}</p></section>;
 }

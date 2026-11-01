@@ -23,6 +23,7 @@ export function createUpdhanProductionRouter({service,pool,origin,authenticate,r
  api.get('/admin/applications',admin,route(async(req,res)=>res.json(await service.list(req.actor,req.query))));
  api.get('/admin/summary',admin,route(async(req,res)=>res.json(await service.summary(req.actor))));
  api.get('/admin/application/:id',admin,route(async(req,res)=>res.json(await service.detail(req.actor,req.params.id))));
+ api.post('/admin/export-applications',admin,route(async(req,res)=>res.json(await service.exportApplications(req.actor,req.body||{}))));
  api.get('/admin/photo/:id',admin,route(async(req,res)=>res.type('jpeg').send(await service.photo(req.actor,req.params.id))));
  api.get('/admin/health/:id',admin,route(async(req,res)=>res.json(await service.health(req.actor,req.params.id))));
  api.get('/admin/duplicates',admin,route(async(req,res)=>res.json(await service.duplicates(req.actor,req.query))));

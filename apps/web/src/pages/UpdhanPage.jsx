@@ -1,5 +1,6 @@
+import {updhanAnswerFaqs} from '@/lib/updhanSeo';
 import React, { useEffect, useRef, useState } from 'react';
-import { Helmet } from 'react-helmet';
+import UpdhanSeoHead from '@/components/UpdhanSeoHead';
 import {Link} from 'react-router-dom';
 import './UpdhanDesign.css';
 import UpdhanParticipation,{UpdhanTrailer} from '@/components/UpdhanParticipation';
@@ -13,12 +14,7 @@ import {UpdhanLanguageProvider,UpdhanLanguageButtons,useUpdhanLanguage,localizeU
 const canonical = 'https://vardhmancreativestudio.com/vijaypataka-updhan-mahotsav';
 const startDate = Date.parse('2027-04-25T00:00:00+05:30');
 const endDate = Date.parse('2027-06-15T00:00:00+05:30');
-const faqs=[
- ['उपधान कहाँ है?','अचलगढ़, राजस्थान में। प्रथम प्रवेश रविवार, 25 अप्रैल 2027 और मालारोपण सोमवार, 14 जून 2027 है।'],
- ['फॉर्म कैसे भरें?','आवेदन फॉर्म खोलें, अपनी जानकारी और फोटो जोड़ें, फिर जानकारी जाँचकर आवेदन भेजें।'],
- ['फॉर्म भरने के बाद क्या होगा?','आपको पंजीकरण नंबर मिलेगा। टीम आवेदन की समीक्षा करेगी और प्रवेश की सूचना अलग से देगी।'],
- ['जानकारी के लिए किससे बात करें?','आशीषभाई उदाणी · +91 97277 14008'],
-];
+const faqs=updhanAnswerFaqs;
 const practices = [
   ['01', 'प्रभु-प्रार्थना', 'दिन का आरंभ, प्रभु के साथ।', 'हर दिन प्रार्थना से जुड़ेगा। रोज़ की भागदौड़ से कुछ समय निकालकर प्रभु से जुड़ने का अवसर।'],
   ['02', 'यंत्र-मंत्र साधना', 'मन को एक दिशा।', 'यंत्र-मंत्र साधना से जुड़ें और अपने मन को समय दें।'],
@@ -55,31 +51,8 @@ function UpdhanPageContent() {
   }
   return (
     localizeUpdhanTree(<div className="vp-page" lang={language} onClickCapture={trackUpdhanClick}>
-      <Helmet>
-        <html lang={language} />
-        <title>विजयपताका – उपधान – महोत्सव | अचलगढ़ 2027</title>
-        <meta name="description" content="25 अप्रैल से 14 जून 2027। अचलगढ़, राजस्थान में विजयपताका – उपधान – महोत्सव। पावन सान्निध्य, साधना, कार्यक्रम विवरण एवं आयोजक की जानकारी।" />
-        <meta name="theme-color" content="#183e35" />
-        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-        <meta name="author" content="Vardhman Creative Studio" />
-        <meta property="og:locale" content={{hi:'hi_IN',en:'en_IN',gu:'gu_IN'}[language]} />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="विजयपताका – उपधान – महोत्सव | 25 अप्रैल — 14 जून 2027" />
-        <meta name="twitter:description" content="अचलगढ़, राजस्थान में उपधान की पावन साधना। कार्यक्रम, गुरु भगवंतों का सान्निध्य, वीडियो और पंजीकरण की जानकारी।" />
-        <meta name="twitter:image" content="https://vardhmancreativestudio.com/assets/updhan-video/temple-03m48s.webp" />
-        <link rel="canonical" href={canonical} />
-        <meta property="og:title" content="विजयपताका – उपधान – महोत्सव 2027" />
-        <meta property="og:description" content="एक यात्रा… स्वयं से स्वयं तक। 25 अप्रैल — 14 जून 2027 · अचलगढ़, राजस्थान।" />
-        <meta property="og:url" content={canonical} />
-        <meta property="og:image" content="https://vardhmancreativestudio.com/assets/updhan-video/temple-03m48s.webp" />
-        <meta property="og:image:alt" content="अचलगढ़ के जिनालय का सामने से दृश्य" />
-        <meta property="og:type" content="website" />
-        <script type="application/ld+json">{JSON.stringify({ '@context': 'https://schema.org', '@type': 'Event', name: t('विजयपताका – उपधान – महोत्सव'), startDate: '2027-04-25', endDate: '2027-06-14', eventStatus: 'https://schema.org/EventScheduled', inLanguage: ['gu','hi','en'], eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode', location: { '@type': 'Place', name: t('अचलगढ़, राजस्थान'), address: { '@type': 'PostalAddress', addressLocality: 'अचलगढ़', addressRegion: 'राजस्थान', addressCountry: 'IN' } }, url: canonical, description: t('प्रभु-प्रार्थना, यंत्र-मंत्र साधना एवं उपधान-उपासना की आध्यात्मिक यात्रा।') })}</script>
-      </Helmet>
-      <Helmet>
-        <script type="application/ld+json">{JSON.stringify({ '@context': 'https://schema.org', '@type': 'FAQPage', inLanguage:language, mainEntity: visibleFaqs.map(([question, answer]) => ({ '@type': 'Question', name: t(question), acceptedAnswer: { '@type': 'Answer', text: t(answer) } })) })}</script>
-        <script type="application/ld+json">{JSON.stringify({ '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Vardhman Creative Studio', item: 'https://vardhmancreativestudio.com/' }, { '@type': 'ListItem', position: 2, name: t('विजयपताका – उपधान – महोत्सव'), item: canonical }] })}</script>
-      </Helmet>
+      <UpdhanSeoHead/>
+
       <a className="vp-skip" href="#main">मुख्य जानकारी पर जाएँ</a>
       <div className="vp-utility"><div className="vp-topline"><span>॥ श्री वीतरागाय नमः ॥</span><span>अचलगढ़ · राजस्थान · 2027</span></div>
       <UpdhanLanguageButtons /></div>
