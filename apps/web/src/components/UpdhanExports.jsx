@@ -42,11 +42,11 @@ export default function UpdhanExports({api,selection,filters,total,detail,disabl
      const r=photoBatch[i%10];
      const header=()=>{
       mount.replaceChildren();const title=document.createElement('h1');title.textContent='विजयपताका – उपधान महोत्सव';title.style.cssText='font-size:27px;line-height:1.5;margin:0 0 12px';mount.append(title);
-      const subtitle=document.createElement('p');subtitle.textContent=`अचलगढ़, राजस्थान · ${r.reference} · ${r.status}`;mount.append(subtitle);const dates=document.createElement('p');dates.textContent='प्रथम प्रवेश: 25 अप्रैल 2027 · मालारोपण: 14 जून 2027';dates.style.fontSize='13px';mount.append(dates);
+      const subtitle=document.createElement('p');subtitle.textContent=`अचलगढ़, राजस्थान · ${r.reference} · ${r.status}`;mount.append(subtitle);const dates=document.createElement('p');dates.textContent='प्रथम प्रवेश: 25 अप्रैल 2027 · मालारोपण: 12 जून 2027, शनिवार';dates.style.fontSize='13px';mount.append(dates);
      };
      header();
      if(!r.photo?.base64)throw Error(`${r.reference}: फोटो उपलब्ध नहीं है। PDF नहीं बनाया गया।`);
-     const image=document.createElement('img');image.src=`data:image/jpeg;base64,${r.photo.base64}`;image.style.cssText='width:100px;height:125px;object-fit:contain;display:block;margin:0 0 18px';await image.decode();mount.append(image);
+     const image=document.createElement('img');image.src=`data:image/jpeg;base64,${r.photo.base64}`;image.style.cssText='width:144px;height:180px;object-fit:contain;display:block;margin:0 0 18px';await image.decode();mount.append(image);
      const rows=[...Object.entries(exportRecord(r)),['नोट / Note','आवेदन प्राप्ति प्रवेश की स्वीकृति नहीं है। Restricted health details are excluded.']];
      for(const [label,value] of rows){
       const row=document.createElement('div');row.style.cssText='border-bottom:1px solid #d6e1db;padding:9px 0;overflow-wrap:anywhere;line-height:1.6';const strong=document.createElement('strong');strong.textContent=label+': ';row.append(strong,document.createTextNode(value||'—'));mount.append(row);
