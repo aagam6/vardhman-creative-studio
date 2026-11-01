@@ -12,6 +12,7 @@ import {loadAttendanceEligibility,lockAttendanceEvent,assertAttendanceEligible} 
 import {combinedPassPayload} from './combined-pass-notification.mjs';
 import {reminderPayload,assertReminderWindow} from './notification-reminders.mjs';
 import {dueReminderSession} from './reminder-schedule.mjs';
+import {lateReminderExpiry} from './late-reminder-policy.mjs';
 import {createLegacyHistoryReconciliation} from './legacy-history-reconciliation.mjs';
 const eligibilityReasons=new Map([['Notification source unavailable','source_unavailable'],['Waiting transition no longer eligible','waiting_transition_changed'],['Waiting WhatsApp consent required','consent_missing'],['Active booking required','booking_inactive_or_no_consent'],['Active passes required','no_active_passes'],['Legacy confirmation already attempted','prior_legacy_confirmation'],['Confirmed notification held for duplicate/name review','duplicate_or_name_hold']]);
 const purposeNeedsPass=p=>['booking_confirmed','waiting_approved','pass_link'].includes(p);
@@ -75,7 +76,13 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
   }
   const s=await source(db,input.purpose,input.subject,input.token,{reviewSnapshot});
   if(['reminder','entry_timing'].includes(input.purpose)){
-   if(!scheduledPreview)assertReminderWindow(s.eventDate,now());
+   if(!scheduledPreview){try{assertReminderWindow(s.eventDate,now());}catch(error){
+    if(input.purpose!=='reminder'||!ownOutboxId)throw error;
+    const row=await one(db,'SELECT * FROM ayambil_notification_outbox WHERE id=?',[ownOutboxId]);
+    const audit=await one(db,"SELECT detail FROM ayambil_notification_audit WHERE action='late_reminder_authorized' AND BINARY JSON_UNQUOTE(JSON_EXTRACT(detail,'$.id'))=BINARY ? ORDER BY created_at DESC LIMIT 1",[ownOutboxId]);
+    const a=typeof audit?.detail==='string'?JSON.parse(audit.detail):audit?.detail,expiry=lateReminderExpiry(s.eventDate,now());
+    if(!row||!a||a.hash!==row.revision_hash||a.subject!==input.subject||a.round!==(input.round||'initial')||a.expiresAt!==expiry)throw error;
+   }}
    const prior=await one(db,"SELECT id FROM ayambil_message_queue WHERE booking_id=? AND notification_type='reminder' AND (attempts>0 OR provider_id IS NOT NULL OR status IN ('preparing','sending','uncertain','accepted','sent','delivered','read','failed')) LIMIT 1",[s.canonicalSubject||input.subject]);
    if(prior)throw Error('Legacy reminder already attempted');
    const notice=await one(db,`SELECT n.id FROM ayambil_notification_outbox n WHERE n.subject=? AND n.purpose IN ('reminder','entry_timing') AND (n.attempts>0 OR n.provider_id IS NOT NULL OR n.state IN ('processing','uncertain','accepted','sent','delivered','read','failed')) AND (? IS NULL OR n.id<>?) AND ${input.purpose==='reminder'?entryPriorBlocksSql('n'):'TRUE'} LIMIT 1`,[s.canonicalSubject||input.subject,ownOutboxId,ownOutboxId]);
@@ -125,6 +132,24 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
   legacyHistory,
   async ready(){const state=await this.owner();if(!state||!['paused','bilingual'].includes(state.owner)||!Number.isSafeInteger(state.version))throw Error('Notification owner schema unavailable');await pool.query('SELECT provider_id,state FROM ayambil_notification_outbox LIMIT 0');await pool.query('SELECT actor,action,detail FROM ayambil_notification_audit LIMIT 0');await this.recover();return true;},
   async owner(){return one(pool,'SELECT owner,version FROM ayambil_notification_owner WHERE id=1');},
+  async authorizeLateReminder(id,actor){
+   if(!actor?.admin_id||!/^[a-f0-9-]{36}$/.test(id||''))throw Error('Exact authenticated late reminder authorization required');
+   await provider.validate('reminder');
+   return withLease(()=>tx(async db=>{
+    const meta=await one(db,'SELECT purpose,subject FROM ayambil_notification_outbox WHERE id=?',[id]);
+    if(meta?.purpose!=='reminder')throw Error('Existing reminder required');await lockSourceEvent(db,'reminder',meta.subject);
+    const row=await one(db,'SELECT * FROM ayambil_notification_outbox WHERE id=? FOR UPDATE',[id]);
+    if(row.state!=='held'||row.attempts!==0||row.provider_id||row.claim_id||row.round_name!=='initial')throw Error('Never attempted unclaimed held initial reminder required');
+    const input=crypto.open(row.envelope);
+    if(input.purpose!=='reminder'||input.subject!==row.subject||(input.round||'initial')!==row.round_name)throw Error('Original reminder binding required');
+    const e=await envelope(db,input,{ownOutboxId:id,scheduledPreview:true});
+    if(e.hash!==row.revision_hash)throw Error('Original reminder context changed');
+    const expiresAt=lateReminderExpiry(e.s.eventDate,now()),detail={id,subject:row.subject,round:row.round_name,hash:row.revision_hash,expiresAt};
+    const previous=await one(db,"SELECT id FROM ayambil_notification_audit WHERE action='late_reminder_authorized' AND BINARY JSON_UNQUOTE(JSON_EXTRACT(detail,'$.id'))=BINARY ? LIMIT 1",[id]);
+    if(!previous)await db.execute('INSERT INTO ayambil_notification_audit VALUES(?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),actor.admin_id,'late_reminder_authorized',JSON.stringify(detail)]);
+    return {id,expiresAt,sent:false,providerSubmissions:0};
+   }));
+  },
   async reconcileUncertainFailure(id,actor){
    if(!actor?.admin_id||!/^[a-f0-9-]{36}$/.test(id||'')||typeof provider.recipientReceipts!=='function')throw Error('Exact authenticated uncertainty reconciliation required');
    const row=await one(pool,'SELECT * FROM ayambil_notification_outbox WHERE id=?',[id]);
