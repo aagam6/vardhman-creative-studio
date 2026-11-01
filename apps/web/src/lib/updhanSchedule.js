@@ -2,7 +2,7 @@
 // Display only: this does not open admission or approve backend option policy.
 // Eighteen-day completions count the entry date as day one.
 export const updhanSchedule=[
- {start:'2027-04-25',end:'2027-06-14'},
+ {start:'2027-04-25',end:'2027-06-12'},
  {start:'2027-04-25',end:'2027-05-30'},
  {start:'2027-04-25',end:'2027-05-23'},
  {start:'2027-04-25',end:'2027-05-12'},
