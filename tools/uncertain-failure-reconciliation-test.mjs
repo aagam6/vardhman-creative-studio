@@ -21,7 +21,7 @@ try{
  // A reminder failure must bind the original frozen payload, recipient and claim.
  const second=await f.store.register(fixtureInput(['Synthetic reminder recovery guest'],'2026-11-02','+12025550124'));
  const [[rb]]=await f.pool.execute('SELECT id FROM ayambil_bookings WHERE number=?',[second.number]);
- const reminder=createProductionNotificationSender({pool:f.pool,config:{...f.config,notificationService:true,notificationDispatch:true},key:f.fixtureQueueKey,catalog,now:()=>new Date('2026-11-01T13:00:00.000Z'),provider:{async validate(){},async submit(){calls++;throw Error('Unknown acceptance');},async recipientReceipts(){return receipts;},async status(){return{status};}}});
+ let validations=0;const reminder=createProductionNotificationSender({pool:f.pool,config:{...f.config,notificationService:true,notificationDispatch:true},key:f.fixtureQueueKey,catalog,now:()=>new Date('2026-11-01T13:00:00.000Z'),provider:{async validate(){validations++;const t=catalog.find(t=>t.purpose==='entry_timing');t.approvalEvidence={verified:true,templateId:t.templateId,status:'APPROVED',category:'UTILITY',observedAt:new Date().toISOString()};},async submit(){calls++;throw Error('Unknown acceptance');},async recipientReceipts(){return receipts;},async status(){return{status};}}});
  const rid=await reminder.enqueue({purpose:'reminder',subject:rb.id,round:'initial'});
  await reminder.handover({owner:'bilingual',version:3},f.actor);
  await f.pool.query("UPDATE ayambil_notification_audit SET created_at=DATE_SUB(UTC_TIMESTAMP(3),INTERVAL 1 MINUTE) WHERE action='claim_committed'");
@@ -30,13 +30,13 @@ try{
  const [[rBefore]]=await f.pool.execute('SELECT * FROM ayambil_notification_outbox WHERE id=?',[rid]);
  const [[rClaim]]=await f.pool.execute("SELECT created_at FROM ayambil_notification_audit WHERE action='claim_committed' AND JSON_UNQUOTE(JSON_EXTRACT(detail,'$.id'))=? ORDER BY created_at DESC LIMIT 1",[rid]);
  const rExact={id:randomUUID(),template:'ayambil_entry_timing_bilingual',status:'failed',createdAt:new Date(Date.parse(rClaim.created_at+'Z')+100).toISOString()};
- receipts=[rExact];
+ receipts=[rExact];catalog.find(t=>t.purpose==='entry_timing').approvalEvidence=null;
  await f.pool.execute("UPDATE ayambil_bookings SET mobile='+12025550125' WHERE id=?",[rb.id]);
  await assert.rejects(reminder.reconcileUncertainFailure(rid,f.actor));checks++;
  await f.pool.execute("UPDATE ayambil_bookings SET mobile='+12025550124' WHERE id=?",[rb.id]);
  for(const history of [[],[rExact,{...rExact,id:randomUUID()}],[{...rExact,template:'ayambil_attendance_bilingual'}],[{...rExact,status:'sent'}]]){receipts=history;await assert.rejects(reminder.reconcileUncertainFailure(rid,f.actor));checks++;}
  receipts=[rExact];status='sent';await assert.rejects(reminder.reconcileUncertainFailure(rid,f.actor));checks++;status='failed';
- const rResult=await reminder.reconcileUncertainFailure(rid,f.actor);eq(rResult.state,'failed');eq(rResult.providerSubmissions,0);eq(calls,2);
+ const rResult=await reminder.reconcileUncertainFailure(rid,f.actor);eq(rResult.state,'failed');eq(rResult.providerSubmissions,0);eq(calls,2);assert.ok(validations>1);checks++;
  const [[rAfter]]=await f.pool.execute('SELECT * FROM ayambil_notification_outbox WHERE id=?',[rid]);
  for(const k of ['id','subject','round_name','dedupe_hash','revision_hash','envelope','attempts','claim_id'])eq(rAfter[k],rBefore[k]);
  eq(rAfter.provider_id,rExact.id);await assert.rejects(reminder.reconcileUncertainFailure(rid,f.actor));checks++;
