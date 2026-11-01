@@ -33,5 +33,5 @@ test('GA excludes local/private URLs and sanitizes event payload after consent',
 });
 test('public build includes visible facts, canonical and JSON-LD without route pixel',()=>{
  const html=renderUpdhanPublic('<html><head><title>Old</title><meta name="description" content="Old"><script>fbq("init")</script></head><body><div id="root"></div><script type="module" src="/assets/app.js"></script></body></html>');
- assert.ok(html.includes(`rel="canonical" href="${UPDHAN_URL}"`));assert.ok(html.includes('FAQPage'));assert.ok(html.includes('<h1>'));assert.ok(html.includes('registration is not open'));assert.ok(html.includes('/assets/app.js'));assert.ok(!html.includes('fbq('));
+ assert.ok(html.includes(`rel="canonical" href="${UPDHAN_URL}"`));assert.ok(html.includes('FAQPage'));assert.ok(html.includes('<h1>'));assert.ok(html.includes('Check the application form for current availability'));assert.ok(html.includes('/assets/app.js'));assert.ok(!html.includes('fbq('));
 });

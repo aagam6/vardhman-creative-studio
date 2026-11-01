@@ -12,7 +12,7 @@ export function UpdhanTrailer() {
   return localizeUpdhanTree(<>
     <section id="video" className="vp-section vp-video-section">
 
-      <div className="vp-video-heading"><div><p className="vp-kicker">महोत्सव का ट्रेलर</p><h2>{videoUrl?'साधना की यात्रा, एक नज़र में।':'शिखर से भीतर की ओर।'}</h2></div><p>विजयपताका – उपधान – महोत्सव<br />अचलगढ़ · 26 अप्रैल — 14 जून 2027</p></div>
+      <div className="vp-video-heading"><div><p className="vp-kicker">महोत्सव का ट्रेलर</p><h2>{videoUrl?'साधना की यात्रा, एक नज़र में।':'शिखर से भीतर की ओर।'}</h2></div><p>विजयपताका – उपधान – महोत्सव<br />अचलगढ़ · 25 अप्रैल — 14 जून 2027</p></div>
       <div className={videoUrl?'vp-video-player':'vp-video-pending'}>{videoUrl ? <iframe src={videoUrl} title="विजयपताका उपधान महोत्सव का आधिकारिक YouTube वीडियो" loading="lazy" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" /> : <><span className="vp-pending-label">विजयपताका · आधिकारिक ट्रेलर</span><p>प्रकृति, पावन सान्निध्य और उपधान की साधना का परिचय।</p></>}</div>
     </section>
 

@@ -31,10 +31,10 @@ export function createCampaignMemory({now=()=>Date.now(),ttlMs=30*60000}={}){
 export const updhanCampaignMemory=createCampaignMemory();
 export function campaignUrl(values){const campaign=sanitizeCampaign(values);if(!Object.keys(campaign).length)throw new Error('Approved Updhan campaign vocabulary required');return `${UPDHAN_URL}?${new URLSearchParams(campaign)}#registration`;}
 export const updhanFaqs=[
- ['મહોત્સવ ક્યારે અને ક્યાં છે?','હાલની કાર્યક્રમ માહિતી મુજબ વિજયપતાકા ઉપધાન મહોત્સવ ૨૬ એપ્રિલથી ૧૪ જૂન ૨૦૨૭ દરમિયાન અચલગઢ, રાજસ્થાનમાં છે. સંપૂર્ણ સ્થળનું સરનામું આયોજકની પુષ્ટિ પછી ઉમેરાશે.'],
+ ['મહોત્સવ ક્યારે અને ક્યાં છે?','હાલની કાર્યક્રમ માહિતી મુજબ વિજયપતાકા ઉપધાન મહોત્સવ ૨૫ એપ્રિલથી ૧૪ જૂન ૨૦૨૭ દરમિયાન અચલગઢ, રાજસ્થાનમાં છે. સંપૂર્ણ સ્થળનું સરનામું આયોજકની પુષ્ટિ પછી ઉમેરાશે.'],
  ['पंजीकरण कैसे करें?','आवेदन फॉर्म अलग पेज पर है। पाँच चरणों में जानकारी भरें और भेजने से पहले जाँच लें।'],
  ['અરજી એટલે પ્રવેશની મંજૂરી?','ના. અરજી પ્રાપ્ત થવી અને પ્રવેશની સ્વીકૃતિ અલગ છે. આયોજકનો સ્વીકૃતિ સંદેશ મળ્યા પછી જ આવવાનું આયોજન કરો.'],
- ['ઉપધાનના વિકલ્પોની તારીખો શું છે?','છ સાધના વિકલ્પોના નામ, ચોક્કસ તારીખો, પાત્રતા અને નિયમોની આયોજક પાસેથી પુષ્ટિ બાકી છે. જૂના સંદર્ભની ડિસેમ્બર–જાન્યુઆરી તારીખો આ કાર્યક્રમને લાગુ પડતી નથી.'],
- ['ફી, રહેવા અને સંપર્કની માહિતી ક્યાં મળશે?','નિવાસ અને ભોજન નિઃશુલ્ક છે; કાર્યક્રમની કોઈ ફી નથી. ચોક્કસ સ્થળ, મુસાફરી અને સહાય સંપર્કની પુષ્ટિ બાકી છે.'],
+ ['ઉપધાનના વિકલ્પોની તારીખો શું છે?','પ્રથમ પ્રવેશ ૨૫ એપ્રિલ, બીજો પ્રવેશ ૨૭ એપ્રિલ ૨૦૨૭ છે. સાધના મુજબની તારીખો કાર્યક્રમના સાધના વિકલ્પ વિભાગમાં જુઓ.'],
+ ['ફી, રહેવા અને સંપર્કની માહિતી ક્યાં મળશે?','નિવાસ અને ભોજન નિઃશુલ્ક છે; કાર્યક્રમની કોઈ ફી નથી. સહાય: આશિષભાઈ ઉદાણી, +91 97277 14008.'],
 ];
-export const updhanPublicSummary={name:'વિજયપતાકા ઉપધાન મહોત્સવ | Vijaypataka Updhan Mahotsav 2027',startDate:'2027-04-26',endDate:'2027-06-14',place:'Achalgarh, Rajasthan, India',registration:'Complete the five-step application form; admission requires organizer acceptance',categories:'Names, eligibility and dates pending organizer approval',admission:'An application is not approved admission'};
+export const updhanPublicSummary={name:'વિજયપતાકા ઉપધાન મહોત્સવ | Vijaypataka Updhan Mahotsav 2027',startDate:'2027-04-25',endDate:'2027-06-14',place:'Achalgarh, Rajasthan, India',registration:'Complete the five-step application form; admission requires organizer acceptance',categories:'Six sadhana options; see the programme for organizer-supplied entry and completion dates',admission:'An application is not approved admission'};

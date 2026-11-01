@@ -11,10 +11,10 @@ import {updhanApplicationPath} from '@/lib/updhanMarketing';
 import {UpdhanLanguageProvider,UpdhanLanguageButtons,useUpdhanLanguage,localizeUpdhanTree} from '@/components/UpdhanLanguage';
 
 const canonical = 'https://vardhmancreativestudio.com/vijaypataka-updhan-mahotsav';
-const startDate = Date.parse('2027-04-26T00:00:00+05:30');
+const startDate = Date.parse('2027-04-25T00:00:00+05:30');
 const endDate = Date.parse('2027-06-15T00:00:00+05:30');
 const faqs=[
- ['उपधान कहाँ है?','अचलगढ़, राजस्थान में। प्रथम प्रवेश सोमवार, 26 अप्रैल 2027 और मालारोपण सोमवार, 14 जून 2027 है।'],
+ ['उपधान कहाँ है?','अचलगढ़, राजस्थान में। प्रथम प्रवेश रविवार, 25 अप्रैल 2027 और मालारोपण सोमवार, 14 जून 2027 है।'],
  ['फॉर्म कैसे भरें?','आवेदन फॉर्म खोलें, अपनी जानकारी और फोटो जोड़ें, फिर जानकारी जाँचकर आवेदन भेजें।'],
  ['फॉर्म भरने के बाद क्या होगा?','आपको पंजीकरण नंबर मिलेगा। टीम आवेदन की समीक्षा करेगी और प्रवेश की सूचना अलग से देगी।'],
  ['जानकारी के लिए किससे बात करें?','आशीषभाई उदाणी · +91 97277 14008'],
@@ -47,7 +47,7 @@ function UpdhanPageContent() {
   const visibleFaqs=faqs.filter(([question],index,all)=>all.findIndex(([q])=>t(q)===t(question))===index);
   const closeMenu = () => setMenuOpen(false);
   async function shareEvent() {
-    const data = { title: t('विजयपताका – उपधान – महोत्सव'), text: `${t('26 अप्रैल — 14 जून 2027')} | ${t('अचलगढ़, राजस्थान')} · ${t('एक यात्रा… स्वयं से स्वयं तक।')}`, url: canonical };
+    const data = { title: t('विजयपताका – उपधान – महोत्सव'), text: `${t('25 अप्रैल — 14 जून 2027')} | ${t('अचलगढ़, राजस्थान')} · ${t('एक यात्रा… स्वयं से स्वयं तक।')}`, url: canonical };
     try {
       if (navigator.share) { await navigator.share(data); setShareStatus('साझा किया गया'); }
       else { await navigator.clipboard.writeText(`${data.title}\n${data.text}\n${data.url}`); setShareStatus('लिंक कॉपी हो गया'); }
@@ -58,23 +58,23 @@ function UpdhanPageContent() {
       <Helmet>
         <html lang={language} />
         <title>विजयपताका – उपधान – महोत्सव | अचलगढ़ 2027</title>
-        <meta name="description" content="26 अप्रैल से 14 जून 2027। अचलगढ़, राजस्थान में विजयपताका – उपधान – महोत्सव। पावन सान्निध्य, साधना, कार्यक्रम विवरण एवं आयोजक की जानकारी।" />
+        <meta name="description" content="25 अप्रैल से 14 जून 2027। अचलगढ़, राजस्थान में विजयपताका – उपधान – महोत्सव। पावन सान्निध्य, साधना, कार्यक्रम विवरण एवं आयोजक की जानकारी।" />
         <meta name="theme-color" content="#183e35" />
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
         <meta name="author" content="Vardhman Creative Studio" />
         <meta property="og:locale" content={{hi:'hi_IN',en:'en_IN',gu:'gu_IN'}[language]} />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="विजयपताका – उपधान – महोत्सव | 26 अप्रैल — 14 जून 2027" />
+        <meta name="twitter:title" content="विजयपताका – उपधान – महोत्सव | 25 अप्रैल — 14 जून 2027" />
         <meta name="twitter:description" content="अचलगढ़, राजस्थान में उपधान की पावन साधना। कार्यक्रम, गुरु भगवंतों का सान्निध्य, वीडियो और पंजीकरण की जानकारी।" />
         <meta name="twitter:image" content="https://vardhmancreativestudio.com/assets/updhan-video/temple-03m48s.webp" />
         <link rel="canonical" href={canonical} />
         <meta property="og:title" content="विजयपताका – उपधान – महोत्सव 2027" />
-        <meta property="og:description" content="एक यात्रा… स्वयं से स्वयं तक। 26 अप्रैल — 14 जून 2027 · अचलगढ़, राजस्थान।" />
+        <meta property="og:description" content="एक यात्रा… स्वयं से स्वयं तक। 25 अप्रैल — 14 जून 2027 · अचलगढ़, राजस्थान।" />
         <meta property="og:url" content={canonical} />
         <meta property="og:image" content="https://vardhmancreativestudio.com/assets/updhan-video/temple-03m48s.webp" />
         <meta property="og:image:alt" content="अचलगढ़ के जिनालय का सामने से दृश्य" />
         <meta property="og:type" content="website" />
-        <script type="application/ld+json">{JSON.stringify({ '@context': 'https://schema.org', '@type': 'Event', name: t('विजयपताका – उपधान – महोत्सव'), startDate: '2027-04-26', endDate: '2027-06-14', eventStatus: 'https://schema.org/EventScheduled', inLanguage: ['gu','hi','en'], eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode', location: { '@type': 'Place', name: t('अचलगढ़, राजस्थान'), address: { '@type': 'PostalAddress', addressLocality: 'अचलगढ़', addressRegion: 'राजस्थान', addressCountry: 'IN' } }, url: canonical, description: t('प्रभु-प्रार्थना, यंत्र-मंत्र साधना एवं उपधान-उपासना की आध्यात्मिक यात्रा।') })}</script>
+        <script type="application/ld+json">{JSON.stringify({ '@context': 'https://schema.org', '@type': 'Event', name: t('विजयपताका – उपधान – महोत्सव'), startDate: '2027-04-25', endDate: '2027-06-14', eventStatus: 'https://schema.org/EventScheduled', inLanguage: ['gu','hi','en'], eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode', location: { '@type': 'Place', name: t('अचलगढ़, राजस्थान'), address: { '@type': 'PostalAddress', addressLocality: 'अचलगढ़', addressRegion: 'राजस्थान', addressCountry: 'IN' } }, url: canonical, description: t('प्रभु-प्रार्थना, यंत्र-मंत्र साधना एवं उपधान-उपासना की आध्यात्मिक यात्रा।') })}</script>
       </Helmet>
       <Helmet>
         <script type="application/ld+json">{JSON.stringify({ '@context': 'https://schema.org', '@type': 'FAQPage', inLanguage:language, mainEntity: visibleFaqs.map(([question, answer]) => ({ '@type': 'Question', name: t(question), acceptedAnswer: { '@type': 'Answer', text: t(answer) } })) })}</script>
@@ -91,10 +91,10 @@ function UpdhanPageContent() {
       </header>
       <main id="main">
         <section className="vp-hero" id="top" ref={hero}>
-          <div className="vp-hero-copy"><p className="vp-kicker"><span />शिखर से भीतर की ओर…</p><h1>विजयपताका<small>उपधान महोत्सव</small></h1><p className="vp-hero-date">26 अप्रैल — 14 जून 2027<small>सोमवार · प्रथम प्रवेश से मालारोपण तक</small></p><div className="vp-hero-location">अचलगढ़, राजस्थान</div><div className="vp-hero-actions"><Link data-updhan-track="hero_apply" to={applicationPath} className="vp-btn">आवेदन फॉर्म देखें</Link><a data-updhan-track="darshan" href="#gallery" className="vp-text-link">तीर्थ दर्शन</a></div></div>
+          <div className="vp-hero-copy"><p className="vp-kicker"><span />शिखर से भीतर की ओर…</p><h1>विजयपताका<small>उपधान महोत्सव</small></h1><p className="vp-hero-date">25 अप्रैल — 14 जून 2027<small>रविवार प्रथम प्रवेश · सोमवार मालारोपण</small></p><div className="vp-hero-location">अचलगढ़, राजस्थान</div><div className="vp-hero-actions"><Link data-updhan-track="hero_apply" to={applicationPath} className="vp-btn">आवेदन फॉर्म देखें</Link><a data-updhan-track="darshan" href="#gallery" className="vp-text-link">तीर्थ दर्शन</a></div></div>
           <UpdhanStillFigure still={videoStills.aerial} priority className="vp-hero-art" />
         </section>
-        <section className="vp-event-strip" aria-label="तिथि और स्थान"><div><span className="vp-strip-label">उपधान की शुरुआत</span><strong>26 अप्रैल <span>2027</span></strong><small>सोमवार</small></div><span className="vp-strip-rule" aria-hidden="true" /><div><span className="vp-strip-label">मालारोपण</span><strong>14 जून <span>2027</span></strong><small>सोमवार</small></div><div className="vp-strip-place"><span>अचलगढ़<small>राजस्थान</small></span></div></section>
+        <section className="vp-event-strip" aria-label="तिथि और स्थान"><div><span className="vp-strip-label">उपधान की शुरुआत</span><strong>25 अप्रैल <span>2027</span></strong><small>रविवार</small></div><span className="vp-strip-rule" aria-hidden="true" /><div><span className="vp-strip-label">मालारोपण</span><strong>14 जून <span>2027</span></strong><small>सोमवार</small></div><div className="vp-strip-place"><span>अचलगढ़<small>राजस्थान</small></span></div></section>
         <UpdhanTrailer />
         <section className="vp-benefactor-top vp-section"><p className="vp-kicker">संपूर्ण लाभार्थी</p><h2>शिल्पाबेन विजयभाई कोठारी</h2><p>आर्यमन · अभिश्री कोठारी</p><div><span>विजी फाइनेंस लिमिटेड</span><span>श्री विजयभाई नगीनचंद कोठारी चैरिटेबल ट्रस्ट, इंदौर</span></div></section>
         <UpdhanProgrammeNav />
@@ -105,15 +105,15 @@ function UpdhanPageContent() {
         <section id="sadhana" className="vp-section vp-sadhana"><div className="vp-sadhana-heading"><div><p className="vp-kicker">उपधान की साधना</p><h2>भागदौड़ से दूर।<br /><em>खुद के करीब।</em></h2></div><p>यह सिर्फ़ कोई आयोजन नहीं…<br />स्वयं को जानने का अवसर है।</p></div><div className="vp-practice-list">{practices.map(([number, title, subtitle, text]) => <article key={number}><span className="vp-practice-number">{number}</span><h3>{title}<small>{subtitle}</small></h3><p>{text}</p></article>)}</div><div className="vp-divine"><span>New Divine Connection.</span><span>New Vibrations.</span><span>New Revelation.</span><span>New Inspiration.</span></div></section>
         <section className="vp-place"><div className="vp-section vp-place-inner"><div className="vp-place-title"><p className="vp-kicker">अरावली की गोद में</p><h2>अचलगढ़</h2><span>राजस्थान</span></div><div className="vp-place-copy"><p>पहाड़ों की शांति। खुला आसमान।<br />और खुद के साथ कुछ समय।</p><h3>और आत्मा पाएगी<br />उपधान की साधना।</h3><a data-updhan-track="map" href="https://maps.app.goo.gl/JGXG1nPSfkm47vMLA" target="_blank" rel="noopener noreferrer">अचलगढ़ का नक्शा देखें </a></div></div></section>
         <UpdhanVideoGallery />
-        <UpdhanParticipation />
+        <section className="vp-section vp-journey"><p className="vp-kicker">Welcome to Achalgarh</p><h2>एक बेहतर अनुभव।<br/><em>भीतर की एक नई यात्रा।</em></h2><p>Best Facility and Better Inner Journey.</p><div className="vp-journey-grid">{[["Nature","Beautiful mode"],["Mountain","Adventure mode"],["Mind","Inspire mode"],["Yantra–Mantra","Energy mode"],["Updhan Tap","Spiritual mode"]].map(([title,body])=><article key={title}><h3>{title}</h3><p>{body}</p></article>)}</div><strong>A Journey from Reel to Real.</strong><p>Real Experience · Real Transformation</p></section><UpdhanParticipation />
         <UpdhanProgrammeSections />
-        <section id="details" className="vp-section vp-details"><div><p className="vp-kicker">कार्यक्रम की जानकारी</p><h2>तारीख याद रखें।<br /><em>यात्रा की तैयारी करें।</em></h2><p className="vp-details-date">26 अप्रैल — 14 जून 2027</p><p>अचलगढ़, राजस्थान</p><div className="vp-countdown">{now < startDate ? <><p>कार्यक्रम शुरू होने में बाकी</p><div>{countdown.map((value, index) => <span key={index}><strong>{String(value).padStart(2, '0')}</strong><small>{['दिन', 'घंटे', 'मिनट'][index]}</small></span>)}</div><small>भारतीय समय के अनुसार</small></> : <p>{now < endDate ? 'महोत्सव चल रहा है।' : 'महोत्सव की तारीखें पूरी हो चुकी हैं।'}</p>}</div><div className="vp-actions"><button data-updhan-track="share" className="vp-btn vp-btn-outline" onClick={shareEvent}>साझा करें</button></div><p className="vp-share-status" role="status">{shareStatus}</p></div><aside className="vp-information"><span className="vp-information-index">ज़रूरी जानकारी</span><h3>आने से पहले<br />क्या जानना ज़रूरी है?</h3><dl><div><dt>तिथि और स्थान</dt><dd>26 अप्रैल — 14 जून 2027<br />अचलगढ़, राजस्थान</dd></div><div><dt>पंजीकरण सहायता</dt><dd>आशीषभाई उदाणी<br/><a data-updhan-track="contact_call" href="tel:+919727714008">+91 97277 14008</a></dd></div></dl><p>फॉर्म भरने या कार्यक्रम की जानकारी के लिए संपर्क करें।</p></aside></section>
+        <section id="details" className="vp-section vp-details"><div><p className="vp-kicker">कार्यक्रम की जानकारी</p><h2>तारीख याद रखें।<br /><em>यात्रा की तैयारी करें।</em></h2><p className="vp-details-date">25 अप्रैल — 14 जून 2027</p><p>अचलगढ़, राजस्थान</p><div className="vp-countdown">{now < startDate ? <><p>कार्यक्रम शुरू होने में बाकी</p><div>{countdown.map((value, index) => <span key={index}><strong>{String(value).padStart(2, '0')}</strong><small>{['दिन', 'घंटे', 'मिनट'][index]}</small></span>)}</div><small>भारतीय समय के अनुसार</small></> : <p>{now < endDate ? 'महोत्सव चल रहा है।' : 'महोत्सव की तारीखें पूरी हो चुकी हैं।'}</p>}</div><div className="vp-actions"><button data-updhan-track="share" className="vp-btn vp-btn-outline" onClick={shareEvent}>साझा करें</button></div><p className="vp-share-status" role="status">{shareStatus}</p></div><aside className="vp-information"><span className="vp-information-index">ज़रूरी जानकारी</span><h3>आने से पहले<br />क्या जानना ज़रूरी है?</h3><dl><div><dt>तिथि और स्थान</dt><dd>25 अप्रैल — 14 जून 2027<br />अचलगढ़, राजस्थान</dd></div><div><dt>पंजीकरण सहायता</dt><dd>आशीषभाई उदाणी<br/><a data-updhan-track="contact_call" href="tel:+919727714008">+91 97277 14008</a></dd></div></dl><p>फॉर्म भरने या कार्यक्रम की जानकारी के लिए संपर्क करें।</p></aside></section>
         <section id="faq" className="vp-section vp-faq"><div><p className="vp-kicker">आपके प्रश्न</p><h2>कार्यक्रम से पहले<br /><em>ये बातें जान लें।</em></h2><p>आपके सवालों के आसान जवाब।</p></div><div className="vp-faq-list">{visibleFaqs.map(([question, answer]) => <details key={question}><summary>{question}</summary><p>{answer}</p></details>)}</div></section>
         <section className="vp-patrons vp-section"><div><p className="vp-kicker">लाभार्थी</p><h3>शिल्पाबेन विजयभाई कोठारी</h3><p>आर्यमन · अभिश्री कोठारी</p><div className="vp-patron-companies"><span>विजी फाइनेंस लिमिटेड</span><p>श्री विजयभाई नगीनचंद कोठारी<br />चैरिटेबल ट्रस्ट, इंदौर</p></div></div><div><div className="vp-inviter"><p className="vp-kicker">निमंत्रक</p><p>श्रीमंत शेठ श्री अचलसीजी अमरसींजी जैन श्वे. पेढी, अचलगढ़ (ता. आबू, राजस्थान)</p></div></div></section>
-        <section className="vp-closing"><p>कुछ यात्राएँ तस्वीरों में नहीं रहतीं…</p><h2>वो… <em>जीवन में</em> रह जाती हैं।</h2><a href="#top" aria-label="पेज के आरंभ पर जाएँ">ऊपर जाएँ</a></section>
+        <section className="vp-section vp-organizer"><p className="vp-kicker">आयोजक</p><h2>શ્રી પ્રહલાદ પ્લોટ જૈન યુવક મંડળ</h2><p>રાજકોટ</p></section><section className="vp-closing"><p>कुछ यात्राएँ तस्वीरों में नहीं रहतीं…</p><h2>वो… <em>जीवन में</em> रह जाती हैं।</h2><a href="#top" aria-label="पेज के आरंभ पर जाएँ">ऊपर जाएँ</a></section>
       </main>
       <UpdhanMeasurement />
-      <footer className="vp-footer"><a className="vp-brand" href="#top"><span>विजयपताका<small>उपधान महोत्सव · 2027</small></span></a><p>अचलगढ़, राजस्थान<br />26 अप्रैल — 14 जून 2027</p><a href="/">प्रस्तुति: Vardhman Creative Studio </a></footer>
+      <footer className="vp-footer"><a className="vp-brand" href="#top"><span>विजयपताका<small>उपधान महोत्सव · 2027</small></span></a><p>अचलगढ़, राजस्थान<br />25 अप्रैल — 14 जून 2027</p><a href="/">प्रस्तुति: Vardhman Creative Studio </a></footer>
       <nav aria-label="त्वरित नेविगेशन" className={heroVisible?'vp-mobile-bar is-hidden':'vp-mobile-bar'}><a data-updhan-track="darshan" href="#gallery">दर्शन</a><a href="#options">साधना</a><a href="#rules">नियम</a><Link data-updhan-track="mobile_apply" className="vp-mobile-apply" to={applicationPath}>आवेदन</Link></nav>
     </div>,language)
   );
