@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {exportRecord} from '../src/lib/updhanExports.js';
+import {exportRecord,exportFailure} from '../src/lib/updhanExports.js';
 import {updhanSchedule,formatProgrammeDate} from '../src/lib/updhanSchedule.js';
 test('admin export whitelists fields, preserves Unicode and references, excludes sensitive internals',()=>{
  const r=exportRecord({reference:'UPD-2027-0002',status:'received',applicant:{name:'શાહ / शाह',health:'PRIVATE',requestKey:'SECRET',code:'+91',whatsapp:'7990106225',referredBy:'=HYPERLINK("x")'},companions:[{name:'Family member',form_number:'UPD-2027-0003'}]});
@@ -10,3 +10,5 @@ test('organizer corrected schedule omits unconfirmed completion and removed 12 J
  assert.deepEqual(updhanSchedule.map(x=>x.start),['2027-04-25','2027-04-25','2027-04-25','2027-04-25','2027-05-13','2027-05-31']);
  assert.equal(updhanSchedule[1].end,'2027-05-30');assert.equal(updhanSchedule[2].end,'2027-05-23');assert.equal(updhanSchedule[5].end,null);assert.equal(formatProgrammeDate(null),'');assert.match(formatProgrammeDate('2027-04-25','en'),/Sunday/);
 });
+
+test('export failures explain stale deployments and network timeouts without exposing asset URLs',()=>{assert.match(exportFailure(Error('Failed to fetch dynamically imported module: https://example.com/private.js')),/Refresh/);assert.doesNotMatch(exportFailure(Error('Failed to fetch dynamically imported module: https://example.com/private.js')),/https:/);assert.match(exportFailure({name:'TimeoutError'}),/connection/);});

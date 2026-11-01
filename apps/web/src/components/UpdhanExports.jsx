@@ -1,5 +1,5 @@
 import React,{useEffect,useState} from 'react';
-import {exportRecord,columns} from '@/lib/updhanExports';
+import {exportRecord,columns,exportFailure} from '@/lib/updhanExports';
 export default function UpdhanExports({api,selection,filters,total,detail,disabled}){
  const [progress,setProgress]=useState(''),[running,setRunning]=useState(false),[pending,setPending]=useState(null);
  useEffect(()=>setPending(null),[selection,filters,detail]);
@@ -44,7 +44,8 @@ export default function UpdhanExports({api,selection,filters,total,detail,disabl
      };
      header();
      if(r.status!=='trashed'){
-      const response=await fetch(`/api/updhan/admin/photo/${encodeURIComponent(r.id)}`,{credentials:'same-origin',cache:'no-store'});
+      const response=await fetch(`/api/updhan/admin/photo/${encodeURIComponent(r.id)}`,{credentials:'same-origin',cache:'no-store',signal:AbortSignal.timeout(20000)});
+      if(response.status===401)throw Error('Session समाप्त हो गया। फिर login करके export करें।');
       if(!response.ok)throw Error(`${r.reference}: फोटो उपलब्ध नहीं है (${response.status})। PDF नहीं बनाया गया।`);
       const blob=await response.blob();const image=document.createElement('img');image.src=URL.createObjectURL(blob);imageUrls.push(image.src);image.style.cssText='width:100px;height:125px;object-fit:contain;display:block;margin:0 0 18px';await image.decode();mount.append(image);
      }
@@ -58,7 +59,7 @@ export default function UpdhanExports({api,selection,filters,total,detail,disabl
     pdf.save(filename+'.pdf');
    }
    setProgress(`${records.length} आवेदन export हुए। Health details शामिल नहीं हैं।`);
-  }catch(error){setProgress(error.message||'Export failed. Please try again.');}finally{mount?.remove();for(const url of imageUrls)URL.revokeObjectURL(url);setRunning(false);}
+  }catch(error){setProgress(exportFailure(error));}finally{mount?.remove();for(const url of imageUrls)URL.revokeObjectURL(url);setRunning(false);}
  }
  return <section className="um-panel"><h2>फॉर्म Export / Excel & PDF</h2><p>Excel में सभी सामान्य विवरण। PDF में भरा हुआ फॉर्म और फोटो। निजी health details शामिल नहीं हैं। All filtered में सभी pages शामिल हैं (अधिकतम 500)।</p><div className="um-tools">{['excel','pdf'].map(format=><React.Fragment key={format}><button disabled={disabled||running||!detail} onClick={()=>setPending({format,scope:'single',count:1})}>यह फॉर्म · {format.toUpperCase()}</button><button disabled={disabled||running||!selection.length} onClick={()=>setPending({format,scope:'selected',count:selection.length})}>Selected ({selection.length}) · {format.toUpperCase()}</button><button disabled={disabled||running||!total||total>500} onClick={()=>setPending({format,scope:'filtered',count:total})}>All filtered ({total}) · {format.toUpperCase()}</button></React.Fragment>)}</div>{pending&&<div className="um-export-confirm"><p>{pending.count} आवेदन · {pending.format.toUpperCase()} · निजी जानकारी केवल अधिकृत उपयोग के लिए रखें।</p><button disabled={running} onClick={()=>run(pending.format,pending.scope)}>Download export</button><button onClick={()=>setPending(null)}>Cancel</button></div>}<p role="status" aria-live="polite">{progress}</p></section>;
 }
