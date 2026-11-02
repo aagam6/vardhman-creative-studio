@@ -1,5 +1,6 @@
 import {templateMappingSummary,buildBilingualMockPayload} from './bilingual-template-adapter.mjs';
 import {readFile} from 'node:fs/promises';
+import {prepareReviewedLateReminders} from './reviewed-late-reminder-batch.mjs';
 import {join} from 'node:path';
 import {requestLogging} from './request-logging.mjs';
 import express from 'express';
@@ -35,6 +36,7 @@ export function createApp({updhanRouter,leadRouter,legacyLeadRouter,store,config
   if(notifications){
    api.post('/admin/notification-outbox/late-reminder-authorize',admin,limited('notification-late-reminder',2),route(async(req,res)=>{if(!req.body||Object.keys(req.body).some(k=>!['id','confirmation'].includes(k))||req.body.confirmation!=='AUTHORIZE ONE EVENT DAY REMINDER')throw new ApiError(400,'Exact one-record event-day authorization required');res.json(await notifications.authorizeLateReminder(req.body.id,req.actor));}));
    api.post('/admin/notification-outbox/late-reminder-prepare',admin,limited('notification-late-prepare',2),route(async(req,res)=>{if(!req.body||Object.keys(req.body).some(k=>!['subject','confirmation'].includes(k))||req.body.confirmation!=='PREPARE ONE MISSING EVENT DAY REMINDER')throw new ApiError(400,'Exact missing reminder booking authorization required');res.json(await notifications.prepareLateReminder(req.body.subject,req.actor));}));
+   api.post('/admin/notification-outbox/late-reminder-batch-prepare',admin,limited('notification-late-batch-prepare',2),route(async(req,res)=>{if(!req.body||Object.keys(req.body).some(k=>!['subjects','confirmation'].includes(k))||req.body.confirmation!=='PREPARE REVIEWED MISSING EVENT DAY REMINDERS')throw new ApiError(400,'Exact reviewed reminder audience required');res.json(await prepareReviewedLateReminders(notifications,req.body.subjects,req.actor));}));
    api.get('/admin/legacy-history',admin,route(async(req,res)=>res.json(await notifications.legacyHistory.list())));
    api.post('/admin/legacy-history/resolve',admin,limited('legacy-history-resolve',4),route(async(req,res)=>{if(!req.body||Object.keys(req.body).some(k=>k!=='ids'))throw new ApiError(400,'Only exact reviewed legacy IDs permitted');res.json(await notifications.legacyHistory.resolve(req.body.ids,req.actor));}));
    api.get('/admin/notification-outbox',admin,route(async(req,res)=>res.json({directFamilyResponsesEnabled:config.directFamilyResponses===true,dispatchEnabled:config.notificationDispatch===true,owner:await notifications.owner(),transactionalWorker:getNotificationWorkerStatus(),...(req.query.audit==='pending'?{pendingAudit:await notifications.pendingAudit()}:await notifications.list(req.query.page||1)),intents:req.query.audit==='pending'?[]:await notifications.intents(req.query.page||1)})));
