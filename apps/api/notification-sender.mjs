@@ -13,6 +13,7 @@ import {combinedPassPayload} from './combined-pass-notification.mjs';
 import {reminderPayload,assertReminderWindow} from './notification-reminders.mjs';
 import {dueReminderSession} from './reminder-schedule.mjs';
 import {lateReminderExpiry} from './late-reminder-policy.mjs';
+import {assertNoReminderReceipt} from './late-reminder-history.mjs';
 import {createLegacyHistoryReconciliation} from './legacy-history-reconciliation.mjs';
 const eligibilityReasons=new Map([['Notification source unavailable','source_unavailable'],['Waiting transition no longer eligible','waiting_transition_changed'],['Waiting WhatsApp consent required','consent_missing'],['Active booking required','booking_inactive_or_no_consent'],['Active passes required','no_active_passes'],['Legacy confirmation already attempted','prior_legacy_confirmation'],['Confirmed notification held for duplicate/name review','duplicate_or_name_hold']]);
 const purposeNeedsPass=p=>['booking_confirmed','waiting_approved','pass_link'].includes(p);
@@ -120,8 +121,8 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
  const lockName='ayambil-dispatch-'+digest(actual.database).slice(0,32);
  async function withLease(fn){const db=await pool.getConnection();try{const [[r]]=await db.query('SELECT GET_LOCK(?,0) acquired',[lockName]);if(r.acquired!==1){const error=Error('Dispatch busy; no retry was performed');error.code='DISPATCH_BUSY';throw error;}try{return await fn();}finally{await db.query('SELECT RELEASE_LOCK(?)',[lockName]);}}finally{db.release();}}
  async function gate(db,version,ownClaim=null){const c=await one(db,'SELECT * FROM ayambil_notification_owner WHERE id=1 FOR UPDATE');if(!c||c.owner!=='bilingual'||c.version!==version)throw Error('Paused or stale queue ownership');const inFlight=await one(db,"SELECT id FROM ayambil_message_queue WHERE status IN ('preparing','sending','uncertain') LIMIT 1");if(inFlight)throw Error('Legacy queue requires reconciliation');const modern=await one(db,"SELECT id FROM ayambil_notification_outbox WHERE state IN ('processing','uncertain')"+(ownClaim?' AND id<>?':'')+' LIMIT 1',ownClaim?[ownClaim]:[]);if(modern)throw Error('Notification queue requires reconciliation');}
- async function persist(db,input,round){
-  const e=await envelope(db,input);if(e.s.sourceRound&&e.s.sourceRound!==round&&!input.followupOf)throw Error('Review round mismatch');
+ async function persist(db,input,round,{scheduledPreview=false}={}){
+  const e=await envelope(db,input,{scheduledPreview});if(e.s.sourceRound&&e.s.sourceRound!==round&&!input.followupOf)throw Error('Review round mismatch');
   const unit=['booking_verify','attendance'].includes(input.purpose)?[e.s.eventDate,e.s.contactUnit]:e.s.canonicalSubject||input.subject;
   const dedupe=digest([['booking_confirmed','waiting_approved'].includes(input.purpose)?'admission_confirmation':input.purpose,unit,round]);
   const previous=await one(db,'SELECT id,revision_hash FROM ayambil_notification_outbox WHERE dedupe_hash=? FOR UPDATE',[dedupe]);
@@ -132,6 +133,30 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
   legacyHistory,
   async ready(){const state=await this.owner();if(!state||!['paused','bilingual'].includes(state.owner)||!Number.isSafeInteger(state.version))throw Error('Notification owner schema unavailable');await pool.query('SELECT provider_id,state FROM ayambil_notification_outbox LIMIT 0');await pool.query('SELECT actor,action,detail FROM ayambil_notification_audit LIMIT 0');await this.recover();return true;},
   async owner(){return one(pool,'SELECT owner,version FROM ayambil_notification_owner WHERE id=1');},
+  async prepareLateReminder(subject,actor){
+   if(!actor?.admin_id||!/^[a-f0-9-]{36}$/.test(subject||'')||typeof provider.recipientReceipts!=='function')throw Error('Exact authenticated late reminder booking required');
+   await provider.validate('reminder');
+   return withLease(async()=>{
+    const input={purpose:'reminder',subject,round:'initial'};
+    const checked=await tx(db=>envelope(db,input,{scheduledPreview:true}));
+    lateReminderExpiry(checked.s.eventDate,now());
+    assertNoReminderReceipt(await provider.recipientReceipts(checked.s.mobile));
+    return tx(async db=>{
+     const current=await envelope(db,input,{scheduledPreview:true});
+     if(current.hash!==checked.hash)throw Error('Reminder context changed during provider history review');
+     const expiresAt=lateReminderExpiry(current.s.eventDate,now());
+     const id=await persist(db,input,'initial',{scheduledPreview:true});
+     const row=await one(db,'SELECT * FROM ayambil_notification_outbox WHERE id=? FOR UPDATE',[id]);
+     if(!['held','ready'].includes(row.state)||row.attempts!==0||row.provider_id||row.claim_id)throw Error('Never attempted unclaimed reminder required');
+     const old=await one(db,"SELECT id FROM ayambil_notification_audit WHERE action='late_reminder_prepared' AND BINARY JSON_UNQUOTE(JSON_EXTRACT(detail,'$.id'))=BINARY ? LIMIT 1",[id]);
+     if(!old){
+      await db.execute('INSERT INTO ayambil_notification_audit VALUES(?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),actor.admin_id,'late_reminder_prepared',JSON.stringify({id,subject,providerHistoryChecked:true})]);
+      await db.execute('INSERT INTO ayambil_notification_audit VALUES(?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),actor.admin_id,'late_reminder_authorized',JSON.stringify({id,subject,round:'initial',hash:row.revision_hash,expiresAt})]);
+     }
+     return {id,expiresAt,sent:false,providerSubmissions:0};
+    });
+   });
+  },
   async authorizeLateReminder(id,actor){
    if(!actor?.admin_id||!/^[a-f0-9-]{36}$/.test(id||''))throw Error('Exact authenticated late reminder authorization required');
    await provider.validate('reminder');
@@ -306,7 +331,7 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
   async runOne(id,{ownershipVersion,actor='worker',automaticSince=null,automaticReminder=false}={}){
    if(config.notificationDispatch!==true)throw Error('Notification dispatch disabled');
    return withLease(async()=>{
-   const candidate=await one(pool,'SELECT purpose,subject FROM ayambil_notification_outbox WHERE id=?',[id]);if(!candidate)return {status:'not_claimed'};
+   const candidate=await one(pool,'SELECT purpose,subject,state,attempts,provider_id FROM ayambil_notification_outbox WHERE id=?',[id]);if(!candidate||!['held','ready'].includes(candidate.state)||candidate.attempts!==0||candidate.provider_id)return {status:'not_claimed'};
    if(automaticReminder&&candidate.purpose!=='reminder')throw Error('Reminder purpose required');
    if(automaticSince){
     if(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(automaticSince))throw Error('Exact automatic cutoff required');
@@ -319,6 +344,12 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
    const recent=await one(pool,"SELECT id FROM ayambil_notification_audit WHERE action='claim_committed' AND created_at>DATE_SUB(UTC_TIMESTAMP(3),INTERVAL 17 SECOND) LIMIT 1");
    if(recent)return {status:'deferred'};
    try{await provider.validate(candidate.purpose);}catch{await pool.execute("UPDATE ayambil_notification_outbox SET state='blocked',error_code='provider_preflight' WHERE id=? AND state IN ('held','ready')",[id]);return {status:'blocked'};}
+   const latePrepared=await one(pool,"SELECT id FROM ayambil_notification_audit WHERE action='late_reminder_prepared' AND BINARY JSON_UNQUOTE(JSON_EXTRACT(detail,'$.id'))=BINARY ? LIMIT 1",[id]);
+   if(latePrepared){
+    if(candidate.purpose!=='reminder'||typeof provider.recipientReceipts!=='function')throw Error('Late reminder history verification unavailable');
+    const context=await tx(db=>envelope(db,{purpose:'reminder',subject:candidate.subject,round:'initial'},{ownOutboxId:id}));
+    assertNoReminderReceipt(await provider.recipientReceipts(context.s.mobile));
+   }
    let claimed;
    const lockEvent=db=>lockSourceEvent(db,candidate.purpose,candidate.subject);
    await tx(async db=>{await lockEvent(db);const row=await one(db,'SELECT * FROM ayambil_notification_outbox WHERE id=? FOR UPDATE',[id]);if(!row||!['held','ready'].includes(row.state))return;await gate(db,ownershipVersion);

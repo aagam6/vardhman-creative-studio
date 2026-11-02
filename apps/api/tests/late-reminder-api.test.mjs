@@ -9,3 +9,13 @@ test('one late reminder authorization requires admin Origin CSRF and exact ID wi
  assert.equal(writes,0);const response=await fetch(url,{method:'POST',headers,body:JSON.stringify(body)});assert.equal(response.status,200);assert.deepEqual(await response.json(),{sent:false,providerSubmissions:0});assert.equal(writes,1);
  }finally{await new Promise(r=>server.close(r));}
 });
+test('missing late reminder preparation rejects recipient overrides and requires admin CSRF',async()=>{
+ let prepared=0;const store={session:async t=>{if(t!=='fixture')throw new ApiError(401,'Sign in required');return{admin_id:'fixture-admin',csrf_hash:hash('fixture-csrf')};},limit:async()=>true};
+ const notifications={prepareLateReminder:async(subject,actor)=>{assert.equal(subject,'exact-booking');assert.equal(actor.admin_id,'fixture-admin');prepared++;return {id:'draft',sent:false,providerSubmissions:0};}};
+ const origin='https://vardhmancreativestudio.com',server=createApp({store,notifications,config:{origin,rateSecret:'a'.repeat(64)},staticDirectory:process.cwd()}).listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));
+ const url=`http://127.0.0.1:${server.address().port}/api/ayambil/admin/notification-outbox/late-reminder-prepare`,headers={origin,'content-type':'application/json',cookie:'__Host-ayambil=fixture','x-csrf-token':'fixture-csrf'},body={subject:'exact-booking',confirmation:'PREPARE ONE MISSING EVENT DAY REMINDER'};
+ try{for(const h of [{cookie:''},{origin:'https://invalid.example'},{'x-csrf-token':''}])assert.ok([401,403].includes((await fetch(url,{method:'POST',headers:{...headers,...h},body:JSON.stringify(body)})).status));
+ for(const b of [{...body,to:'override'},{...body,round:'another'},{...body,confirmation:'yes'}])assert.equal((await fetch(url,{method:'POST',headers,body:JSON.stringify(b)})).status,400);
+ assert.equal(prepared,0);assert.equal((await fetch(url,{method:'POST',headers,body:JSON.stringify(body)})).status,200);assert.equal(prepared,1);
+ }finally{await new Promise(r=>server.close(r));}
+});
