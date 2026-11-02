@@ -134,6 +134,26 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
   legacyHistory,
   async ready(){const state=await this.owner();if(!state||!['paused','bilingual'].includes(state.owner)||!Number.isSafeInteger(state.version))throw Error('Notification owner schema unavailable');await pool.query('SELECT provider_id,state FROM ayambil_notification_outbox LIMIT 0');await pool.query('SELECT actor,action,detail FROM ayambil_notification_audit LIMIT 0');await this.recover();return true;},
   async owner(){return one(pool,'SELECT owner,version FROM ayambil_notification_owner WHERE id=1');},
+  async reconcileUncertainApproval(id,actor){
+   if(!actor?.admin_id||!/^[a-f0-9-]{36}$/.test(id||'')||typeof provider.recipientReceipts!=='function')throw Error('Exact authenticated uncertain approval required');
+   const original=await one(pool,'SELECT * FROM ayambil_notification_outbox WHERE id=?',[id]);
+   if(!original||original.purpose!=='waiting_approved'||original.state!=='uncertain'||original.attempts!==1||original.provider_id||!original.claim_id)throw Error('Single uncertain approval without provider reference required');
+   await provider.validate('waiting_approved');const input=crypto.open(original.envelope);
+   if(input.subject!==original.subject||input.purpose!==original.purpose)throw Error('Original approval binding required');
+   const e=await tx(db=>envelope(db,input,{ownOutboxId:id}));if(e.hash!==original.revision_hash)throw Error('Original approval context changed');
+   const claim=await one(pool,"SELECT created_at FROM ayambil_notification_audit WHERE action='claim_committed' AND BINARY JSON_UNQUOTE(JSON_EXTRACT(detail,'$.id'))=BINARY ? ORDER BY created_at DESC LIMIT 1",[id]);const started=Date.parse(claim?.created_at+'Z');if(!Number.isFinite(started))throw Error('Original claim timestamp unavailable');
+   const name=catalog.find(t=>t.purpose==='waiting_approved')?.name,receipts=await provider.recipientReceipts(e.s.mobile);
+   const matches=receipts.filter(r=>r.template===name&&['queued','accepted','sent','delivered','read','failed'].includes(r.status)&&typeof r.createdAt==='string'&&/(?:Z|[+-]\d\d:\d\d)$/.test(r.createdAt)&&Date.parse(r.createdAt)>=started-1000&&Date.parse(r.createdAt)<=started+15000);
+   if(matches.length!==1)throw Error('Exactly one approval receipt in original claim window required');
+   const receipt=matches[0],observed=await provider.status(receipt.id);if(!['accepted','sent','delivered','read','failed'].includes(observed.status)||receipt.status==='failed'&&observed.status!=='failed')throw Error('Authenticated approval status mismatch');
+   const state=nextDeliveryStatus(receipt.status==='queued'?'accepted':receipt.status,observed.status);
+   return withLease(()=>tx(async db=>{await lockSourceEvent(db,original.purpose,original.subject);const row=await one(db,'SELECT * FROM ayambil_notification_outbox WHERE id=? FOR UPDATE',[id]);
+    if(row.state!=='uncertain'||row.attempts!==1||row.provider_id||row.claim_id!==original.claim_id||row.envelope!==original.envelope||(await envelope(db,input,{ownOutboxId:id})).hash!==original.revision_hash)throw Error('Uncertain approval changed');
+    if(await one(db,'SELECT id FROM ayambil_notification_outbox WHERE provider_id=? AND id<>? LIMIT 1',[receipt.id,id]))throw Error('Provider reference already associated');
+    await db.execute("UPDATE ayambil_notification_outbox SET state=?,provider_id=?,error_code='approval_receipt_reconciled',last_checked_at=UTC_TIMESTAMP(3),updated_at=UTC_TIMESTAMP(3) WHERE id=?",[state,receipt.id,id]);
+    await db.execute('INSERT INTO ayambil_notification_audit VALUES(?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),actor.admin_id,'uncertain_approval_reconciled',JSON.stringify({id,previous:'uncertain',state,providerId:receipt.id,noResend:true,source:'authenticated_recipient_history_and_status'})]);return {id,state,sent:false,providerSubmissions:0};
+   }));
+  },
   async recoverRejectedApproval(id,actor){
    if(!actor?.admin_id||!/^[a-f0-9-]{36}$/.test(id||'')||typeof provider.recipientReceipts!=='function')throw Error('Exact reviewed approval rejection required');
    await provider.validate('waiting_approved');
