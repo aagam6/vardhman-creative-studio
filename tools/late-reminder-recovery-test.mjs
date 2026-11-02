@@ -3,14 +3,14 @@ import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises
 import {startBookingFixture,fixtureInput} from './booking-controls-fixture.mjs';
 import {createProductionNotificationSender} from '../apps/api/notification-sender.mjs';import {bilingualCatalog} from '../apps/api/bilingual-template-adapter.mjs';
 import {lateReminderExpiry} from '../apps/api/late-reminder-policy.mjs';
-let checks=0,calls=0,clock=new Date('2026-11-01T13:00:00.000Z');const eq=(a,b)=>{assert.deepEqual(a,b);checks++;};
+let checks=0,calls=0,receipts=[],clock=new Date('2026-11-01T13:00:00.000Z');const eq=(a,b)=>{assert.deepEqual(a,b);checks++;};
 for(const t of ['2026-11-01T18:29:59Z','2026-11-02T14:30:00Z','invalid']){assert.throws(()=>lateReminderExpiry('2026-11-02',t));checks++;}
 eq(lateReminderExpiry('2026-11-02','2026-11-02T00:00:00Z'),'2026-11-02T14:30:00.000Z');
 const f=await startBookingFixture();try{
  for(const s of (await readFile('apps/api/migrations/012_notification_sender.sql','utf8')).replace(/^--.*$/gm,'').split(';').map(s=>s.trim()).filter(Boolean))await f.pool.query(s);
  const setting=(await f.store.bookingControls.availability())[0];await f.store.bookingControls.update(f.actor,{eventDate:setting.event_date,mode:'open',capacity:100,version:setting.version});
  const catalog=structuredClone(bilingualCatalog);for(const t of catalog)t.approvalEvidence={verified:true,templateId:t.templateId,status:'APPROVED',category:'UTILITY',observedAt:new Date().toISOString()};
- const sender=createProductionNotificationSender({pool:f.pool,config:{...f.config,notificationService:true,notificationDispatch:true},key:f.fixtureQueueKey,catalog,now:()=>clock,provider:{async validate(){},async submit(){calls++;return {providerId:randomUUID(),status:'sent'};}}});
+ const sender=createProductionNotificationSender({pool:f.pool,config:{...f.config,notificationService:true,notificationDispatch:true},key:f.fixtureQueueKey,catalog,now:()=>clock,provider:{async validate(){},async recipientReceipts(){return receipts;},async submit(){calls++;return {providerId:randomUUID(),status:'sent'};}}});
  async function draft(name,phone){clock=new Date('2026-11-01T13:00:00.000Z');const b=await f.store.register(fixtureInput([name],'2026-11-02',phone));const [[saved]]=await f.pool.execute('SELECT id FROM ayambil_bookings WHERE number=?',[b.number]);return {subject:saved.id,id:await sender.enqueue({purpose:'reminder',subject:saved.id,round:'initial'})};}
  const main=await draft('Synthetic late reminder one','+12025550124'),expired=await draft('Synthetic expired reminder two','+12025550125'),unapproved=await draft('Synthetic unapproved reminder three','+12025550126');
  const passes=(await f.pool.query('SELECT * FROM ayambil_passes ORDER BY id'))[0];
@@ -28,5 +28,21 @@ const f=await startBookingFixture();try{
  const [[x]]=await f.pool.execute('SELECT state,attempts,provider_id FROM ayambil_notification_outbox WHERE id=?',[expired.id]);eq(x,{state:'blocked',attempts:0,provider_id:null});
  clock=new Date('2026-11-02T00:00:00.000Z');eq((await sender.runOne(unapproved.id,{ownershipVersion:2})).status,'not_claimed');eq(calls,1);
  eq((await f.pool.query('SELECT * FROM ayambil_passes ORDER BY id'))[0],passes);
+ async function missing(name,phone){const b=await f.store.register(fixtureInput([name],'2026-11-02',phone));return (await f.pool.execute('SELECT id FROM ayambil_bookings WHERE number=?',[b.number]))[0][0].id;}
+ const subject=await missing('Synthetic missing reminder','+12025550127');
+ const protectedPasses=(await f.pool.query('SELECT * FROM ayambil_passes ORDER BY id'))[0];
+ receipts=[{id:'prior',template:'ayambil_entry_timing_bilingual',status:'delivered'}];await assert.rejects(sender.prepareLateReminder(subject,f.actor));checks++;
+ eq((await f.pool.execute('SELECT id FROM ayambil_notification_outbox WHERE subject=?',[subject]))[0].length,0);
+ receipts=[];await assert.rejects(sender.prepareLateReminder(subject,{}));checks++;
+ const prepared=await sender.prepareLateReminder(subject,f.actor);eq(prepared.sent,false);eq(prepared.providerSubmissions,0);eq(calls,1);
+ eq((await sender.prepareLateReminder(subject,f.actor)).id,prepared.id);
+ eq((await f.pool.execute('SELECT id FROM ayambil_notification_outbox WHERE subject=?',[subject]))[0].length,1);
+ receipts=[{id:'raced',template:'ayambil_entry_timing_bilingual',status:'sent'}];await assert.rejects(sender.runOne(prepared.id,{ownershipVersion:2}));checks++;
+ eq((await f.pool.execute('SELECT attempts FROM ayambil_notification_outbox WHERE id=?',[prepared.id]))[0][0].attempts,0);eq(calls,1);
+ receipts=[];await f.pool.query("UPDATE ayambil_notification_audit SET created_at=DATE_SUB(UTC_TIMESTAMP(3),INTERVAL 1 MINUTE) WHERE action='claim_committed'");
+ const outcomes=await Promise.allSettled([sender.runOne(prepared.id,{ownershipVersion:2}),sender.runOne(prepared.id,{ownershipVersion:2})]);
+ eq(outcomes.filter(o=>o.status==='fulfilled'&&o.value.status==='sent').length,1);eq(calls,2);
+ await sender.runOne(prepared.id,{ownershipVersion:2});eq(calls,2);
+ eq((await f.pool.query('SELECT * FROM ayambil_passes ORDER BY id'))[0],protectedPasses);
  console.log(JSON.stringify({checks,mockSubmissions:calls,realProviderCalls:0,originalDraftPreserved:true,passesUnchanged:true}));
 }finally{await f.close();}
