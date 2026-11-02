@@ -1,5 +1,7 @@
 // Explicit foreground operator action only. No worker, resume or retry loop.
 export const NOTIFICATION_BATCH_INTERVAL_MS=17000;
+export const NOTIFICATION_PRECLAIM_WAIT_MS=23000;
+export const NOTIFICATION_MAX_PRECLAIM_DEFERRALS=8;
 const uuid=x=>typeof x==='string'&&/^[a-f0-9-]{36}$/.test(x);
 export function reviewedNotificationBatch(items,owner){
  if(owner?.owner!=='bilingual'||!Number.isSafeInteger(owner.version)||!Array.isArray(items)||!items.length||items.length>20)throw Error('Reviewed bilingual owner and 1–20 messages required');
@@ -21,8 +23,10 @@ export async function runNotificationBatch({preview,request,shouldStop,onResult,
    // Only this explicit server result proves no claim/provider call occurred.
    // Timeout, unknown, rejection and uncertainty never enter this wait path.
    await onResult(item,{status:'deferred'});
-   if(deferrals>=2||shouldStop())return {submitted,stopped:true};
-   await wait(NOTIFICATION_BATCH_INTERVAL_MS);
+   if(deferrals>=NOTIFICATION_MAX_PRECLAIM_DEFERRALS||shouldStop())return {submitted,stopped:true};
+   // Avoid repeatedly colliding with the worker's 15-second tick. This is
+   // bounded waiting only for an explicit no-claim response, never a resend.
+   await wait(NOTIFICATION_PRECLAIM_WAIT_MS);
   }
   await onResult(item,{status:result?.status||'unconfirmed'});
   if(!['accepted','sent','delivered','read'].includes(result?.status))return {submitted,stopped:true};

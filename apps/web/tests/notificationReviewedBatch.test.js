@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {reviewedNotificationBatch,runNotificationBatch,NOTIFICATION_BATCH_INTERVAL_MS,shouldPauseNotificationOwner} from '../src/lib/notificationReviewedBatch.js';
+import {reviewedNotificationBatch,runNotificationBatch,NOTIFICATION_BATCH_INTERVAL_MS,NOTIFICATION_PRECLAIM_WAIT_MS,NOTIFICATION_MAX_PRECLAIM_DEFERRALS,shouldPauseNotificationOwner} from '../src/lib/notificationReviewedBatch.js';
 import {createAyambilApi} from '../src/lib/ayambilExpressClient.js';
 const row=n=>({id:`00000000-0000-4000-8000-${String(n).padStart(12,'0')}`,purpose:'booking_verify',round_name:'initial',state:'held',attempts:0,provider_id:null});
 const owner={owner:'bilingual',version:16};
@@ -36,9 +36,15 @@ test('notification transport covers three bounded provider calls and preserves s
 test('only explicit no-claim deferral is paced and bounded; unknown acceptance never repeats',async()=>{
  let calls=0;const saved=[],waits=[];const preview=reviewedNotificationBatch([row(1)],owner);
  let r=await runNotificationBatch({preview,request:async()=>({status:++calls===1?'deferred':'accepted'}),shouldStop:()=>false,onResult:async(i,r)=>saved.push(r.status),wait:async ms=>waits.push(ms)});
- assert.equal(calls,2);assert.deepEqual(saved,['deferred','accepted']);assert.deepEqual(waits,[17000]);assert.equal(r.submitted,1);assert.equal(r.stopped,false);
- calls=0;r=await runNotificationBatch({preview,request:async()=>{calls++;return {status:'deferred'};},shouldStop:()=>false,onResult:async()=>{},wait:async()=>{}});assert.equal(calls,3);assert.equal(r.submitted,0);assert.equal(r.stopped,true);
+ assert.equal(calls,2);assert.deepEqual(saved,['deferred','accepted']);assert.deepEqual(waits,[23000]);assert.equal(r.submitted,1);assert.equal(r.stopped,false);
+ calls=0;const boundedWaits=[];r=await runNotificationBatch({preview,request:async()=>{calls++;return {status:'deferred'};},shouldStop:()=>false,onResult:async()=>{},wait:async ms=>boundedWaits.push(ms)});assert.equal(calls,NOTIFICATION_MAX_PRECLAIM_DEFERRALS+1);assert.equal(boundedWaits.length,8);assert.ok(boundedWaits.every(ms=>ms===NOTIFICATION_PRECLAIM_WAIT_MS));assert.equal(r.submitted,0);assert.equal(r.stopped,true);
  calls=0;r=await runNotificationBatch({preview,request:async()=>{calls++;throw Error('unknown acceptance');},shouldStop:()=>false,onResult:async()=>{},wait:async()=>assert.fail('must not wait')});assert.equal(calls,1);assert.equal(r.stopped,true);
+});
+
+test('worker contention may defer before claim but a successful submission is never replayed',async()=>{
+ const calls=[],saved=[],waits=[];let firstDeferrals=0;
+ const r=await runNotificationBatch({preview:reviewedNotificationBatch([row(1),row(2)],owner),request:async(_,o)=>{calls.push(o.body.id);return {status:o.body.id===row(1).id&&firstDeferrals++<4?'deferred':'accepted'};},shouldStop:()=>false,onResult:async(i,r)=>saved.push([i.id,r.status]),wait:async ms=>waits.push(ms)});
+ assert.equal(r.submitted,2);assert.equal(r.stopped,false);assert.equal(calls.filter(id=>id===row(2).id).length,1);assert.deepEqual(waits,[23000,23000,23000,23000,17000]);assert.equal(saved.filter(([,status])=>status==='accepted').length,2);
 });
 test('successful foreground batch preserves verified active automatic owner; every stop/error pauses',()=>{
  assert.equal(shouldPauseNotificationOwner({stopped:false},{enabled:true,active:true}),false);
