@@ -13,6 +13,7 @@ import {combinedPassPayload} from './combined-pass-notification.mjs';
 import {reminderPayload,assertReminderWindow} from './notification-reminders.mjs';
 import {dueReminderSession} from './reminder-schedule.mjs';
 import {lateReminderExpiry} from './late-reminder-policy.mjs';
+import {isProviderBudgetDeferral} from './provider-budget-deferral.mjs';
 import {assertNoReminderReceipt} from './late-reminder-history.mjs';
 import {createLegacyHistoryReconciliation} from './legacy-history-reconciliation.mjs';
 const eligibilityReasons=new Map([['Notification source unavailable','source_unavailable'],['Waiting transition no longer eligible','waiting_transition_changed'],['Waiting WhatsApp consent required','consent_missing'],['Active booking required','booking_inactive_or_no_consent'],['Active passes required','no_active_passes'],['Legacy confirmation already attempted','prior_legacy_confirmation'],['Confirmed notification held for duplicate/name review','duplicate_or_name_hold']]);
@@ -133,6 +134,27 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
   legacyHistory,
   async ready(){const state=await this.owner();if(!state||!['paused','bilingual'].includes(state.owner)||!Number.isSafeInteger(state.version))throw Error('Notification owner schema unavailable');await pool.query('SELECT provider_id,state FROM ayambil_notification_outbox LIMIT 0');await pool.query('SELECT actor,action,detail FROM ayambil_notification_audit LIMIT 0');await this.recover();return true;},
   async owner(){return one(pool,'SELECT owner,version FROM ayambil_notification_owner WHERE id=1');},
+  async recoverRejectedApproval(id,actor){
+   if(!actor?.admin_id||!/^[a-f0-9-]{36}$/.test(id||'')||typeof provider.recipientReceipts!=='function')throw Error('Exact reviewed approval rejection required');
+   await provider.validate('waiting_approved');
+   await withLease(async()=>{
+    const original=await one(pool,'SELECT * FROM ayambil_notification_outbox WHERE id=?',[id]);
+    if(!original||original.purpose!=='waiting_approved'||original.attempts!==1||original.provider_id||!original.claim_id||!['failed','held'].includes(original.state)||!['rate_limited','reviewed_rate_limit_retry'].includes(original.error_code))throw Error('Single definitive rate-limit approval rejection required');
+    const input=crypto.open(original.envelope),e=await tx(db=>envelope(db,input,{ownOutboxId:id}));
+    if(e.hash!==original.revision_hash)throw Error('Original approval context changed');
+    const receipts=await provider.recipientReceipts(e.s.mobile);
+    if(!Array.isArray(receipts)||receipts.some(r=>!r?.id||typeof r.status!=='string'))throw Error('Complete recipient receipt history required');
+    if(receipts.some(r=>['ayambil_waiting_approved_bilingual','ayambil_booking_confirmed_bilingual'].includes(r.template)))throw Error('Recipient admission already recorded; no retry');
+    await tx(async db=>{await lockSourceEvent(db,input.purpose,input.subject);const row=await one(db,'SELECT * FROM ayambil_notification_outbox WHERE id=? FOR UPDATE',[id]);const owner=await this.owner();await gate(db,owner.version);
+     if(row.attempts!==1||row.provider_id||row.claim_id!==original.claim_id||row.revision_hash!==original.revision_hash||!['failed','held'].includes(row.state))throw Error('Approval rejection changed');
+     const current=await envelope(db,input,{ownOutboxId:id});if(current.hash!==original.revision_hash)throw Error('Approval context changed during history check');
+     const previous=await one(db,"SELECT id FROM ayambil_notification_audit WHERE action='rate_rejection_retry_reviewed' AND BINARY JSON_UNQUOTE(JSON_EXTRACT(detail,'$.id'))=BINARY ? LIMIT 1",[id]);
+     if(!previous)await db.execute('INSERT INTO ayambil_notification_audit VALUES(?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),actor.admin_id,'rate_rejection_retry_reviewed',JSON.stringify({id,hash:row.revision_hash,previousClaim:row.claim_id,previousAttempts:row.attempts,providerHistoryChecked:true})]);
+     await db.execute("UPDATE ayambil_notification_outbox SET state='held',error_code='reviewed_rate_limit_retry',updated_at=UTC_TIMESTAMP(3) WHERE id=?",[id]);
+    });
+   });
+   const owner=await this.owner();return {id,...await this.runOne(id,{ownershipVersion:owner.version,actor:actor.admin_id})};
+  },
   async prepareLateReminder(subject,actor){
    if(!actor?.admin_id||!/^[a-f0-9-]{36}$/.test(subject||'')||typeof provider.recipientReceipts!=='function')throw Error('Exact authenticated late reminder booking required');
    await provider.validate('reminder');
@@ -331,7 +353,11 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
   async runOne(id,{ownershipVersion,actor='worker',automaticSince=null,automaticReminder=false}={}){
    if(config.notificationDispatch!==true)throw Error('Notification dispatch disabled');
    return withLease(async()=>{
-   const candidate=await one(pool,'SELECT purpose,subject,state,attempts,provider_id FROM ayambil_notification_outbox WHERE id=?',[id]);if(!candidate||!['held','ready'].includes(candidate.state)||candidate.attempts!==0||candidate.provider_id)return {status:'not_claimed'};
+   const candidate=await one(pool,'SELECT purpose,subject,state,attempts,provider_id,claim_id,revision_hash,error_code FROM ayambil_notification_outbox WHERE id=?',[id]);
+   const retryAudit=candidate?.attempts===1?await one(pool,"SELECT detail FROM ayambil_notification_audit WHERE action='rate_rejection_retry_reviewed' AND BINARY JSON_UNQUOTE(JSON_EXTRACT(detail,'$.id'))=BINARY ? LIMIT 1",[id]):null;
+   const retry=typeof retryAudit?.detail==='string'?JSON.parse(retryAudit.detail):retryAudit?.detail;
+   const reviewedRetry=candidate?.purpose==='waiting_approved'&&candidate?.error_code==='reviewed_rate_limit_retry'&&retry?.hash===candidate?.revision_hash&&retry?.previousClaim===candidate?.claim_id&&retry?.previousAttempts===1;
+   if(!candidate||!['held','ready'].includes(candidate.state)||(candidate.attempts!==0&&!reviewedRetry)||candidate.provider_id)return {status:'not_claimed'};
    if(automaticReminder&&candidate.purpose!=='reminder')throw Error('Reminder purpose required');
    if(automaticSince){
     if(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(automaticSince))throw Error('Exact automatic cutoff required');
@@ -343,32 +369,39 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
    // A deferred job has never been claimed/submitted and may be selected later.
    const recent=await one(pool,"SELECT id FROM ayambil_notification_audit WHERE action='claim_committed' AND created_at>DATE_SUB(UTC_TIMESTAMP(3),INTERVAL 17 SECOND) LIMIT 1");
    if(recent)return {status:'deferred'};
-   try{await provider.validate(candidate.purpose);}catch{await pool.execute("UPDATE ayambil_notification_outbox SET state='blocked',error_code='provider_preflight' WHERE id=? AND state IN ('held','ready')",[id]);return {status:'blocked'};}
+   try{await provider.validate(candidate.purpose);}catch(error){if(isProviderBudgetDeferral(error))return {status:'deferred'};await pool.execute("UPDATE ayambil_notification_outbox SET state='blocked',error_code='provider_preflight' WHERE id=? AND state IN ('held','ready')",[id]);return {status:'blocked'};}
    const latePrepared=await one(pool,"SELECT id FROM ayambil_notification_audit WHERE action='late_reminder_prepared' AND BINARY JSON_UNQUOTE(JSON_EXTRACT(detail,'$.id'))=BINARY ? LIMIT 1",[id]);
+   if(reviewedRetry){
+    if(typeof provider.recipientReceipts!=='function')throw Error('Approval retry history unavailable');
+    const current=await tx(db=>envelope(db,{purpose:candidate.purpose,subject:candidate.subject,round:'initial'},{ownOutboxId:id}));
+    const receipts=await provider.recipientReceipts(current.s.mobile);
+    if(!Array.isArray(receipts)||receipts.some(r=>!r?.id||typeof r.status!=='string')||receipts.some(r=>['ayambil_waiting_approved_bilingual','ayambil_booking_confirmed_bilingual'].includes(r.template)))throw Error('Approval provider history blocks reviewed retry');
+   }
    if(latePrepared){
     if(candidate.purpose!=='reminder'||typeof provider.recipientReceipts!=='function')throw Error('Late reminder history verification unavailable');
     const context=await tx(db=>envelope(db,{purpose:'reminder',subject:candidate.subject,round:'initial'},{ownOutboxId:id}));
     assertNoReminderReceipt(await provider.recipientReceipts(context.s.mobile));
    }
-   let claimed;
+   let claimed,budgetDeferred=false;
    const lockEvent=db=>lockSourceEvent(db,candidate.purpose,candidate.subject);
-   await tx(async db=>{await lockEvent(db);const row=await one(db,'SELECT * FROM ayambil_notification_outbox WHERE id=? FOR UPDATE',[id]);if(!row||!['held','ready'].includes(row.state))return;await gate(db,ownershipVersion);
+   await tx(async db=>{await lockEvent(db);const row=await one(db,'SELECT * FROM ayambil_notification_outbox WHERE id=? FOR UPDATE',[id]);if(!row||!['held','ready'].includes(row.state)||row.attempts!==candidate.attempts||row.provider_id)return;await gate(db,ownershipVersion);
     let e;try{e=await envelope(db,crypto.open(row.envelope),{ownOutboxId:id});if(e.hash!==row.revision_hash)throw Error('Stale revision');}catch{await db.execute("UPDATE ayambil_notification_outbox SET state='blocked',error_code='eligibility_or_mapping',updated_at=UTC_TIMESTAMP(3) WHERE id=?",[id]);return;}
-    const claim=randomUUID();await db.execute("UPDATE ayambil_notification_outbox SET state='processing',claim_id=?,attempts=attempts+1,updated_at=UTC_TIMESTAMP(3) WHERE id=?",[claim,id]);await db.execute('INSERT INTO ayambil_notification_audit VALUES(?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),actor,'claim_committed',JSON.stringify({id})]);claimed={claim,payload:e.payload};
+    let reservation;if(provider.reserve)try{reservation=await provider.reserve(e.payload);}catch(error){if(isProviderBudgetDeferral(error)){budgetDeferred=true;return;}throw error;}
+    const claim=randomUUID();await db.execute("UPDATE ayambil_notification_outbox SET state='processing',claim_id=?,attempts=attempts+1,updated_at=UTC_TIMESTAMP(3) WHERE id=?",[claim,id]);await db.execute('INSERT INTO ayambil_notification_audit VALUES(?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),actor,'claim_committed',JSON.stringify({id})]);claimed={claim,payload:e.payload,reservation};
    });
-   if(!claimed)return {status:'not_claimed'};
+   if(!claimed)return {status:budgetDeferred?'deferred':'not_claimed'};
    // Re-read after durable claiming, immediately before the provider boundary.
    {
     try{await tx(async db=>{await lockEvent(db);const row=await one(db,'SELECT * FROM ayambil_notification_outbox WHERE id=? FOR UPDATE',[id]);if(!row||row.state!=='processing'||row.claim_id!==claimed.claim)throw Error('Stale claim');await gate(db,ownershipVersion,id);const current=await envelope(db,crypto.open(row.envelope),{ownOutboxId:id});if(current.hash!==row.revision_hash)throw Error('Stale revision');claimed.payload=current.payload;});}
     catch{await pool.execute("UPDATE ayambil_notification_outbox SET state='blocked',error_code='eligibility_changed_before_submit',updated_at=UTC_TIMESTAMP(3) WHERE id=? AND claim_id=? AND state='processing'",[id,claimed.claim]);return {status:'blocked'};}
    }
-   let result;try{result=await provider.submit(claimed.payload);}catch{result={status:'uncertain'};}
+   let result;try{result=await provider.submit(claimed.payload,{reservation:claimed.reservation});}catch{result={status:'uncertain'};}
 
    const validId=typeof result?.providerId==='string'&&/^[^\s\x00-\x1f\x7f]{1,200}$/.test(result.providerId);
    const status=validId&&['accepted','sent','delivered','read'].includes(result.status)?result.status:result?.status==='rejected'?'failed':result?.status==='rate_limited'?'failed':'uncertain';
    try{await pool.execute('UPDATE ayambil_notification_outbox SET state=?,provider_id=?,error_code=?,updated_at=UTC_TIMESTAMP(3) WHERE id=? AND claim_id=? AND state=\'processing\'',[status,validId?result.providerId:null,result?.status==='rate_limited'?'rate_limited':null,id,claimed.claim]);}catch{await pool.execute("UPDATE ayambil_notification_outbox SET state='uncertain',error_code='receipt_persist_failed' WHERE id=? AND claim_id=?",[id,claimed.claim]);return {status:'uncertain'};}
    return {status};
-   }).catch(error=>{if(error?.code==='DISPATCH_BUSY')return {status:'deferred'};throw error;});
+   }).catch(error=>{if(error?.code==='DISPATCH_BUSY'||isProviderBudgetDeferral(error))return {status:'deferred'};throw error;});
   },
   async reconcileNext(){const row=await one(pool,"SELECT id FROM ayambil_notification_outbox WHERE state IN ('accepted','sent') AND provider_id IS NOT NULL AND (last_checked_at IS NULL OR last_checked_at<DATE_SUB(UTC_TIMESTAMP(3),INTERVAL 1 MINUTE)) ORDER BY COALESCE(last_checked_at,created_at),id LIMIT 1");return row?this.reconcile(row.id,{admin_id:'scheduler'}):{processed:false};},
   async recover(){await pool.execute("UPDATE ayambil_notification_outbox SET state='uncertain',error_code='interrupted_claim',updated_at=UTC_TIMESTAMP(3) WHERE state='processing' AND updated_at<DATE_SUB(UTC_TIMESTAMP(3),INTERVAL 5 MINUTE)");},

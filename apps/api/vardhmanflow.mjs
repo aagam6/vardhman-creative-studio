@@ -56,13 +56,20 @@ export function createFlow(env,fetcher=fetch,{reserveRequestBudget}={}){
  const missing=['VARDHMAN_FLOW_API_KEY','VARDHMAN_FLOW_API_SECRET'].filter(k=>!env[k]);
  if(base!=='https://vardhmanflow.com/api/v1')missing.push('VARDHMAN_FLOW_BASE_URL');
  let calls=[],recentRequests=[],lastResponse=null,cooldownUntil=0;
+ const submissionReservations=new WeakMap();
  const operation=suffix=>suffix==='account'?'account':suffix.startsWith('templates')?'templates':suffix.startsWith('messages/status/')?'message_status':suffix==='messages/template'?'message_submit':'other';
  const budget=()=>({scope:'this createFlow instance/process; provider key is shared beyond this process',localLimitPerMinute:50,documentedProviderLimitPerMinutePerKey:60,recentRequests:recentRequests.filter(r=>r.at>Date.now()-60000).reduce((a,r)=>(a[r.operation]=(a[r.operation]||0)+1,a),{}),cooldownUntil:cooldownUntil?new Date(cooldownUntil).toISOString():null,lastResponse:lastResponse?structuredClone(lastResponse):null});
- const request=async (suffix,body)=>{
+ const reserveBudget=async suffix=>{
   if(missing.length)throw new ApiError(503,'Vardhman Flow configuration required');
   if(Date.now()<cooldownUntil)throw Object.assign(new ApiError(429,'Provider cooldown active; no request made'),{code:'PROVIDER_COOLDOWN'});
   if(reserveRequestBudget&&await reserveRequestBudget()!==true)throw Object.assign(new ApiError(429,'Shared provider budget unavailable; no request made'),{code:'LOCAL_FLOW_BUDGET',providerRejected:429});
   calls=calls.filter(t=>Date.now()-t<60000);if(calls.length>=50)throw Object.assign(new ApiError(429,'Provider check rate limit reached'),{code:'LOCAL_FLOW_BUDGET'});calls.push(Date.now());recentRequests=recentRequests.filter(r=>r.at>Date.now()-60000);recentRequests.push({at:Date.now(),operation:operation(suffix)});
+ };
+ const request=async (suffix,body,{reservation}={})=>{
+  if(reservation!==undefined){
+   const saved=submissionReservations.get(reservation);submissionReservations.delete(reservation);
+   if(suffix!=='messages/template'||!saved||saved.payload!==JSON.stringify(body)||Date.now()>=saved.expiresAt)throw new ApiError(403,'Valid one-use submission budget reservation required');
+  }else await reserveBudget(suffix);
   const headers={'X-API-Key':env.VARDHMAN_FLOW_API_KEY,'X-API-Secret':env.VARDHMAN_FLOW_API_SECRET};if(env.VARDHMAN_FLOW_CHANNEL_ID)headers['X-Channel-Id']=env.VARDHMAN_FLOW_CHANNEL_ID;
   try{
    if(body)headers['Content-Type']='application/json';
@@ -138,9 +145,13 @@ export function createFlow(env,fetcher=fetch,{reserveRequestBudget}={}){
    if(!metadata.verified)throw new ApiError(503,'Exact reviewed pass BODY required');
    return {verified:true,name:t.name,providerTemplateId:t.id,language:'en',status:'APPROVED',category:'UTILITY',source:metadata.bodySource,observedAt:new Date().toISOString()};
   },
-  async sendPrepared(payload){
+  async reserveTemplateSubmission(payload){
    if(env.AYAMBIL_WHATSAPP_ENABLED!=='true')throw new ApiError(403,'Sending not enabled');
-   const data=await request('messages/template',payload);if(typeof data.messageId!=='string'||!data.messageId||data.messageId.length>200)throw new ApiError(503,'Provider acceptance unknown');
+   await reserveBudget('messages/template');const reservation=Object.freeze({});submissionReservations.set(reservation,{payload:JSON.stringify(payload),expiresAt:Date.now()+30000});return reservation;
+  },
+  async sendPrepared(payload,{reservation}={}){
+   if(env.AYAMBIL_WHATSAPP_ENABLED!=='true')throw new ApiError(403,'Sending not enabled');
+   const data=await request('messages/template',payload,{reservation});if(typeof data.messageId!=='string'||!data.messageId||data.messageId.length>200)throw new ApiError(503,'Provider acceptance unknown');
    const status=data.status==='queued'?'accepted':data.status;if(!['accepted','sent','delivered','read','failed'].includes(status))throw new ApiError(503,'Provider status unknown');return {id:data.messageId,status:['delivered','read'].includes(status)?'accepted':status};
   },
   async messageStatus(id){if(typeof id!=='string'||!id||id.length>200)throw new ApiError(400,'Invalid provider reference');const data=await request('messages/status/'+encodeURIComponent(id));if(data.id!==id||!['queued','sent','delivered','read','failed'].includes(data.status))throw Object.assign(new ApiError(503,'Provider status not verified'),{code:'PROVIDER_STATUS_MISMATCH'});return {status:data.status==='queued'?'accepted':data.status};},
