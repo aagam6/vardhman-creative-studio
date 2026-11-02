@@ -1,6 +1,7 @@
 import {selectEntryRuntimeCatalog,reviewedEntryRuntimeDefinition} from './entry-runtime-revision.mjs';
 import {reviewedBilingualDefinition} from './bilingual-snapshot-policy.mjs';
 import {ApiError} from './config.mjs';
+import {liveUpdateDefinition,liveUpdateDefinitionHash,verifyLiveUpdateDefinition} from './registered-live-update-preview.mjs';
 import {notificationTemplates} from './notification-context.mjs';
 import {reviewedTemplateBodies} from './reviewed-template-bodies.mjs';
 import {productionSnapshotsApproved,productionTemplatePolicy} from './production-template-policy.mjs';
@@ -175,7 +176,15 @@ export function createFlow(env,fetcher=fetch,{reserveRequestBudget}={}){
     if(metadata.verified&&!applicable.every(m=>templateMetadata(t,m,metadataOptions).verified))Object.assign(metadata,{verified:false,componentsVerified:false,verification:'mapping_mismatch'});
    return {name:t.name,language:t.language,...metadata,...(productionSnapshotsApproved(env)&&metadata.bodySource==='operator_reviewed_snapshot'?{policyVersion:productionTemplatePolicy.version}:{} )};
    });
-   return {...this.configuration(),accountVerified:true,channel:{active:true,health:'healthy',configuredIdMatched:env.VARDHMAN_FLOW_CHANNEL_ID?true:null,phoneConfigured:!!normalizePhone(channel.phoneNumber)},templates:approved,...(templateDefinitions?{bilingualTemplates:selectEntryRuntimeCatalog(bilingualCatalog,env).map(t=>reviewedEntryRuntimeDefinition(templates,t,env,reviewedBilingualDefinition(templates,t,env,bilingualDefinitionMetadata(templates,t)))),definitionObservedAt:new Date().toISOString()}:{}),usage:{requestCount:Number.isFinite(account.usage?.requestCount)?account.usage.requestCount:null,monthlyRequestCount:Number.isFinite(account.usage?.monthlyRequestCount)?account.usage.monthlyRequestCount:null}};
+   const bilingualTemplates=selectEntryRuntimeCatalog(bilingualCatalog,env).map(t=>reviewedEntryRuntimeDefinition(templates,t,env,reviewedBilingualDefinition(templates,t,env,bilingualDefinitionMetadata(templates,t))));
+   if(templateDefinitions&&templates.some(t=>t.name===liveUpdateDefinition.name)){
+    // Explicit UI-reviewed corrected revision, independently bound to current
+    // API UUID/channel/status. Supplied mismatched components never fall back.
+    const reviewedSnapshot={verified:true,metaTemplateId:liveUpdateDefinition.metaTemplateId,definitionHash:liveUpdateDefinitionHash,definition:liveUpdateDefinition,status:'APPROVED',source:'authenticated_meta_and_flow_review',observedAt:'2026-11-02T18:10:00.000Z'};
+    const diagnostic=verifyLiveUpdateDefinition({templates,channel,configuredChannelId:env.VARDHMAN_FLOW_CHANNEL_ID,reviewedSnapshot});
+    bilingualTemplates.push({...diagnostic,name:liveUpdateDefinition.name,templateId:liveUpdateDefinition.metaTemplateId,status:diagnostic.verified?'APPROVED':null,category:diagnostic.verified?'UTILITY':null,providerIdStatus:diagnostic.providerTemplateId?'valid_uuid':'missing',snapshotHash:liveUpdateDefinitionHash});
+   }
+   return {...this.configuration(),accountVerified:true,channel:{active:true,health:'healthy',configuredIdMatched:env.VARDHMAN_FLOW_CHANNEL_ID?true:null,phoneConfigured:!!normalizePhone(channel.phoneNumber)},templates:approved,...(templateDefinitions?{bilingualTemplates,definitionObservedAt:new Date().toISOString()}:{}),usage:{requestCount:Number.isFinite(account.usage?.requestCount)?account.usage.requestCount:null,monthlyRequestCount:Number.isFinite(account.usage?.monthlyRequestCount)?account.usage.monthlyRequestCount:null}};
   }
  };
 }
