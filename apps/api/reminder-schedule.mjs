@@ -3,12 +3,14 @@ import {productionSnapshotsApproved} from './production-template-policy.mjs';
 export function reminderPolicy(env){
  if(env.AYAMBIL_WHATSAPP_REMINDER_SCHEDULER_ENABLED!=='true'||env.AYAMBIL_WHATSAPP_ENABLED!=='true'||env.AYAMBIL_WHATSAPP_QUEUE_OWNER!=='express-mysql'||!productionSnapshotsApproved(env))throw new ApiError(403,'Approved reminder-only scheduler required');
 }
-// Reminder window is the previous calendar day, 18:00–23:59 IST.
+// Event-specific reminder windows end at the previous calendar day's midnight IST.
 // No next-day catch-up and no sends at module import/startup.
 export function dueReminderSession(now=new Date()){
  const time=new Date(now).getTime();
- return programme.sessions.find(session=>{const eventMidnight=Date.parse(session.date+'T00:00:00+05:30');return time>=eventMidnight-6*3600000 && time<eventMidnight;}) || null;
+ return programme.sessions.find(session=>{const eventMidnight=Date.parse(session.date+'T00:00:00+05:30');return time>=reminderStartsAt(session.date) && time<eventMidnight;}) || null;
 }
+// Only Sairam's 2 November window moves to 16:00 IST; Manan stays unchanged.
+export function reminderStartsAt(eventDate){return Date.parse(eventDate+'T00:00:00+05:30')-(eventDate==='2026-11-03'?8:6)*3600000;}
 export function startReminderScheduler(queue,env,{schedule=setInterval,cancel=clearInterval,log=()=>{},now=()=>new Date()}={}){
  if(env.AYAMBIL_WHATSAPP_REMINDER_SCHEDULER_ENABLED!=='true')return {enabled:false,active:false,stop(){}};
  reminderPolicy(env);if(!queue)throw Error('Reminder queue required');

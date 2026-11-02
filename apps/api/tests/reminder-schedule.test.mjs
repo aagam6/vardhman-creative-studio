@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import {dueReminderSession,startReminderScheduler} from '../reminder-schedule.mjs';
 import {createMessageQueue} from '../message-queue.mjs';
 const env={AYAMBIL_WHATSAPP_ENABLED:'true',AYAMBIL_QUEUE_ENCRYPTION_KEY:'a'.repeat(64),AYAMBIL_WHATSAPP_QUEUE_OWNER:'express-mysql',AYAMBIL_WHATSAPP_REMINDER_SCHEDULER_ENABLED:'true',AYAMBIL_SITE_ORIGIN:'https://vardhmancreativestudio.com',AYAMBIL_PRODUCTION_TEMPLATE_POLICY:'ayambil-en-2026-10-13-v1'};
-test('exact previous-day 18:00 IST boundary, both evenings, no early or next-day sends',()=>{
- for(const [at,date] of [['2026-10-18T18:00:00+05:30',null],['2026-11-01T17:59:59+05:30',null],['2026-11-01T18:00:00+05:30','2026-11-02'],['2026-11-01T23:59:59+05:30','2026-11-02'],['2026-11-02T00:00:00+05:30',null],['2026-11-02T18:00:00+05:30','2026-11-03'],['2026-11-03T00:00:00+05:30',null]])assert.equal(dueReminderSession(new Date(at))?.date||null,date);
+test('Manan stays 18:00; Sairam moves to 16:00 IST, never early or next day',()=>{
+ for(const [at,date] of [['2026-10-18T18:00:00+05:30',null],['2026-11-01T16:00:00+05:30',null],['2026-11-01T17:59:59+05:30',null],['2026-11-01T18:00:00+05:30','2026-11-02'],['2026-11-01T23:59:59+05:30','2026-11-02'],['2026-11-02T00:00:00+05:30',null],['2026-11-02T15:59:59.999+05:30',null],['2026-11-02T16:00:00+05:30','2026-11-03'],['2026-11-02T18:00:00+05:30','2026-11-03'],['2026-11-02T23:59:59+05:30','2026-11-03'],['2026-11-03T00:00:00+05:30',null]])assert.equal(dueReminderSession(new Date(at))?.date||null,date);
 });
 test('defaults off; no startup/early sends; fail/uncertain pauses; serialized ticks',async()=>{
  let tick,sends=0,stops=0,release;let at=new Date('2026-10-18');
