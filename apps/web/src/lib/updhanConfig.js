@@ -5,10 +5,8 @@ export const updhanConfig = {
   // Local/staging never sends hits. Release/account review must enable this.
   analyticsEnabled: import.meta.env?.VITE_UPDHAN_ANALYTICS_ENABLED==='true',
   measurementId: 'G-2P4BBDPN6J',
-  youtubeUrl: 'https://www.youtube.com/watch?v=oDDk3B1sink',
-  videoKind: 'tirth',
-  // Historical tirth documentary supplied by the user, separate from the event trailer.
-  tirthVideoUrl: 'https://www.youtube.com/watch?v=oDDk3B1sink',
+  youtubeUrl: 'https://www.youtube.com/watch?v=ubmQyPa-j9Q',
+  videoKind: 'event',
   registrationFormUrl: '',
 };
 
