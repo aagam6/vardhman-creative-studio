@@ -5,6 +5,12 @@ import { passPage, passImagePlacement } from '../src/lib/ayambilPassLayout.js';
 import {readFileSync} from 'node:fs';
 const programme=JSON.parse(readFileSync(new URL('../../pocketbase/pb_hooks/ayambil/config.json',import.meta.url)));
 
+test('registered live-update audience and prepare routes reach transport once, preserve CSRF and cannot call Send',async()=>{
+ const calls=[];const api=createAyambilApi(async(url,options)=>{calls.push({url,options});return Response.json(url.includes('admin/session')?{authenticated:true,csrfToken:'a'.repeat(64)}:{sent:false,items:[]});});await api.restore();
+ for(const operation of ['live-update-audience','live-update-prepare']){const path='admin/notification-outbox/'+operation,body={videoId:'h0XA0A99zDE'};await api.request(path,{method:'POST',body});const c=calls.at(-1);assert.equal(c.url,'/api/ayambil/'+path);assert.equal(c.options.headers['X-CSRF-Token'],'a'.repeat(64));assert.equal(c.options.cache,'no-store');assert.equal(c.options.body,JSON.stringify(body));await assert.rejects(api.request(path),/Invalid API operation/);}
+ assert.equal(calls.length,3);assert.ok(calls.every(c=>!c.url.endsWith('/send')));
+});
+
 test('held entry review and status-only audit use explicit POST routes once with CSRF and no send',async()=>{
  const calls=[];const api=createAyambilApi(async(url,options)=>{calls.push({url,options});return Response.json(url.includes('admin/session')?{authenticated:true,csrfToken:'a'.repeat(64)}:{items:[],writes:0,newSubmissions:0});});
  await api.restore();
