@@ -1,5 +1,6 @@
 import {ApiError} from './config.mjs';
 import {LIVE_UPDATE_PURPOSE,liveUpdatePayload,liveUpdateScope,assertNoLiveUpdateReceipt} from './registered-live-update-payload.mjs';
+import {liveUpdateDefinition} from './registered-live-update-preview.mjs';
 import {observeKnownReceipts} from './known-receipt-observation.mjs';
 import {entryPriorBlocksSql,entryFollowupAction} from './entry-followup-policy.mjs';
 import {entryRevisionDefinitionHash} from './entry-timing-revision-preview.mjs';
@@ -171,12 +172,12 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
   async reconcileUncertainApproval(id,actor){
    if(!actor?.admin_id||!/^[a-f0-9-]{36}$/.test(id||'')||typeof provider.recipientReceipts!=='function')throw Error('Exact authenticated uncertain admission required');
    const original=await one(pool,'SELECT * FROM ayambil_notification_outbox WHERE id=?',[id]);
-   if(!original||!['booking_confirmed','waiting_approved'].includes(original.purpose)||original.state!=='uncertain'||original.attempts!==1||original.provider_id||!original.claim_id)throw Error('Single uncertain admission without provider reference required');
+   if(!original||!['booking_confirmed','waiting_approved',LIVE_UPDATE_PURPOSE].includes(original.purpose)||original.state!=='uncertain'||original.attempts!==1||original.provider_id||!original.claim_id)throw Error('Single uncertain supported notification without provider reference required');
    await provider.validate(original.purpose);const input=crypto.open(original.envelope);
    if(input.subject!==original.subject||input.purpose!==original.purpose)throw Error('Original admission binding required');
    const e=await tx(db=>envelope(db,input,{ownOutboxId:id}));if(e.hash!==original.revision_hash)throw Error('Original admission context changed');
    const claim=await one(pool,"SELECT created_at FROM ayambil_notification_audit WHERE action='claim_committed' AND BINARY JSON_UNQUOTE(JSON_EXTRACT(detail,'$.id'))=BINARY ? ORDER BY created_at DESC LIMIT 1",[id]);const started=Date.parse(claim?.created_at+'Z');if(!Number.isFinite(started))throw Error('Original claim timestamp unavailable');
-   const name=catalog.find(t=>t.purpose===original.purpose)?.name,receipts=await provider.recipientReceipts(e.s.mobile);
+   const name=original.purpose===LIVE_UPDATE_PURPOSE?liveUpdateDefinition.name:catalog.find(t=>t.purpose===original.purpose)?.name,receipts=await provider.recipientReceipts(e.s.mobile);
    const matches=receipts.filter(r=>r.template===name&&['queued','accepted','sent','delivered','read','failed'].includes(r.status)&&typeof r.createdAt==='string'&&/(?:Z|[+-]\d\d:\d\d)$/.test(r.createdAt)&&Date.parse(r.createdAt)>=started-1000&&Date.parse(r.createdAt)<=started+15000);
    if(matches.length!==1)throw Error('Exactly one admission receipt in original claim window required');
    const receipt=matches[0],observed=await provider.status(receipt.id);if(!['accepted','sent','delivered','read','failed'].includes(observed.status)||receipt.status==='failed'&&observed.status!=='failed')throw Error('Authenticated admission status mismatch');
