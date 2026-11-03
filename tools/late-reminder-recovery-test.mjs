@@ -62,5 +62,21 @@ const f=await startBookingFixture();try{
  receipts=[{...exactReceipt,createdAt:new Date(Date.parse(exactReceipt.createdAt)+16000).toISOString()}];await assert.rejects(sender.reconcileUncertainApproval(uncertainId,f.actor));checks++;
  receipts=[exactReceipt];eq((await sender.reconcileUncertainApproval(uncertainId,f.actor)).state,'delivered');eq(calls,5);const [[linked]]=await f.pool.execute('SELECT * FROM ayambil_notification_outbox WHERE id=?',[uncertainId]);eq(linked.attempts,1);eq(linked.claim_id,originalUncertain.claim_id);eq(linked.envelope,originalUncertain.envelope);eq(linked.provider_id,exactReceipt.id);eq((await f.pool.query('SELECT * FROM ayambil_passes ORDER BY id'))[0],uncertainPasses);
  await assert.rejects(sender.reconcileUncertainApproval(uncertainId,f.actor));checks++;eq((await sender.runOne(uncertainId,{ownershipVersion:2})).status,'not_claimed');eq(calls,5);
+
+ // Same strict no-send recovery for normal confirmations: do not reset a claim.
+ receipts=[];const confirmedSubject=await missing('Synthetic uncertain confirmation','+12025550130');
+ const confirmationId=await sender.enqueue({purpose:'booking_confirmed',subject:confirmedSubject,round:'initial'});
+ await f.pool.query("UPDATE ayambil_notification_audit SET created_at=DATE_SUB(UTC_TIMESTAMP(3),INTERVAL 1 MINUTE) WHERE action='claim_committed'");
+ throwOnce=true;eq((await sender.runOne(confirmationId,{ownershipVersion:2})).status,'uncertain');eq(calls,6);
+ const [[originalConfirmation]]=await f.pool.execute('SELECT * FROM ayambil_notification_outbox WHERE id=?',[confirmationId]);
+ const [[confirmationClaim]]=await f.pool.execute("SELECT created_at FROM ayambil_notification_audit WHERE action='claim_committed' AND JSON_UNQUOTE(JSON_EXTRACT(detail,'$.id'))=?",[confirmationId]);
+ const confirmationReceipt={id:'synthetic-confirmation-receipt',template:'ayambil_booking_confirmed_bilingual',status:'delivered',createdAt:new Date(confirmationClaim.created_at+'Z').toISOString()};
+ const confirmationPasses=(await f.pool.query('SELECT * FROM ayambil_passes ORDER BY id'))[0];
+ for(const bad of [[],[{...confirmationReceipt,template:'ayambil_waiting_approved_bilingual'}],[confirmationReceipt,{...confirmationReceipt,id:'ambiguous-confirmation'}],[{...confirmationReceipt,createdAt:new Date(Date.parse(confirmationReceipt.createdAt)+16000).toISOString()}]]){receipts=bad;await assert.rejects(sender.reconcileUncertainApproval(confirmationId,f.actor));checks++;}
+ receipts=[confirmationReceipt];await assert.rejects(sender.reconcileUncertainApproval(confirmationId,{}));checks++;
+ eq((await sender.reconcileUncertainApproval(confirmationId,f.actor)).state,'delivered');eq(calls,6);
+ const [[linkedConfirmation]]=await f.pool.execute('SELECT * FROM ayambil_notification_outbox WHERE id=?',[confirmationId]);
+ eq(linkedConfirmation.attempts,originalConfirmation.attempts);eq(linkedConfirmation.claim_id,originalConfirmation.claim_id);eq(linkedConfirmation.envelope,originalConfirmation.envelope);eq(linkedConfirmation.revision_hash,originalConfirmation.revision_hash);eq(linkedConfirmation.provider_id,confirmationReceipt.id);
+ await assert.rejects(sender.reconcileUncertainApproval(confirmationId,f.actor));checks++;eq((await sender.runOne(confirmationId,{ownershipVersion:2})).status,'not_claimed');eq(calls,6);eq((await f.pool.query('SELECT * FROM ayambil_passes ORDER BY id'))[0],confirmationPasses);
  console.log(JSON.stringify({checks,mockSubmissions:calls,realProviderCalls:0,originalDraftPreserved:true,passesUnchanged:true}));
 }finally{await f.close();}
