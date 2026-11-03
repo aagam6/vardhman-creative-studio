@@ -123,6 +123,13 @@ export function createFlow(env,fetcher=fetch,{reserveRequestBudget}={}){
    if(!diagnostic.verified)throw new ApiError(503,'Bilingual provider definition failed: '+diagnostic.issues.join(', '));
    return {verified:true,templateId:template.templateId,status:'APPROVED',category:'UTILITY',observedAt:new Date().toISOString(),source:diagnostic.source,...(diagnostic.snapshotPolicy?{snapshotPolicy:diagnostic.snapshotPolicy,providerComponentsVerified:false}:{providerComponentsVerified:true})};
   },
+  async verifyLiveUpdate(){
+   const account=await request('account'),templates=await request('templates?status=APPROVED');
+   const reviewedSnapshot={verified:true,metaTemplateId:liveUpdateDefinition.metaTemplateId,definitionHash:liveUpdateDefinitionHash,definition:liveUpdateDefinition,status:'APPROVED',source:'authenticated_meta_and_flow_review',observedAt:'2026-11-02T18:10:00.000Z'};
+   const result=verifyLiveUpdateDefinition({templates,channel:account.channel,configuredChannelId:env.VARDHMAN_FLOW_CHANNEL_ID,reviewedSnapshot});
+   if(!env.VARDHMAN_FLOW_CHANNEL_ID||!result.verified)throw new ApiError(503,'Live-update definition blocked: '+result.issues.join(', '));
+   return result;
+  },
   // Explicit opt-in verification seam for a future reviewed revision rollout.
   // This does not select a catalog, prepare an intent, or activate dispatch.
   async verifyEntryRevision({uiEvidence}={}){

@@ -1,4 +1,5 @@
 import {ApiError} from './config.mjs';
+import {LIVE_UPDATE_PURPOSE,liveUpdatePayload,liveUpdateScope,assertNoLiveUpdateReceipt} from './registered-live-update-payload.mjs';
 import {observeKnownReceipts} from './known-receipt-observation.mjs';
 import {entryPriorBlocksSql,entryFollowupAction} from './entry-followup-policy.mjs';
 import {entryRevisionDefinitionHash} from './entry-timing-revision-preview.mjs';
@@ -77,6 +78,11 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
    if(original.followupOf||original.token!==input.token)throw Error('Original private response link required');
   }
   const s=await source(db,input.purpose,input.subject,input.token,{reviewSnapshot});
+  if(input.purpose===LIVE_UPDATE_PURPOSE){
+   liveUpdateScope({eventDate:s.eventDate,mobile:s.mobile,videoId:input.videoId,now:now()});
+   const eligibility=await loadAttendanceEligibility(db,{eventDate:s.eventDate,mobile:s.mobile});
+   if(eligibility.reasons.some(r=>['unresolved_duplicate_review','repeated_name_hold'].includes(r)))throw Error('Confirmed notification held for duplicate/name review');
+  }
   if(['reminder','entry_timing'].includes(input.purpose)){
    if(!scheduledPreview){try{assertReminderWindow(s.eventDate,now());}catch(error){
     if(input.purpose!=='reminder'||!ownOutboxId)throw error;
@@ -100,7 +106,7 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
   const session=typeof event?.snapshot==='string'?JSON.parse(event.snapshot):event?.snapshot;if(!session)throw Error('Event unavailable');
   const passSubject=(purposeNeedsPass(input.purpose)||['reminder','entry_timing'].includes(input.purpose)&&catalog.find(t=>t.purpose==='entry_timing')?.button)?(input.purpose==='waiting_approved'?(await one(db,'SELECT booking_id FROM ayambil_waiting WHERE id=? OR booking_id=?',[input.subject,input.subject]))?.booking_id:input.subject):null;
   const data={...s,eventLabel:session.performer,eventDate:session.label,urlSuffix:s.urlSuffix||(passSubject?(['reminder','entry_timing'].includes(input.purpose)?'':'passes#')+bookingPassToken(key,passSubject,session):undefined)};
-  const payload=input.purpose==='reminder'?reminderPayload({session,source:{...s,urlSuffix:data.urlSuffix},build}):input.purpose==='pass_link'?combinedPassPayload({session,source:s,subject:passSubject,key,origin:config.origin}):build(input.purpose,data);return {s,payload:{...payload,to:s.mobile},hash:digest([s.identity,s.mobile,payload])};
+  const payload=input.purpose===LIVE_UPDATE_PURPOSE?liveUpdatePayload({source:s,session,videoId:input.videoId,now:now()}):input.purpose==='reminder'?reminderPayload({session,source:{...s,urlSuffix:data.urlSuffix},build}):input.purpose==='pass_link'?combinedPassPayload({session,source:s,subject:passSubject,key,origin:config.origin}):build(input.purpose,data);return {s,payload:{...payload,to:s.mobile},hash:digest([s.identity,s.mobile,payload])};
  }
  async function attendanceRepairPlan(db,id){
   const meta=await one(db,'SELECT purpose,subject FROM ayambil_notification_outbox WHERE id=?',[id]);
@@ -124,7 +130,7 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
  async function gate(db,version,ownClaim=null){const c=await one(db,'SELECT * FROM ayambil_notification_owner WHERE id=1 FOR UPDATE');if(!c||c.owner!=='bilingual'||c.version!==version)throw Error('Paused or stale queue ownership');const inFlight=await one(db,"SELECT id FROM ayambil_message_queue WHERE status IN ('preparing','sending','uncertain') LIMIT 1");if(inFlight)throw Error('Legacy queue requires reconciliation');const modern=await one(db,"SELECT id FROM ayambil_notification_outbox WHERE state IN ('processing','uncertain')"+(ownClaim?' AND id<>?':'')+' LIMIT 1',ownClaim?[ownClaim]:[]);if(modern)throw Error('Notification queue requires reconciliation');}
  async function persist(db,input,round,{scheduledPreview=false}={}){
   const e=await envelope(db,input,{scheduledPreview});if(e.s.sourceRound&&e.s.sourceRound!==round&&!input.followupOf)throw Error('Review round mismatch');
-  const unit=['booking_verify','attendance'].includes(input.purpose)?[e.s.eventDate,e.s.contactUnit]:e.s.canonicalSubject||input.subject;
+  const unit=input.purpose===LIVE_UPDATE_PURPOSE?liveUpdateScope({eventDate:e.s.eventDate,mobile:e.s.mobile,videoId:input.videoId,now:now()}):['booking_verify','attendance'].includes(input.purpose)?[e.s.eventDate,e.s.contactUnit]:e.s.canonicalSubject||input.subject;
   const dedupe=digest([['booking_confirmed','waiting_approved'].includes(input.purpose)?'admission_confirmation':input.purpose,unit,round]);
   const previous=await one(db,'SELECT id,revision_hash FROM ayambil_notification_outbox WHERE dedupe_hash=? FOR UPDATE',[dedupe]);
   if(previous){if(previous.revision_hash!==e.hash)throw Error('Existing intent revision conflict');return previous.id;}
@@ -132,6 +138,34 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
  }
  return {
   legacyHistory,
+  async liveUpdateAudience({eventDate,videoId},actor){
+   if(!actor?.admin_id)throw Error('Administrator required');
+   liveUpdateScope({eventDate,mobile:'12025550123',videoId,now:now()});
+   await provider.validate(LIVE_UPDATE_PURPOSE);
+   const [rows]=await pool.execute("SELECT b.id,b.number,b.contact_name,b.mobile FROM ayambil_bookings b WHERE b.event_date=? AND b.status='active' AND b.whatsapp_consent=1 AND EXISTS(SELECT 1 FROM ayambil_attendees a JOIN ayambil_passes p ON p.attendee_id=a.id WHERE a.booking_id=b.id AND a.status='active' AND p.status='active' AND p.trashed_at IS NULL) ORDER BY b.created_at,b.id LIMIT 2001",[eventDate]);
+   if(rows.length>2000)throw Error('Audience exceeds reviewed bound');
+   const seen=new Set(),items=[];let sharedContacts=0,invalidContacts=0;
+   for(const b of rows){let scope;try{scope=JSON.stringify(liveUpdateScope({eventDate,mobile:b.mobile,videoId,now:now()}));}catch{invalidContacts++;continue;}if(seen.has(scope)){sharedContacts++;continue;}seen.add(scope);items.push({subject:b.id,reference:b.number,contactName:b.contact_name});}
+   return {items,eventDate,videoId,sharedContacts,invalidContacts,sourceBookings:rows.length,observedAt:now().toISOString(),sent:false,eligibilityRecheckedBeforeSubmit:true};
+  },
+  async prepareLiveUpdate({subject,videoId},actor){
+   if(!actor?.admin_id||!/^[a-f0-9-]{36}$/.test(subject||''))throw Error('Exact reviewed live-update subject required');
+   try{await provider.validate(LIVE_UPDATE_PURPOSE);}catch(error){if(isProviderBudgetDeferral(error))return {sent:false,status:'deferred'};throw error;}
+   return withLease(async()=>{
+    const input={purpose:LIVE_UPDATE_PURPOSE,subject,videoId,round:'initial'};
+    const checked=await tx(db=>envelope(db,input));
+    assertNoLiveUpdateReceipt(await provider.recipientReceipts(checked.s.mobile));
+    return tx(async db=>{const current=await envelope(db,input);if(current.hash!==checked.hash)throw Error('Live-update context changed during history review');
+     const id=await persist(db,input,'initial');const row=await one(db,'SELECT state,attempts,provider_id,claim_id FROM ayambil_notification_outbox WHERE id=?',[id]);
+     const eligible=['held','ready'].includes(row.state)&&row.attempts===0&&!row.provider_id&&!row.claim_id;
+     await db.execute('INSERT INTO ayambil_notification_audit VALUES(?,?,?,?,UTC_TIMESTAMP(3))',[randomUUID(),actor.admin_id,'live_update_reviewed',JSON.stringify({id,videoId,eligible})]);
+     return {id,sent:false,status:eligible?'prepared':'already_recorded'};
+    });
+   }).catch(error=>{if(error.code==='DISPATCH_BUSY'||isProviderBudgetDeferral(error))return {sent:false,status:'deferred'};
+    const reason=eligibilityReasons.get(error.message)||({'Prior live update recorded; no resend':'prior_provider_live_update','Existing intent revision conflict':'source_revision_changed'})[error.message];
+    if(reason)return {sent:false,status:'held',reason};throw error;
+   });
+  },
   async ready(){const state=await this.owner();if(!state||!['paused','bilingual'].includes(state.owner)||!Number.isSafeInteger(state.version))throw Error('Notification owner schema unavailable');await pool.query('SELECT provider_id,state FROM ayambil_notification_outbox LIMIT 0');await pool.query('SELECT actor,action,detail FROM ayambil_notification_audit LIMIT 0');await this.recover();return true;},
   async owner(){return one(pool,'SELECT owner,version FROM ayambil_notification_owner WHERE id=1');},
   async reconcileUncertainApproval(id,actor){
@@ -401,6 +435,11 @@ export function createProductionNotificationSender({pool,config,key,provider,cat
     if(candidate.purpose!=='reminder'||typeof provider.recipientReceipts!=='function')throw Error('Late reminder history verification unavailable');
     const context=await tx(db=>envelope(db,{purpose:'reminder',subject:candidate.subject,round:'initial'},{ownOutboxId:id}));
     assertNoReminderReceipt(await provider.recipientReceipts(context.s.mobile));
+   }
+   if(candidate.purpose===LIVE_UPDATE_PURPOSE){
+    const saved=await one(pool,'SELECT envelope FROM ayambil_notification_outbox WHERE id=?',[id]);
+    const current=await tx(db=>envelope(db,crypto.open(saved.envelope),{ownOutboxId:id}));
+    assertNoLiveUpdateReceipt(await provider.recipientReceipts(current.s.mobile));
    }
    let claimed,budgetDeferred=false;
    const lockEvent=db=>lockSourceEvent(db,candidate.purpose,candidate.subject);
