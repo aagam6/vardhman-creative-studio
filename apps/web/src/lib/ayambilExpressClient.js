@@ -7,7 +7,7 @@ export const supportedOperations = Object.freeze({
   'admin/notification-outbox/recover-rejected-approval':['POST'],
   'admin/notification-outbox/uncertain-approval-reconcile':['POST'],
   'admin/legacy-history':['GET'],'admin/legacy-history/resolve':['POST'],
-  'admin/notification-outbox':['GET'],...Object.fromEntries(['prepare','prepare-subject','review-selection','owner','reconcile','send','notice','entry-revision-preview','entry-revision-refresh','entry-followup','observe-receipts','uncertain-failure-reconcile','attendance-repair-preview','attendance-repair','contact-country-correction'].map(key=>['admin/notification-outbox/'+key,['POST']])),
+  'admin/notification-outbox':['GET'],...Object.fromEntries(['prepare','prepare-subject','review-selection','live-update-audience','live-update-prepare','owner','reconcile','send','notice','entry-revision-preview','entry-revision-refresh','entry-followup','observe-receipts','uncertain-failure-reconcile','attendance-repair-preview','attendance-repair','contact-country-correction'].map(key=>['admin/notification-outbox/'+key,['POST']])),
   'admin/booking-controls/dashboard':['GET'],'admin/booking-controls/templates':['GET'],
   ...Object.fromEntries(['event','approve','review-create','review-link','review-revoke','review-decision','follow-up-preview','template-preview'].map(key=>['admin/booking-controls/'+key,['POST']])),
   'admin/trash/empty-preview':['GET'], 'admin/trash/empty':['POST'],
