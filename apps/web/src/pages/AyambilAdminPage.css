@@ -142,3 +142,10 @@
 .ay-admin .ay-bookings-compact .ay-booking-expanded{grid-column:1/-1;margin-top:6px;width:100%;min-width:0}.ay-admin .ay-bookings-compact .ay-booking-expanded>summary{font-size:11px!important;min-height:26px;padding:5px 0 0}
 @media(max-width:900px){.ay-bookings-compact .ay-admin-booking{grid-template-columns:1fr}.ay-admin .ay-bookings-compact .ay-booking-strip{margin-top:8px}.ay-list-toolbar{align-items:flex-start;flex-direction:column;gap:8px}.ay-list-controls{width:100%}}
 @media(max-width:600px){.ay-bookings-list{max-height:72vh;padding-right:3px}.ay-list-toolbar{padding:10px}.ay-list-controls{gap:5px}.ay-admin .ay-list-controls button{min-height:40px;font-size:10px}.ay-list-controls a{font-size:11px}.ay-admin .ay-bookings-compact .ay-admin-booking{padding:11px 12px}.ay-admin .ay-bookings-compact .ay-booking-heading h2{font-size:15px!important}.ay-admin .ay-bookings-compact .ay-booking-strip{grid-template-columns:1fr 1fr;gap:8px 0}.ay-bookings-compact .ay-booking-fact:last-child{padding-top:8px}.ay-bookings-compact .ay-booking-message-types{gap:5px}.ay-booking-message-types>span{flex:1;min-width:60px}}
+.ay-bulk-waiting{margin:1rem 0;padding:1.1rem 1.25rem;border:1px solid #d9cbd8;border-radius:16px;background:#fff;overflow-wrap:anywhere}
+.ay-bulk-waiting>strong{color:#663c54;font-size:1.08rem}
+.ay-bulk-waiting p{line-height:1.55}
+.ay-bulk-waiting [role="dialog"]{margin-top:1rem;padding-top:1rem;border-top:1px solid #e7dfe8}
+.ay-bulk-waiting ul{max-height:220px;overflow:auto;padding-left:1.3rem}
+.ay-bulk-waiting button{white-space:normal;min-height:44px}
+@media(max-width:600px){.ay-bulk-waiting{padding:1rem}.ay-bulk-waiting .ay-form-actions{display:flex;flex-direction:column;align-items:stretch}.ay-bulk-waiting button{max-width:100%}}
