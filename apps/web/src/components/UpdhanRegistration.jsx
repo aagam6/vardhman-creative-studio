@@ -8,31 +8,33 @@ import { connectedLocalApi, createUpdhanApiClient } from '@/lib/updhanApiClient'
 import {createSubmissionAttempt} from '@/lib/updhanSubmissionAttempt';
 import {updhanFailureMessage} from '@/lib/updhanFailure';
 import {trackUpdhan} from './UpdhanMeasurement';
+import {submissionIssue} from '@/lib/updhanFormTelemetry';
 import {useUpdhanLanguage,localizeUpdhanTree} from './UpdhanLanguage';
 
 export default function UpdhanRegistration() {
   const {language,t}=useUpdhanLanguage();
-  const [layout,setLayout]=useState('sheet');
+  const [layout,setLayout]=useState(()=>typeof window!=='undefined'&&window.matchMedia?.('(max-width: 760px)').matches?'guided':'sheet');
   const [data, setData] = useState(emptyApplication), [step, setStep] = useState(0), [photo, setPhoto] = useState(null), [preview, setPreview] = useState(''), [errors, setErrors] = useState({}), [busy, setBusy] = useState(false), [receipt, setReceipt] = useState(null), [photoBusy, setPhotoBusy] = useState(false);
   const heading = useRef(null), form = useRef(null), client = useRef(import.meta.env.DEV && connectedLocalApi ? createUpdhanApiClient() : import.meta.env.VITE_UPDHAN_PRODUCTION_API==='true'?createUpdhanManagementClient():{submit:async()=>{throw Object.assign(Error('Registration is currently closed. Please try again after confirmation.'),{status:503});}}), key = useRef(crypto.randomUUID()), lock = useRef(false), photoVersion = useRef(0);
   const attempt=useRef(null);if(!attempt.current)attempt.current=createSubmissionAttempt(client.current);
-  const started=useRef(false);
+  const started=useRef(false),viewed=useRef(false),lastStep=useRef(null),camera=useRef(null);
+  const photoCopy={hi:{camera:"कैमरे से फोटो लें",help:"JPG / PNG / WEBP · अधिकतम 12 MB। फोटो अपने-आप छोटी होगी।",ready:"फोटो तैयार है",keep:"नई फोटो तैयार होने तक पिछली फोटो सुरक्षित रहेगी।"},en:{camera:"Take a photo",help:"JPG / PNG / WEBP · Up to 12 MB. Automatically resized before upload.",ready:"Photo ready",keep:"Your previous photo stays until a replacement is ready."},gu:{camera:"કેમેરાથી ફોટો લો",help:"JPG / PNG / WEBP · વધુમાં વધુ 12 MB. ફોટો આપમેળે નાનો થશે.",ready:"ફોટો તૈયાર છે",keep:"નવો ફોટો તૈયાર થાય ત્યાં સુધી જૂનો ફોટો રહેશે."}}[language];
   const previousFocus=useRef(null);
-  useEffect(()=>{const view=()=>trackUpdhan('updhan_step_view',{step:step+1});view();window.addEventListener('updhan-measurement-enabled',view);return()=>window.removeEventListener('updhan-measurement-enabled',view);},[step]);
+  useEffect(()=>{const view=()=>{if(receipt)return;if(!viewed.current)viewed.current=trackUpdhan('updhan_form_view')===true;if(lastStep.current!==step&&trackUpdhan('updhan_step_view',{step:step+1}))lastStep.current=step;};view();window.addEventListener('updhan-measurement-enabled',view);return()=>window.removeEventListener('updhan-measurement-enabled',view);},[step,receipt]);
   const [uncertain,setUncertain]=useState(false),[forgotten,setForgotten]=useState(false);
   useEffect(() => { if (!photo) { setPreview(''); return; } const url = URL.createObjectURL(photo); setPreview(url); return () => URL.revokeObjectURL(url); }, [photo]);
   useEffect(() => { const next=`${step}:${!!receipt}:${uncertain}:${forgotten}`;if(previousFocus.current!==null&&previousFocus.current!==next)heading.current?.focus();previousFocus.current=next; }, [step, receipt,uncertain,forgotten]);
   const update = (name, value) => { if(!started.current)started.current=trackUpdhan('updhan_registration_start')===true; setData(d => ({ ...d, [name]: value })); setErrors(e => ({ ...e, [name]: undefined })); };
   function check(section) {
     const next = validateApplication(normalizeApplication(data), photo, section); setErrors(next);
-    if (Object.keys(next).length) { requestAnimationFrame(() => form.current?.querySelector('[aria-invalid="true"]')?.focus()); return false; } return true;
+    if (Object.keys(next).length) { trackUpdhan('updhan_form_error',{issue_kind:'validation',step:step+1,error_count:Math.min(40,Object.keys(next).length)}); requestAnimationFrame(() => form.current?.querySelector('[aria-invalid="true"]')?.focus()); return false; } return true;
   }
   async function upload(event) {
     const file = event.target.files[0], version = ++photoVersion.current; if (!file) return;
-    setPhotoBusy(true); setPhoto(null);
+    setPhotoBusy(true);
     try { const prepared = await preparePhoto(file); if (version === photoVersion.current) { setPhoto(prepared); setErrors(e => ({ ...e, photo: undefined })); } }
-    catch (error) { if (version === photoVersion.current) setErrors(e => ({ ...e, photo: error.message })); }
-    finally { if (version === photoVersion.current) setPhotoBusy(false); event.target.value = ''; }
+    catch (error) { if (version === photoVersion.current) {setErrors(e => ({ ...e, photo: error.message }));trackUpdhan('updhan_form_error',{issue_kind:error.code||'photo_decode',step:step+1,error_count:1});} }
+    finally { if (version === photoVersion.current) setPhotoBusy(false); if(version===photoVersion.current)event.target.value = ''; }
   }
   async function submit(event) {
     event.preventDefault(); if (lock.current || photoBusy) return;
@@ -40,14 +42,14 @@ export default function UpdhanRegistration() {
     if (!check()) return;
     lock.current = true; setBusy(true);trackUpdhan('updhan_submit_attempt');
     try { const savedReceipt=await attempt.current.submit({ key: key.current, data:normalizeApplication(data), photo });setReceipt(createUpdhanReceiptView(savedReceipt,data.name)); trackUpdhan('updhan_application_received',{dedupeKey:savedReceipt.id});setUncertain(false);setData(emptyApplication()); setPhoto(null); }
-    catch(error) {setUncertain(attempt.current.uncertain);setErrors({submit:updhanFailureMessage(error,{uncertain:attempt.current.uncertain})});requestAnimationFrame(()=>form.current?.querySelector('[role="alert"]')?.focus());}
+    catch(error) {trackUpdhan('updhan_form_error',{issue_kind:submissionIssue(error,{uncertain:attempt.current.uncertain}),step:5,error_count:1});setUncertain(attempt.current.uncertain);setErrors({submit:updhanFailureMessage(error,{uncertain:attempt.current.uncertain})});requestAnimationFrame(()=>form.current?.querySelector('[role="alert"]')?.focus());}
     finally { lock.current = false; setBusy(false); }
   }
-  function discard() { photoVersion.current++; attempt.current.clear();setUncertain(false);setPhotoBusy(false); setData(emptyApplication()); setPhoto(null); setErrors({}); setStep(0); setReceipt(null); key.current = crypto.randomUUID(); }
+  function discard() { started.current=false;photoVersion.current++; attempt.current.clear();setUncertain(false);setPhotoBusy(false); setData(emptyApplication()); setPhoto(null); setErrors({}); setStep(0); setReceipt(null); key.current = crypto.randomUUID(); }
   const error = name => errors[name] && <span className="ur-error" id={`ur-${name}-error`}>{errors[name]}</span>;
   const attrs = name => ({ id: `ur-${name}`, 'aria-invalid': !!errors[name], 'aria-describedby': errors[name] ? `ur-${name}-error` : undefined });
   const sheet=layout==='sheet'&&step<4;
-  const fieldGrid=sectionIndex=><div className="ur-grid">{fields.filter(([name, , section]) => section === sectionIndex && name !== 'country').map(([name, label,, required, max]) => <div key={name} className={name.startsWith('address') || name === 'name' || name === 'health' ? 'ur-wide' : ''}><label htmlFor={`ur-${name}`}>{label}{required ? ' *' : ''}</label><input {...attrs(name)} name={name} value={data[name]} required={required} maxLength={max} type={['whatsapp','mobile'].includes(name)?'tel':'text'} inputMode={['age','pin','whatsapp','mobile'].includes(name) ? 'numeric' : undefined} autoComplete={{name:'name',address1:'address-line1',address2:'address-line2',city:'address-level2',state:'address-level1',pin:'postal-code',country:'country',mobile:'tel-national'}[name] || 'off'} onChange={e => update(name, e.target.value)} />{error(name)}</div>)}</div>;
+  const fieldGrid=sectionIndex=><div className="ur-grid">{fields.filter(([name, , section]) => section === sectionIndex && name !== 'country').map(([name, label,, required, max]) => <div key={name} className={name.startsWith('address') || name === 'name' || name === 'health' ? 'ur-wide' : ''}><label htmlFor={`ur-${name}`}>{label}{required ? ' *' : ''}</label><input {...attrs(name)} name={name} value={data[name]} required={required} maxLength={max} type={['whatsapp','mobile'].includes(name)?'tel':'text'} inputMode={['age','pin','whatsapp','mobile'].includes(name) ? 'numeric' : undefined} autoComplete={{name:'name',address1:'address-line1',address2:'address-line2',city:'address-level2',state:'address-level1',pin:'postal-code',country:'country',mobile:'tel-national'}[name] || 'off'} onChange={e => update(name, e.target.value)} onBlur={()=>{const issue=validateApplication(normalizeApplication(data),photo)[name];setErrors(e=>({...e,[name]:issue}));}} />{error(name)}</div>)}</div>;
   const sectionTitle=(number,title)=><div className="ur-paper-section" id={`ur-section-${number}`}><span>{number}</span><h4>{t(title)}</h4></div>;
   if(forgotten)return localizeUpdhanTree(<section className="ur-form" lang="gu"><h3 ref={heading} tabIndex={-1}>આ ઉપકરણમાંથી માહિતી કાઢી છે</h3><p>અગાઉની અરજીની સ્થિતિ હજી અસ્પષ્ટ છે. બીજી અરજી મોકલતા પહેલાં સંચાલક પાસે પુષ્ટિ કરો.</p></section>,language);
   if(uncertain)return localizeUpdhanTree(<section className="ur-form" lang="gu"><h3 ref={heading} tabIndex={-1}>અરજીની સ્થિતિની પુષ્ટિ બાકી</h3><p role="alert">{errors.submit}</p><button disabled={busy} type="button" onClick={submit}>{busy?'સ્થિતિ તપાસાય છે…':'એ જ પ્રયત્નથી ફરી તપાસો'}</button><button disabled={busy} type="button" onClick={()=>{discard();setForgotten(true);}}>આ ઉપકરણમાંથી માહિતી કાઢો</button><p>માહિતી કાઢવાથી સર્વર પર પહેલેથી સાચવાયેલી અરજી રદ થતી નથી.</p></section>,language);
@@ -61,11 +63,11 @@ export default function UpdhanRegistration() {
     </div>}
     <p className="ur-field-help">* वाले सभी खाने ज़रूरी हैं। बाकी जानकारी वैकल्पिक है।</p>
     <form ref={form} onSubmit={submit} noValidate>
-      {Object.values(errors).some(Boolean) && <div className="ur-errors" role="alert" tabIndex={-1}><strong>માહિતી તપાસો</strong><ul>{Object.entries(errors).filter(([,v]) => v).map(([name, message]) => <li key={name}><a href={`#ur-${name}`} onClick={() => document.getElementById(`ur-${name}`)?.focus()}>{message}</a></li>)}</ul></div>}
+      {Object.values(errors).some(Boolean) && <div className="ur-errors" role="alert" tabIndex={-1}><strong>{language==='en'?'Check the highlighted details':language==='gu'?'દર્શાવેલી વિગતો તપાસો':'नीचे दी गई जानकारी जाँचें'}</strong><ul>{Object.entries(errors).filter(([,v]) => v).map(([name, message]) => <li key={name}><a href={`#ur-${name}`} onClick={() => document.getElementById(`ur-${name}`)?.focus()}>{message}</a></li>)}</ul></div>}
       {sheet&&sectionTitle('01','व्यक्तिगत जानकारी')}
       <div className={sheet?'ur-identity-block':''}>
       {(sheet||step<3)&&fieldGrid(sheet?0:step)}
-      {(sheet||step === 0) && <><fieldset><legend>લિંગ / Gender *</legend>{[['male','પુરુષ / Male'],['female','સ્ત્રી / Female']].map(([value,label]) => <label className="ur-choice" key={value}><input {...(value === 'male' ? attrs('gender') : {})} type="radio" name="gender" checked={data.gender === value} onChange={() => update('gender', value)} />{label}</label>)}{error('gender')}</fieldset><div className="ur-upload"><label htmlFor="ur-photo">અરજદારનો ફોટો *</label><p>JPG / PNG / WEBP · 2 MB સુધી · ફોટાની વધારાની metadata દૂર થશે.</p>{preview && <img src={preview} alt="પસંદ કરેલો અરજદારનો ફોટો" />}<input {...attrs('photo')} type="file" accept="image/jpeg,image/png,image/webp" onChange={upload} />{photoBusy && <p role="status">ફોટો તૈયાર થાય છે…</p>}{photo && <button type="button" onClick={() => setPhoto(null)}>ફોટો દૂર કરો</button>}{error('photo')}</div></>}
+      {(sheet||step === 0) && <><fieldset><legend>લિંગ / Gender *</legend>{[['male','પુરુષ / Male'],['female','સ્ત્રી / Female']].map(([value,label]) => <label className="ur-choice" key={value}><input {...(value === 'male' ? attrs('gender') : {})} type="radio" name="gender" checked={data.gender === value} onChange={() => update('gender', value)} />{label}</label>)}{error('gender')}</fieldset><div className="ur-upload"><label htmlFor="ur-photo">અરજદારનો ફોટો *</label><p>{photoCopy.help}</p>{preview && <img src={preview} alt="પસંદ કરેલો અરજદારનો ફોટો" />}<input {...attrs('photo')} type="file" accept="image/jpeg,image/png,image/webp" disabled={photoBusy||busy} onChange={upload} /><input ref={camera} className="ur-camera-input" type="file" accept="image/jpeg,image/png,image/webp" capture="user" aria-label={photoCopy.camera} tabIndex={-1} onChange={upload}/><button className="ur-camera-button" type="button" disabled={photoBusy||busy} onClick={()=>camera.current?.click()}>{photoCopy.camera}</button>{photo&&<p className="ur-photo-ready" role="status">✓ {photoCopy.ready} · {Math.max(1,Math.round(photo.size/1024))} KB</p>}{photoBusy&&photo&&<p>{photoCopy.keep}</p>}{photoBusy && <p role="status">ફોટો તૈયાર થાય છે…</p>}{photo && <button type="button" disabled={photoBusy||busy} onClick={() => {photoVersion.current++;setPhoto(null);setErrors(e=>({...e,photo:undefined}));}}>ફોટો દૂર કરો</button>}{error('photo')}</div></>}
       </div>
       {(sheet||step === 1) && <>{sheet&&<>{sectionTitle('02','पता और संपर्क')}{fieldGrid(1)}</>}<label htmlFor="ur-code">WhatsApp દેશ કોડ *</label><select {...attrs('code')} value={data.code} onChange={e => update('code', e.target.value)}>{['+91','+1','+44','+971','+61','+65','+64','+27','other'].map(v => <option key={v} value={v}>{v === 'other' ? 'અન્ય / Other' : v}</option>)}</select>{data.code === 'other' && <><label htmlFor="ur-customCode">અન્ય દેશ કોડ *</label><input {...attrs('customCode')} value={data.customCode} maxLength={4} onChange={e => update('customCode', e.target.value)} />{error('customCode')}</>}{error('code')}<button type="button" onClick={() => { if (((data.code === 'other' ? data.customCode : data.code) === '+91') && /^\d{10}$/.test(data.whatsapp)) update('mobile', data.whatsapp); else setErrors(e => ({...e,mobile:'આ સહાયક માટે +91 સાથે ૧૦ અંકનો WhatsApp નંબર જરૂરી છે.'})); }}>મોબાઇલ માટે WhatsApp નંબર વાપરો</button></>}
       {sheet&&<>{sectionTitle('03','साधना संबंधी जानकारी')}{fieldGrid(2)}</>}

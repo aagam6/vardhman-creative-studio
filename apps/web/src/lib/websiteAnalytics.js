@@ -1,4 +1,5 @@
 // Based on the current production controller; existing Ayambil vocabulary is retained.
+import {formIssuePayload} from './updhanFormTelemetry.js';
 import {updhanConfig} from './updhanConfig.js';
 import {UPDHAN_PATH,UPDHAN_FORM_PATH,isUpdhanPath,sanitizeCampaign} from './updhanMarketing.js';
 const controllers=new WeakMap();
@@ -93,12 +94,14 @@ export function createWebsiteAnalytics(win, doc, {updhanEnabled=updhanConfig.ana
   track.event=(name,values={})=>{
     const page=publicAnalyticsPage(win.location.href);
     if(!updhanEnabled||win.__updhanAnalyticsConsent!==true||!page||!isUpdhanPath(new URL(page.page_location).pathname))return false;
-    if(!['updhan_registration_start','updhan_step_view','updhan_application_received','updhan_button_click','updhan_form_review','updhan_submit_attempt'].includes(name))return false;
+    if(!['updhan_registration_start','updhan_step_view','updhan_application_received','updhan_button_click','updhan_form_review','updhan_submit_attempt','updhan_form_view','updhan_form_error'].includes(name))return false;
+    const issue=name==='updhan_form_error'?formIssuePayload(values):null;
+    if(name==='updhan_form_error'&&!issue)return false;
     if(name==='updhan_step_view'&&(!Number.isInteger(values.step)||values.step<1||values.step>5))return false;
     if(name==='updhan_button_click'&&!['hero_apply','section_apply','mobile_apply','form_anchor','calendar','share','map','darshan','nav_section','menu_toggle','language_hi','language_gu','language_en','back_programme','gallery_open','faq_open','contact_call','video_youtube','header_apply','nav_journey','nav_blessings','nav_sadhana','nav_video','nav_registration','nav_faq','nav_options','nav_rules'].includes(values.button_id))return false;
     if(name==='updhan_application_received'){if(typeof values.dedupeKey!=='string'||!values.dedupeKey||receipts.has(values.dedupeKey))return false;receipts.add(values.dedupeKey);}
     track(win.location.href);
-    win.gtag('event',name,{send_to:MEASUREMENT_ID,...page,page_referrer:'',event_scope:'updhan_2027',...(name==='updhan_step_view'?{step:values.step}:name==='updhan_button_click'?{button_id:values.button_id}:{})});return true;
+    win.gtag('event',name,{send_to:MEASUREMENT_ID,...page,page_referrer:'',event_scope:'updhan_2027',...(issue|| (name==='updhan_step_view'?{step:values.step}:name==='updhan_button_click'?{button_id:values.button_id}:{}))});return true;
   };
   controllers.set(win,track);return track;
 }

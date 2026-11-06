@@ -52,17 +52,26 @@ export function validateApplication(data, photo, step) {
   }
   return errors;
 }
+export const RAW_PHOTO_LIMIT=12*1024*1024;
 export async function preparePhoto(file) {
-  if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 2 * 1024 * 1024) throw new Error('JPG, PNG અથવા WEBP ફોટો, વધુમાં વધુ 2 MB.');
-  const bytes = new Uint8Array(await file.slice(0, 12).arrayBuffer());
-  const valid = file.type === 'image/jpeg' ? bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255 : file.type === 'image/png' ? [137,80,78,71,13,10,26,10].every((b,i) => bytes[i] === b) : String.fromCharCode(...bytes.slice(0,4)) === 'RIFF' && String.fromCharCode(...bytes.slice(8,12)) === 'WEBP';
-  if (!valid) throw new Error('ફાઇલનો પ્રકાર અને ફોટો મેળ ખાતા નથી.');
-  const bitmap = await createImageBitmap(file);
-  try {
-    if (bitmap.width < 100 || bitmap.height < 100 || bitmap.width * bitmap.height > 24000000) throw new Error('ફોટો 100 × 100 થી ઓછો અથવા 24 MP થી મોટો ન હોવો જોઈએ.');
-    const scale = Math.min(1, 1200 / Math.max(bitmap.width, bitmap.height));
-    const canvas = document.createElement('canvas'); canvas.width = Math.round(bitmap.width * scale); canvas.height = Math.round(bitmap.height * scale);
-    canvas.getContext('2d').drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-    return await new Promise((resolve, reject) => canvas.toBlob(b => b ? resolve(b) : reject(new Error('ફોટો વાંચી શકાયો નથી.')), 'image/jpeg', .88));
-  } finally { bitmap.close(); }
+ const fail=(code,message)=>{throw Object.assign(new Error(message),{code});};
+ if(!file||!['image/jpeg','image/png','image/webp'].includes(file.type))fail('photo_type','JPG, PNG या WEBP फोटो चुनें। HEIC हो तो JPG में बदलें।');
+ if(file.size>RAW_PHOTO_LIMIT)fail('photo_size','फोटो 12 MB से बड़ी है। छोटी फोटो चुनें।');
+ const bytes=new Uint8Array(await file.slice(0,12).arrayBuffer());
+ const valid=file.type==='image/jpeg'?bytes[0]===255&&bytes[1]===216&&bytes[2]===255:file.type==='image/png'?[137,80,78,71,13,10,26,10].every((b,i)=>bytes[i]===b):String.fromCharCode(...bytes.slice(0,4))==='RIFF'&&String.fromCharCode(...bytes.slice(8,12))==='WEBP';
+ if(!valid)fail('photo_type','फाइल सही JPG, PNG या WEBP फोटो नहीं है। दूसरी फोटो चुनें।');
+ let bitmap;
+ try{
+  bitmap=await createImageBitmap(file);
+  if(bitmap.width<100||bitmap.height<100||bitmap.width*bitmap.height>24000000)fail('photo_dimensions','कम से कम 100 × 100 और अधिकतम 24 MP की फोटो चुनें।');
+  const scale=Math.min(1,1200/Math.max(bitmap.width,bitmap.height));
+  const canvas=document.createElement('canvas');canvas.width=Math.round(bitmap.width*scale);canvas.height=Math.round(bitmap.height*scale);
+  const context=canvas.getContext('2d');if(!context)fail('photo_decode','फोटो तैयार नहीं हुई। दूसरी फोटो चुनें।');
+  context.fillStyle='#ffffff';context.fillRect(0,0,canvas.width,canvas.height);context.drawImage(bitmap,0,0,canvas.width,canvas.height);
+  const prepared=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',.88));
+  if(!prepared)fail('photo_decode','फोटो पढ़ी नहीं जा सकी। दूसरी फोटो चुनें।');
+  if(prepared.size>2*1024*1024)fail('photo_size','फोटो छोटी नहीं हो सकी। छोटी फोटो चुनें।');
+  return prepared;
+ }catch(error){if(typeof error.code==='string'&&error.code.startsWith('photo_'))throw error;fail('photo_decode','फोटो खुल नहीं रही है। दूसरी JPG, PNG या WEBP फोटो चुनें।');}
+ finally{bitmap?.close();}
 }
