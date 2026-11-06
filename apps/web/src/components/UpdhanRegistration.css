@@ -8,3 +8,41 @@
 .ur-form .ur-camera-input{display:none}.ur-form .ur-camera-button{min-height:46px;font:inherit}.ur-photo-ready{color:#1b6643!important;font-size:14px!important;font-weight:600}.ur-form input:focus,.ur-form select:focus{outline:3px solid #bda16b;outline-offset:2px}.ur-form [aria-invalid=true]{scroll-margin:130px 0}.ur-form .ur-errors a{display:inline-block;padding:5px 0;line-height:1.6}.ur-form input[type=file]{max-width:100%;font-size:14px}.ur-form .ur-upload input[type=file]::file-selector-button{min-height:44px;padding:8px 12px}
 @media(max-width:760px){.ur-form .ur-steps small{display:block;font-size:11px;line-height:1.5}.ur-form .ur-steps{gap:4px}.ur-form .ur-step-title h4{font-size:23px;line-height:1.5}.ur-form .ur-actions{position:sticky;bottom:0;z-index:5;background:#fffdf6;padding:14px 0 max(14px,env(safe-area-inset-bottom));gap:10px;box-shadow:0 -8px 20px #fffdf6}.ur-form .ur-actions button{min-height:50px;font-size:16px}.ur-form .ur-primary{flex:1}.ur-form .ur-upload input[type=file]{font-size:14px!important;min-height:48px}.ur-form .ur-upload{overflow-wrap:anywhere}.ur-form .ur-choice{min-height:48px}}
 .ur-form .ur-upload input.ur-camera-input{display:none}
+
+/* Keep controls aligned and give each action a clear visual priority. */
+.ur-form .ur-layout-switch {
+  display: flex;
+  gap: 6px;
+  padding: 5px;
+  border-radius: 12px;
+  background: #eaf0e8;
+}
+.ur-form .ur-layout-switch button {
+  flex: 1;
+  margin: 0;
+  border-color: transparent;
+  border-radius: 8px;
+}
+.ur-form .ur-layout-switch button[aria-pressed=true] {
+  background: #194536;
+  color: #fff;
+}
+.ur-form .ur-upload {
+  border-radius: 12px;
+  border-color: #afc2b3;
+  background: #f3f7f0;
+}
+.ur-form .ur-upload label { font-weight: 700; }
+.ur-form .ur-primary {
+  background: #194536;
+  border-color: #194536;
+  color: #fff;
+}
+@media (max-width: 480px) {
+  .ur-form .ur-actions { display: grid; grid-template-columns: auto minmax(0, 1fr); }
+  .ur-form .ur-actions .ur-primary { width: 100%; }
+  .ur-form .ur-actions .ur-primary:first-child { grid-column: 1 / -1; }
+  .ur-form .ur-actions .ur-discard { grid-column: 1 / -1; min-height: 44px; }
+  .ur-form .ur-upload { padding: 14px; }
+  .ur-form .ur-camera-button { width: 100%; }
+}
