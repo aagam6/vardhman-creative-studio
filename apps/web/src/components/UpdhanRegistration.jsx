@@ -22,7 +22,7 @@ export default function UpdhanRegistration() {
   const [uncertain,setUncertain]=useState(false),[forgotten,setForgotten]=useState(false);
   useEffect(() => { if (!photo) { setPreview(''); return; } const url = URL.createObjectURL(photo); setPreview(url); return () => URL.revokeObjectURL(url); }, [photo]);
   useEffect(() => { const next=`${step}:${!!receipt}:${uncertain}:${forgotten}`;if(previousFocus.current!==null&&previousFocus.current!==next)heading.current?.focus();previousFocus.current=next; }, [step, receipt,uncertain,forgotten]);
-  const update = (name, value) => { if(!started.current){started.current=true;trackUpdhan('updhan_registration_start');} setData(d => ({ ...d, [name]: value })); setErrors(e => ({ ...e, [name]: undefined })); };
+  const update = (name, value) => { if(!started.current)started.current=trackUpdhan('updhan_registration_start')===true; setData(d => ({ ...d, [name]: value })); setErrors(e => ({ ...e, [name]: undefined })); };
   function check(section) {
     const next = validateApplication(normalizeApplication(data), photo, section); setErrors(next);
     if (Object.keys(next).length) { requestAnimationFrame(() => form.current?.querySelector('[aria-invalid="true"]')?.focus()); return false; } return true;

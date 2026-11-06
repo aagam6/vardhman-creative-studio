@@ -15,3 +15,14 @@ test('Updhan button and saved receipt events exclude private data and deduplicat
 test('approved WhatsApp button UTM normalizes without changing template',()=>{
  assert.deepEqual(sanitizeCampaign({utm_source:'whatsapp',utm_medium:'utility_message',utm_campaign:'updhan_2027',utm_content:'registration_received'}),{utm_source:'whatsapp',utm_medium:'messaging',utm_campaign:'vijaypataka_updhan_2027',utm_content:'registration_received'});
 });
+
+test('published QR and YouTube campaign links survive navigation without private query data',()=>{
+ for(const [source,medium,content] of [['qr','offline','printed_poster'],['youtube','video','programme_video']]){
+  const campaign={utm_source:source,utm_medium:medium,utm_campaign:'vijaypataka_updhan_2027',utm_content:content};
+  assert.deepEqual(sanitizeCampaign({...campaign,name:'PRIVATE',utm_term:'PRIVATE'}),campaign);
+  const win={location:{href:'https://vardhmancreativestudio.com/vijaypataka-updhan-mahotsav?'+new URLSearchParams({...campaign,name:'PRIVATE'})}},doc={referrer:'',querySelector:()=>null,createElement:()=>({}),head:{appendChild(){}}};
+  const tracker=createWebsiteAnalytics(win,doc,{updhanEnabled:true});tracker.setUpdhanConsent(true);
+  assert.equal(tracker.event('updhan_button_click',{button_id:'video_youtube',phone:'PRIVATE'}),true);
+  assert.ok(JSON.stringify(win.dataLayer).includes('utm_source='+source));assert.ok(!JSON.stringify(win.dataLayer).includes('PRIVATE'));
+ }
+});
