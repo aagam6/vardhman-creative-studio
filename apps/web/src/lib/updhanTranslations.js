@@ -1,6 +1,14 @@
 import {updhanFormTranslationRows} from './updhanFormTranslations.js';
 // Each row is Hindi, English, Gujarati. Canonical application values are separate.
 export const updhanTranslationRows=[
+ ["JPG, PNG या WEBP फोटो चुनें। HEIC हो तो JPG में बदलें।", "Choose a JPG, PNG or WEBP photo. Convert HEIC to JPG first.", "JPG, PNG કે WEBP ફોટો પસંદ કરો. HEIC હોય તો JPGમાં ફેરવો."],
+ ["फोटो 12 MB से बड़ी है। छोटी फोटो चुनें।", "The photo exceeds 12 MB. Choose a smaller photo.", "ફોટો 12 MBથી મોટો છે. નાનો ફોટો પસંદ કરો."],
+ ["फाइल सही JPG, PNG या WEBP फोटो नहीं है। दूसरी फोटो चुनें।", "This is not a valid JPG, PNG or WEBP photo. Choose another.", "આ સાચો JPG, PNG કે WEBP ફોટો નથી. બીજો પસંદ કરો."],
+ ["कम से कम 100 × 100 और अधिकतम 24 MP की फोटो चुनें।", "Choose a photo at least 100 × 100 pixels and no larger than 24 MP.", "ઓછામાં ઓછો 100 × 100 અને વધુમાં વધુ 24 MPનો ફોટો પસંદ કરો."],
+ ["फोटो तैयार नहीं हुई। दूसरी फोटो चुनें।", "The photo could not be prepared. Choose another.", "ફોટો તૈયાર થયો નથી. બીજો પસંદ કરો."],
+ ["फोटो पढ़ी नहीं जा सकी। दूसरी फोटो चुनें।", "The photo could not be read. Choose another.", "ફોટો વાંચી શકાયો નથી. બીજો પસંદ કરો."],
+ ["फोटो छोटी नहीं हो सकी। छोटी फोटो चुनें।", "The photo could not be reduced enough. Choose a smaller one.", "ફોટો પૂરતો નાનો થયો નથી. નાનો ફોટો પસંદ કરો."],
+ ["फोटो खुल नहीं रही है। दूसरी JPG, PNG या WEBP फोटो चुनें।", "The photo cannot be opened. Choose another JPG, PNG or WEBP.", "ફોટો ખૂલતો નથી. બીજો JPG, PNG કે WEBP પસંદ કરો."],
  ['महोत्सव का वीडियो','Mahotsav video','મહોત્સવનો વીડિયો'],['विजयपताका उपधान महोत्सव · YouTube वीडियो','Vijaypataka Updhan Mahotsav · YouTube video','વિજયપતાકા ઉપધાન મહોત્સવ · YouTube વીડિયો'],
  ['अचलगढ़ का परिचय','Discover Achalgarh','અચલગઢનો પરિચય'],['अचलगढ़ को करीब से जानें।','Get to know Achalgarh.','અચલગઢને નજીકથી જાણો.'],['अचलगढ़ तीर्थ का परिचय · YouTube वीडियो','Introduction to Achalgarh tirth · YouTube video','અચલગઢ તીર્થનો પરિચય · YouTube વીડિયો'],
 
