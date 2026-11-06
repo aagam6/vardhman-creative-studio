@@ -14,7 +14,7 @@ export function UpdhanTrailer() {
 
       <div className="vp-video-heading"><div><p className="vp-kicker">महोत्सव का वीडियो</p><h2>{videoUrl?'शिखर से भीतर की ओर।':'शिखर से भीतर की ओर।'}</h2></div><p>विजयपताका – उपधान – महोत्सव<br />अचलगढ़ · 25 अप्रैल — 12 जून 2027</p></div>
       <div className={videoUrl?'vp-video-player':'vp-video-pending'}>{videoUrl ? <iframe src={videoUrl} title="विजयपताका उपधान महोत्सव · YouTube वीडियो" loading="lazy" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" /> : <><span className="vp-pending-label">कार्यक्रम का वीडियो</span><p>प्रकृति, पावन सान्निध्य और उपधान की साधना का परिचय।</p></>}</div>
-    {videoUrl&&<p className="vp-video-external"><a href={updhanConfig.youtubeUrl} target="_blank" rel="noopener noreferrer">{language==='gu'?'YouTube પર જુઓ':language==='en'?'Watch on YouTube':'YouTube पर देखें'}</a></p>}</section>
+    {videoUrl&&<p className="vp-video-external"><a data-updhan-track="video_youtube" href={updhanConfig.youtubeUrl} target="_blank" rel="noopener noreferrer">{language==='gu'?'YouTube પર જુઓ':language==='en'?'Watch on YouTube':'YouTube पर देखें'}</a></p>}</section>
 
   </>,language);
 }

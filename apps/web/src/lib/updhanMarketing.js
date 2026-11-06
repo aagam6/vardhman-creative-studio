@@ -3,10 +3,10 @@ export const UPDHAN_FORM_PATH=`${UPDHAN_PATH}/registration`;
 export const isUpdhanPath=path=>[UPDHAN_PATH,UPDHAN_FORM_PATH].includes(path);
 export const UPDHAN_URL=`https://vardhmancreativestudio.com${UPDHAN_PATH}`;
 export const campaignVocabulary={
- utm_source:['instagram','facebook','google','whatsapp'],
- utm_medium:['social','paid_social','cpc','messaging'],
+ utm_source:['instagram','facebook','google','whatsapp','qr','youtube'],
+ utm_medium:['social','paid_social','cpc','messaging','offline','video'],
  utm_campaign:['vijaypataka_updhan_2027'],
- utm_content:['bio','reel_01','reel_02','story_01','poster_01','event_info','registration','registration_received'],
+ utm_content:['bio','reel_01','reel_02','story_01','poster_01','event_info','registration','registration_received','printed_poster','programme_video'],
 };
 export function sanitizeCampaign(input){
  const params=input instanceof URLSearchParams?input:new URLSearchParams(Object.entries(input||{}).filter(([,v])=>typeof v==='string'));
