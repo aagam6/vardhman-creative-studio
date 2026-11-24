@@ -104,7 +104,7 @@ export default function AryavartPage() {
           </div>
           <div className="ary-cover-frame">
             <img
-              src="/images/aryavart-ka-gaurav-cover.png"
+              src="/assets/aryavart-ka-gaurav-cover.png"
               alt="आर्यावर्त का गौरव पुस्तक का वास्तविक मुखपृष्ठ"
               loading="eager"
             />
@@ -133,7 +133,7 @@ export default function AryavartPage() {
           <h2>पुस्तक की एक झलक</h2>
           <p className="ary-sub">पुस्तक के वास्तविक पृष्ठों और इसकी विशिष्ट प्रस्तुति को करीब से देखिए।</p>
           <div style={{maxWidth:460,margin:'30px auto 0',padding:10,background:'linear-gradient(180deg,#f07b16,#fffdf8 45%,#078b48)',borderRadius:12,boxShadow:'0 12px 35px #174b321c'}}>
-            <img src="/images/aryavart-ka-gaurav-inside-page.png" alt="आर्यावर्त का गौरव पुस्तक का वास्तविक अंदरूनी पृष्ठ" style={{display:'block',width:'100%',height:'auto',borderRadius:5}} loading="lazy" />
+            <img src="/assets/aryavart-ka-gaurav-inside-page.png" alt="आर्यावर्त का गौरव पुस्तक का वास्तविक अंदरूनी पृष्ठ" style={{display:'block',width:'100%',height:'auto',borderRadius:5}} loading="lazy" />
           </div>
         </div>
       </section>
