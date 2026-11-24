@@ -1,107 +1,519 @@
+
 import React, { useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 
 const ORDER_URL =
   'https://wa.me/919426056930?text=' +
-  encodeURIComponent('नमस्ते, मुझे आर्यावर्त का गौरव पुस्तक की एक प्रति ऑर्डर करनी है।');
+  encodeURIComponent(
+    'नमस्ते, मुझे आर्यावर्त का गौरव पुस्तक की एक प्रति ऑर्डर करनी है। पुस्तक का मूल्य ₹300 है। कृपया ऑर्डर की प्रक्रिया बताएं।'
+  );
 
 const styles = `
-.ary-page{--navy:#174b32;--navy2:#087a43;--gold:#e87512;--gold2:#f6a34d;--ivory:#fffdf8;--ink:#20251f;background:var(--ivory);color:var(--ink);font-family:inherit;overflow:hidden}
-.ary-page *{box-sizing:border-box}
-.ary-wrap{width:min(1120px,calc(100% - 40px));margin:auto}
-.ary-top{background:var(--navy);color:#f8f1e3;padding:14px 0;font-size:13px;letter-spacing:.08em}
-.ary-top .ary-wrap{display:flex;justify-content:space-between;gap:16px;align-items:center}
-.ary-hero{background:linear-gradient(180deg,#f07b16 0%,#fffdf8 27%,#fffdf8 72%,#078b48 100%);color:#20251f;padding:72px 0 82px;position:relative}
-.ary-hero:after{content:"";position:absolute;inset:auto 0 0;height:5px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
-.ary-hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:58px;align-items:center}
-.ary-kicker{color:#a64d0a;font-size:13px;letter-spacing:.17em;text-transform:uppercase;font-weight:700}
-.ary-hero h1{font-size:clamp(42px,6vw,76px);line-height:1.12;margin:18px 0;color:#174b32;font-weight:800}
-.ary-hero h1 span{display:block;color:#087a43}
-.ary-lead{font-size:clamp(17px,2vw,21px);line-height:1.8;color:#42483f;max-width:620px}
-.ary-price{display:flex;align-items:center;gap:15px;margin:28px 0}
-.ary-price strong{font-size:34px;color:#087a43}
-.ary-price span{color:#4d554b;font-size:14px}
-.ary-btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;border:1px solid var(--gold);border-radius:999px;padding:15px 26px;background:linear-gradient(135deg,#d7b66e,#a77d36);color:#172235!important;text-decoration:none;font-weight:800;box-shadow:0 12px 28px #0003;transition:transform .2s,filter .2s}
-.ary-btn:hover{transform:translateY(-2px);filter:brightness(1.06)}
-.ary-note{font-size:12px;color:#cbd4df;margin-top:14px}
-.ary-cover-frame{max-width:410px;margin:auto;padding:15px;background:linear-gradient(145deg,#f07b16,#fffdf8 38%,#078b48);border-radius:10px;box-shadow:0 22px 55px #174b3226;transform:rotate(1deg)}
-.ary-cover-frame img{display:block;width:100%;height:auto;border:1px solid #fff9}
-.ary-section{padding:76px 0}
-.ary-section h2{font-size:clamp(29px,4vw,44px);line-height:1.25;color:var(--navy);margin:10px 0 18px}
-.ary-center{text-align:center}
-.ary-sub{max-width:760px;margin:0 auto;color:#526071;line-height:1.85;font-size:17px}
-.ary-letter-row{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;margin:30px 0}
-.ary-letter{min-width:66px;padding:12px 15px;border:1px solid #b9d8c4;border-radius:12px;background:#fff;color:var(--navy);font-size:26px;font-weight:800;box-shadow:0 5px 16px #14243a0c}
-.ary-feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:38px}
-.ary-feature{background:white;border:1px solid #e8dfce;border-radius:18px;padding:25px;box-shadow:0 12px 32px #14243a0a}
-.ary-feature b{display:block;color:#d8660c;font-size:13px;letter-spacing:.12em;margin-bottom:12px}
-.ary-feature h3{font-size:20px;color:var(--navy);margin:0 0 10px}
-.ary-feature p{color:#5c6674;line-height:1.8;margin:0;font-size:15px}
-.ary-timeline{background:#f5f2e9}
-.ary-timeline-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:34px}
-.ary-timeline-card{background:#fff;border-radius:16px;padding:26px;border-left:4px solid var(--gold)}
-.ary-timeline-card small{color:#98743b;font-weight:800;letter-spacing:.1em}
-.ary-timeline-card h3{color:var(--navy);font-size:21px;margin:8px 0}
-.ary-timeline-card p{color:#5c6674;line-height:1.8;margin:0}
-.ary-oxford{background:var(--navy);color:white}
-.ary-oxford h2{color:#f5e9ce}
-.ary-oxford .ary-sub{color:#d4dce6}
-.ary-oxford-pill{display:inline-block;margin-top:24px;border:1px solid #b99659;color:#f1dcae;border-radius:999px;padding:12px 20px;font-weight:700;letter-spacing:.04em}
-.ary-order{background:linear-gradient(180deg,#174b32,#087a43);color:white;padding:76px 0;text-align:center}
-.ary-order h2{color:#f7e8c5;font-size:clamp(32px,4vw,48px);margin:10px 0}
-.ary-order p{color:#e0e5ec;line-height:1.8;font-size:17px}
-.ary-order .ary-price{justify-content:center}
-.ary-contact{font-size:14px;color:#d4dce6;margin-top:20px}
-.ary-footer{background:#174b32;color:#aeb8c5;text-align:center;padding:22px;font-size:12px}
-.ary-page a:focus-visible{outline:3px solid #e5cf9d;outline-offset:3px}
-@media(max-width:760px){.ary-hero{padding:48px 0 60px}.ary-hero-grid{grid-template-columns:1fr;gap:36px}.ary-hero-copy{text-align:center}.ary-lead{margin:auto}.ary-price{justify-content:center}.ary-cover-frame{max-width:300px}.ary-section{padding:54px 0}.ary-feature-grid,.ary-timeline-grid{grid-template-columns:1fr}.ary-top .ary-wrap{justify-content:center;text-align:center}.ary-top .ary-top-right{display:none}}
+.ary-page {
+  --saffron: #ed7815;
+  --green: #087c43;
+  --deep-green: #124b32;
+  --gold: #bd9140;
+  --gold-light: #f0dba9;
+  --ivory: #fffdf7;
+  --ink: #252b25;
+  background: var(--ivory);
+  color: var(--ink);
+  font-family: inherit;
+  overflow: hidden;
+}
+
+.ary-page * {
+  box-sizing: border-box;
+}
+
+.ary-wrap {
+  width: min(1120px, calc(100% - 40px));
+  margin: auto;
+}
+
+.ary-top {
+  background: var(--deep-green);
+  color: white;
+  padding: 13px 0;
+  font-size: 13px;
+  letter-spacing: .08em;
+}
+
+.ary-top .ary-wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ary-hero {
+  background:
+    linear-gradient(
+      180deg,
+      #ed7815 0%,
+      #fffdf7 19%,
+      #fffdf7 83%,
+      #078c49 100%
+    );
+  padding: 75px 0 85px;
+}
+
+.ary-hero-grid {
+  display: grid;
+  grid-template-columns: 1.1fr .9fr;
+  gap: 55px;
+  align-items: center;
+}
+
+.ary-kicker {
+  color: #a95813;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  margin-bottom: 17px;
+}
+
+.ary-hero h1 {
+  font-size: clamp(42px, 6vw, 76px);
+  line-height: 1.16;
+  color: var(--deep-green);
+  margin: 0 0 23px;
+  font-weight: 800;
+}
+
+.ary-hero h1 span {
+  display: block;
+  color: var(--green);
+}
+
+.ary-lead {
+  font-size: 19px;
+  line-height: 1.9;
+  color: #424b40;
+  max-width: 590px;
+}
+
+.ary-hero-highlight {
+  margin-top: 22px;
+  padding-left: 17px;
+  border-left: 3px solid var(--gold);
+  color: #705323;
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+.ary-cover-frame {
+  max-width: 390px;
+  margin: auto;
+  padding: 11px;
+  background: linear-gradient(
+    145deg,
+    var(--saffron),
+    white 45%,
+    var(--green)
+  );
+  border-radius: 10px;
+  box-shadow: 0 25px 55px #173c2928;
+}
+
+.ary-cover-frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid #ffffff;
+}
+
+.ary-btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 28px;
+  border-radius: 50px;
+  background: linear-gradient(135deg, #e6bd6d, #bd9140);
+  color: #172c21 !important;
+  text-decoration: none !important;
+  font-weight: 800;
+  font-size: 16px;
+  border: 1px solid #d29a36;
+  box-shadow: 0 10px 25px #0002;
+  transition: .2s ease;
+}
+
+.ary-btn:hover {
+  transform: translateY(-3px);
+  filter: brightness(1.06);
+}
+
+.ary-hero .ary-btn {
+  margin-top: 27px;
+}
+
+.ary-note {
+  margin-top: 15px;
+  font-size: 13px;
+  color: #425b47;
+}
+
+.ary-section {
+  padding: 78px 0;
+}
+
+.ary-center {
+  text-align: center;
+}
+
+.ary-section h2 {
+  font-size: clamp(29px, 4vw, 43px);
+  color: var(--deep-green);
+  line-height: 1.35;
+  margin: 10px 0 20px;
+}
+
+.ary-sub {
+  max-width: 790px;
+  margin: auto;
+  color: #555f55;
+  font-size: 17px;
+  line-height: 1.95;
+}
+
+.ary-letter-row {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 13px;
+  margin: 32px 0;
+}
+
+.ary-letter {
+  width: 65px;
+  height: 65px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  color: var(--deep-green);
+  border: 1px solid #d8c49b;
+  border-radius: 12px;
+  font-size: 28px;
+  font-weight: 800;
+  box-shadow: 0 5px 16px #0000000c;
+}
+
+.ary-meaning {
+  background: #f4efe3;
+}
+
+.ary-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 40px;
+}
+
+.ary-feature {
+  background: white;
+  border: 1px solid #e9dfcb;
+  border-radius: 16px;
+  padding: 28px 24px;
+  box-shadow: 0 12px 30px #173c2910;
+}
+
+.ary-feature-number {
+  color: var(--saffron);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .1em;
+}
+
+.ary-feature h3 {
+  color: var(--deep-green);
+  font-size: 21px;
+  line-height: 1.5;
+  margin: 14px 0 12px;
+}
+
+.ary-feature p {
+  color: #586258;
+  font-size: 15px;
+  line-height: 1.9;
+  margin: 0;
+}
+
+.ary-inside {
+  background: #fffdf7;
+}
+
+.ary-inside-frame {
+  max-width: 440px;
+  margin: 35px auto 0;
+  padding: 9px;
+  background: linear-gradient(
+    180deg,
+    var(--saffron),
+    white 50%,
+    var(--green)
+  );
+  border-radius: 10px;
+  box-shadow: 0 15px 40px #00000018;
+}
+
+.ary-inside-frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+.ary-oxford {
+  background: var(--deep-green);
+  color: white;
+}
+
+.ary-oxford h2 {
+  color: var(--gold-light);
+}
+
+.ary-oxford .ary-sub {
+  color: #e6eee6;
+}
+
+.ary-oxford-tag {
+  display: inline-block;
+  border: 1px solid #c7a45f;
+  color: var(--gold-light);
+  border-radius: 50px;
+  padding: 12px 22px;
+  margin-top: 25px;
+  font-weight: 700;
+  letter-spacing: .04em;
+}
+
+.ary-order {
+  background: linear-gradient(
+    145deg,
+    #103d2b,
+    #087c43
+  );
+  padding: 85px 20px;
+  text-align: center;
+  color: white;
+}
+
+.ary-order .ary-kicker {
+  color: #f3c779;
+}
+
+.ary-order h2 {
+  color: #fff4d9;
+  font-size: clamp(31px, 4.5vw, 48px);
+  line-height: 1.4;
+  margin: 12px 0 18px;
+}
+
+.ary-order-description {
+  color: #f1f5ee;
+  font-size: 17px;
+  line-height: 1.8;
+}
+
+.ary-price {
+  margin: 30px auto;
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.ary-price strong {
+  font-size: clamp(42px, 6vw, 58px);
+  line-height: 1.2;
+  color: #fff3d5;
+  font-weight: 900;
+  text-shadow: 0 2px 12px #0003;
+}
+
+.ary-price span {
+  font-size: 16px;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.ary-order .ary-btn {
+  margin-top: 5px;
+  min-width: 280px;
+}
+
+.ary-contact {
+  color: #ffffff;
+  font-size: 15px;
+  margin-top: 22px;
+}
+
+.ary-footer {
+  background: #0b3022;
+  color: #e7e7d9;
+  padding: 22px;
+  text-align: center;
+  font-size: 13px;
+}
+
+.ary-page a:focus-visible {
+  outline: 3px solid #f0dba9;
+  outline-offset: 4px;
+}
+
+@media (max-width: 760px) {
+  .ary-wrap {
+    width: min(100% - 30px, 560px);
+  }
+
+  .ary-hero {
+    padding: 48px 0 60px;
+  }
+
+  .ary-hero-grid {
+    grid-template-columns: 1fr;
+    gap: 35px;
+  }
+
+  .ary-hero-copy {
+    text-align: center;
+  }
+
+  .ary-lead {
+    font-size: 17px;
+  }
+
+  .ary-hero-highlight {
+    text-align: left;
+  }
+
+  .ary-cover-frame {
+    max-width: 290px;
+  }
+
+  .ary-section {
+    padding: 55px 0;
+  }
+
+  .ary-feature-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ary-letter {
+    width: 55px;
+    height: 55px;
+  }
+
+  .ary-order {
+    padding: 60px 15px;
+  }
+
+  .ary-order .ary-btn {
+    min-width: 0;
+    width: 100%;
+    max-width: 340px;
+  }
+
+  .ary-top .ary-wrap {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .ary-top-brand {
+    display: none;
+  }
+}
 `;
 
 export default function AryavartPage() {
   useEffect(() => {
-    document.title = 'आर्यावर्त का गौरव | एक अद्वितीय साहित्यिक कृति';
-    const description = 'आर्यावर्त का गौरव — पाँच ओष्ठ्य वर्णों प, फ, ब, भ और म के प्रयोग के बिना रचित अनूठी पुस्तक। मूल्य ₹300। WhatsApp पर अपनी प्रति ऑर्डर करें।';
-    let meta = document.querySelector('meta[name="description"]');
+    document.title =
+      'आर्यावर्त का गौरव | पाँच ओष्ठ्य वर्णों के बिना रचित अनूठी पुस्तक';
+
+    const description =
+      'आर्यावर्त का गौरव — प, फ, ब, भ और म पाँच ओष्ठ्य वर्णों के प्रयोग के बिना रचित अनूठी पुस्तक। जामनगर के 100 मिनट के ऐतिहासिक प्रवचन और Oxford University Library में स्थान प्राप्त इस कृति को ₹300 में ऑर्डर करें।';
+
+    let meta = document.querySelector(
+      'meta[name="description"]'
+    );
+
     if (!meta) {
       meta = document.createElement('meta');
       meta.name = 'description';
       document.head.appendChild(meta);
     }
+
     meta.content = description;
-    return () => {};
   }, []);
 
   return (
     <main className="ary-page">
       <Helmet>
         <html lang="hi" />
-        <meta property="og:title" content="आर्यावर्त का गौरव" />
-        <meta property="og:description" content="पाँच ओष्ठ्य वर्णों के प्रयोग के बिना रचित एक अनूठी साहित्यिक कृति।" />
+        <meta
+          property="og:title"
+          content="आर्यावर्त का गौरव"
+        />
+        <meta
+          property="og:description"
+          content="पाँच ओष्ठ्य वर्णों के प्रयोग के बिना रचित एक अनूठी साहित्यिक कृति।"
+        />
         <meta property="og:type" content="product" />
       </Helmet>
+
       <style>{styles}</style>
-      <div className="ary-top">
+
+      {/* Header */}
+      <header className="ary-top">
         <div className="ary-wrap">
           <span>॥ श्री वीतरागाय नमः ॥</span>
-          <span className="ary-top-right">VARDHMAN CREATIVE STUDIO</span>
+          <span className="ary-top-brand">
+            VARDHMAN CREATIVE STUDIO
+          </span>
         </div>
-      </div>
+      </header>
 
+      {/* Hero */}
       <section className="ary-hero">
         <div className="ary-wrap ary-hero-grid">
           <div className="ary-hero-copy">
-            <div className="ary-kicker">A remarkable literary creation</div>
-            <h1>आर्यावर्त <span>का गौरव</span></h1>
+            <div className="ary-kicker">
+              350 वर्षों की ऐतिहासिक भाषाई परंपरा
+            </div>
+
+            <h1>
+              आर्यावर्त
+              <span>का गौरव</span>
+            </h1>
+
             <p className="ary-lead">
-              पाँच ओष्ठ्य वर्णों के प्रयोग के बिना रचित एक अनूठी पुस्तक —
-              भाषाई कौशल, एकाग्रता और आध्यात्मिक साधना का अद्भुत संगम।
+              350 वर्षों बाद पुनः साकार हुई एक अद्भुत
+              भाषाई साधना — पाँच ओष्ठ्य वर्णों के प्रयोग
+              के बिना रची गई एक विलक्षण साहित्यिक कृति।
             </p>
-            <div className="ary-price"><strong>₹300</strong><span>प्रति पुस्तक</span></div>
-            <a className="ary-btn" href={ORDER_URL} target="_blank" rel="noopener noreferrer">
-              WhatsApp पर पुस्तक ऑर्डर करें <span aria-hidden="true">↗</span>
+
+            <div className="ary-hero-highlight">
+              प, फ, ब, भ और म — इन पाँच वर्णों का
+              प्रयोग किए बिना रचित अनूठी पुस्तक।
+            </div>
+
+            <a
+              className="ary-btn"
+              href={ORDER_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              पुस्तक ऑर्डर करें ↗
             </a>
-            <div className="ary-note">ऑर्डर के लिए WhatsApp: +91 94260 56930</div>
+
+            <div className="ary-note">
+              पुस्तक मूल्य: ₹300 | WhatsApp: +91 94260 56930
+            </div>
           </div>
+
           <div className="ary-cover-frame">
             <img
               src="/assets/aryavart-ka-gaurav-cover.png"
@@ -112,105 +524,214 @@ export default function AryavartPage() {
         </div>
       </section>
 
+      {/* Unique concept */}
       <section className="ary-section ary-center">
         <div className="ary-wrap">
-          <div className="ary-kicker" style={{color:'#9b783e'}}>The unique concept</div>
-          <h2>पाँच वर्णों के बिना रची गई अनूठी कृति</h2>
+          <div className="ary-kicker">
+            एक विलक्षण साहित्यिक प्रयोग
+          </div>
+
+          <h2>
+            पाँच ओष्ठ्य वर्णों के बिना रचित अनूठी कृति
+          </h2>
+
           <p className="ary-sub">
-            इस पुस्तक की विशेषता है कि इसे हिंदी के पाँच ओष्ठ्य वर्णों —
-            प, फ, ब, भ और म — का प्रयोग किए बिना लिखा गया है।
+            हिंदी भाषा के पाँच ओष्ठ्य व्यंजन — प, फ, ब,
+            भ और म — सामान्य लेखन में सहज रूप से प्रयुक्त
+            होते हैं। लेकिन इन पाँचों वर्णों का प्रयोग
+            किए बिना एक संपूर्ण पुस्तक की रचना करना
+            असाधारण भाषाई कौशल, एकाग्रता और साधना
+            का परिचायक है।
           </p>
-          <div className="ary-letter-row" aria-label="वर्जित वर्ण">
-            {['प','फ','ब','भ','म'].map(letter => <span className="ary-letter" key={letter}>{letter}</span>)}
+
+          <div className="ary-letter-row">
+            {['प', 'फ', 'ब', 'भ', 'म'].map(letter => (
+              <span className="ary-letter" key={letter}>
+                {letter}
+              </span>
+            ))}
           </div>
-          <p className="ary-sub">पुस्तक के मुखपृष्ठ पर इसे विश्व में सर्वप्रथम पाँच ओष्ठ्य व्यंजनों के प्रयोग के बिना प्रकाशित पुस्तक के रूप में प्रस्तुत किया गया है।</p>
+
+          <p className="ary-sub">
+            'आर्यावर्त का गौरव' इसी अनूठे भाषाई
+            प्रयोग का साहित्यिक स्वरूप है।
+          </p>
         </div>
       </section>
 
-      <section className="ary-section ary-center" style={{background:'#fffdf8'}}>
-        <div className="ary-wrap">
-          <div className="ary-kicker" style={{color:'#a64d0a'}}>Inside the book</div>
-          <h2>पुस्तक की एक झलक</h2>
-          <p className="ary-sub">पुस्तक के वास्तविक पृष्ठों और इसकी विशिष्ट प्रस्तुति को करीब से देखिए।</p>
-          <div style={{maxWidth:460,margin:'30px auto 0',padding:10,background:'linear-gradient(180deg,#f07b16,#fffdf8 45%,#078b48)',borderRadius:12,boxShadow:'0 12px 35px #174b321c'}}>
-            <img src="/assets/aryavart-ka-gaurav-inside-page.png" alt="आर्यावर्त का गौरव पुस्तक का वास्तविक अंदरूनी पृष्ठ" style={{display:'block',width:'100%',height:'auto',borderRadius:5}} loading="lazy" />
-          </div>
-        </div>
-      </section>
-
-      <section className="ary-section" style={{background:'#f1ebdf'}}>
+      {/* History */}
+      <section className="ary-section ary-meaning">
         <div className="ary-wrap">
           <div className="ary-center">
-            <div className="ary-kicker" style={{color:'#9b783e'}}>A legacy of language & discipline</div>
-            <h2>इतिहास, साधना और साहित्य</h2>
-            <p className="ary-sub">लगभग 350 वर्ष पुरानी भाषाई परंपरा से प्रेरित यह कृति एक असाधारण साधना की कहानी कहती है।</p>
+            <div className="ary-kicker">
+              इतिहास से वर्तमान तक
+            </div>
+
+            <h2>
+              350 वर्षों की प्रेरणा, एक अद्भुत पुनर्साधना
+            </h2>
+
+            <p className="ary-sub">
+              लगभग 350 वर्ष पूर्व पूज्य उपाध्याय
+              श्री यशोविजयजी महाराज साहब की
+              ऐतिहासिक भाषाई साधना ने एक विलक्षण
+              परंपरा का परिचय दिया। उसी ऐतिहासिक
+              प्रेरणा को आगे बढ़ाते हुए पूज्य मुनि
+              श्री श्रमणचंद्रसागरजी महाराज साहेब ने
+              इस भाषाई साधना को पुनः साकार किया।
+            </p>
           </div>
+
           <div className="ary-feature-grid">
             <article className="ary-feature">
-              <b>01 · HISTORICAL INSPIRATION</b>
-              <h3>350 वर्षों की परंपरा</h3>
-              <p>पूज्य उपाध्याय श्री यशोविजयजी महाराज साहब की ऐतिहासिक भाषाई साधना से प्रेरित परंपरा।</p>
+              <div className="ary-feature-number">
+                ऐतिहासिक प्रेरणा
+              </div>
+              <h3>
+                पूज्य उपाध्याय श्री यशोविजयजी महाराज साहब
+              </h3>
+              <p>
+                लगभग 350 वर्ष पुरानी भाषाई साधना,
+                जिसने इस अद्भुत साहित्यिक परंपरा
+                की प्रेरणा दी।
+              </p>
             </article>
+
             <article className="ary-feature">
-              <b>02 · JAMNAGAR · 12 OCT 2025</b>
-              <h3>100 मिनट का प्रवचन</h3>
-              <p>पूज्य मुनि श्री श्रमणचंद्रसागरजी महाराज साहेब ने ‘आर्यावर्त की गरिमा’ विषय पर पाँच ओष्ठ्य वर्णों के बिना हिंदी प्रवचन दिया।</p>
+              <div className="ary-feature-number">
+                जामनगर · 12 अक्टूबर 2025
+              </div>
+              <h3>
+                100 मिनट का ऐतिहासिक प्रवचन
+              </h3>
+              <p>
+                पूज्य मुनि श्री श्रमणचंद्रसागरजी
+                महाराज साहेब ने 'आर्यावर्त की गरिमा'
+                विषय पर पाँच ओष्ठ्य वर्णों के बिना
+                हिंदी प्रवचन दिया।
+              </p>
             </article>
+
             <article className="ary-feature">
-              <b>03 · RECOGNITION</b>
-              <h3>India Book of Records</h3>
-              <p>इस 100 मिनट की भाषाई उपलब्धि को India Book of Records में दर्ज किया गया।</p>
+              <div className="ary-feature-number">
+                राष्ट्रीय अभिलेख
+              </div>
+              <h3>
+                India Book of Records
+              </h3>
+              <p>
+                12 अक्टूबर 2025 को प्रस्तुत इस
+                100 मिनट की भाषाई उपलब्धि को
+                India Book of Records में दर्ज किया गया।
+              </p>
             </article>
+          </div>
+
+          <div className="ary-center" style={{marginTop: 35}}>
+            <p className="ary-sub">
+              इस ऐतिहासिक आयोजन में ISOBJG Management
+              की भूमिका और सहयोग का विशेष उल्लेख।
+            </p>
           </div>
         </div>
       </section>
 
-      <section className="ary-section ary-timeline">
+      {/* Book inside */}
+      <section className="ary-section ary-inside ary-center">
         <div className="ary-wrap">
-          <div className="ary-center">
-            <div className="ary-kicker" style={{color:'#9b783e'}}>From a historic practice to a book</div>
-            <h2>एक साधना, पुस्तक के रूप में</h2>
+          <div className="ary-kicker">
+            पुस्तक के भीतर एक झलक
           </div>
-          <div className="ary-timeline-grid">
-            <article className="ary-timeline-card">
-              <small>THE BOOK</small>
-              <h3>आर्यावर्त का गौरव</h3>
-              <p>मुनिश्री श्रमणचंद्रसागर ‘यशोनंदन’ द्वारा रचित यह पुस्तक पाँचों ओष्ठ्य वर्णों के प्रयोग के बिना लिखी गई है।</p>
-            </article>
-            <article className="ary-timeline-card">
-              <small>OXFORD UNIVERSITY</small>
-              <h3>अंतरराष्ट्रीय पहचान</h3>
-              <p>‘आर्यावर्त का गौरव’ अब ऑक्सफोर्ड यूनिवर्सिटी की लाइब्रेरी में उपलब्ध है और उसके ऑनलाइन कैटलॉग में सूचीबद्ध है।</p>
-            </article>
-          </div>
-        </div>
-      </section>
 
-      <section className="ary-section ary-oxford">
-        <div className="ary-wrap ary-center">
-          <div className="ary-kicker">International catalogue recognition</div>
-          <h2>ऑक्सफोर्ड यूनिवर्सिटी तक पहुँची ‘आर्यावर्त का गौरव’</h2>
+          <h2>
+            शब्द-साधना का अद्भुत साहित्यिक स्वरूप
+          </h2>
+
           <p className="ary-sub">
-            भारतीय ज्ञान और साहित्य की यह अनूठी कृति अब ऑक्सफोर्ड यूनिवर्सिटी की
-            लाइब्रेरी में भी उपलब्ध है और उसके आधिकारिक ऑनलाइन कैटलॉग में दर्ज है।
+            इस पुस्तक के पृष्ठों में भाषाई अनुशासन,
+            साहित्यिक चिंतन और आध्यात्मिक दृष्टि
+            का अनूठा समन्वय देखने को मिलता है।
           </p>
-          <span className="ary-oxford-pill">OXFORD UNIVERSITY · ONLINE CATALOGUE</span>
+
+          <div className="ary-inside-frame">
+            <img
+              src="/assets/aryavart-ka-gaurav-inside-page.png"
+              alt="आर्यावर्त का गौरव पुस्तक का वास्तविक अंदरूनी पृष्ठ"
+              loading="lazy"
+            />
+          </div>
         </div>
       </section>
 
+      {/* Oxford */}
+      <section className="ary-section ary-oxford ary-center">
+        <div className="ary-wrap">
+          <div className="ary-kicker">
+            अंतरराष्ट्रीय साहित्यिक पहचान
+          </div>
+
+          <h2>
+            'आर्यावर्त का गौरव' अब ऑक्सफोर्ड यूनिवर्सिटी की
+            लाइब्रेरी में भी उपलब्ध है!
+          </h2>
+
+          <p className="ary-sub">
+            भारतीय भाषाई साधना और साहित्य की यह
+            अनूठी कृति ऑक्सफोर्ड यूनिवर्सिटी की
+            लाइब्रेरी में स्थान प्राप्त कर चुकी है
+            और वहाँ के Online Catalogue में
+            'आर्यावर्त का गौरव' के नाम से सूचीबद्ध है।
+          </p>
+
+          <div className="ary-oxford-tag">
+            UNIVERSITY OF OXFORD · ONLINE CATALOGUE
+          </div>
+        </div>
+      </section>
+
+      {/* Final order */}
       <section className="ary-order" id="order">
         <div className="ary-wrap">
-          <div className="ary-kicker">Bring this unique work to your bookshelf</div>
-          <h2>इस अनूठी कृति को<br/>अपने पुस्तकालय का हिस्सा बनाइए</h2>
-          <p>‘आर्यावर्त का गौरव’ की अपनी प्रति आज ही ऑर्डर करें।</p>
-          <div className="ary-price"><strong>₹300</strong><span>प्रति पुस्तक</span></div>
-          <a className="ary-btn" href={ORDER_URL} target="_blank" rel="noopener noreferrer">
-            अभी WhatsApp पर ऑर्डर करें <span aria-hidden="true">↗</span>
+          <div className="ary-kicker">
+            एक अनूठी कृति, आपके संग्रह के लिए
+          </div>
+
+          <h2>
+            इस अनूठी कृति को अपने
+            <br />
+            पुस्तकालय का हिस्सा बनाइए
+          </h2>
+
+          <p className="ary-order-description">
+            'आर्यावर्त का गौरव' की अपनी प्रति
+            आज ही ऑर्डर करें।
+          </p>
+
+          <div className="ary-price">
+            <strong>₹300</strong>
+            <span>प्रति पुस्तक</span>
+          </div>
+
+          <a
+            className="ary-btn"
+            href={ORDER_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span>अभी WhatsApp पर ऑर्डर करें</span>
+            <span aria-hidden="true">↗</span>
           </a>
-          <div className="ary-contact">WhatsApp Order: +91 94260 56930</div>
+
+          <div className="ary-contact">
+            WhatsApp Order: +91 94260 56930
+          </div>
         </div>
       </section>
-      <footer className="ary-footer">© Vardhman Creative Studio · आर्यावर्त का गौरव</footer>
+
+      {/* Footer */}
+      <footer className="ary-footer">
+        © Vardhman Creative Studio · आर्यावर्त का गौरव
+      </footer>
     </main>
   );
 }
