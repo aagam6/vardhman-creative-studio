@@ -17,6 +17,7 @@ const AyambilAdminPage = lazy(() => import('@/pages/AyambilAdminPage.jsx'));
 const AyambilEveningPage = lazy(() => import('@/pages/AyambilEveningPage.jsx'));
 const AyambilPassDownloadPage = lazy(() => import('@/pages/AyambilPassDownloadPage.jsx'));
 const PrivacyPolicyPage = lazy(() => import('@/pages/PrivacyPolicyPage.jsx'));
+const AryavartPage = lazy(() => import('@/pages/AryavartPage.jsx'));
 const AgencyPrivacyPolicyPage = lazy(() => import('@/pages/AgencyPrivacyPolicyPage.jsx'));
 const AgencyTermsOfServicePage = lazy(() => import('@/pages/AgencyTermsOfServicePage.jsx'));
 // const AdminPassGeneratorPage = lazy(() => import('@/pages/AdminPassGeneratorPage.jsx'));
