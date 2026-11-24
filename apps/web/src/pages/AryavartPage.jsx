@@ -626,14 +626,7 @@ export default function AryavartPage() {
               </p>
             </article>
           </div>
-
-          <div className="ary-center" style={{marginTop: 35}}>
-            <p className="ary-sub">
-              इस ऐतिहासिक आयोजन में ISOBJG Management
-              की भूमिका और सहयोग का विशेष उल्लेख।
-            </p>
-          </div>
-        </div>
+               </div>
       </section>
 
       {/* Book inside */}
