@@ -20,8 +20,11 @@ const PrivacyPolicyPage = lazy(() => import('@/pages/PrivacyPolicyPage.jsx'));
 const AryavartPage = lazy(() => import('@/pages/AryavartPage.jsx'));
 const AgencyPrivacyPolicyPage = lazy(() => import('@/pages/AgencyPrivacyPolicyPage.jsx'));
 const AgencyTermsOfServicePage = lazy(() => import('@/pages/AgencyTermsOfServicePage.jsx'));
+
 // const AdminPassGeneratorPage = lazy(() => import('@/pages/AdminPassGeneratorPage.jsx'));
+
 const PVCLiveRedirect = lazy(() => import('@/pages/PVCLiveRedirect.jsx'));
+
 
 const PageLoader = () => (
     <div className="min-h-screen bg-background flex items-center justify-center">
@@ -55,6 +58,11 @@ function App() {
                     <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
                     <Route path="/privacy" element={<AgencyPrivacyPolicyPage />} />
                     <Route path="/terms" element={<AgencyTermsOfServicePage />} />
+                    {/* Aryavart Ka Gaurav Book Landing Page */}
+<Route
+    path="/aryavart-ka-gaurav"
+    element={<AryavartPage />}
+/>
                     {/* Disabled routes */}
                     {/* <Route path="/pass-collection" element={<Navigate to="/param-vir-chakra" replace />} /> */}
                     {/* <Route path="/admin/pass-generator" element={<AdminPassGeneratorPage />} /> */}
