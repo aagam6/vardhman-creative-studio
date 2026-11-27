@@ -1,178 +1,77 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Helmet } from 'react-helmet';
-import { contactConfig } from '@/lib/contactConfig';
+import { Link } from 'react-router-dom';
+
+const videoUrl = 'https://www.youtube.com/watch?v=NjthLLyx964';
+const videoId = 'NjthLLyx964';
 
 export default function PVCLiveRedirect() {
-    const videoId = "NjthLLyx964";
-    const webUrl = "https://www.youtube.com/watch?v=" + videoId;
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebPage',
+        '@id': 'https://vardhmancreativestudio.com/pvclive#webpage',
+        url: 'https://vardhmancreativestudio.com/pvclive',
+        name: 'Param Vir Chakra – Shaurya Gatha recording',
+        description: 'Watch the recorded Param Vir Chakra – Shaurya Gatha programme.',
+        inLanguage: ['en', 'hi'],
+      },
+      {
+        '@type': 'VideoObject',
+        name: 'Param Vir Chakra – Shaurya Gatha',
+        description: 'Recorded programme from 9 August 2026.',
+        thumbnailUrl: 'https://vardhmancreativestudio.com/assets/param-vir-chakra-live.jpg?v=4',
+        uploadDate: '2026-08-09T09:00:00+05:30',
+        embedUrl: `https://www.youtube.com/embed/${videoId}`,
+        contentUrl: videoUrl,
+        duration: 'PT4H0M0S',
+        isFamilyFriendly: true,
+      },
+      {
+        '@type': 'Event',
+        name: 'Param Vir Chakra – Shaurya Gatha',
+        startDate: '2026-08-09T09:00:00+05:30',
+        endDate: '2026-08-09T13:00:00+05:30',
+        eventStatus: 'https://schema.org/EventCompleted',
+        eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+        location: { '@type': 'Place', name: 'Dinesh Hall, Ahmedabad' },
+      },
+    ],
+  };
 
-    const openYouTube = (e) => {
-        if (e) e.preventDefault();
-        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-        const isAndroid = /android/i.test(userAgent);
-        const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
-
-        if (isAndroid) {
-            window.location.href = "intent://www.youtube.com/watch?v=" + videoId + "#Intent;package=com.google.android.youtube;scheme=https;end;";
-        } else if (isIOS) {
-            window.location.href = "youtube://www.youtube.com/watch?v=" + videoId;
-            setTimeout(() => {
-                window.location.replace(webUrl);
-            }, 1500);
-        } else {
-            window.location.replace(webUrl);
-        }
-    };
-
-    useEffect(() => {
-        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-        const isAndroid = /android/i.test(userAgent);
-        const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
-
-        if (isAndroid || isIOS) {
-            openYouTube();
-        } else {
-            window.location.replace(webUrl);
-        }
-    }, []);
-
-    return (
-        <div className="flex min-h-screen flex-col items-center justify-center bg-[#040b14] text-white">
-            <Helmet>
-                {/* Standard Meta Tags */}
-                <title>Param Vir Chakra – Shaurya Gatha Live / परमवीर चक्र – शौर्यगाथा लाइव</title>
-                <meta name="description" content="Watch the official video stream of Param Vir Chakra – Shaurya Gatha. A Grand Patriotic Experience celebrating India's greatest heroes." />
-                
-                {/* Open Graph / Facebook */}
-                <meta property="og:type" content="video.other" />
-                <meta property="og:title" content="Param Vir Chakra – Shaurya Gatha Live / परमवीर चक्र – शौर्यगाथा लाइव" />
-                <meta property="og:description" content="Watch the official video stream of Param Vir Chakra – Shaurya Gatha. A Grand Patriotic Experience celebrating India's greatest heroes." />
-                <meta property="og:url" content="https://vardhmancreativestudio.com/pvclive" />
-                <meta property="og:image" content="https://vardhmancreativestudio.com/assets/param-vir-chakra-live.jpg?v=4" />
-                <meta property="og:image:secure_url" content="https://vardhmancreativestudio.com/assets/param-vir-chakra-live.jpg?v=4" />
-                <meta property="og:image:width" content="1280" />
-                <meta property="og:image:height" content="720" />
-                <meta property="og:image:type" content="image/jpeg" />
-                <meta property="og:image:alt" content="Param Vir Chakra Shaurya Gatha Live Stream" />
-
-                {/* Twitter */}
-                <meta name="twitter:card" content="summary_large_image" />
-                <meta name="twitter:title" content="Param Vir Chakra – Shaurya Gatha Live / परमवीर चक्र – शौर्यगाथा लाइव" />
-                <meta name="twitter:description" content="Watch the official video stream of Param Vir Chakra – Shaurya Gatha. A Grand Patriotic Experience celebrating India's greatest heroes." />
-                <meta name="twitter:image" content="https://vardhmancreativestudio.com/assets/param-vir-chakra-live.jpg?v=4" />
-
-                {/* Canonical & Robots SEO tags */}
-                <link rel="canonical" href="https://vardhmancreativestudio.com/pvclive" />
-                <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-
-                {/* JSON-LD Structured Data Schema for Live Event & Video */}
-                <script type="application/ld+json">
-                    {JSON.stringify({
-                      "@context": "https://schema.org",
-                      "@graph": [
-                        {
-                          "@type": "WebPage",
-                          "@id": "https://vardhmancreativestudio.com/pvclive#webpage",
-                          "url": "https://vardhmancreativestudio.com/pvclive",
-                          "name": "Param Vir Chakra – Shaurya Gatha Live / परमवीर चक्र – शौर्यगाथा लाइव",
-                          "description": "Watch the official live video stream of Param Vir Chakra – Shaurya Gatha grand event.",
-                          "isPartOf": {
-                            "@type": "WebSite",
-                            "@id": "https://vardhmancreativestudio.com/#website",
-                            "name": "Vardhman Creative Studio",
-                            "url": "https://vardhmancreativestudio.com"
-                          },
-                          "inLanguage": "en-US",
-                          "datePublished": "2026-07-30T09:00:00+05:30",
-                          "dateModified": "2026-08-07T15:30:00+05:30"
-                        },
-                        {
-                          "@type": "VideoObject",
-                          "name": "Param Vir Chakra – Shaurya Gatha Live / परमवीर चक्र – शौर्यगाथा लाइव",
-                          "description": "Watch the official live video stream of Param Vir Chakra – Shaurya Gatha event on 9 August 2026.",
-                          "thumbnailUrl": "https://vardhmancreativestudio.com/assets/param-vir-chakra-live.jpg?v=4",
-                          "uploadDate": "2026-08-09T09:00:00+05:30",
-                          "embedUrl": "https://www.youtube.com/embed/NjthLLyx964",
-                          "contentUrl": "https://www.youtube.com/watch?v=NjthLLyx964",
-                          "duration": "PT4H0M0S",
-                          "isFamilyFriendly": true
-                        },
-                        {
-                          "@type": "Event",
-                          "name": "Param Vir Chakra – Shaurya Gatha Live Stream / परमवीर चक्र – शौर्यगाथा लाइव",
-                          "startDate": "2026-08-09T09:00:00+05:30",
-                          "endDate": "2026-08-09T13:00:00+05:30",
-                          "eventStatus": "https://schema.org/EventScheduled",
-                          "eventAttendanceMode": "https://schema.org/OnlineEventAttendanceMode",
-                          "location": {
-                            "@type": "VirtualLocation",
-                            "url": "https://vardhmancreativestudio.com/pvclive"
-                          },
-                          "image": [
-                            "https://vardhmancreativestudio.com/assets/param-vir-chakra-live.jpg?v=4"
-                          ],
-                          "description": "Watch the live online streaming of Param Vir Chakra – Shaurya Gatha. Live from Dinesh Hall, Navrangpura, Ahmedabad.",
-                          "organizer": {
-                            "@type": "Organization",
-                            "name": "Vardhman Creative Studio",
-                            "url": "https://vardhmancreativestudio.com"
-                          }
-                        }
-                      ]
-                    })}
-                </script>
-            </Helmet>
-
-            <Helmet>
-                <style>{`
-                    .loader-ring {
-                        position: absolute;
-                        inset: 0;
-                        border: 3px solid transparent;
-                        border-radius: 50%;
-                        animation: spin 1.5s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-                    }
-                    @keyframes spin {
-                        0% { transform: rotate(0deg); }
-                        100% { transform: rotate(360deg); }
-                    }
-                `}</style>
-            </Helmet>
-
-            <div 
-                className="absolute inset-0 bg-cover bg-center filter blur-[40px] brightness-[0.25] scale-[1.1] -z-10"
-                style={{ backgroundImage: "url('/assets/param-vir-chakra-live.jpg')" }}
-            />
-
-            <div className="flex flex-col items-center p-10 rounded-[24px] bg-[#040b14]/60 border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-xl max-w-[420px] w-[85%] text-center animate-in fade-in slide-in-from-bottom-2 duration-700">
-                <div className="relative w-16 h-16 mb-6">
-                    <div className="loader-ring border-t-[#ff9933] -delay-300 shadow-[0_0_15px_rgba(255,153,51,0.2)]" />
-                    <div className="loader-ring border-t-white -delay-150 inset-[6px]" />
-                    <div className="loader-ring border-t-[#138808] inset-[12px] shadow-[0_0_15px_rgba(19,136,8,0.2)]" />
-                </div>
-                
-                <h1 className="text-xl font-bold bg-gradient-to-r from-white to-indigo-200 bg-clip-text text-transparent mb-1.5">
-                    प्रवेश किया जा रहा है...
-                </h1>
-                <p className="text-xs text-white/50 tracking-wider uppercase font-semibold mb-5">
-                    Entering Live Experience
-                </p>
-                
-                <a 
-                    href="https://www.youtube.com/watch?v=NjthLLyx964" 
-                    onClick={openYouTube}
-                    className="inline-flex items-center justify-center text-xs font-bold text-[#040b14] no-underline px-6 py-3 rounded-xl bg-gradient-to-r from-[#ff9933] to-[#ff5500] shadow-[0_8px_24px_rgba(255,85,0,0.3)] hover:scale-[1.03] hover:shadow-[0_12px_30px_rgba(255,85,0,0.45)] transition-all duration-300 mb-4 uppercase tracking-wider"
-                >
-                    Open in YouTube App / यूट्यूब ऐप में खोलें
-                </a>
-                
-                <a 
-                    href="https://www.youtube.com/watch?v=NjthLLyx964" 
-                    className="text-[11px] text-white/45 no-underline px-4 py-2 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 hover:text-[#ff9933] hover:border-[#ff9933]/30 transition-all duration-300"
-                >
-                    Open in Browser / ब्राउज़र में देखें
-                </a>
-            </div>
+  return (
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#040b14] px-5 py-16 text-white">
+      <Helmet>
+        <title>Param Vir Chakra – Shaurya Gatha | Event Recording</title>
+        <meta name="description" content="The Param Vir Chakra – Shaurya Gatha event has concluded. Open its programme recording on YouTube." />
+        <link rel="canonical" href="https://vardhmancreativestudio.com/pvclive" />
+        <meta property="og:type" content="video.other" />
+        <meta property="og:title" content="Param Vir Chakra – Shaurya Gatha | Event Recording" />
+        <meta property="og:description" content="The event has concluded. Watch the programme recording on YouTube." />
+        <meta property="og:url" content="https://vardhmancreativestudio.com/pvclive" />
+        <meta property="og:image" content="https://vardhmancreativestudio.com/assets/param-vir-chakra-live.jpg?v=4" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
+      </Helmet>
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_20%,rgba(255,153,51,0.14),transparent_55%),radial-gradient(ellipse_at_50%_100%,rgba(19,136,8,0.12),transparent_45%)]" />
+      <section className="relative w-full max-w-2xl rounded-3xl border border-white/10 bg-[#07111f]/90 p-7 text-center shadow-2xl sm:p-12" aria-labelledby="pvclive-title">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#ffb66b]">Param Vir Chakra · Shaurya Gatha</p>
+        <h1 id="pvclive-title" className="text-3xl font-bold leading-tight sm:text-5xl">कार्यक्रम संपन्न हुआ</h1>
+        <p className="mt-3 text-xl text-white/75 sm:text-2xl">The event has concluded</p>
+        <p className="mx-auto mt-6 max-w-xl text-base leading-7 text-white/65">
+          Watch the programme recording on YouTube. The video opens only when you choose the button below.
+        </p>
+        <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+          <a href={videoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 items-center justify-center rounded-xl bg-[#ff9933] px-6 py-3 font-bold text-[#10131a] transition hover:bg-[#ffad55] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+            YouTube पर रिकॉर्डिंग देखें · Watch recording
+          </a>
+          <Link to="/param-vir-chakra" className="inline-flex min-h-12 items-center justify-center rounded-xl border border-white/20 px-6 py-3 font-semibold text-white transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+            कार्यक्रम की जानकारी · Event details
+          </Link>
         </div>
-    );
+        <p className="mt-6 text-sm text-white/45">9 August 2026 · Ahmedabad</p>
+      </section>
+    </main>
+  );
 }

@@ -9,8 +9,8 @@ export default function PrivacyPolicyPage() {
   return (
     <>
       <Helmet>
-        <title>Privacy Policy & Terms - Param Vir Chakra Shaurya Gatha</title>
-        <meta name="description" content="Official Privacy Policy and Terms & Conditions for Param Vir Chakra – Shaurya Gatha event organised by Shri Vardhman Shwetambar Murtipujak Jain Sangh." />
+        <title>Param Vir Chakra Event Privacy Notice & Terms (Archive) | Vardhman Creative Studio</title>
+        <meta name="description" content="Archived privacy notice and event terms for the Param Vir Chakra – Shaurya Gatha programme held on 9 August 2026. See the current Vardhman Creative Studio privacy policy for ongoing website services." />
       </Helmet>
 
       <main className="min-h-screen bg-[#050b14] text-white relative py-12 px-5 lg:px-8">
@@ -35,13 +35,16 @@ export default function PrivacyPolicyPage() {
                 <ShieldCheck className="h-8 w-8 stroke-[1.8]" />
               </span>
             </div>
-            <h1 className="text-center font-serif text-3xl font-bold tracking-tight text-white md:text-5xl">Privacy Policy & Terms</h1>
-            <p className="text-center text-sm font-bold uppercase tracking-[0.2em] text-[#ff9933] mt-3">गोपनीयता नीति एवं नियम-शर्तें</p>
-            <p className="text-center text-white/50 text-xs mt-4">Last Updated: July 2026</p>
+            <h1 className="text-center font-serif text-3xl font-bold tracking-tight text-white md:text-5xl">Event Privacy Notice & Terms</h1>
+            <p className="text-center text-sm font-bold uppercase tracking-[0.2em] text-[#ff9933] mt-3">परमवीर चक्र कार्यक्रम · संग्रहित सूचना</p>
+            <p className="text-center text-white/50 text-xs mt-4">Event held: 9 August 2026 · Archived event notice</p>
           </div>
 
           {/* Content Card */}
           <div className="rounded-3xl border border-white/5 bg-[#0a1120]/40 p-8 md:p-10 space-y-8 backdrop-blur-md">
+            <div className="rounded-2xl border border-[#ff9933]/20 bg-[#ff9933]/5 p-5 text-sm leading-relaxed text-white/75">
+              This notice is retained for the completed Param Vir Chakra – Shaurya Gatha event and its registrations. For current Vardhman Creative Studio website and service privacy information, read the <Link to="/privacy" className="font-semibold text-[#ffbd72] underline underline-offset-4">current Privacy Policy</Link>.
+            </div>
             <div>
               <h2 className="font-serif text-xl font-bold text-white mb-3">1. Information We Collect</h2>
               <p className="text-white/70 leading-relaxed text-sm">
