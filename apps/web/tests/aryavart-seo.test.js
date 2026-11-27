@@ -25,3 +25,11 @@ test('Aryavart route emits share metadata and a crawlable book fallback', async 
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+test('pre-rendered Aryavart path is internally served before slash normalization', async () => {
+  const rules = await readFile(new URL('../public/.htaccess', import.meta.url), 'utf8');
+  const routeRule = rules.indexOf('RewriteRule ^aryavart-ka-gaurav/?$ aryavart-ka-gaurav/index.html [END]');
+  const slashRule = rules.indexOf('RewriteRule ^(.*)/$ /$1 [R=301,L]');
+  assert.ok(routeRule >= 0, 'the physical directory is internally mapped to its static index');
+  assert.ok(slashRule > routeRule, 'route mapping runs before generic trailing-slash redirects');
+});
