@@ -6,6 +6,10 @@
 	RewriteCond %{THE_REQUEST} \s[^?]*//
 	RewriteRule ^(.*)$ /$1 [R=301,L]
 
+	# Serve the pre-rendered book route directly so the directory slash policy
+	# cannot alternate between /aryavart-ka-gaurav and /aryavart-ka-gaurav/.
+	RewriteRule ^aryavart-ka-gaurav/?$ aryavart-ka-gaurav/index.html [END]
+
 	# Remove trailing slash except for directories
 	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteRule ^(.*)/$ /$1 [R=301,L]
