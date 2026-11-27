@@ -174,6 +174,7 @@ export function createApp({updhanRouter,leadRouter,legacyLeadRouter,store,config
     res.set({'Cache-Control':'private, no-store, max-age=0, must-revalidate','CDN-Cache-Control':'no-store','Surrogate-Control':'no-store','Referrer-Policy':'no-referrer','X-Robots-Tag':'noindex, nofollow'});
     res.sendFile('admin/updhan/index.html',{root:staticDirectory});
   });
+  app.get(['/aryavart-ka-gaurav','/aryavart-ka-gaurav/index.html'],(req,res)=>res.sendFile('aryavart-ka-gaurav/index.html',{root:staticDirectory}));
   for(const route of ['/500-akhand-ayambil-vijayollas','/500-akhand-ayambil-vijayollas/manan-sanghvi','/500-akhand-ayambil-vijayollas/sairam-dave']) app.get(route,(req,res)=>res.sendFile(route.slice(1)+'/index.html',{root:staticDirectory}));
   app.use(express.static(staticDirectory,{index:false}));
   app.get('/{*path}',(req,res)=>res.sendFile('index.html',{root:staticDirectory}));
