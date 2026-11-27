@@ -15,8 +15,13 @@ test('Aryavart route emits share metadata and a crawlable book fallback', async 
     assert.match(html, /<meta property="og:title" content="आर्यावर्त का गौरव/);
     assert.match(html, /<meta property="og:image" content="https:\/\/vardhmancreativestudio\.com\/assets\/aryavart-ka-gaurav-cover\.png"/);
     assert.match(html, /<meta name="twitter:card" content="summary_large_image"/);
+    const shareDescriptions = [...html.matchAll(/<meta (?:name="description"|property="og:description"|name="twitter:description") content="([^"]*)"/g)].map((match) => match[1]);
+    assert.equal(shareDescriptions.length, 3);
+    assert.ok(shareDescriptions.every((text) => text.includes('100-पृष्ठों') && text.includes('विशेष भाषाई प्रयोग')));
+    assert.ok(shareDescriptions.every((text) => !text.includes('₹')));
     assert.match(html, /<link data-react-helmet="true" rel="canonical" href="https:\/\/vardhmancreativestudio\.com\/aryavart-ka-gaurav"/);
     assert.match(html, /लेखक · मुनिश्री श्रमणचंद्रसागरजी महाराज साहेब/);
+    assert.match(html, /₹300/);
     const jsonLd = html.match(/<script[^>]*type="application\/ld\+json">([\s\S]*?)<\/script>/)?.[1];
     assert.ok(jsonLd, 'Book JSON-LD should be present in the static HTML');
     assert.equal(JSON.parse(jsonLd)['@type'], 'Book');
