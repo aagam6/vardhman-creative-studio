@@ -3,7 +3,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 const origin = 'https://vardhmancreativestudio.com';
 const route = '/aryavart-ka-gaurav';
 const title = 'आर्यावर्त का गौरव | मुनिश्री श्रमणचंद्रसागरजी महाराज साहेब ‘यशोनंदन’';
-const description = 'पाँच ओष्ठ्य वर्ण प, फ, ब, भ और म का प्रयोग किए बिना रची गई 100-पृष्ठों की सचित्र हिंदी पुस्तक। लेखक, पुस्तक विवरण, ₹300 मूल्य और प्राप्ति स्थान देखें।';
+const description = 'पाँच ओष्ठ्य वर्णों के बिना रची गई 100-पृष्ठों की सचित्र हिंदी कृति। ‘आर्यावर्त का गौरव’ के विशेष भाषाई प्रयोग और लेखक के बारे में जानें।';
 const imagePath = '/assets/aryavart-ka-gaurav-cover.png';
 const image = origin + imagePath;
 const url = origin + route;
