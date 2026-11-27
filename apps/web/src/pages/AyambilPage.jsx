@@ -9,11 +9,10 @@ import { ArrowDown, ArrowUpRight, CalendarDays, MapPin, Clock } from 'lucide-rea
 import { AyambilFooter, EveningRegistrationChoices, PerformerPortrait, VenueCard, MananBeneficiaries, SairamBeneficiaries } from '@/components/AyambilEventDetails.jsx';
 import { contactConfig } from '@/lib/contactConfig';
 import { ayambilProgramme, ayambilBrochure } from '@/lib/ayambilProgramme';
-import '@/components/AyambilRegistration.css';
 import './AyambilPage.css';
 
 const canonical = `${contactConfig.orgWebsite}/500-akhand-ayambil-vijayollas`;
-const description = '500 Akhand Ayambil Tap — વિજયોત્સવ, 2–4 November 2026 in Ahmedabad. Explore Bhakti Sandhya with Manan Sanghvi, a special presentation by Sairam Dave, and Parna Mahotsav.';
+const description = 'The 500 Akhand Ayambil Tap Vijayollas was held in Ahmedabad on 2–4 November 2026. Browse the event programme and archive.';
 
 function Ornament() {
   return <div className="ay-ornament" aria-hidden="true"><span />✧<span /></div>;
@@ -53,7 +52,7 @@ export default function AyambilPage() {
     <div className="ay-announcement">A celebration of devotion & perseverance <span>2–4 November 2026 · Ahmedabad</span></div>
     <header className="ay-header ay-container">
       <Link to="/" className="ay-brand"><img src="/assets/logo.png" width="40" height="40" alt="" /><span>VARDHMAN<small>CREATIVE STUDIO</small></span></Link>
-      <nav aria-label="Event navigation"><a href="#ay-about">Celebration / ઉજવણી</a><a href="#ay-programme">Programme / કાર્યક્રમ</a><a href="#ay-registration">Register / રજિસ્ટ્રેશન</a><a href="#ay-venues">Venues / સ્થળો <ArrowUpRight size={14} aria-hidden="true" /></a></nav>
+      <nav aria-label="Event navigation"><a href="#ay-about">Celebration / ઉજવણી</a><a href="#ay-programme">Programme / કાર્યક્રમ</a><a href="#ay-registration">Archive / કાર્યક્રમનો સંગ્રહ</a><a href="#ay-venues">Venues / સ્થળો <ArrowUpRight size={14} aria-hidden="true" /></a></nav>
     </header>
     <main id="ay-main">
       <section className="ay-hero ay-container" aria-labelledby="ay-heading">
@@ -64,10 +63,10 @@ export default function AyambilPage() {
           
           <p className="ay-gujarati ay-subtitle" lang="gu">૫૦૦ અખંડ આયંબિલ તપનો વિજયોત્સવ</p>
           <h2 className="ay-hero-statement">A Sacred Milestone.<br />A Celebration of Devotion.</h2>
-          <p className="ay-hero-description">Join us for two special evenings of devotion, celebration and memorable presentations marking this important milestone.</p>
-          <p lang="gu" className="ay-hero-description">આ ખાસ અવસરની ઉજવણીમાં જોડાઓ. ભક્તિ, આનંદ અને યાદગાર કાર્યક્રમોથી ભરેલી બે ખાસ સાંજ તમારી રાહ જોઈ રહી છે.</p>
+          <p className="ay-hero-description">The celebration brought together two evenings of devotion, special presentations and the Parna Mahotsav.</p>
+          <p lang="gu" className="ay-hero-description">આ વિજયોત્સવમાં ભક્તિ સંધ્યા, વિશેષ પ્રસ્તુતિઓ અને પારણાં મહોત્સવ યોજાયા હતા.</p>
           <div className="ay-facts"><span><CalendarDays size={17} aria-hidden="true" />2–4 November 2026</span><span><MapPin size={17} aria-hidden="true" />Ahmedabad, Gujarat</span></div>
-          <div className="ay-hero-actions"><a className="ay-button ay-button-outline" href="#ay-programme" onClick={explore}>Explore the Programmes / કાર્યક્રમો જુઓ <ArrowDown size={17} aria-hidden="true" /></a><a className="ay-button" href="#ay-registration">Free Evening Registration / ફ્રી રજિસ્ટ્રેશન</a></div>
+          <div className="ay-hero-actions"><a className="ay-button ay-button-outline" href="#ay-programme" onClick={explore}>Explore the Programme / કાર્યક્રમો જુઓ <ArrowDown size={17} aria-hidden="true" /></a><a className="ay-button" href="#ay-registration">Event archive · Registration closed / કાર્યક્રમ પૂર્ણ · રજિસ્ટ્રેશન બંધ</a></div>
         </div>
         <figure className="ay-invitation"><div className="ay-image-frame"><img src="/assets/ayambil/invitation-20261013.jpeg" alt="Original Gujarati invitation celebrating the 500 Akhand Ayambil Tap of two Jain Munivars" width="950" height="950" fetchPriority="high" /></div><figcaption>THE ORIGINAL INVITATION <span>૫૦૦ અખંડ આયંબિલ · વિજયોત્સવ</span></figcaption></figure>
       </section>
